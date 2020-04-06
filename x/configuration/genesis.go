@@ -3,17 +3,18 @@ package configuration
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/iovnsd/x/configuration/types"
 )
 
 // GenesisState is used to unmarshal the genesis state
 // when the app is initialized, and it is used to marshal
 // the state when it needs to be exported.
 type GenesisState struct {
-	Config Config `json:"config"`
+	Config types.Config `json:"config"`
 }
 
 // NewGenesisState is GenesisState constructor
-func NewGenesisState(conf Config) GenesisState {
+func NewGenesisState(conf types.Config) GenesisState {
 	return GenesisState{
 		Config: conf,
 	}
@@ -46,7 +47,7 @@ func ValidateGenesis(data GenesisState) error {
 
 // DefaultGenesisState returns the default genesis state
 func DefaultGenesisState() GenesisState {
-	return GenesisState{Config: Config{
+	return GenesisState{Config: types.Config{
 		Owner:                  nil,
 		ValidDomain:            "",
 		ValidName:              "",

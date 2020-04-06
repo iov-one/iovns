@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
 	"github.com/iov-one/iovnsd/x/configuration/client/cli"
+	"github.com/iov-one/iovnsd/x/configuration/types"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -22,7 +23,7 @@ var (
 // AppModuleBasic implements the AppModuleBasic interface of the cosmos-sdk
 type AppModuleBasic struct{}
 
-func (AppModuleBasic) Name() string                   { return ModuleName }
+func (AppModuleBasic) Name() string                   { return types.ModuleName }
 func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { RegisterCodec(cdc) }
 func (AppModuleBasic) DefaultGenesis() json.RawMessage {
 	return ModuleCdc.MustMarshalJSON(DefaultGenesisState)
@@ -41,7 +42,7 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Rou
 }
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command { return cli.GetTxCmd(cdc) }
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(StoreKey, cdc)
+	return cli.GetQueryCmd(types.StoreKey, cdc)
 }
 
 // - - FILL APP MODULE - -
@@ -56,10 +57,10 @@ func NewAppModule(k Keeper) AppModule {
 		keeper:         k,
 	}
 }
-func (AppModule) Name() string                                       { return ModuleName }
+func (AppModule) Name() string                                       { return types.ModuleName }
 func (AppModule) RegisterInvariants(_ sdk.InvariantRegistry)         {}
-func (AppModule) Route() string                                      { return RouterKey }
-func (AppModule) QuerierRoute() string                               { return QuerierRoute }
+func (AppModule) Route() string                                      { return types.RouterKey }
+func (AppModule) QuerierRoute() string                               { return types.QuerierRoute }
 func (AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 func (AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}

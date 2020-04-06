@@ -1,16 +1,14 @@
 package configuration
 
-// ModuleConst
-const (
-	// ModuleName defines the name of the module
-	ModuleName = "configuration"
-	// StoreKey is the key used to identify the module in the KVStore
-	StoreKey = ModuleName
-	// RouterKey is the key used to process transactions for the module
-	RouterKey = ModuleName
-	// QuerierRoute is used to process queries for the module
-	QuerierRoute = ModuleName
-)
+import "github.com/iov-one/iovnsd/x/configuration/types"
 
-// Query Routes const
-const QueryConfig = "configuration"
+// alias for types
+
+type Config = types.Config
+
+// alias for consts
+const ModuleName = types.ModuleName
+const RouterKey = types.RouterKey
+const QuerierRoute = types.QuerierRoute
+const QueryConfig = types.QueryConfig
+const StoreKey = types.StoreKey
