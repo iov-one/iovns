@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"github.com/iov-one/iovnsd/x/configuration"
 	"io"
 	"os"
 
@@ -34,18 +35,13 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 )
 
-const appName = "app"
+const appName = "iovns"
 
 var (
-	// TODO: rename your cli
-
 	// DefaultCLIHome default home directories for the application CLI
-	DefaultCLIHome = os.ExpandEnv("$HOME/.appcli")
-
-	// TODO: rename your daemon
-
+	DefaultCLIHome = os.ExpandEnv("$HOME/.iovnscli")
 	// DefaultNodeHome sets the folder where the applcation data and configuration will be stored
-	DefaultNodeHome = os.ExpandEnv("$HOME/.appd")
+	DefaultNodeHome = os.ExpandEnv("$HOME/.iovnsd")
 
 	// ModuleBasics The module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
@@ -64,7 +60,8 @@ var (
 		supply.AppModuleBasic{},
 		upgrade.AppModuleBasic{},
 		evidence.AppModuleBasic{},
-		// TODO: Add your module(s) AppModuleBasic
+		// iovns modules
+		configuration.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -91,8 +88,8 @@ func MakeCodec() *codec.Codec {
 	return cdc.Seal()
 }
 
-// NewApp extended ABCI application
-type NewApp struct {
+// IOVNS is the internet of values name service application
+type IOVNS struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
@@ -118,8 +115,8 @@ type NewApp struct {
 	paramsKeeper   params.Keeper
 	upgradeKeeper  upgrade.Keeper
 	evidenceKeeper evidence.Keeper
-	// TODO: Add your module(s)
-
+	// iovns keepers
+	configurationKeeper configuration.Keeper
 	// Module Manager
 	mm *module.Manager
 
@@ -128,13 +125,13 @@ type NewApp struct {
 }
 
 // verify app interface at compile time
-var _ simapp.App = (*NewApp)(nil)
+var _ simapp.App = (*IOVNS)(nil)
 
-// NewbnsdApp is a constructor function for bnsdApp
-func NewInitApp(
+// NewIOVNS is a constructor for IOVNS
+func NewIOVNS(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
 	invCheckPeriod uint, skipUpgradeHeights map[int64]bool, baseAppOptions ...func(*bam.BaseApp),
-) *NewApp {
+) *IOVNS {
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
 
@@ -143,16 +140,17 @@ func NewInitApp(
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
 
-	// TODO: Add the keys that module requires
 	keys := sdk.NewKVStoreKeys(
 		bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
 		gov.StoreKey, params.StoreKey, evidence.StoreKey, upgrade.StoreKey,
+		// iovns store keys
+		configuration.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
 	// Here you initialize your application with the store keys it requires
-	var app = &NewApp{
+	var app = &IOVNS{
 		BaseApp:        bApp,
 		cdc:            cdc,
 		invCheckPeriod: invCheckPeriod,
@@ -269,8 +267,12 @@ func NewInitApp(
 			app.slashingKeeper.Hooks(),
 		),
 	)
-
-	// TODO: Add your module(s) keepers
+	// iovns keepers
+	app.configurationKeeper = configuration.NewKeeper(
+		app.cdc,
+		keys[configuration.StoreKey],
+		nil,
+	)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -284,7 +286,9 @@ func NewInitApp(
 		mint.NewAppModule(app.mintKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
-		// TODO: Add your module(s)
+		// iovns modules
+		configuration.NewAppModule(app.configurationKeeper),
+		// iovns modules - end
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
 		evidence.NewAppModule(app.evidenceKeeper),
@@ -307,7 +311,9 @@ func NewInitApp(
 		slashing.ModuleName,
 		gov.ModuleName,
 		mint.ModuleName,
-		// TODO: Add your module(s)
+		// iovns module start
+		configuration.ModuleName,
+		// iovns module end
 		supply.ModuleName,
 		crisis.ModuleName,
 		genutil.ModuleName,
@@ -344,7 +350,9 @@ func NewInitApp(
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
-		// TODO: Add your module(s)
+		// iovns module start
+		// TODO: configuration.NewAppModule(app.configurationKeeper),
+		// iovns module end
 	)
 
 	app.sm.RegisterStoreDecoders()
@@ -372,7 +380,7 @@ func NewDefaultGenesisState() GenesisState {
 }
 
 // InitChainer application update at chain initialization
-func (app *NewApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *IOVNS) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 
 	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
@@ -381,22 +389,22 @@ func (app *NewApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.
 }
 
 // BeginBlocker application updates every begin block
-func (app *NewApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *IOVNS) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
 // EndBlocker application updates every end block
-func (app *NewApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *IOVNS) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
 // LoadHeight loads a particular height
-func (app *NewApp) LoadHeight(height int64) error {
+func (app *IOVNS) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *NewApp) ModuleAccountAddrs() map[string]bool {
+func (app *IOVNS) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[supply.NewModuleAddress(acc).String()] = true
@@ -406,12 +414,12 @@ func (app *NewApp) ModuleAccountAddrs() map[string]bool {
 }
 
 // Codec returns the application's sealed codec.
-func (app *NewApp) Codec() *codec.Codec {
+func (app *IOVNS) Codec() *codec.Codec {
 	return app.cdc
 }
 
 // SimulationManager implements the SimulationApp interface
-func (app *NewApp) SimulationManager() *module.SimulationManager {
+func (app *IOVNS) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 
