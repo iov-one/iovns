@@ -3,13 +3,13 @@ package cli
 import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/iov-one/iovnsd/x/domain/internal/keeper"
+	"github.com/iov-one/iovnsd/x/domain/keeper"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/iov-one/iovnsd/x/domain/internal/types"
+	"github.com/iov-one/iovnsd/x/domain/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module
@@ -45,7 +45,6 @@ func GetCmdQueryDomain(route string, cdc *codec.Codec) *cobra.Command {
 			name := args[0]
 			path := fmt.Sprintf("custom/%s/%s/%s", route, keeper.QueryDomain, name)
 			resp, _, err := cliCtx.Query(path)
-			cliCtx.BroadcastTx()
 			if err != nil {
 				fmt.Printf("could not get domain information - %s", name)
 				fmt.Printf("error: %s", err)

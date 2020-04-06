@@ -8,7 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	"github.com/iov-one/iovnsd/x/domain/internal/types"
+	"github.com/iov-one/iovnsd/x/domain/types"
 )
 
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {

@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/iovnsd/x/account"
-	"github.com/iov-one/iovnsd/x/domain/internal/types"
+	"github.com/iov-one/iovnsd/x/domain/types"
 	"regexp"
 	"time"
 )
@@ -18,12 +18,12 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegist
 	}
 	// if domain does not exist then check if we can register it
 	// check if name is valid based on the configuration saved in the state
-	if !regexp.MustCompile(keeper.ConfKeeper.GetValidDomainRegexp(ctx)).MatchString(msg.Name) {
+	if !regexp.MustCompile(keeper.ConfigurationKeeper.GetValidDomainRegexp(ctx)).MatchString(msg.Name) {
 		err = sdkerrors.Wrap(types.ErrInvalidDomainName, msg.Name)
 		return
 	}
 	// if domain has super user then admin must be configuration owner
-	if !msg.HasSuperuser && !msg.Admin.Equals(keeper.ConfKeeper.GetOwner(ctx)) {
+	if !msg.HasSuperuser && !msg.Admin.Equals(keeper.ConfigurationKeeper.GetOwner(ctx)) {
 		err = sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to register a domain without a superuser", msg.Admin)
 		return
 	}
@@ -31,7 +31,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegist
 	domain := types.Domain{
 		Name:         msg.Name,
 		Admin:        msg.Admin,
-		ValidUntil:   ctx.BlockTime().Add(keeper.ConfKeeper.GetDomainRenewDuration(ctx)).Unix(),
+		ValidUntil:   ctx.BlockTime().Add(keeper.ConfigurationKeeper.GetDomainRenewDuration(ctx)).Unix(),
 		HasSuperuser: false,
 		AccountRenew: time.Duration(msg.AccountRenew) * time.Second,
 		Broker:       msg.Broker,
@@ -49,7 +49,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegist
 		Broker:       nil, // TODO ??
 	}
 	// save account
-	keeper.AccKeeper.SetAccount(ctx, acc)
+	keeper.AccountKeeper.SetAccount(ctx, acc)
 	// success TODO think here, can we emit any useful event
 	return &sdk.Result{
 		Data:   nil,

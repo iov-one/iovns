@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd/x/domain/internal/types"
+	"github.com/iov-one/iovnsd/x/domain/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
 // Keeper of the domain store
 type Keeper struct {
 	// external keepers
-	ConfKeeper types.ConfigurationKeeper
-	AccKeeper  types.AccountKeeper
+	ConfigurationKeeper types.ConfigurationKeeper
+	AccountKeeper       types.AccountKeeper
 	// default fields
 	storeKey   sdk.StoreKey
 	cdc        *codec.Codec
@@ -20,11 +20,13 @@ type Keeper struct {
 }
 
 // NewKeeper creates a domain keeper
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace types.ParamSubspace) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, accountKeeper types.AccountKeeper, configKeeper types.ConfigurationKeeper, paramspace types.ParamSubspace) Keeper {
 	keeper := Keeper{
-		storeKey:   key,
-		cdc:        cdc,
-		paramspace: paramspace.WithKeyTable(types.ParamKeyTable()),
+		storeKey:            key,
+		cdc:                 cdc,
+		ConfigurationKeeper: configKeeper,
+		AccountKeeper:       accountKeeper,
+		paramspace:          paramspace.WithKeyTable(types.ParamKeyTable()),
 	}
 	return keeper
 }
