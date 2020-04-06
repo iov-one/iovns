@@ -3,7 +3,7 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
-	"github.com/iov-one/bnsd/x/account"
+	"github.com/iov-one/iovnsd/x/account"
 	"time"
 )
 

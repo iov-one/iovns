@@ -7,7 +7,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/bnsd/x/account/internal/types"
+	"github.com/iov-one/iovnsd/x/account/internal/types"
 )
 
 // GetParams returns the total set of account parameters.

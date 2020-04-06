@@ -8,7 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/bnsd/x/account/internal/types"
+	"github.com/iov-one/iovnsd/x/account/internal/types"
 )
 
 // Keeper of the account store

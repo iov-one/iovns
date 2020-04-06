@@ -24,7 +24,7 @@ import (
 	"github.com/tendermint/go-amino"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/iov-one/bnsd/app"
+	"github.com/iov-one/iovnsd/app"
 )
 
 func main() {

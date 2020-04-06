@@ -12,8 +12,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/iov-one/bnsd/x/domain/client/cli"
-	"github.com/iov-one/bnsd/x/domain/client/rest"
+	"github.com/iov-one/iovnsd/x/domain/client/cli"
+	"github.com/iov-one/iovnsd/x/domain/client/rest"
 )
 
 // Type check to ensure the interface is properly implemented

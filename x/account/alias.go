@@ -1,8 +1,8 @@
 package account
 
 import (
-	"github.com/iov-one/bnsd/x/account/internal/keeper"
-	"github.com/iov-one/bnsd/x/account/internal/types"
+	"github.com/iov-one/iovnsd/x/account/internal/keeper"
+	"github.com/iov-one/iovnsd/x/account/internal/types"
 )
 
 const (

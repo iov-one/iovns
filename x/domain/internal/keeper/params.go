@@ -7,7 +7,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/bnsd/x/domain/internal/types"
+	"github.com/iov-one/iovnsd/x/domain/internal/types"
 )
 
 // GetParams returns the total set of domain parameters.

@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/bnsd/x/domain/internal/types"
+	"github.com/iov-one/iovnsd/x/domain/internal/types"
 )
 
 // the list of query endpoints supported

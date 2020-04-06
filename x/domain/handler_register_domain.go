@@ -3,8 +3,8 @@ package domain
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/bnsd/x/account"
-	"github.com/iov-one/bnsd/x/domain/internal/types"
+	"github.com/iov-one/iovnsd/x/account"
+	"github.com/iov-one/iovnsd/x/domain/internal/types"
 	"regexp"
 	"time"
 )

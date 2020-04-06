@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/iov-one/bnsd/x/domain/internal/types"
+	"github.com/iov-one/iovnsd/x/domain/internal/types"
 )
 
 // GetTxCmd returns the transaction commands for this module

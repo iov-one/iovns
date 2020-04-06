@@ -3,13 +3,13 @@ package cli
 import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/iov-one/bnsd/x/domain/internal/keeper"
+	"github.com/iov-one/iovnsd/x/domain/internal/keeper"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/iov-one/bnsd/x/domain/internal/types"
+	"github.com/iov-one/iovnsd/x/domain/internal/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

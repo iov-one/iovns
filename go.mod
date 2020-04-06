@@ -1,4 +1,4 @@
-module github.com/iov-one/bnsd
+module github.com/iov-one/iovnsd
 
 go 1.13
 

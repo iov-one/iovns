@@ -1,8 +1,8 @@
 package domain
 
 import (
-	"github.com/iov-one/bnsd/x/domain/internal/keeper"
-	"github.com/iov-one/bnsd/x/domain/internal/types"
+	"github.com/iov-one/iovnsd/x/domain/internal/keeper"
+	"github.com/iov-one/iovnsd/x/domain/internal/types"
 )
 
 const (
