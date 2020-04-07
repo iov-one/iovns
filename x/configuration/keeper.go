@@ -10,7 +10,7 @@ import (
 
 // configKey defines the key used for the configuration
 // since the configuration is only one the key will always be one
-const configKey = ""
+const configKey = "config"
 
 type paramSubspace interface {
 }
