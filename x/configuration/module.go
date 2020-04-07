@@ -30,7 +30,7 @@ func (AppModuleBasic) DefaultGenesis() json.RawMessage {
 }
 func (AppModuleBasic) ValidateGenesis(b json.RawMessage) (err error) {
 	var data GenesisState
-	err = ModuleCdc.UnmarshalJSON(b, data)
+	err = ModuleCdc.UnmarshalJSON(b, &data)
 	if err != nil {
 		return
 	}

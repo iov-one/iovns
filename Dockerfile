@@ -1,5 +1,6 @@
 FROM golang:1.14.1-alpine3.11
-
+ENV MONIKER=idk
+ENV HOME=/iovnsd
 WORKDIR /iovnsd
 # create build dir
 RUN mkdir /source
@@ -18,3 +19,5 @@ RUN mv appd /iovnsd/appd && mv appcli /iovnsd/appcli
 WORKDIR /iovnsd
 # delete build dir
 RUN rm -rf /source
+# copy utility scripts
+COPY ./scripts .
