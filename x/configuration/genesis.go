@@ -23,7 +23,7 @@ func NewGenesisState(conf types.Config) GenesisState {
 // ValidateGenesis makes sure that the genesis state is valid
 func ValidateGenesis(data GenesisState) error {
 	conf := data.Config
-	if conf.DomainRenew == 0 {
+	if conf.DomainRenew < 0 {
 		return fmt.Errorf("empty domain renew")
 	}
 	if conf.Owner == nil {
@@ -46,13 +46,14 @@ func ValidateGenesis(data GenesisState) error {
 }
 
 // DefaultGenesisState returns the default genesis state
+// TODO this needs to be updated, although it will be imported from iovns chain
 func DefaultGenesisState() GenesisState {
 	return GenesisState{Config: types.Config{
-		Owner:                  nil,
+		Owner:                  sdk.AccAddress{},
 		ValidDomain:            "/(.*?)/",
 		ValidName:              "/(.*?)/",
-		ValidBlockchainID:      "",
-		ValidBlockchainAddress: "",
+		ValidBlockchainID:      "/(.*?)/",
+		ValidBlockchainAddress: "/(.*?)/",
 		DomainRenew:            0,
 	}}
 }
