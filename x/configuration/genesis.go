@@ -49,8 +49,8 @@ func ValidateGenesis(data GenesisState) error {
 func DefaultGenesisState() GenesisState {
 	return GenesisState{Config: types.Config{
 		Owner:                  nil,
-		ValidDomain:            "",
-		ValidName:              "",
+		ValidDomain:            "/(.*?)/",
+		ValidName:              "/(.*?)/",
 		ValidBlockchainID:      "",
 		ValidBlockchainAddress: "",
 		DomainRenew:            0,
