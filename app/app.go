@@ -351,7 +351,7 @@ func NewIOVNS(
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 		// iovns module start
-		// TODO: configuration.NewAppModule(app.configurationKeeper),
+		// TODO configuration.NewAppModule(app.configurationKeeper),
 		// iovns module end
 	)
 

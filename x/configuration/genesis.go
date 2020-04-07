@@ -4,6 +4,7 @@ import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovnsd/x/configuration/types"
+	"regexp"
 )
 
 // GenesisState is used to unmarshal the genesis state
@@ -29,15 +30,14 @@ func ValidateGenesis(data GenesisState) error {
 	if conf.Owner == nil {
 		return fmt.Errorf("empty owner")
 	}
-	// TODO these must compile to regexp
-	if conf.ValidBlockchainAddress == "" {
-		return fmt.Errorf("empty valid blockchain address regexp")
+	if _, err := regexp.Compile(conf.ValidBlockchainAddress); err != nil {
+		return fmt.Errorf("empty valid blockchain address regexp: %w", err)
 	}
-	if conf.ValidBlockchainID == "" {
-		return fmt.Errorf("empty valid blockchain id regexp")
+	if _, err := regexp.Compile(conf.ValidBlockchainID); err != nil {
+		return fmt.Errorf("empty valid blockchain id regexp: %w", err)
 	}
-	if conf.ValidDomain == "" {
-		return fmt.Errorf("empty valid domain regexp")
+	if _, err := regexp.Compile(conf.ValidDomain); err != nil {
+		return fmt.Errorf("empty valid domain regexp: %w", err)
 	}
 	if conf.ValidName == "" {
 		return fmt.Errorf("empty valid name regexp")
@@ -50,10 +50,10 @@ func ValidateGenesis(data GenesisState) error {
 func DefaultGenesisState() GenesisState {
 	return GenesisState{Config: types.Config{
 		Owner:                  sdk.AccAddress{},
-		ValidDomain:            "/(.*?)/",
-		ValidName:              "/(.*?)/",
-		ValidBlockchainID:      "/(.*?)/",
-		ValidBlockchainAddress: "/(.*?)/",
+		ValidDomain:            "^(.*?)?",
+		ValidName:              "^(.*?)?",
+		ValidBlockchainID:      "^(.*?)?",
+		ValidBlockchainAddress: "^(.*?)?",
 		DomainRenew:            0,
 	}}
 }

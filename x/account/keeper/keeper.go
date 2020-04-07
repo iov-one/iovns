@@ -8,7 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd/x/account/internal/types"
+	"github.com/iov-one/iovnsd/x/account/types"
 )
 
 // Keeper of the account store
@@ -23,7 +23,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace types.ParamSubspac
 	keeper := Keeper{
 		storeKey:   key,
 		cdc:        cdc,
-		paramspace: paramspace.WithKeyTable(types.ParamKeyTable()),
+		paramspace: nil,
 	}
 	return keeper
 }
@@ -45,11 +45,16 @@ func (k Keeper) GetAccount(ctx sdk.Context, accountName string) (types.Account, 
 	return item, nil
 }
 
+func getAccountKey(a types.Account) []byte {
+	return []byte(a.Domain + "*" + a.Name)
+}
+
 // SetAccount sets the account
-func (k Keeper) SetAccount(ctx sdk.Context, key string, account types.Account) {
+func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
+	accountKey := getAccountKey(account)
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(account)
-	store.Set([]byte(key), bz)
+	store.Set(accountKey, bz)
 }
 
 func (k Keeper) delete(ctx sdk.Context, key string) {

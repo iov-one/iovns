@@ -1,22 +1,20 @@
 package keeper
 
 import (
-	"fmt"
-
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovnsd/x/account/internal/types"
+	"github.com/iov-one/iovnsd/x/account/types"
 )
 
 // NewQuerier creates a new querier for account clients.
 func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		case types.QueryParams:
+		// TODOCHANGE
+		case "TOODCHANGE":
 			return queryParams(ctx, k)
 			// TODO: Put the modules query routes
 		default:
@@ -26,9 +24,9 @@ func NewQuerier(k Keeper) sdk.Querier {
 }
 
 func queryParams(ctx sdk.Context, k Keeper) ([]byte, error) {
-	params := k.GetParams(ctx)
+	// params := k.GetParams(ctx)
 
-	res, err := codec.MarshalJSONIndent(types.ModuleCdc, params)
+	res, err := codec.MarshalJSONIndent(types.ModuleCdc, nil)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 	}

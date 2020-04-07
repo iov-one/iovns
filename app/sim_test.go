@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/iov-one/iovnsd/x/configuration"
 	"math/rand"
 	"os"
 	"testing"
@@ -154,7 +155,8 @@ func TestAppImportExport(t *testing.T) {
 		{app.keys[supply.StoreKey], newApp.keys[supply.StoreKey], [][]byte{}},
 		{app.keys[params.StoreKey], newApp.keys[params.StoreKey], [][]byte{}},
 		{app.keys[gov.StoreKey], newApp.keys[gov.StoreKey], [][]byte{}},
-		// TODO: Add your module(s)
+		// TODO personal keys
+		{app.keys[configuration.StoreKey], newApp.keys[configuration.StoreKey], [][]byte{}},
 	}
 
 	for _, skp := range storeKeysPrefixes {

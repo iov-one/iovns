@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovnsd/x/configuration/types"
 	"github.com/tendermint/tendermint/libs/log"
+	"time"
 )
 
 // configKey defines the key used for the configuration
@@ -44,6 +45,21 @@ func (k Keeper) GetConfiguration(ctx sdk.Context) types.Config {
 	k.cdc.MustUnmarshalBinaryBare(confBytes, &conf)
 	// success
 	return conf
+}
+
+// GetOwner returns the owner of domains with no superuser
+func (k Keeper) GetOwner(ctx sdk.Context) sdk.AccAddress {
+	return k.GetConfiguration(ctx).Owner
+}
+
+// GetDomainRenewDuration returns the duration of a domain renewal period
+func (k Keeper) GetDomainRenewDuration(ctx sdk.Context) time.Duration {
+	return time.Duration(k.GetConfiguration(ctx).DomainRenew) * time.Second
+}
+
+// GetValidDomainRegexp returns the regular expression used to match valid domain names
+func (k Keeper) GetValidDomainRegexp(ctx sdk.Context) string {
+	return k.GetConfiguration(ctx).ValidDomain
 }
 
 // SetConfig updates or saves a new config in the store

@@ -1,9 +1,12 @@
 package types
 
+/*
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
+
+*/
 
 // TODO: Describe your actions, these will implment the interface of `sdk.Msg`
 /*

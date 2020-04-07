@@ -26,7 +26,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, accountKeeper types.AccountKe
 		cdc:                 cdc,
 		ConfigurationKeeper: configKeeper,
 		AccountKeeper:       accountKeeper,
-		paramspace:          paramspace.WithKeyTable(types.ParamKeyTable()),
+		paramspace:          nil,
 	}
 	return keeper
 }

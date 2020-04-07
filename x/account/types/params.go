@@ -8,6 +8,7 @@ import (
 
 // Default parameter namespace
 const (
+	QueryParams       = ""
 	DefaultParamspace = ModuleName
 	// TODO: Define your default parameters
 )

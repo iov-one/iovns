@@ -2,7 +2,7 @@ package account
 
 import (
 	"fmt"
-	"github.com/iov-one/iovnsd/x/account/internal/types"
+	"github.com/iov-one/iovnsd/x/account/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
