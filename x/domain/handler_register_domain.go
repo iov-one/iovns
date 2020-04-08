@@ -22,7 +22,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegist
 		err = sdkerrors.Wrap(types.ErrInvalidDomainName, msg.Name)
 		return
 	}
-	// if domain has super user then admin must be configuration owner
+	// if domain has not a super user then admin must be configuration owner
 	if !msg.HasSuperuser && !msg.Admin.Equals(keeper.ConfigurationKeeper.GetOwner(ctx)) {
 		err = sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to register a domain without a superuser", msg.Admin)
 		return
@@ -32,9 +32,13 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegist
 		Name:         msg.Name,
 		Admin:        msg.Admin,
 		ValidUntil:   ctx.BlockTime().Add(keeper.ConfigurationKeeper.GetDomainRenewDuration(ctx)).Unix(),
-		HasSuperuser: false,
+		HasSuperuser: msg.HasSuperuser,
 		AccountRenew: time.Duration(msg.AccountRenew) * time.Second,
 		Broker:       msg.Broker,
+	}
+	// if domain has not a super user then remove domain admin
+	if !domain.HasSuperuser {
+		domain.Admin = nil
 	}
 	// save domain
 	keeper.SetDomain(ctx, domain)
