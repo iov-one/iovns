@@ -46,13 +46,11 @@ func GetCmdQueryDomain(route string, cdc *codec.Codec) *cobra.Command {
 			path := fmt.Sprintf("custom/%s/%s/%s", route, keeper.QueryDomain, name)
 			resp, _, err := cliCtx.Query(path)
 			if err != nil {
-				fmt.Printf("could not get domain information - %s", name)
-				fmt.Printf("error: %s", err)
-				return nil
+				return cliCtx.PrintOutput(fmt.Sprintf("could not get domain information for %s: %s", name, err))
 			}
-			var mrshl types.QueryResultDomain
-			cdc.MustUnmarshalJSON(resp, &mrshl)
-			return cliCtx.PrintOutput(mrshl)
+			var result types.QueryResultDomain
+			cdc.MustUnmarshalJSON(resp, &result)
+			return cliCtx.PrintOutput(result)
 		},
 	}
 }
