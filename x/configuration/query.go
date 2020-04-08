@@ -22,5 +22,5 @@ func NewQuerier(k Keeper) sdk.Querier {
 // queryConfig returns the configuration
 func queryConfig(ctx sdk.Context, _ abci.RequestQuery, k Keeper) ([]byte, error) {
 	config := k.GetConfiguration(ctx)
-	return ModuleCdc.MustMarshalJSON(config), nil
+	return ModuleCdc.MustMarshalJSON(types.QueryConfigResponse{Configuration: config}), nil
 }
