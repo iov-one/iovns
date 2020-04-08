@@ -42,7 +42,7 @@ func getCmdQueryConfig(route string, cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var jsonResp types.QueryConfigResponse // TODO make this a separate type
+			var jsonResp types.QueryConfigResponse
 			cdc.MustUnmarshalJSON(resp, &jsonResp)
 			return cliCtx.PrintOutput(jsonResp)
 		},
