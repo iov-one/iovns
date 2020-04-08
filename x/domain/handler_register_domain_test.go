@@ -19,7 +19,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				configSetter := getConfigSetter(k.ConfigurationKeeper)
 				// set config
 				configSetter.SetConfig(ctx, configuration.Config{
-					Owner:       nil,
+					Owner:       aliceAddr.GetAddress(),
 					ValidDomain: "^(.*?)?",
 				})
 			},
@@ -33,10 +33,28 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				if err != nil {
 					t.Fatalf("handleMsgRegisterDomain() with superuser, got error: %s", err)
 				}
-				// TODO register domain without superuser
+				// register domain without super user
+				_, err = handleMsgRegisterDomain(ctx, k, MsgRegisterDomain{
+					Name:         "domain-without-superuser",
+					Admin:        aliceAddr.GetAddress(),
+					HasSuperuser: false,
+					Broker:       nil,
+					AccountRenew: 20,
+				})
+				if err != nil {
+					t.Fatalf("handleMsgRegisterDomain() without superuser, got error: %s", err)
+				}
 			},
 			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				// TODO add check domains exists
+				// TODO do reflect.DeepEqual checks on expected results vs results returned
+				_, ok := k.GetDomain(ctx, "domain")
+				if !ok {
+					t.Fatalf("handleMsgRegisterDomain() could not find 'domain'")
+				}
+				_, ok = k.GetDomain(ctx, "domain-without-superuser")
+				if !ok {
+					t.Fatalf("handleMsgRegisterDomain() could not find 'domain-without-superuser'")
+				}
 			},
 		},
 		"fail domain name exists": {
