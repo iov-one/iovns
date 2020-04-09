@@ -34,3 +34,29 @@ func (k Keeper) IterateAllDomains(ctx sdk.Context) sdk.Iterator {
 	store := ctx.KVStore(k.domainKey)
 	return sdk.KVStorePrefixIterator(store, []byte{})
 }
+
+// DeleteDomain deletes the domain and the accounts in it
+// this operation can only fail in case the domain does not exist
+func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
+	_, exists = k.GetDomain(ctx, domainName)
+	if !exists {
+		return
+	}
+	// delete domain
+	domainStore := ctx.KVStore(k.domainKey)
+	domainStore.Delete([]byte(domainName))
+	// delete accounts, TODO do it efficiently with KVUtils
+	accountStore := ctx.KVStore(k.accountKey)
+	iterator := accountStore.Iterator(nil, nil)
+	var accountKeys [][]byte
+	for ; iterator.Valid(); iterator.Next() {
+		accountKeys = append(accountKeys, iterator.Key())
+	}
+	iterator.Close()
+	// delete account keys
+	for _, key := range accountKeys {
+		accountStore.Delete(key)
+	}
+	// done
+	return true
+}
