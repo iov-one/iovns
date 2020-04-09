@@ -1,7 +1,8 @@
-package account
+package keeper
 
 import (
 	"fmt"
+	"github.com/iov-one/iovnsd/x/account/types"
 	"github.com/iov-one/iovnsd/x/configuration"
 	domain "github.com/iov-one/iovnsd/x/domain/types"
 
@@ -9,7 +10,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd/x/account/types"
 )
 
 // expected keepers
@@ -27,8 +27,8 @@ type Keeper struct {
 	cdc        *codec.Codec
 	paramspace types.ParamSubspace
 	// external keepers
-	configKeeper configurationKeeper
-	domainKeeper domainKeeper
+	ConfigKeeper configurationKeeper
+	DomainKeeper domainKeeper
 }
 
 // NewKeeper creates a account keeper

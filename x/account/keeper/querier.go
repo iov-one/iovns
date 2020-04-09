@@ -1,12 +1,12 @@
-package account
+package keeper
 
 import (
+	"github.com/iov-one/iovnsd/x/account/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovnsd/x/account/types"
 )
 
 // NewQuerier creates a new querier for account clients.

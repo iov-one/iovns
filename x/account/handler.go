@@ -2,6 +2,7 @@ package account
 
 import (
 	"fmt"
+	"github.com/iov-one/iovnsd/x/account/keeper"
 	"github.com/iov-one/iovnsd/x/account/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -9,7 +10,7 @@ import (
 )
 
 // NewHandler creates an sdk.Handler for all the account type messages
-func NewHandler(k Keeper) sdk.Handler {
+func NewHandler(k keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {

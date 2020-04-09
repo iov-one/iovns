@@ -5,6 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/iovnsd"
+	"github.com/iov-one/iovnsd/x/account/keeper"
 	"github.com/iov-one/iovnsd/x/account/types"
 	"github.com/iov-one/iovnsd/x/configuration"
 	"regexp"
@@ -12,10 +13,10 @@ import (
 )
 
 // handleMsgRegisterAccount registers the domain
-func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg types.MsgRegisterAccount) (*sdk.Result, error) {
+func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgRegisterAccount) (*sdk.Result, error) {
 	// verify request
 	// get config
-	conf := k.configKeeper.GetConfig(ctx)
+	conf := k.ConfigKeeper.GetConfig(ctx)
 	// validate blockchain targets
 	if err := validateBlockchainTargets(msg.Targets, conf); err != nil {
 		return nil, sdkerrors.Wrap(types.ErrInvalidBlockchainTarget, err.Error())
@@ -25,7 +26,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg types.MsgRegisterAc
 		return nil, sdkerrors.Wrapf(types.ErrInvalidName, "account name %s is invalid", msg.Name)
 	}
 	// check if domain name exists
-	domain, ok := k.domainKeeper.GetDomain(ctx, msg.Domain)
+	domain, ok := k.DomainKeeper.GetDomain(ctx, msg.Domain)
 	if !ok {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidDomain, "domain %s does not exist", msg.Domain)
 	}
@@ -38,7 +39,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg types.MsgRegisterAc
 		return nil, sdkerrors.Wrap(types.ErrDomainExpired, "account registration is not allowed")
 	}
 	// check account does not exist already
-	if _, ok := k.GetAccount(ctx, string(getAccountKey(msg.Domain, msg.Name))); ok {
+	if _, ok := k.GetAccount(ctx, string(iovnsd.GetAccountKey(msg.Domain, msg.Name))); ok {
 		return nil, sdkerrors.Wrapf(types.ErrAccountExists, "account: %s exists for domain %s", msg.Name, msg.Domain)
 	}
 	// create account struct

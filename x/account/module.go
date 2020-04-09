@@ -2,8 +2,8 @@ package account
 
 import (
 	"encoding/json"
-
 	"github.com/gorilla/mux"
+	keeper2 "github.com/iov-one/iovnsd/x/account/keeper"
 	"github.com/spf13/cobra"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -72,12 +72,12 @@ func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 type AppModule struct {
 	AppModuleBasic
 
-	keeper Keeper
+	keeper keeper2.Keeper
 	// TODO: Add keepers that your application depends on
 }
 
 // NewAppModule creates a new AppModule object
-func NewAppModule(k Keeper /*TODO: Add Keepers that your application depends on*/) AppModule {
+func NewAppModule(k keeper2.Keeper /*TODO: Add Keepers that your application depends on*/) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
@@ -110,7 +110,7 @@ func (AppModule) QuerierRoute() string {
 
 // NewQuerierHandler returns the account module sdk.Querier.
 func (am AppModule) NewQuerierHandler() sdk.Querier {
-	return NewQuerier(am.keeper)
+	return keeper2.NewQuerier(am.keeper)
 }
 
 // InitGenesis performs genesis initialization for the account module. It returns

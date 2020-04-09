@@ -1,6 +1,9 @@
 package domain
 
-import "github.com/iov-one/iovnsd/x/domain/types"
+import (
+	"github.com/iov-one/iovnsd/x/domain/keeper"
+	"github.com/iov-one/iovnsd/x/domain/types"
+)
 
 // aliasing for naming constants
 const (
@@ -12,8 +15,8 @@ const (
 
 // aliasing for types
 type (
-	Keeper = types.Keeper
+	Keeper = keeper.Keeper
 )
 
 // aliasing for funcs
-var NewKeeper = types.NewKeeper
+var NewKeeper = keeper.NewKeeper

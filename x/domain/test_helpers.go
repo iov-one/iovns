@@ -5,8 +5,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd/x/account"
+	keeper2 "github.com/iov-one/iovnsd/x/account/keeper"
+	account "github.com/iov-one/iovnsd/x/account/types"
 	"github.com/iov-one/iovnsd/x/configuration"
+	"github.com/iov-one/iovnsd/x/domain/keeper"
 	"github.com/iov-one/iovnsd/x/domain/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -20,14 +22,14 @@ type subTest struct {
 	// BeforeTest is the function run before doing the test,
 	// used for example to store state, like configurations etc.
 	// Ignored if nil
-	BeforeTest func(t *testing.T, k Keeper, ctx sdk.Context)
+	BeforeTest func(t *testing.T, k keeper.Keeper, ctx sdk.Context)
 	// Test is the function that runs the actual test
-	Test func(t *testing.T, k Keeper, ctx sdk.Context)
+	Test func(t *testing.T, k keeper.Keeper, ctx sdk.Context)
 	// AfterTest performs actions after the test is run, it can
 	// be used to check if the state after Test is run matches
 	// the result we expect.
 	// Ignored if nil
-	AfterTest func(t *testing.T, k Keeper, ctx sdk.Context)
+	AfterTest func(t *testing.T, k keeper.Keeper, ctx sdk.Context)
 }
 
 // runTests run tests cases after generating a new keeper and context for each test case
@@ -62,7 +64,7 @@ func newTestCodec() *codec.Codec {
 }
 
 // newTestKeeper generates a keeper and a context from it
-func newTestKeeper(t *testing.T, isCheckTx bool) (Keeper, sdk.Context) {
+func newTestKeeper(t *testing.T, isCheckTx bool) (keeper.Keeper, sdk.Context) {
 	cdc := newTestCodec()
 	// generate store
 	mdb := dbm.NewMemDB()
@@ -81,11 +83,11 @@ func newTestKeeper(t *testing.T, isCheckTx bool) (Keeper, sdk.Context) {
 	// create config keeper
 	confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, nil)
 	// create account keeper
-	accountKeeper := account.NewKeeper(cdc, accountStoreKey, nil)
+	accountKeeper := keeper2.NewKeeper(cdc, accountStoreKey, nil)
 	// create context
 	ctx := sdk.NewContext(ms, abci.Header{}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
-	return types.NewKeeper(cdc, domainStoreKey, accountKeeper, confKeeper, nil), ctx
+	return keeper.NewKeeper(cdc, domainStoreKey, accountKeeper, confKeeper, nil), ctx
 }
 
 // since the exposed interface for configuration keeper
@@ -100,7 +102,7 @@ type configurationSetter interface {
 // allowing the module to set configuration state, this should only
 // be used for tests and will panic if the keeper provided can not
 // be cast to configurationSetter
-func getConfigSetter(keeper types.ConfigurationKeeper) configurationSetter {
+func getConfigSetter(keeper keeper.ConfigurationKeeper) configurationSetter {
 	// check if the configuration keeper is also a config setter
 	configSetter, ok := keeper.(configurationSetter)
 	if !ok {

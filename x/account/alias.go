@@ -1,6 +1,7 @@
 package account
 
 import (
+	"github.com/iov-one/iovnsd/x/account/keeper"
 	"github.com/iov-one/iovnsd/x/account/types"
 )
 
@@ -30,4 +31,8 @@ type (
 
 	// TODO: Fill out module types
 	Account = types.Account
+	Keeper  = keeper.Keeper
 )
+
+// fill func
+var NewKeeper = keeper.NewKeeper
