@@ -5,7 +5,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovnsd/x/configuration"
-	"github.com/iov-one/iovnsd/x/domain/types"
 	"testing"
 )
 
@@ -59,7 +58,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 		},
 		"fail domain name exists": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.SetDomain(ctx, Domain{
 					Name:         "exists",
 					Admin:        nil,
 					ValidUntil:   0,
@@ -76,8 +75,8 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					Broker:       nil,
 					AccountRenew: 0,
 				})
-				if !errors.Is(err, types.ErrDomainAlreadyExists) {
-					t.Fatalf("handleMsgRegisterDomain() expected: %s got: %s", types.ErrDomainAlreadyExists, err)
+				if !errors.Is(err, ErrDomainAlreadyExists) {
+					t.Fatalf("handleMsgRegisterDomain() expected: %s got: %s", ErrDomainAlreadyExists, err)
 				}
 			},
 			AfterTest: nil,
@@ -100,8 +99,8 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					Broker:       nil,
 					AccountRenew: 0,
 				})
-				if !errors.Is(err, types.ErrInvalidDomainName) {
-					t.Fatalf("handleMsgRegisterDomain() expected error: %s, got: %s", types.ErrInvalidDomainName, err)
+				if !errors.Is(err, ErrInvalidDomainName) {
+					t.Fatalf("handleMsgRegisterDomain() expected error: %s, got: %s", ErrInvalidDomainName, err)
 				}
 			},
 			AfterTest: nil,
@@ -129,8 +128,8 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					Broker:       nil,
 					AccountRenew: 10,
 				})
-				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handleMsgRegisterDomain() expecter error: %s, got: %s", types.ErrUnauthorized, err)
+				if !errors.Is(err, ErrUnauthorized) {
+					t.Fatalf("handleMsgRegisterDomain() expecter error: %s, got: %s", ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,

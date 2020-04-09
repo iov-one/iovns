@@ -10,12 +10,12 @@ import kv "github.com/tendermint/tm-db"
 // the keepers in order to make them accessible from different test cases.
 // It also exposes applications public methods and fields.
 type App struct {
-	*app.IOVNS
+	*app.NameService
 }
 
-// IOVNS is the constructor for App
+// NameService is the constructor for App
 func NewApp() App {
 	db := kv.NewMemDB()
-	newApp := app.NewIOVNS(log.NewNopLogger(), db, nil, true, 0, nil)
+	newApp := app.NewNameService(log.NewNopLogger(), db, nil, true, 0, nil)
 	return App{newApp}
 }

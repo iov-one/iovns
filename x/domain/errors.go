@@ -1,4 +1,4 @@
-package types
+package domain
 
 import sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 

@@ -2,7 +2,9 @@ package app
 
 import (
 	"encoding/json"
+	"github.com/iov-one/iovnsd/x/account"
 	"github.com/iov-one/iovnsd/x/configuration"
+	"github.com/iov-one/iovnsd/x/domain"
 	"io"
 	"os"
 
@@ -62,6 +64,7 @@ var (
 		evidence.AppModuleBasic{},
 		// iovns modules
 		configuration.AppModuleBasic{},
+		domain.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -88,8 +91,8 @@ func MakeCodec() *codec.Codec {
 	return cdc.Seal()
 }
 
-// IOVNS is the internet of values name service application
-type IOVNS struct {
+// NameService is the internet of values name service application
+type NameService struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
@@ -117,6 +120,8 @@ type IOVNS struct {
 	evidenceKeeper evidence.Keeper
 	// iovns keepers
 	configurationKeeper configuration.Keeper
+	domainKeeper        domain.Keeper
+	usernamesKeeper     account.Keeper
 	// Module Manager
 	mm *module.Manager
 
@@ -125,13 +130,13 @@ type IOVNS struct {
 }
 
 // verify app interface at compile time
-var _ simapp.App = (*IOVNS)(nil)
+var _ simapp.App = (*NameService)(nil)
 
-// NewIOVNS is a constructor for IOVNS
-func NewIOVNS(
+// NewNameService is a constructor for NameService
+func NewNameService(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
 	invCheckPeriod uint, skipUpgradeHeights map[int64]bool, baseAppOptions ...func(*bam.BaseApp),
-) *IOVNS {
+) *NameService {
 	// First define the top level codec that will be shared by the different modules
 	cdc := MakeCodec()
 
@@ -146,11 +151,13 @@ func NewIOVNS(
 		gov.StoreKey, params.StoreKey, evidence.StoreKey, upgrade.StoreKey,
 		// iovns store keys
 		configuration.StoreKey,
+		domain.StoreKey,
+		account.StoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
 	// Here you initialize your application with the store keys it requires
-	var app = &IOVNS{
+	var app = &NameService{
 		BaseApp:        bApp,
 		cdc:            cdc,
 		invCheckPeriod: invCheckPeriod,
@@ -273,6 +280,18 @@ func NewIOVNS(
 		keys[configuration.StoreKey],
 		nil,
 	)
+	app.usernamesKeeper = account.NewKeeper(
+		app.cdc,
+		keys[account.StoreKey],
+		nil,
+	)
+	app.domainKeeper = domain.NewKeeper(
+		app.cdc,
+		keys[domain.StoreKey],
+		app.usernamesKeeper,
+		app.configurationKeeper,
+		nil,
+	)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -288,6 +307,8 @@ func NewIOVNS(
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		// iovns modules
 		configuration.NewAppModule(app.configurationKeeper),
+		domain.NewAppModule(app.domainKeeper),
+		account.NewAppModule(app.usernamesKeeper),
 		// iovns modules - end
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
@@ -313,6 +334,8 @@ func NewIOVNS(
 		mint.ModuleName,
 		// iovns module start
 		configuration.ModuleName,
+		account.ModuleName,
+		domain.ModuleName,
 		// iovns module end
 		supply.ModuleName,
 		crisis.ModuleName,
@@ -380,7 +403,7 @@ func NewDefaultGenesisState() GenesisState {
 }
 
 // InitChainer application update at chain initialization
-func (app *IOVNS) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *NameService) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	var genesisState simapp.GenesisState
 
 	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
@@ -389,22 +412,22 @@ func (app *IOVNS) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.R
 }
 
 // BeginBlocker application updates every begin block
-func (app *IOVNS) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *NameService) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
 // EndBlocker application updates every end block
-func (app *IOVNS) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *NameService) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
 // LoadHeight loads a particular height
-func (app *IOVNS) LoadHeight(height int64) error {
+func (app *NameService) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
 }
 
 // ModuleAccountAddrs returns all the app's module account addresses.
-func (app *IOVNS) ModuleAccountAddrs() map[string]bool {
+func (app *NameService) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
 		modAccAddrs[supply.NewModuleAddress(acc).String()] = true
@@ -414,12 +437,12 @@ func (app *IOVNS) ModuleAccountAddrs() map[string]bool {
 }
 
 // Codec returns the application's sealed codec.
-func (app *IOVNS) Codec() *codec.Codec {
+func (app *NameService) Codec() *codec.Codec {
 	return app.cdc
 }
 
 // SimulationManager implements the SimulationApp interface
-func (app *IOVNS) SimulationManager() *module.SimulationManager {
+func (app *NameService) SimulationManager() *module.SimulationManager {
 	return app.sm
 }
 

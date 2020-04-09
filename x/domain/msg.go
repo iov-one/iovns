@@ -1,4 +1,4 @@
-package types
+package domain
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -52,7 +52,7 @@ func (m MsgRegisterDomain) GetSignBytes() []byte {
 }
 
 // GetSigners returns the list of address that should list the request
-// in this case
+// in this case the admin of the domain
 func (m MsgRegisterDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Admin}
 }

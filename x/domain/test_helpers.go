@@ -7,7 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovnsd/x/account"
 	"github.com/iov-one/iovnsd/x/configuration"
-	"github.com/iov-one/iovnsd/x/domain/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -100,7 +99,7 @@ type configurationSetter interface {
 // allowing the module to set configuration state, this should only
 // be used for tests and will panic if the keeper provided can not
 // be cast to configurationSetter
-func getConfigSetter(keeper types.ConfigurationKeeper) configurationSetter {
+func getConfigSetter(keeper ConfigurationKeeper) configurationSetter {
 	// check if the configuration keeper is also a config setter
 	configSetter, ok := keeper.(configurationSetter)
 	if !ok {

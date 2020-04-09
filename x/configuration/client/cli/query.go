@@ -32,8 +32,8 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 // getCmdQueryConfig returns the command to get the configuration
 func getCmdQueryConfig(route string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "query",
-		Short: "query configuration",
+		Use:   "get",
+		Short: "gets the last configuration ",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)

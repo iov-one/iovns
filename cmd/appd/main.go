@@ -85,7 +85,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 		skipUpgradeHeights[int64(h)] = true
 	}
 
-	return app.NewIOVNS(
+	return app.NewNameService(
 		logger, db, traceStore, true, invCheckPeriod, skipUpgradeHeights,
 		baseapp.SetPruning(store.NewPruningOptionsFromString(viper.GetString("pruning"))),
 		baseapp.SetMinGasPrices(viper.GetString(server.FlagMinGasPrices)),
@@ -100,7 +100,7 @@ func exportAppStateAndTMValidators(
 ) (json.RawMessage, []tmtypes.GenesisValidator, error) {
 
 	if height != -1 {
-		aApp := app.NewIOVNS(logger, db, traceStore, false, uint(1), map[int64]bool{})
+		aApp := app.NewNameService(logger, db, traceStore, false, uint(1), map[int64]bool{})
 		err := aApp.LoadHeight(height)
 		if err != nil {
 			return nil, nil, err
@@ -108,7 +108,7 @@ func exportAppStateAndTMValidators(
 		return aApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
 
-	aApp := app.NewIOVNS(logger, db, traceStore, true, uint(1), map[int64]bool{})
+	aApp := app.NewNameService(logger, db, traceStore, true, uint(1), map[int64]bool{})
 
 	return aApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }

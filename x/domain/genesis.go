@@ -1,18 +1,36 @@
 package domain
 
-/*
-// InitGenesis initialize default parameters
-// and the keeper's address to pubkey map
-func InitGenesis(ctx sdk.Context, k Keeper, DEFINE NEEDS, data GenesisState) {
-	// TODO: Define logic for when you would like to initalize a new genesis
-	return []abci.ValidatorUpdate{}
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
+type GenesisState struct {
+	DomainsRecords []Domain `json:"domain_records"`
 }
 
-// ExportGenesis writes the current store values
-// to a genesis file, which can be imported again
-// with InitGenesis
-func ExportGenesis(ctx sdk.Context, k Keeper) (data GenesisState) {
-	// TODO: Define logic for exporting state
-	return NewGenesisState()
+func NewGenesisState(domains []Domain) GenesisState {
+	return GenesisState{DomainsRecords: domains}
 }
-*/
+
+func ValidateGenesis(data GenesisState) error {
+	// TODO validate genesis by: checking no duplicate names, and domain validity
+	return nil
+}
+
+func DefaultGenesisState() GenesisState {
+	return GenesisState{DomainsRecords: nil}
+}
+
+func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
+	for _, domain := range data.DomainsRecords {
+		keeper.SetDomain(ctx, domain)
+	}
+}
+
+func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
+	var records []Domain
+	iterator := k.IterateAll(ctx)
+	for ; iterator.Valid(); iterator.Next() {
+		domain, _ := k.GetDomain(ctx, string(iterator.Key()))
+		records = append(records, domain)
+	}
+	return GenesisState{DomainsRecords: records}
+}
