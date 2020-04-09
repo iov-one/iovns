@@ -1,12 +1,13 @@
 package types
 
 import (
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
 // RegisterCodec registers concrete types on codec
 func RegisterCodec(cdc *codec.Codec) {
-	// TODO: Register the modules msgs
+	cdc.RegisterConcrete(MsgRegisterAccount{}, fmt.Sprintf("%s/RegisterAccount", ModuleName), nil)
 }
 
 // ModuleCdc defines the module codec

@@ -1,6 +1,9 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/iovnsd"
+)
 
 // Account defines an account that belongs to a domain
 type Account struct {
@@ -13,7 +16,7 @@ type Account struct {
 	// ValidUntil defines a unix timestamp of the expiration of the account
 	ValidUntil int64
 	// Targets is the list of blockchain addresses this account belongs to
-	Targets [][]byte
+	Targets []iovnsd.BlockchainAddress
 	// Certificates contains the list of certificates to identify the account owner
 	Certificates [][]byte
 	// Broker can be empty

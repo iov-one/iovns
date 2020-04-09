@@ -1,8 +1,9 @@
-package keeper
+package account
 
 import (
 	"fmt"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/iov-one/iovnsd/x/configuration"
+	"github.com/iov-one/iovnsd/x/domain"
 
 	"github.com/tendermint/tendermint/libs/log"
 
@@ -11,11 +12,23 @@ import (
 	"github.com/iov-one/iovnsd/x/account/types"
 )
 
+// expected keepers
+type domainKeeper interface {
+	GetDomain(ctx sdk.Context, domainName string) (domain domain.Domain, exists bool)
+}
+
+type configurationKeeper interface {
+	GetConfig(ctx sdk.Context) configuration.Config
+}
+
 // Keeper of the account store
 type Keeper struct {
 	storeKey   sdk.StoreKey
 	cdc        *codec.Codec
 	paramspace types.ParamSubspace
+	// external keepers
+	configKeeper configurationKeeper
+	domainKeeper domainKeeper
 }
 
 // NewKeeper creates a account keeper
@@ -34,24 +47,28 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // GetAccount returns the account based on its name
-func (k Keeper) GetAccount(ctx sdk.Context, accountName string) (types.Account, error) {
+// if the account does not exist it returns a zero value account type and false
+func (k Keeper) GetAccount(ctx sdk.Context, accountName string) (types.Account, bool) {
 	store := ctx.KVStore(k.storeKey)
 	var item types.Account
 	byteKey := []byte(accountName)
-	err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(byteKey), &item)
-	if err != nil {
-		return types.Account{}, sdkerrors.Wrap(err, "get account")
+	accBytes := store.Get(byteKey)
+	if len(accBytes) == 0 {
+		return types.Account{}, false
 	}
-	return item, nil
+	k.cdc.MustUnmarshalBinaryBare(accBytes, &item)
+	return item, true
 }
 
-func getAccountKey(a types.Account) []byte {
-	return []byte(a.Domain + "*" + a.Name)
+// getAccountKey returns the unique account key from its domain and name.
+// TODO is it better to return bytes or string?
+func getAccountKey(domain, name string) []byte {
+	return []byte(domain + "*" + name)
 }
 
 // SetAccount sets the account
 func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
-	accountKey := getAccountKey(account)
+	accountKey := getAccountKey(account.Domain, account.Name)
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(account)
 	store.Set(accountKey, bz)

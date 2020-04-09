@@ -1,4 +1,4 @@
-package keeper
+package account
 
 import (
 	abci "github.com/tendermint/tendermint/abci/types"

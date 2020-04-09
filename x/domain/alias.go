@@ -9,3 +9,8 @@ const (
 	QuerierRoute = types.QuerierRoute
 	RouterKey    = types.RouterKey
 )
+
+// aliasing for types
+type (
+	Domain = types.Domain
+)

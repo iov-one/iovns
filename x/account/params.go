@@ -1,4 +1,4 @@
-package keeper
+package account
 
 /*
 // TODO: Define if your module needs Parameters, if not this can be deleted

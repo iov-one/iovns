@@ -1,7 +1,6 @@
 package account
 
 import (
-	"github.com/iov-one/iovnsd/x/account/keeper"
 	"github.com/iov-one/iovnsd/x/account/types"
 )
 
@@ -18,8 +17,6 @@ const (
 
 var (
 	// functions aliases
-	NewKeeper           = keeper.NewKeeper
-	NewQuerier          = keeper.NewQuerier
 	RegisterCodec       = types.RegisterCodec
 	NewGenesisState     = types.NewGenesisState
 	DefaultGenesisState = types.DefaultGenesisState
@@ -32,7 +29,6 @@ var (
 )
 
 type (
-	Keeper       = keeper.Keeper
 	GenesisState = types.GenesisState
 	Params       = types.Params
 
