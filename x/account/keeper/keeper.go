@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"github.com/iov-one/iovnsd"
 	"github.com/iov-one/iovnsd/x/account/types"
 	"github.com/iov-one/iovnsd/x/configuration"
 	domain "github.com/iov-one/iovnsd/x/domain/types"
@@ -60,18 +61,12 @@ func (k Keeper) GetAccount(ctx sdk.Context, accountName string) (types.Account, 
 	return item, true
 }
 
-// getAccountKey returns the unique account key from its domain and name.
-// TODO is it better to return bytes or string?
-func getAccountKey(domain, name string) []byte {
-	return []byte(domain + "*" + name)
-}
-
 // SetAccount sets the account
 func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
-	accountKey := getAccountKey(account.Domain, account.Name)
+	accountKey := iovnsd.GetAccountKey(account.Domain, account.Name)
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshalBinaryLengthPrefixed(account)
-	store.Set(accountKey, bz)
+	store.Set([]byte(accountKey), bz)
 }
 
 func (k Keeper) delete(ctx sdk.Context, key string) {
