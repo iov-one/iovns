@@ -2,6 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/iovnsd"
 	"github.com/iov-one/iovnsd/x/domain/types"
 )
 
@@ -55,6 +56,13 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 	iterator.Close()
 	// delete account keys
 	for _, key := range accountKeys {
+		// check if this belongs to the domain
+		accountDomain, accountName := iovnsd.SplitAccountKey(key)
+		// if account domain does not match domain name
+		// we want to delete then continue
+		if accountDomain != domainName {
+			continue
+		}
 		accountStore.Delete(key)
 	}
 	// done

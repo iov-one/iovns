@@ -9,7 +9,7 @@ func DoInBatches(store types.KVStore, batchNumber int, do func(key []byte)) {
 			do(key)
 		}
 	}
-	currKey := []byte{nil}
+	var currKey []byte
 	for {
 		keys := DoStartToEnd(store, currKey, batchNumber)
 		// process keys

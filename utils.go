@@ -1,6 +1,7 @@
 package iovnsd
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 )
@@ -19,4 +20,11 @@ func TimeToSeconds(t time.Time) int64 {
 // given the domain name and the account name
 func GetAccountKey(domain, name string) string {
 	return fmt.Sprintf("%s*%s", domain, name)
+}
+
+// SplitAccountKey takes an account key and splits it
+// into domain name and account name, panics on nil keys.
+func SplitAccountKey(key []byte) (domainName, accountName string) {
+	resp := bytes.Split(key, []byte("*"))
+	return string(resp[0]), string(resp[1])
 }
