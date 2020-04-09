@@ -12,6 +12,8 @@ func NewHandler(k Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case types.MsgRegisterDomain:
 			return handleMsgRegisterDomain(ctx, k, msg)
+		case types.MsgRegisterAccount:
+			return handleMsgRegisterAccount(ctx, k, msg)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("unregonized request: %T", msg))
 		}
