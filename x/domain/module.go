@@ -51,12 +51,12 @@ func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router
 
 // Get the root query command of this module
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetQueryCmd(types.StoreKey, cdc)
+	return cli.GetQueryCmd(types.DomainStoreKey, cdc)
 }
 
 // Get the root tx command of this module
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
-	return cli.GetTxCmd(types.StoreKey, cdc)
+	return cli.GetTxCmd(types.DomainStoreKey, cdc)
 }
 
 // NewAppModule creates a new AppModule Object

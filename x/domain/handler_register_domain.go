@@ -3,7 +3,6 @@ package domain
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	account "github.com/iov-one/iovnsd/x/account/types"
 	"github.com/iov-one/iovnsd/x/domain/types"
 	"regexp"
 	"time"
@@ -43,7 +42,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegist
 	// save domain
 	keeper.SetDomain(ctx, domain)
 	// generate empty name account
-	acc := account.Account{
+	acc := types.Account{
 		Domain:       msg.Name,
 		Name:         "",
 		Owner:        msg.Admin,
@@ -53,7 +52,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegist
 		Broker:       nil, // TODO ??
 	}
 	// save account
-	keeper.AccountKeeper.SetAccount(ctx, acc)
+	keeper.SetAccount(ctx, acc)
 	// success TODO think here, can we emit any useful event
 	return &sdk.Result{
 		Data:   nil,

@@ -7,10 +7,11 @@ import (
 
 // aliasing for naming constants
 const (
-	ModuleName   = types.ModuleName
-	StoreKey     = types.StoreKey
-	QuerierRoute = types.QuerierRoute
-	RouterKey    = types.RouterKey
+	ModuleName      = types.ModuleName
+	DomainStoreKey  = types.DomainStoreKey
+	AccountStoreKey = types.AccountStoreKey
+	QuerierRoute    = types.QuerierRoute
+	RouterKey       = types.RouterKey
 )
 
 // aliasing for types

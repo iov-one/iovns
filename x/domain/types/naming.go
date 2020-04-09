@@ -2,10 +2,11 @@ package types
 
 // Module names
 const (
-	ModuleName   = "domain"
-	StoreKey     = ModuleName
-	RouterKey    = ModuleName
-	QuerierRoute = ModuleName
+	ModuleName      = "domain"
+	DomainStoreKey  = "domain"
+	AccountStoreKey = "account"
+	RouterKey       = ModuleName
+	QuerierRoute    = ModuleName
 )
 
 // Module Queries

@@ -3,10 +3,9 @@ package domain
 import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	keeper2 "github.com/iov-one/iovnsd/x/account/keeper"
-	account "github.com/iov-one/iovnsd/x/account/types"
 	"github.com/iov-one/iovnsd/x/configuration"
 	"github.com/iov-one/iovnsd/x/domain/keeper"
 	"github.com/iov-one/iovnsd/x/domain/types"
@@ -14,8 +13,33 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	dbm "github.com/tendermint/tm-db"
+	"os"
 	"testing"
+	"time"
 )
+
+var aliceKey keys.Info
+var bobKey keys.Info
+
+const regexMatchAll = "^(.*?)?"
+const regexMatchNothing = "$^"
+
+// TestMain is going to init test addresses
+func TestMain(t *testing.M) {
+	keyBase := keys.NewInMemory()
+	addr1, _, err := keyBase.CreateMnemonic("alice", keys.English, "", keys.Secp256k1)
+	if err != nil {
+		panic("unable to generate mock addresses " + err.Error())
+	}
+	aliceKey = addr1
+	addr2, _, err := keyBase.CreateMnemonic("bob", keys.English, "", keys.Secp256k1)
+	if err != nil {
+		panic("unable to generate mock addresses " + err.Error())
+	}
+	bobKey = addr2
+	// run and exit
+	os.Exit(t.Run())
+}
 
 // subTest defines a test runner
 type subTest struct {
@@ -35,18 +59,18 @@ type subTest struct {
 // runTests run tests cases after generating a new keeper and context for each test case
 func runTests(t *testing.T, tests map[string]subTest) {
 	for name, test := range tests {
-		keeper, ctx := newTestKeeper(t, true)
+		domainKeeper, ctx := newTestKeeper(t, true)
 		// run sub subTest
 		t.Run(name, func(t *testing.T) {
 			// run before subTest
 			if test.BeforeTest != nil {
-				test.BeforeTest(t, keeper, ctx)
+				test.BeforeTest(t, domainKeeper, ctx)
 			}
 			// run actual subTest
-			test.Test(t, keeper, ctx)
+			test.Test(t, domainKeeper, ctx)
 			// run after subTest
 			if test.AfterTest != nil {
-				test.AfterTest(t, keeper, ctx)
+				test.AfterTest(t, domainKeeper, ctx)
 			}
 		})
 	}
@@ -59,7 +83,6 @@ func newTestCodec() *codec.Codec {
 	cdc := codec.New()
 	codec.RegisterCrypto(cdc)
 	configuration.RegisterCodec(cdc)
-	account.RegisterCodec(cdc)
 	return cdc
 }
 
@@ -72,8 +95,8 @@ func newTestKeeper(t *testing.T, isCheckTx bool) (keeper.Keeper, sdk.Context) {
 	ms := store.NewCommitMultiStore(mdb)
 	// generate store keys
 	configurationStoreKey := sdk.NewKVStoreKey(configuration.StoreKey) // configuration module store key
-	accountStoreKey := sdk.NewKVStoreKey(account.StoreKey)             // account module store key
-	domainStoreKey := sdk.NewKVStoreKey(types.StoreKey)                // domain module store key
+	accountStoreKey := sdk.NewKVStoreKey(types.DomainStoreKey)         // account module store key
+	domainStoreKey := sdk.NewKVStoreKey(types.AccountStoreKey)         // domain module store key
 	// generate sub store for each module referenced by the keeper
 	ms.MountStoreWithDB(configurationStoreKey, sdk.StoreTypeIAVL, mdb) // mount configuration module
 	ms.MountStoreWithDB(accountStoreKey, sdk.StoreTypeIAVL, mdb)       // mount account module
@@ -82,12 +105,10 @@ func newTestKeeper(t *testing.T, isCheckTx bool) (keeper.Keeper, sdk.Context) {
 	require.Nil(t, ms.LoadLatestVersion())
 	// create config keeper
 	confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, nil)
-	// create account keeper
-	accountKeeper := keeper2.NewKeeper(cdc, accountStoreKey, nil)
 	// create context
-	ctx := sdk.NewContext(ms, abci.Header{}, isCheckTx, log.NewNopLogger())
+	ctx := sdk.NewContext(ms, abci.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
-	return keeper.NewKeeper(cdc, domainStoreKey, accountKeeper, confKeeper, nil), ctx
+	return keeper.NewKeeper(cdc, domainStoreKey, accountStoreKey, confKeeper, nil), ctx
 }
 
 // since the exposed interface for configuration keeper

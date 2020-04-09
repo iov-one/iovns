@@ -1,13 +1,13 @@
-package account
+package domain
 
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/iovnsd"
-	"github.com/iov-one/iovnsd/x/account/keeper"
-	"github.com/iov-one/iovnsd/x/account/types"
 	"github.com/iov-one/iovnsd/x/configuration"
+	"github.com/iov-one/iovnsd/x/domain/keeper"
+	"github.com/iov-one/iovnsd/x/domain/types"
 	"regexp"
 	"time"
 )
@@ -16,7 +16,7 @@ import (
 func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgRegisterAccount) (*sdk.Result, error) {
 	// verify request
 	// get config
-	conf := k.ConfigKeeper.GetConfig(ctx)
+	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 	// validate blockchain targets
 	if err := validateBlockchainTargets(msg.Targets, conf); err != nil {
 		return nil, sdkerrors.Wrap(types.ErrInvalidBlockchainTarget, err.Error())
@@ -26,9 +26,9 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgReg
 		return nil, sdkerrors.Wrapf(types.ErrInvalidName, "account name %s is invalid", msg.Name)
 	}
 	// check if domain name exists
-	domain, ok := k.DomainKeeper.GetDomain(ctx, msg.Domain)
+	domain, ok := k.GetDomain(ctx, msg.Domain)
 	if !ok {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidDomain, "domain %s does not exist", msg.Domain)
+		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "domain %s does not exist", msg.Domain)
 	}
 	// check if domain has super user that owner equals to the domain admin
 	if domain.HasSuperuser && !domain.Admin.Equals(msg.Owner) {
@@ -39,7 +39,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgReg
 		return nil, sdkerrors.Wrap(types.ErrDomainExpired, "account registration is not allowed")
 	}
 	// check account does not exist already
-	if _, ok := k.GetAccount(ctx, string(iovnsd.GetAccountKey(msg.Domain, msg.Name))); ok {
+	if _, ok := k.GetAccount(ctx, iovnsd.GetAccountKey(msg.Domain, msg.Name)); ok {
 		return nil, sdkerrors.Wrapf(types.ErrAccountExists, "account: %s exists for domain %s", msg.Name, msg.Domain)
 	}
 	// create account struct

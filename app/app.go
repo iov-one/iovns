@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"github.com/iov-one/iovnsd/x/account"
 	"github.com/iov-one/iovnsd/x/configuration"
 	"github.com/iov-one/iovnsd/x/domain"
 	"io"
@@ -121,7 +120,6 @@ type NameService struct {
 	// iovns keepers
 	configurationKeeper configuration.Keeper
 	domainKeeper        domain.Keeper
-	usernamesKeeper     account.Keeper
 	// Module Manager
 	mm *module.Manager
 
@@ -151,8 +149,8 @@ func NewNameService(
 		gov.StoreKey, params.StoreKey, evidence.StoreKey, upgrade.StoreKey,
 		// iovns store keys
 		configuration.StoreKey,
-		domain.StoreKey,
-		account.StoreKey,
+		domain.DomainStoreKey,
+		domain.AccountStoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -280,15 +278,10 @@ func NewNameService(
 		keys[configuration.StoreKey],
 		nil,
 	)
-	app.usernamesKeeper = account.NewKeeper(
-		app.cdc,
-		keys[account.StoreKey],
-		nil,
-	)
 	app.domainKeeper = domain.NewKeeper(
 		app.cdc,
-		keys[domain.StoreKey],
-		app.usernamesKeeper,
+		keys[domain.DomainStoreKey],
+		keys[domain.AccountStoreKey],
 		app.configurationKeeper,
 		nil,
 	)
@@ -308,7 +301,6 @@ func NewNameService(
 		// iovns modules
 		configuration.NewAppModule(app.configurationKeeper),
 		domain.NewAppModule(app.domainKeeper),
-		account.NewAppModule(app.usernamesKeeper),
 		// iovns modules - end
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
@@ -334,7 +326,6 @@ func NewNameService(
 		mint.ModuleName,
 		// iovns module start
 		configuration.ModuleName,
-		account.ModuleName,
 		domain.ModuleName,
 		// iovns module end
 		supply.ModuleName,

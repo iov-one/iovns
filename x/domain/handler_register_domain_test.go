@@ -2,7 +2,6 @@ package domain
 
 import (
 	"errors"
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovnsd/x/configuration"
 	"github.com/iov-one/iovnsd/x/domain/types"
@@ -10,16 +9,13 @@ import (
 )
 
 func TestHandleMsgRegisterDomain(t *testing.T) {
-	keyBase := keys.NewInMemory()
-	aliceAddr, _, _ := keyBase.CreateMnemonic("alice", keys.English, "", keys.Secp256k1)
-	bobAddr, _, _ := keyBase.CreateMnemonic("bob", keys.English, "", keys.Secp256k1)
 	testCases := map[string]subTest{
 		"success": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
 				configSetter := getConfigSetter(k.ConfigurationKeeper)
 				// set config
 				configSetter.SetConfig(ctx, configuration.Config{
-					Owner:       aliceAddr.GetAddress(),
+					Owner:       aliceKey.GetAddress(),
 					ValidDomain: "^(.*?)?",
 				})
 			},
@@ -36,7 +32,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				// register domain without super user
 				_, err = handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
 					Name:         "domain-without-superuser",
-					Admin:        aliceAddr.GetAddress(),
+					Admin:        aliceKey.GetAddress(),
 					HasSuperuser: false,
 					Broker:       nil,
 					AccountRenew: 20,
@@ -110,7 +106,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
 				// add config with owner
 				config := configuration.Config{
-					Owner:                  aliceAddr.GetAddress(),
+					Owner:                  aliceKey.GetAddress(),
 					ValidDomain:            "^(.*?)?",
 					ValidName:              "",
 					ValidBlockchainID:      "",
@@ -124,7 +120,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				// try to register domain with no super user
 				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
 					Name:         "some-domain",
-					Admin:        bobAddr.GetAddress(),
+					Admin:        bobKey.GetAddress(),
 					HasSuperuser: false,
 					Broker:       nil,
 					AccountRenew: 10,
