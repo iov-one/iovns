@@ -85,7 +85,7 @@ func newTestKeeper(t *testing.T, isCheckTx bool) (Keeper, sdk.Context) {
 	// create context
 	ctx := sdk.NewContext(ms, abci.Header{}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
-	return NewKeeper(cdc, domainStoreKey, accountKeeper, confKeeper, nil), ctx
+	return types.NewKeeper(cdc, domainStoreKey, accountKeeper, confKeeper, nil), ctx
 }
 
 // since the exposed interface for configuration keeper
@@ -100,7 +100,7 @@ type configurationSetter interface {
 // allowing the module to set configuration state, this should only
 // be used for tests and will panic if the keeper provided can not
 // be cast to configurationSetter
-func getConfigSetter(keeper ConfigurationKeeper) configurationSetter {
+func getConfigSetter(keeper types.ConfigurationKeeper) configurationSetter {
 	// check if the configuration keeper is also a config setter
 	configSetter, ok := keeper.(configurationSetter)
 	if !ok {

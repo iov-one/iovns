@@ -3,7 +3,7 @@ package account
 import (
 	"fmt"
 	"github.com/iov-one/iovnsd/x/configuration"
-	"github.com/iov-one/iovnsd/x/domain"
+	domain "github.com/iov-one/iovnsd/x/domain/types"
 
 	"github.com/tendermint/tendermint/libs/log"
 

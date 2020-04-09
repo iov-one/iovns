@@ -1,11 +1,10 @@
-package domain
+package types
 
 import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd/x/account"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	account "github.com/iov-one/iovnsd/x/account/types"
 	"github.com/tendermint/tendermint/libs/log"
 	"time"
 )
@@ -58,11 +57,11 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, accountKeeper AccountKeeper, 
 
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+	return ctx.Logger().With("module", fmt.Sprintf("x/%s", ModuleName))
 }
 
 // GetDomain returns the domain based on its name, if domain is not found ok will be false
-func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Domain, ok bool) {
+func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain Domain, ok bool) {
 	store := ctx.KVStore(k.storeKey)
 	// get domain in form of bytes
 	domainBytes := store.Get([]byte(domainName))
@@ -77,7 +76,7 @@ func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Doma
 }
 
 // SetDomain saves the domain inside the KVStore with its name as key
-func (k Keeper) SetDomain(ctx sdk.Context, domain types.Domain) {
+func (k Keeper) SetDomain(ctx sdk.Context, domain Domain) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(domain.Name), k.cdc.MustMarshalBinaryBare(domain))
 }

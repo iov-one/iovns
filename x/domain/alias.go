@@ -12,5 +12,8 @@ const (
 
 // aliasing for types
 type (
-	Domain = types.Domain
+	Keeper = types.Keeper
 )
+
+// aliasing for funcs
+var NewKeeper = types.NewKeeper

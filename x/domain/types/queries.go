@@ -1,10 +1,9 @@
-package domain
+package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovnsd/x/domain/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -14,16 +13,16 @@ type QueryDomainRequest struct {
 }
 
 type QueryDomainResponse struct {
-	Domain types.Domain `json:"domain"`
+	Domain Domain `json:"domain"`
 }
 
 func NewQuerier(k Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, error) {
 		switch path[0] {
-		case types.QueryDomain:
+		case QueryDomain:
 			return queryGet(ctx, path[1:], req, k)
 		default:
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query request", types.ModuleName)
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query request", ModuleName)
 		}
 	}
 }
@@ -31,7 +30,7 @@ func NewQuerier(k Keeper) sdk.Querier {
 func queryGet(ctx sdk.Context, args []string, _ abci.RequestQuery, k Keeper) ([]byte, error) {
 	resp, ok := k.GetDomain(ctx, args[0])
 	if !ok {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, args[0])
+		return nil, sdkerrors.Wrapf(ErrDomainDoesNotExist, args[0])
 	}
 	return codec.MustMarshalJSONIndent(k.cdc, QueryDomainResponse{
 		Domain: resp,

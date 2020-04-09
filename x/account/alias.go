@@ -17,10 +17,7 @@ const (
 
 var (
 	// functions aliases
-	RegisterCodec       = types.RegisterCodec
-	NewGenesisState     = types.NewGenesisState
-	DefaultGenesisState = types.DefaultGenesisState
-	ValidateGenesis     = types.ValidateGenesis
+	RegisterCodec = types.RegisterCodec
 	// TODO: Fill out function aliases
 
 	// variable aliases
@@ -29,8 +26,7 @@ var (
 )
 
 type (
-	GenesisState = types.GenesisState
-	Params       = types.Params
+	Params = types.Params
 
 	// TODO: Fill out module types
 	Account = types.Account
