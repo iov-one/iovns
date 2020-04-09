@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovnsd/x/account"
 	"github.com/iov-one/iovnsd/x/configuration"
+	"github.com/iov-one/iovnsd/x/domain/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -70,7 +71,7 @@ func newTestKeeper(t *testing.T, isCheckTx bool) (Keeper, sdk.Context) {
 	// generate store keys
 	configurationStoreKey := sdk.NewKVStoreKey(configuration.StoreKey) // configuration module store key
 	accountStoreKey := sdk.NewKVStoreKey(account.StoreKey)             // account module store key
-	domainStoreKey := sdk.NewKVStoreKey(StoreKey)                      // domain module store key
+	domainStoreKey := sdk.NewKVStoreKey(types.StoreKey)                // domain module store key
 	// generate sub store for each module referenced by the keeper
 	ms.MountStoreWithDB(configurationStoreKey, sdk.StoreTypeIAVL, mdb) // mount configuration module
 	ms.MountStoreWithDB(accountStoreKey, sdk.StoreTypeIAVL, mdb)       // mount account module

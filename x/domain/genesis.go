@@ -1,12 +1,15 @@
 package domain
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/iovnsd/x/domain/types"
+)
 
 type GenesisState struct {
-	DomainsRecords []Domain `json:"domain_records"`
+	DomainsRecords []types.Domain `json:"domain_records"`
 }
 
-func NewGenesisState(domains []Domain) GenesisState {
+func NewGenesisState(domains []types.Domain) GenesisState {
 	return GenesisState{DomainsRecords: domains}
 }
 
@@ -16,7 +19,17 @@ func ValidateGenesis(data GenesisState) error {
 }
 
 func DefaultGenesisState() GenesisState {
-	return GenesisState{DomainsRecords: nil}
+	// TODO remove.
+	return GenesisState{DomainsRecords: []types.Domain{
+		{
+			Name:         "test",
+			Admin:        nil,
+			ValidUntil:   0,
+			HasSuperuser: false,
+			AccountRenew: 0,
+			Broker:       nil,
+		},
+	}}
 }
 
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
@@ -26,7 +39,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 }
 
 func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
-	var records []Domain
+	var records []types.Domain
 	iterator := k.IterateAll(ctx)
 	for ; iterator.Valid(); iterator.Next() {
 		domain, _ := k.GetDomain(ctx, string(iterator.Key()))

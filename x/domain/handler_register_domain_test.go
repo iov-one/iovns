@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovnsd/x/configuration"
+	"github.com/iov-one/iovnsd/x/domain/types"
 	"testing"
 )
 
@@ -24,7 +25,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context) {
 				// register domain with superuser
-				_, err := handleMsgRegisterDomain(ctx, k, MsgRegisterDomain{
+				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
 					Name:         "domain",
 					HasSuperuser: true,
 					AccountRenew: 10,
@@ -33,7 +34,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					t.Fatalf("handleMsgRegisterDomain() with superuser, got error: %s", err)
 				}
 				// register domain without super user
-				_, err = handleMsgRegisterDomain(ctx, k, MsgRegisterDomain{
+				_, err = handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
 					Name:         "domain-without-superuser",
 					Admin:        aliceAddr.GetAddress(),
 					HasSuperuser: false,
@@ -58,7 +59,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 		},
 		"fail domain name exists": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, Domain{
+				k.SetDomain(ctx, types.Domain{
 					Name:         "exists",
 					Admin:        nil,
 					ValidUntil:   0,
@@ -68,15 +69,15 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterDomain(ctx, k, MsgRegisterDomain{
+				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
 					Name:         "exists",
 					Admin:        nil,
 					HasSuperuser: false,
 					Broker:       nil,
 					AccountRenew: 0,
 				})
-				if !errors.Is(err, ErrDomainAlreadyExists) {
-					t.Fatalf("handleMsgRegisterDomain() expected: %s got: %s", ErrDomainAlreadyExists, err)
+				if !errors.Is(err, types.ErrDomainAlreadyExists) {
+					t.Fatalf("handleMsgRegisterDomain() expected: %s got: %s", types.ErrDomainAlreadyExists, err)
 				}
 			},
 			AfterTest: nil,
@@ -92,15 +93,15 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterDomain(ctx, k, MsgRegisterDomain{
+				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
 					Name:         "invalid-name",
 					Admin:        nil,
 					HasSuperuser: false,
 					Broker:       nil,
 					AccountRenew: 0,
 				})
-				if !errors.Is(err, ErrInvalidDomainName) {
-					t.Fatalf("handleMsgRegisterDomain() expected error: %s, got: %s", ErrInvalidDomainName, err)
+				if !errors.Is(err, types.ErrInvalidDomainName) {
+					t.Fatalf("handleMsgRegisterDomain() expected error: %s, got: %s", types.ErrInvalidDomainName, err)
 				}
 			},
 			AfterTest: nil,
@@ -121,15 +122,15 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context) {
 				// try to register domain with no super user
-				_, err := handleMsgRegisterDomain(ctx, k, MsgRegisterDomain{
+				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
 					Name:         "some-domain",
 					Admin:        bobAddr.GetAddress(),
 					HasSuperuser: false,
 					Broker:       nil,
 					AccountRenew: 10,
 				})
-				if !errors.Is(err, ErrUnauthorized) {
-					t.Fatalf("handleMsgRegisterDomain() expecter error: %s, got: %s", ErrUnauthorized, err)
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("handleMsgRegisterDomain() expecter error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
