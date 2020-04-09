@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-// handleMsgRegisterDomain registers the domain
-func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg types.MsgRegisterAccount) (*sdk.Result, error) {
+// handleMsgRegisterAccount registers the domain
+func handleMsgRegisterAccount(ctx sdk.Context, k Keeper, msg types.MsgRegisterAccount) (*sdk.Result, error) {
 	// verify request
 	// get config
 	conf := k.configKeeper.GetConfig(ctx)
