@@ -56,8 +56,8 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 	iterator.Close()
 	// delete account keys
 	for _, key := range accountKeys {
-		// check if this belongs to the domain
-		accountDomain, accountName := iovnsd.SplitAccountKey(key)
+		// check if this account key belongs to the domain
+		accountDomain, _ := iovnsd.SplitAccountKey(key)
 		// if account domain does not match domain name
 		// we want to delete then continue
 		if accountDomain != domainName {
