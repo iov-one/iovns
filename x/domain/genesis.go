@@ -59,6 +59,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
 	var records []types.Domain
 	iterator := k.IterateAll(ctx)
+	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		domain, _ := k.GetDomain(ctx, string(iterator.Key()))
 		records = append(records, domain)
