@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovnsd/x/domain/types"
 )
@@ -14,7 +15,22 @@ func NewGenesisState(domains []types.Domain) GenesisState {
 }
 
 func ValidateGenesis(data GenesisState) error {
-	// TODO validate genesis by: checking no duplicate names, and domain validity
+	namesSet := make(map[string]struct{}, len(data.DomainsRecords))
+	for _, domain := range data.DomainsRecords {
+		if _, ok := namesSet[domain.Name]; ok {
+			return fmt.Errorf("domain name %s declared twice", domain.Name)
+		}
+		namesSet[domain.Name] = struct{}{}
+		if err := validateDomain(domain); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// validateDomain checks if a domain is valid or not
+func validateDomain(d types.Domain) error {
+	// TODO fill
 	return nil
 }
 

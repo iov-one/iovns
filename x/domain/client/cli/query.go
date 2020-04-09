@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/iov-one/iovnsd/x/domain/routes"
+	"github.com/iov-one/iovnsd/x/domain/types"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +38,7 @@ func GetCmdQueryDomain(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, routes.QueryDomain, name), nil)
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryDomain, name), nil)
 			if err != nil {
 				return err
 			}
