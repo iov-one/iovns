@@ -28,3 +28,9 @@ func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
 	accountKey := iovnsd.GetAccountKey(account.Domain, account.Name)
 	store.Set([]byte(accountKey), k.cdc.MustMarshalBinaryBare(account))
 }
+
+// DeleteAccount deletes an account based non its key
+func (k Keeper) DeleteAccount(ctx sdk.Context, key string) {
+	store := ctx.KVStore(k.accountKey)
+	store.Delete([]byte(key))
+}
