@@ -53,6 +53,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
+		// TODO cleanup comments
 		"fail invalid blockchain targets id": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				// set regexp match nothing in blockchain targets
@@ -95,8 +96,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 		},
 		"fail invalid account name": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				// set regexp match nothing in blockchain targets
-				// get set config function
+				// set config
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
