@@ -29,12 +29,14 @@ func TestMain(t *testing.M) {
 	keyBase := keys.NewInMemory()
 	addr1, _, err := keyBase.CreateMnemonic("alice", keys.English, "", keys.Secp256k1)
 	if err != nil {
-		panic("unable to generate mock addresses " + err.Error())
+		fmt.Println("unable to generate mock addresses " + err.Error())
+		os.Exit(1)
 	}
 	aliceKey = addr1
 	addr2, _, err := keyBase.CreateMnemonic("bob", keys.English, "", keys.Secp256k1)
 	if err != nil {
-		panic("unable to generate mock addresses " + err.Error())
+		fmt.Println("unable to generate mock addresses " + err.Error())
+		os.Exit(1)
 	}
 	bobKey = addr2
 	// run and exit
