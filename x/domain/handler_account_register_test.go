@@ -128,8 +128,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					},
 					Broker: nil,
 				})
-				if !errors.Is(err, types.ErrInvalidName) {
-					t.Fatalf("handleMsgRegisterAccount() expected error: %s, got: %s", types.ErrInvalidName, err)
+				if !errors.Is(err, types.ErrInvalidAccountName) {
+					t.Fatalf("handleMsgRegisterAccount() expected error: %s, got: %s", types.ErrInvalidAccountName, err)
 				}
 			},
 			AfterTest: nil,

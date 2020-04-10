@@ -23,7 +23,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgReg
 	}
 	// validate account name
 	if !regexp.MustCompile(conf.ValidName).MatchString(msg.Name) {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidName, "account name %s is invalid", msg.Name)
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccountName, "account name %s is invalid", msg.Name)
 	}
 	// check if domain name exists
 	domain, ok := k.GetDomain(ctx, msg.Domain)

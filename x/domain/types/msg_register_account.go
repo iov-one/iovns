@@ -27,13 +27,13 @@ func (m MsgRegisterAccount) Type() string {
 // ValidateBasic checks the request in a stateless way
 func (m MsgRegisterAccount) ValidateBasic() error {
 	if m.Domain == "" {
-		return sdkerrors.Wrap(ErrInvalidDomain, "empty domain name")
+		return sdkerrors.Wrap(ErrInvalidDomainName, "empty domain name")
 	}
 	if m.Owner.Empty() {
 		return sdkerrors.Wrap(ErrInvalidOwner, "owner empty")
 	}
 	if m.Name == "" {
-		return sdkerrors.Wrap(ErrInvalidName, "account name empty")
+		return sdkerrors.Wrap(ErrInvalidAccountName, "account name empty")
 	}
 	return nil
 }
