@@ -21,9 +21,9 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgTr
 		return nil, sdkerrors.Wrapf(types.ErrDomainExpired, "account transfer is not allowed for expired domains, expire date: %s", iovnsd.SecondsToTime(domain.ValidUntil))
 	}
 	// check if account exists
-	account, exists := k.GetAccount(ctx, msg.Name)
+	account, exists := k.GetAccount(ctx, iovnsd.GetAccountKey(msg.Domain, msg.Name))
 	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExits, "account %s does not exist", msg.Name)
+		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "account %s does not exist", msg.Name)
 	}
 	// check if account has expired
 	if iovnsd.SecondsToTime(account.ValidUntil).Before(ctx.BlockTime()) {
