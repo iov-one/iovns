@@ -22,3 +22,4 @@ var ErrInvalidAccountName = sdkerrors.Register(ModuleName, 9, "invalid account n
 var ErrInvalidBlockchainTarget = sdkerrors.Register(ModuleName, 10, "blockchain target provided is not valid")
 var ErrDomainExpired = sdkerrors.Register(ModuleName, 11, "domain has expired")
 var ErrAccountExists = sdkerrors.Register(ModuleName, 12, "account already exists")
+var ErrInvalidRequest = sdkerrors.Register(ModuleName, 13, "malformed request")
