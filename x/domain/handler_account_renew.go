@@ -6,6 +6,7 @@ import (
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
+	"time"
 )
 
 func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgRenewAccount) (*sdk.Result, error) {
@@ -16,12 +17,12 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgRenew
 	}
 	// get account
 	account, exists := k.GetAccount(ctx, iovns.GetAccountKey(msg.Domain, msg.Name))
-	if exists {
+	if !exists {
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", msg.Name)
 	}
 	// update account time
 	account.ValidUntil = iovns.TimeToSeconds(
-		iovns.SecondsToTime(account.ValidUntil).Add(domain.AccountRenew),
+		iovns.SecondsToTime(account.ValidUntil).Add(domain.AccountRenew * time.Second),
 	)
 	// update account in kv store
 	k.SetAccount(ctx, account)
