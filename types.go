@@ -1,4 +1,4 @@
-package iovnsd
+package iovns
 
 // BlockchainAddress defines an address coming from different DLTs
 type BlockchainAddress struct {

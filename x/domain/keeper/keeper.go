@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd/x/configuration"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/domain/types"
 	"github.com/tendermint/tendermint/libs/log"
 	"time"
 )

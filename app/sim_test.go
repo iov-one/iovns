@@ -3,7 +3,7 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/iov-one/iovnsd/x/configuration"
+	"github.com/iov-one/iovns/x/configuration"
 	"math/rand"
 	"os"
 	"testing"

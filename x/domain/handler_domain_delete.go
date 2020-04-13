@@ -3,8 +3,8 @@ package domain
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovnsd/x/domain/keeper"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/types"
 )
 
 func handleMsgDomainDelete(ctx sdk.Context, k keeper.Keeper, msg types.MsgDeleteDomain) (*sdk.Result, error) {

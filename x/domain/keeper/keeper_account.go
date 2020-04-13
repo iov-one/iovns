@@ -2,8 +2,8 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/x/domain/types"
 )
 
 // contains all the functions to interact with the account store
@@ -25,7 +25,7 @@ func (k Keeper) GetAccount(ctx sdk.Context, accountName string) (account types.A
 // SetAccount inserts an account in the KVStore
 func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
 	store := ctx.KVStore(k.accountKey)
-	accountKey := iovnsd.GetAccountKey(account.Domain, account.Name)
+	accountKey := iovns.GetAccountKey(account.Domain, account.Name)
 	store.Set([]byte(accountKey), k.cdc.MustMarshalBinaryBare(account))
 }
 

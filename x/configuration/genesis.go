@@ -3,7 +3,7 @@ package configuration
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd/x/configuration/types"
+	"github.com/iov-one/iovns/x/configuration/types"
 	"regexp"
 )
 

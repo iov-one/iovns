@@ -7,9 +7,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
-	"github.com/iov-one/iovnsd/x/domain/client/cli"
-	"github.com/iov-one/iovnsd/x/domain/keeper"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	"github.com/iov-one/iovns/x/domain/client/cli"
+	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/types"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 )

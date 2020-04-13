@@ -3,7 +3,7 @@ package domain
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	"github.com/iov-one/iovns/x/domain/types"
 )
 
 // GenesisState represents the state of the domain module

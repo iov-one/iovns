@@ -3,9 +3,9 @@ package domain
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovnsd"
-	"github.com/iov-one/iovnsd/x/domain/keeper"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/types"
 )
 
 // handlerDomainRenew renews a domain
@@ -18,8 +18,8 @@ func handlerDomainRenew(ctx sdk.Context, k keeper.Keeper, msg types.MsgRenewDoma
 	// get configuration
 	renewDuration := k.ConfigurationKeeper.GetDomainRenewDuration(ctx)
 	// update domain valid until
-	domain.ValidUntil = iovnsd.TimeToSeconds(
-		iovnsd.SecondsToTime(domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
+	domain.ValidUntil = iovns.TimeToSeconds(
+		iovns.SecondsToTime(domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
 	)
 	// update domain
 	k.SetDomain(ctx, domain)

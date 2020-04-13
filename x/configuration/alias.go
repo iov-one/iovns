@@ -1,6 +1,6 @@
 package configuration
 
-import "github.com/iov-one/iovnsd/x/configuration/types"
+import "github.com/iov-one/iovns/x/configuration/types"
 
 // alias for types
 

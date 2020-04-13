@@ -1,8 +1,8 @@
 package domain
 
 import (
-	"github.com/iov-one/iovnsd/x/domain/keeper"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/types"
 )
 
 // aliasing for naming constants

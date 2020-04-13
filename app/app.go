@@ -2,8 +2,8 @@ package app
 
 import (
 	"encoding/json"
-	"github.com/iov-one/iovnsd/x/configuration"
-	"github.com/iov-one/iovnsd/x/domain"
+	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/domain"
 	"io"
 	"os"
 

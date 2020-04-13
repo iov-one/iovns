@@ -3,14 +3,14 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovnsd"
+	"github.com/iov-one/iovns"
 )
 
 type MsgRegisterAccount struct {
 	Domain  string
 	Name    string
 	Owner   sdk.AccAddress
-	Targets []iovnsd.BlockchainAddress
+	Targets []iovns.BlockchainAddress
 	Broker  sdk.AccAddress
 }
 

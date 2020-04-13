@@ -3,9 +3,9 @@ package domain
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovnsd"
-	"github.com/iov-one/iovnsd/x/domain/keeper"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/types"
 )
 
 // handlerMsgTransferAccount transfers account to a new owner
@@ -17,16 +17,16 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgTr
 		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "%s does not exist", msg.Domain)
 	}
 	// check if domain has expired expired
-	if iovnsd.SecondsToTime(domain.ValidUntil).Before(ctx.BlockTime()) {
-		return nil, sdkerrors.Wrapf(types.ErrDomainExpired, "account transfer is not allowed for expired domains, expire date: %s", iovnsd.SecondsToTime(domain.ValidUntil))
+	if iovns.SecondsToTime(domain.ValidUntil).Before(ctx.BlockTime()) {
+		return nil, sdkerrors.Wrapf(types.ErrDomainExpired, "account transfer is not allowed for expired domains, expire date: %s", iovns.SecondsToTime(domain.ValidUntil))
 	}
 	// check if account exists
-	account, exists := k.GetAccount(ctx, iovnsd.GetAccountKey(msg.Domain, msg.Name))
+	account, exists := k.GetAccount(ctx, iovns.GetAccountKey(msg.Domain, msg.Name))
 	if !exists {
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "account %s does not exist", msg.Name)
 	}
 	// check if account has expired
-	if iovnsd.SecondsToTime(account.ValidUntil).Before(ctx.BlockTime()) {
+	if iovns.SecondsToTime(account.ValidUntil).Before(ctx.BlockTime()) {
 		return nil, sdkerrors.Wrapf(types.ErrAccountExpired, "account %s has expired", msg.Name)
 	}
 	// check if domain has super user

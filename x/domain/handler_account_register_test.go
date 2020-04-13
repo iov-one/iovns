@@ -3,10 +3,10 @@ package domain
 import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd"
-	"github.com/iov-one/iovnsd/x/configuration"
-	"github.com/iov-one/iovnsd/x/domain/keeper"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
 	"time"
 )
@@ -39,7 +39,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
-					Targets: []iovnsd.BlockchainAddress{
+					Targets: []iovns.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "won't work",
@@ -80,7 +80,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
-					Targets: []iovnsd.BlockchainAddress{
+					Targets: []iovns.BlockchainAddress{
 						{
 							ID:      "invalid blockchain id",
 							Address: "valid blockchain address",
@@ -120,7 +120,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "this won't match",
 					Owner:  aliceKey.GetAddress(),
-					Targets: []iovnsd.BlockchainAddress{
+					Targets: []iovns.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -152,7 +152,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "this does not exist",
 					Name:   "works",
 					Owner:  aliceKey.GetAddress(),
-					Targets: []iovnsd.BlockchainAddress{
+					Targets: []iovns.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -193,7 +193,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(), // invalid owner
-					Targets: []iovnsd.BlockchainAddress{
+					Targets: []iovns.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -234,7 +234,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  bobKey.GetAddress(),
-					Targets: []iovnsd.BlockchainAddress{
+					Targets: []iovns.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -285,7 +285,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "exists",
 					Owner:  bobKey.GetAddress(),
-					Targets: []iovnsd.BlockchainAddress{
+					Targets: []iovns.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -326,7 +326,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  bobKey.GetAddress(),
-					Targets: []iovnsd.BlockchainAddress{
+					Targets: []iovns.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",

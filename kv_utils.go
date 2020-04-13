@@ -1,4 +1,4 @@
-package iovnsd
+package iovns
 
 import "github.com/cosmos/cosmos-sdk/store/types"
 

@@ -1,4 +1,4 @@
-module github.com/iov-one/iovnsd
+module github.com/iov-one/iovns
 
 go 1.13
 

@@ -1,4 +1,4 @@
-package iovnsd
+package iovns
 
 import (
 	"bytes"

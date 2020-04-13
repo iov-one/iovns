@@ -3,9 +3,9 @@ package domain
 import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovnsd"
-	"github.com/iov-one/iovnsd/x/domain/keeper"
-	"github.com/iov-one/iovnsd/x/domain/types"
+	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
 	"time"
 )
@@ -58,7 +58,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				k.SetDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
-					ValidUntil:   iovnsd.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					HasSuperuser: false,
 					AccountRenew: 0,
 					Broker:       nil,
@@ -82,7 +82,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				k.SetDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
-					ValidUntil:   iovnsd.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					HasSuperuser: false,
 					AccountRenew: 0,
 					Broker:       nil,
@@ -115,7 +115,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				k.SetDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        aliceKey.GetAddress(),
-					ValidUntil:   iovnsd.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					HasSuperuser: true,
 					AccountRenew: 0,
 					Broker:       nil,
@@ -124,7 +124,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Domain:       "test",
 					Name:         "test",
 					Owner:        nil,
-					ValidUntil:   iovnsd.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Targets:      nil,
 					Certificates: nil,
 					Broker:       nil,
@@ -148,7 +148,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				k.SetDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
-					ValidUntil:   iovnsd.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					HasSuperuser: false,
 					AccountRenew: 0,
 					Broker:       nil,
@@ -157,7 +157,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Domain:       "test",
 					Name:         "test",
 					Owner:        aliceKey.GetAddress(),
-					ValidUntil:   iovnsd.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Targets:      nil,
 					Certificates: nil,
 					Broker:       nil,
@@ -181,7 +181,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				k.SetDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
-					ValidUntil:   iovnsd.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					HasSuperuser: false,
 					AccountRenew: 0,
 					Broker:       nil,
@@ -190,7 +190,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Domain:       "test",
 					Name:         "test",
 					Owner:        aliceKey.GetAddress(),
-					ValidUntil:   iovnsd.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Targets:      nil,
 					Certificates: nil,
 					Broker:       nil,
@@ -208,7 +208,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				account, exists := k.GetAccount(ctx, iovnsd.GetAccountKey("test", "test"))
+				account, exists := k.GetAccount(ctx, iovns.GetAccountKey("test", "test"))
 				if !exists {
 					panic("unexpected account deletion")
 				}
