@@ -7,7 +7,7 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-func handleMsgDomainDelete(ctx sdk.Context, k keeper.Keeper, msg types.MsgDeleteDomain) (*sdk.Result, error) {
+func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg types.MsgDeleteDomain) (*sdk.Result, error) {
 	// check if domain exists
 	domain, exists := k.GetDomain(ctx, msg.Domain)
 	if !exists {

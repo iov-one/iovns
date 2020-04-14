@@ -16,12 +16,12 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				// don't do anything
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgDomainDelete(ctx, k, types.MsgDeleteDomain{
+				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "this does not exist",
 					Owner:  bobKey.GetAddress(),
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
-					t.Fatalf("handleMsgDomainDelete() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
+					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
 			},
 		},
@@ -38,12 +38,12 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgDomainDelete(ctx, k, types.MsgDeleteDomain{
+				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  bobKey.GetAddress(),
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handleMsgDomainDelete() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -60,12 +60,12 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgDomainDelete(ctx, k, types.MsgDeleteDomain{
+				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  aliceKey.GetAddress(),
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handleMsgDomainDelete() expected error: %s, got: %s", types.ErrUnauthorized, err)
+					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,
@@ -93,26 +93,26 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgDomainDelete(ctx, k, types.MsgDeleteDomain{
+				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  aliceKey.GetAddress(),
 				})
 				if err != nil {
-					t.Fatalf("handleMsgDomainDelete() got error: %s", err)
+					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				_, exists := k.GetDomain(ctx, "test")
 				if exists {
-					t.Fatalf("handleMsgDomainDelete() domain should not exist")
+					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
 				_, exists = k.GetAccount(ctx, iovns.GetAccountKey("test", "1"))
 				if exists {
-					t.Fatalf("handleMsgDomainDelete() account 1 should not exist")
+					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
 				_, exists = k.GetAccount(ctx, iovns.GetAccountKey("test", "2"))
 				if exists {
-					t.Fatalf("handleMsgDomainDelete() account 2 should not exist")
+					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
 			},
 		},

@@ -8,8 +8,8 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-// handlerDomainRenew renews a domain
-func handlerDomainRenew(ctx sdk.Context, k keeper.Keeper, msg types.MsgRenewDomain) (*sdk.Result, error) {
+// handlerMsgRenewDomain renews a domain
+func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg types.MsgRenewDomain) (*sdk.Result, error) {
 	// check if domain exists
 	domain, exists := k.GetDomain(ctx, msg.Domain)
 	if !exists {
