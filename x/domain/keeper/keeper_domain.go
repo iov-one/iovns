@@ -68,3 +68,40 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 	// done
 	return true
 }
+
+// FlushDomain removes all accounts, except the empty one, from the domain.
+// returns true in case the domain exists and the operation has been done.
+// returns false only in case the domain does not exist.
+func (k Keeper) FlushDomain(ctx sdk.Context, domainName string) (exists bool) {
+	_, exists = k.GetDomain(ctx, domainName)
+	if !exists {
+		return
+	}
+	// iterate accounts
+	accountStore := ctx.KVStore(k.accountKey)
+	// get all account keys
+	iterator := accountStore.Iterator(nil, nil)
+	var domainAccountKeys [][]byte
+	for ; iterator.Valid(); iterator.Next() {
+		// check if account key matches the domain
+		key := iterator.Key()
+		accountDomain, accountName := iovns.SplitAccountKey(key)
+		// if key does not belong to domain skip
+		if accountDomain != domainName {
+			continue
+		}
+		// if accountName is empty account name then skip
+		if accountName == "" {
+			continue
+		}
+		// append
+		domainAccountKeys = append(domainAccountKeys, iterator.Key())
+	}
+	iterator.Close()
+	// now delete accounts
+	for _, accountKey := range domainAccountKeys {
+		accountStore.Delete(accountKey)
+	}
+	// success
+	return
+}
