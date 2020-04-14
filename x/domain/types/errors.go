@@ -23,3 +23,4 @@ var ErrInvalidBlockchainTarget = sdkerrors.Register(ModuleName, 10, "blockchain 
 var ErrDomainExpired = sdkerrors.Register(ModuleName, 11, "domain has expired")
 var ErrAccountExists = sdkerrors.Register(ModuleName, 12, "account already exists")
 var ErrInvalidRequest = sdkerrors.Register(ModuleName, 13, "malformed request")
+var ErrCertificateExists = sdkerrors.Register(ModuleName, 14, "certificate already exists")
