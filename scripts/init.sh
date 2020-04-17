@@ -1,3 +1,4 @@
+set -o nounset
 
 rm -rf "$HOME/.iovnscli"
 rm -rf "$HOME/.iovnsd"
