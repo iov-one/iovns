@@ -1,3 +1,4 @@
+set -o nounset
 
 rm -rf "$HOME/.appcli"
 rm -rf "$HOME/.appd"
