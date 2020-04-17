@@ -11,10 +11,10 @@ WORKDIR /source
 # install modules
 RUN go mod download
 # build all
-RUN go build ./cmd/appd
-RUN go build ./cmd/appcli
+RUN go build ./cmd/iovnsd
+RUN go build ./cmd/iovnscli
 # move binaries to iovnsd
-RUN mv appd /iovnsd/appd && mv appcli /iovnsd/appcli
+RUN mv iovnsd /iovnsd/iovnsd && mv iovnscli /iovnsd/iovnscli
 # change to working dir
 WORKDIR /iovnsd
 # delete build dir

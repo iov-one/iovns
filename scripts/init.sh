@@ -1,28 +1,28 @@
 
-rm -rf "$HOME/.appcli"
-rm -rf "$HOME/.appd"
+rm -rf "$HOME/.iovnscli"
+rm -rf "$HOME/.iovnsd"
 # init config files
-./appd init "$MONIKER" --chain-id iovns
+./iovnsd init "$MONIKER" --chain-id iovns
 # configure cli
-./appcli config chain-id iovns
-./appcli config output json
-./appcli config trust-node true
+./iovnscli config chain-id iovns
+./iovnscli config output json
+./iovnscli config trust-node true
 
 # use keyring backend TODO learn what is a keyring backend
-./appcli config keyring-backend test
+./iovnscli config keyring-backend test
 
 # create accounts
-./appcli keys add fd
-./appcli keys add dp
+./iovnscli keys add fd
+./iovnscli keys add dp
 
 # give the accounts some money
-./appd add-genesis-account $(./appcli keys show fd -a) 1000iov,10000000000stake
-./appd add-genesis-account $(./appcli keys show dp -a) 1000iov,10000000000stake
+./iovnsd add-genesis-account $(./iovnscli keys show fd -a) 1000iov,10000000000stake
+./iovnsd add-genesis-account $(./iovnscli keys show dp -a) 1000iov,10000000000stake
 
 # save configs for the daemon
-./appd gentx --name fd --keyring-backend test
+./iovnsd gentx --name fd --keyring-backend test
 
 # input genTx to the genesis file
-./appd collect-gentxs
+./iovnsd collect-gentxs
 # verify genesis file is fine
-./appd validate-genesis
+./iovnsd validate-genesis
