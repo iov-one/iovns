@@ -2,20 +2,12 @@ package domain
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
-	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/domain/keeper"
-	"github.com/iov-one/iovns/x/domain/types"
-	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
 	"os"
 	"testing"
-	"time"
 )
 
 var aliceKey keys.Info
@@ -61,7 +53,7 @@ type subTest struct {
 // runTests run tests cases after generating a new keeper and context for each test case
 func runTests(t *testing.T, tests map[string]subTest) {
 	for name, test := range tests {
-		domainKeeper, ctx := newTestKeeper(t, true)
+		domainKeeper, ctx := keeper.NewTestKeeper(t, true)
 		// run sub subTest
 		t.Run(name, func(t *testing.T) {
 			// run before subTest
@@ -76,41 +68,6 @@ func runTests(t *testing.T, tests map[string]subTest) {
 			}
 		})
 	}
-}
-
-// newTestCodec generates a mock codec for keeper module
-func newTestCodec() *codec.Codec {
-	// we should register this codec for all the modules
-	// that are used and referenced by domain module
-	cdc := codec.New()
-	codec.RegisterCrypto(cdc)
-	configuration.RegisterCodec(cdc)
-	return cdc
-}
-
-// newTestKeeper generates a keeper and a context from it
-func newTestKeeper(t *testing.T, isCheckTx bool) (keeper.Keeper, sdk.Context) {
-	cdc := newTestCodec()
-	// generate store
-	mdb := dbm.NewMemDB()
-	// generate multistore
-	ms := store.NewCommitMultiStore(mdb)
-	// generate store keys
-	configurationStoreKey := sdk.NewKVStoreKey(configuration.StoreKey) // configuration module store key
-	accountStoreKey := sdk.NewKVStoreKey(types.DomainStoreKey)         // account module store key
-	domainStoreKey := sdk.NewKVStoreKey(types.AccountStoreKey)         // domain module store key
-	// generate sub store for each module referenced by the keeper
-	ms.MountStoreWithDB(configurationStoreKey, sdk.StoreTypeIAVL, mdb) // mount configuration module
-	ms.MountStoreWithDB(accountStoreKey, sdk.StoreTypeIAVL, mdb)       // mount account module
-	ms.MountStoreWithDB(domainStoreKey, sdk.StoreTypeIAVL, mdb)        // mount domain module
-	// test no errors
-	require.Nil(t, ms.LoadLatestVersion())
-	// create config keeper
-	confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, nil)
-	// create context
-	ctx := sdk.NewContext(ms, abci.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
-	// create domain.Keeper
-	return keeper.NewKeeper(cdc, domainStoreKey, accountStoreKey, confKeeper, nil), ctx
 }
 
 // since the exposed interface for configuration keeper
