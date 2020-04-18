@@ -282,6 +282,7 @@ func NewNameService(
 		app.cdc,
 		keys[domain.DomainStoreKey],
 		keys[domain.AccountStoreKey],
+		keys[domain.IndexStoreKey],
 		app.configurationKeeper,
 		nil,
 	)

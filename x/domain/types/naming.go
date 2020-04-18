@@ -5,6 +5,7 @@ const (
 	ModuleName      = "domain"
 	DomainStoreKey  = "domain"
 	AccountStoreKey = "account"
+	IndexStoreKey   = ModuleName + "index"
 	RouterKey       = ModuleName
 	QuerierRoute    = ModuleName
 )
