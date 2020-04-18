@@ -29,6 +29,14 @@ func (k Keeper) GetAccount(ctx sdk.Context, domainName, accountName string) (acc
 	return
 }
 
+// CreateAccount creates an account
+func (k Keeper) CreateAccount(ctx sdk.Context, account types.Account) {
+	// create account
+	k.SetAccount(ctx, account)
+	// map account to owner
+	k.mapAccountToOwner(ctx, account)
+}
+
 // SetAccount upserts account data
 func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
 	// get domain prefix key and account key
@@ -41,10 +49,15 @@ func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
 
 // DeleteAccount deletes an account based on it full account name -> domain + iovns.Separator + account
 func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
+	// we need to retrieve account in order to unmap the account from the index; TODO can we avoid this?
+	account, _ := k.GetAccount(ctx, domainName, accountName)
+	// delete account
 	domainKey := getDomainPrefixKey(domainName)
 	accountKey := getAccountKey(accountName)
 	store := prefix.NewStore(ctx.KVStore(k.accountStoreKey), domainKey)
 	store.Delete(accountKey)
+	// unmap account to owner
+	k.unmapAccountToOwner(ctx, account)
 }
 
 // GetAccountsInDomain provides all the account keys related to the given domain name
@@ -66,12 +79,16 @@ func (k Keeper) GetAccountsInDomain(ctx sdk.Context, domainName string) [][]byte
 
 // TransferAccount transfers the account to a new owner after resetting certificates and targets
 func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner sdk.AccAddress) {
+	// unmap account to owner
+	k.unmapAccountToOwner(ctx, account)
 	// update account
 	account.Owner = newOwner   // transfer owner
 	account.Certificates = nil // remove certs
 	account.Targets = nil      // remove targets
 	// save account
 	k.SetAccount(ctx, account)
+	// map account to new owner
+	k.mapAccountToOwner(ctx, account)
 }
 
 // AddAccountCertificate adds a new certificate to the account

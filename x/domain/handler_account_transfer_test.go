@@ -87,7 +87,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					AccountRenew: 0,
 					Broker:       nil,
 				})
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
 					Owner:        nil,
@@ -120,7 +120,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					AccountRenew: 0,
 					Broker:       nil,
 				})
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
 					Owner:        nil,
@@ -153,7 +153,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					AccountRenew: 0,
 					Broker:       nil,
 				})
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
 					Owner:        aliceKey.GetAddress(),
@@ -186,7 +186,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					AccountRenew: 0,
 					Broker:       nil,
 				})
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
 					Owner:        aliceKey.GetAddress(),

@@ -81,12 +81,12 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Broker:       nil,
 				})
 				// add two accounts
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "1",
 				})
 				// add two accounts
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "2",
 				})

@@ -95,11 +95,7 @@ func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain 
 		}
 		// get account;
 		account, _ := k.GetAccount(ctx, domain.Name, accountKeyToString(accountKey))
-		// update account
-		account.Certificates = nil // delete certs
-		account.Targets = nil      // delete targets
-		account.Owner = newOwner   // update admin
-		// save to kvstore
-		k.SetAccount(ctx, account)
+		// transfer it
+		k.TransferAccount(ctx, account, newOwner)
 	}
 }

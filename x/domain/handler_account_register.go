@@ -53,7 +53,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgReg
 		Broker:       msg.Broker,
 	}
 	// save account
-	k.SetAccount(ctx, account)
+	k.CreateAccount(ctx, account)
 	// success; TODO can we emit events?
 	return &sdk.Result{}, nil
 }

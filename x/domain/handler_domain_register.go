@@ -52,7 +52,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegist
 		Broker:       nil, // TODO ??
 	}
 	// save account
-	keeper.SetAccount(ctx, acc)
+	keeper.CreateAccount(ctx, acc)
 	// success TODO think here, can we emit any useful event
 	return &sdk.Result{
 		Data:   nil,

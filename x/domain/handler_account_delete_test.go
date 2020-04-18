@@ -51,7 +51,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 					Name:  "test",
 					Admin: aliceKey.GetAddress(),
 				})
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
@@ -75,7 +75,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 					Name:  "test",
 					Admin: aliceKey.GetAddress(),
 				})
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "test",
 					Owner:  bobKey.GetAddress(),
@@ -104,7 +104,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 					Name:  "test",
 					Admin: aliceKey.GetAddress(),
 				})
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "test",
 					Owner:  bobKey.GetAddress(),

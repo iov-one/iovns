@@ -52,7 +52,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 					AccountRenew: 100,
 				})
 				// set mock account
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: 1000,

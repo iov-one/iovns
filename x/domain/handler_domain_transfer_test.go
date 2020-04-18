@@ -98,12 +98,12 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Admin:        aliceKey.GetAddress(),
 				})
 				// add empty account
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "",
 				})
 				// add account 1
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "1",
 					Owner:      aliceKey.GetAddress(),
@@ -116,7 +116,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Broker:       nil,
 				})
 				// add account 2
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "2",
 					Owner:      aliceKey.GetAddress(),

@@ -79,17 +79,17 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 					Broker:       nil,
 				})
 				// add empty account 1
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "",
 				})
 				// add account 2
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "1",
 				})
 				// add account 2
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "2",
 				})

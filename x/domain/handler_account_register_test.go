@@ -270,7 +270,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Broker:       nil,
 				})
 				// add an account that we are gonna try to overwrite
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "exists",
 					Owner:        nil,
