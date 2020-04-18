@@ -38,10 +38,8 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg type
 			return nil, sdkerrors.Wrapf(types.ErrCertificateExists, "certificate is already present")
 		}
 	}
-	// if not add it to accounts certs
-	account.Certificates = append(account.Certificates, msg.NewCertificate)
-	// update account
-	k.SetAccount(ctx, account)
+	// add certificate
+	k.AddAccountCertificate(ctx, account, msg.NewCertificate)
 	// success; TODO emit event
 	return &sdk.Result{}, nil
 }

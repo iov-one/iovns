@@ -34,10 +34,8 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg ty
 	if !found {
 		return nil, sdkerrors.Wrapf(types.ErrCertificateDoesNotExist, "not found")
 	}
-	// remove it
-	account.Certificates = append(account.Certificates[:certIndex], account.Certificates[certIndex+1:]...)
-	// update account
-	k.SetAccount(ctx, account)
+	// delete cert
+	k.DeleteAccountCertificate(ctx, account, certIndex)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
 }

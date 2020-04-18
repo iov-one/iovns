@@ -3,10 +3,8 @@ package domain
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
-	"time"
 )
 
 func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgRenewAccount) (*sdk.Result, error) {
@@ -20,12 +18,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgRenew
 	if !exists {
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", msg.Name)
 	}
-	// update account time
-	account.ValidUntil = iovns.TimeToSeconds(
-		iovns.SecondsToTime(account.ValidUntil).Add(domain.AccountRenew * time.Second),
-	)
-	// update account in kv store
-	k.SetAccount(ctx, account)
+	k.UpdateAccountValidity(ctx, account, domain.AccountRenew)
 	// success; todo emit event??
 	return &sdk.Result{}, nil
 }

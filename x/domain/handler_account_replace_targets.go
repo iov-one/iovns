@@ -39,10 +39,8 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg types
 	if !msg.Owner.Equals(account.Owner) {
 		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "account %s is not authorized to perform actions on account owned by %s", msg.Owner, account.Owner)
 	}
-	// replace targets
-	account.Targets = msg.NewTargets
-	// update account
-	k.SetAccount(ctx, account)
+	// replace targets replaces accounts targets
+	k.ReplaceAccountTargets(ctx, account, msg.NewTargets)
 	// success; TODO emit any useful event?
 	return &sdk.Result{}, nil
 }

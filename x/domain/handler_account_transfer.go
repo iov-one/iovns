@@ -42,10 +42,8 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgTr
 			return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to transfer the account", account.Owner)
 		}
 	}
-	// now transfer account
-	account.Owner = msg.NewOwner // transfer owner
-	account.Targets = nil        // clear blockchain targets
-	account.Certificates = nil   // clear certificates
+	// transfer account
+	k.TransferAccount(ctx, account, msg.Owner)
 	// success, todo emit event?
 	return &sdk.Result{}, nil
 }
