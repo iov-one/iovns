@@ -3,7 +3,6 @@ package domain
 import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
@@ -17,8 +16,8 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				_, err := handlerMsgDeleteAccount(ctx, k, types.MsgDeleteAccount{
-					Domain: "",
-					Name:   "",
+					Domain: "does not exist",
+					Name:   "does not exist",
 					Owner:  nil,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
@@ -93,7 +92,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, exists := k.GetAccount(ctx, iovns.GetAccountKey("test", "test"))
+				_, exists := k.GetAccount(ctx, "test", "test")
 				if exists {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}
@@ -122,7 +121,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, exists := k.GetAccount(ctx, iovns.GetAccountKey("test", "test"))
+				_, exists := k.GetAccount(ctx, "test", "test")
 				if exists {
 					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
 				}

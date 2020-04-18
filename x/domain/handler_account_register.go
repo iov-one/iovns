@@ -39,7 +39,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgReg
 		return nil, sdkerrors.Wrap(types.ErrDomainExpired, "account registration is not allowed")
 	}
 	// check account does not exist already
-	if _, ok := k.GetAccount(ctx, iovns.GetAccountKey(msg.Domain, msg.Name)); ok {
+	if _, ok := k.GetAccount(ctx, msg.Domain, msg.Name); ok {
 		return nil, sdkerrors.Wrapf(types.ErrAccountExists, "account: %s exists for domain %s", msg.Name, msg.Domain)
 	}
 	// create account struct

@@ -179,7 +179,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				expected := [][]byte{[]byte("test")}
-				account, _ := k.GetAccount(ctx, iovns.GetAccountKey("test", "test"))
+				account, _ := k.GetAccount(ctx, "test", "test")
 				if !reflect.DeepEqual(account.Certificates, expected) {
 					t.Fatalf("handlerMsgAddAccountCertificates: got: %#v, expected: %#v", account.Certificates, expected)
 				}

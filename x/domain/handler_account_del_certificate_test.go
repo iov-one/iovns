@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
@@ -92,7 +91,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				// check if certificate is still present
-				account, _ := k.GetAccount(ctx, iovns.GetAccountKey("test", "test"))
+				account, _ := k.GetAccount(ctx, "test", "test")
 				for _, cert := range account.Certificates {
 					if bytes.Equal(cert, []byte("test")) {
 						t.Fatalf("handlerMsgDeleteAccountCertificates() certificate not deleted")

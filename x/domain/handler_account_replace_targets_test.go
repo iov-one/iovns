@@ -249,7 +249,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					ID:      "valid",
 					Address: "valid",
 				}}
-				account, _ := k.GetAccount(ctx, iovns.GetAccountKey("test", "test"))
+				account, _ := k.GetAccount(ctx, "test", "test")
 				if !reflect.DeepEqual(expected, account.Targets) {
 					t.Fatalf("handlerMsgReplaceAccountTargets() expected: %+v, got %+v", expected, account.Targets)
 				}

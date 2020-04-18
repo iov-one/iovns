@@ -10,7 +10,7 @@ import (
 
 // GetDomain returns the domain based on its name, if domain is not found ok will be false
 func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Domain, ok bool) {
-	store := ctx.KVStore(k.domainKey)
+	store := ctx.KVStore(k.domainStoreKey)
 	// get domain in form of bytes
 	domainBytes := store.Get([]byte(domainName))
 	// if nothing is returned, return nil
@@ -25,14 +25,14 @@ func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Doma
 
 // SetDomain saves the domain inside the KVStore with its name as key
 func (k Keeper) SetDomain(ctx sdk.Context, domain types.Domain) {
-	store := ctx.KVStore(k.domainKey)
+	store := ctx.KVStore(k.domainStoreKey)
 	store.Set([]byte(domain.Name), k.cdc.MustMarshalBinaryBare(domain))
 }
 
 // IterateAllDomains will return an iterator for all the domain keys
 // present in the KVStore, it's callers duty to close the iterator.
 func (k Keeper) IterateAllDomains(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.domainKey)
+	store := ctx.KVStore(k.domainStoreKey)
 	return sdk.KVStorePrefixIterator(store, []byte{})
 }
 
@@ -44,26 +44,13 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 		return
 	}
 	// delete domain
-	domainStore := ctx.KVStore(k.domainKey)
+	domainStore := ctx.KVStore(k.domainStoreKey)
 	domainStore.Delete([]byte(domainName))
-	// delete accounts, TODO do it efficiently with KVUtils
-	accountStore := ctx.KVStore(k.accountKey)
-	iterator := accountStore.Iterator(nil, nil)
-	var accountKeys [][]byte
-	for ; iterator.Valid(); iterator.Next() {
-		accountKeys = append(accountKeys, iterator.Key())
-	}
-	iterator.Close()
-	// delete account keys
-	for _, key := range accountKeys {
-		// check if this account key belongs to the domain
-		accountDomain, _ := iovns.SplitAccountKey(key)
-		// if account domain does not match domain name
-		// we want to delete then continue
-		if accountDomain != domainName {
-			continue
-		}
-		accountStore.Delete(key)
+	// delete accounts,
+	accountKeys := k.GetAccountsInDomain(ctx, domainName)
+	// delete keys in domain
+	for _, accountKey := range accountKeys {
+		k.DeleteAccount(ctx, domainName, accountKeyToString(accountKey))
 	}
 	// done
 	return true
@@ -78,30 +65,41 @@ func (k Keeper) FlushDomain(ctx sdk.Context, domainName string) (exists bool) {
 		return
 	}
 	// iterate accounts
-	accountStore := ctx.KVStore(k.accountKey)
-	// get all account keys
-	iterator := accountStore.Iterator(nil, nil)
-	var domainAccountKeys [][]byte
-	for ; iterator.Valid(); iterator.Next() {
-		// check if account key matches the domain
-		key := iterator.Key()
-		accountDomain, accountName := iovns.SplitAccountKey(key)
-		// if key does not belong to domain skip
-		if accountDomain != domainName {
-			continue
-		}
-		// if accountName is empty account name then skip
-		if accountName == "" {
-			continue
-		}
-		// append
-		domainAccountKeys = append(domainAccountKeys, iterator.Key())
-	}
-	iterator.Close()
+	domainAccountKeys := k.GetAccountsInDomain(ctx, domainName)
 	// now delete accounts
 	for _, accountKey := range domainAccountKeys {
-		accountStore.Delete(accountKey)
+		// account key is empty then skip
+		if string(accountKey) == "" {
+			continue
+		}
+		// otherwise delete
+		k.DeleteAccount(ctx, domainName, accountKeyToString(accountKey))
 	}
 	// success
 	return
+}
+
+// TransferDomain transfers a domain
+func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain types.Domain) {
+	// update domain owner
+	domain.Admin = newOwner
+	// set domain
+	k.SetDomain(ctx, domain)
+	// get account keys related to the domain
+	accountKeys := k.GetAccountsInDomain(ctx, domain.Name)
+	// iterate over accounts
+	for _, accountKey := range accountKeys {
+		// skip if account key is empty account name
+		if string(accountKey) == iovns.EmptyAccountName {
+			continue
+		}
+		// get account;
+		account, _ := k.GetAccount(ctx, domain.Name, accountKeyToString(accountKey))
+		// update account
+		account.Certificates = nil // delete certs
+		account.Targets = nil      // delete targets
+		account.Owner = newOwner   // update admin
+		// save to kvstore
+		k.SetAccount(ctx, account)
+	}
 }

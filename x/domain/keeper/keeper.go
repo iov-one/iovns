@@ -34,17 +34,17 @@ type Keeper struct {
 	// external keepers
 	ConfigurationKeeper ConfigurationKeeper
 	// default fields
-	domainKey  sdk.StoreKey // contains the domain kvstore
-	accountKey sdk.StoreKey // contains the account kvstore
-	cdc        *codec.Codec
-	paramspace ParamSubspace
+	domainStoreKey  sdk.StoreKey // contains the domain kvstore
+	accountStoreKey sdk.StoreKey // contains the account kvstore
+	cdc             *codec.Codec
+	paramspace      ParamSubspace
 }
 
 // NewKeeper creates a domain keeper
 func NewKeeper(cdc *codec.Codec, domainKey sdk.StoreKey, accountKey sdk.StoreKey, configKeeper ConfigurationKeeper, paramspace ParamSubspace) Keeper {
 	keeper := Keeper{
-		domainKey:           domainKey,
-		accountKey:          accountKey,
+		domainStoreKey:      domainKey,
+		accountStoreKey:     accountKey,
 		cdc:                 cdc,
 		ConfigurationKeeper: configKeeper,
 		paramspace:          nil,

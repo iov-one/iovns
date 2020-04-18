@@ -16,7 +16,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgRenew
 		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
 	}
 	// get account
-	account, exists := k.GetAccount(ctx, iovns.GetAccountKey(msg.Domain, msg.Name))
+	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
 	if !exists {
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", msg.Name)
 	}

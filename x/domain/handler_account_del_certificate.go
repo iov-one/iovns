@@ -4,14 +4,13 @@ import (
 	"bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
 func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
 	// get account
-	account, exists := k.GetAccount(ctx, iovns.GetAccountKey(msg.Domain, msg.Name))
+	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
 	if !exists {
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", msg.Name)
 	}

@@ -20,7 +20,7 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg type
 		return nil, sdkerrors.Wrapf(types.ErrDomainExpired, "domain %s has expired", msg.Domain)
 	}
 	// get account
-	account, exists := k.GetAccount(ctx, iovns.GetAccountKey(msg.Domain, msg.Name))
+	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
 	if !exists {
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", msg.Name)
 	}

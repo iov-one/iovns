@@ -26,23 +26,8 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg types.MsgTra
 	if ctx.BlockTime().After(iovns.SecondsToTime(domain.ValidUntil)) {
 		return nil, sdkerrors.Wrapf(types.ErrDomainExpired, "%s has expired", msg.Domain)
 	}
-	// change domain admin
-	domain.Admin = msg.NewAdmin
-	// save domain
-	k.SetDomain(ctx, domain)
-	// get account keys related to the domain
-	accountKeys := k.GetAccountsInDomain(ctx, domain.Name)
-	// iterate over accounts
-	for _, accountKey := range accountKeys {
-		// get account; TODO might change the need to convert back from bytes to string to bytes
-		account, _ := k.GetAccount(ctx, string(accountKey))
-		// update account
-		account.Certificates = nil   // delete certs
-		account.Targets = nil        // delete targets
-		account.Owner = msg.NewAdmin // update admin
-		// save to kvstore
-		k.SetAccount(ctx, account)
-	}
+	// transfer account ownership
+	k.TransferDomain(ctx, msg.NewAdmin, domain)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
 }

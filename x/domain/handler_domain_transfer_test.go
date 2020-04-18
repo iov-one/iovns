@@ -146,7 +146,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					t.Fatalf("handlerMsgTransferDomain() expected domain owner: %s, got: %s", bobKey.GetAddress(), domain.Admin)
 				}
 				// check if account new owner has changed
-				account, _ := k.GetAccount(ctx, iovns.GetAccountKey("test", "1"))
+				account, _ := k.GetAccount(ctx, "test", "1")
 				if !account.Owner.Equals(bobKey.GetAddress()) {
 					t.Fatalf("handlerMsgTransferDomain() expected account owner: %s, got: %s", bobKey.GetAddress(), account.Owner)
 				}
@@ -159,7 +159,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					t.Fatalf("handlerMsgTransferDomain expected account certificates: <nil>, got: %#v", account.Certificates)
 				}
 				// check no changes in empty account
-				if emptyAcc, _ := k.GetAccount(ctx, iovns.GetAccountKey("test", "")); !reflect.DeepEqual(emptyAcc, types.Account{Domain: "test", Name: ""}) {
+				if emptyAcc, _ := k.GetAccount(ctx, "test", ""); !reflect.DeepEqual(emptyAcc, types.Account{Domain: "test", Name: ""}) {
 					t.Fatalf("handlerMsgTransferdomain() empty account mismatch, expected: %+v, got: %+v", types.Account{Domain: "test", Name: ""}, emptyAcc)
 				}
 			},

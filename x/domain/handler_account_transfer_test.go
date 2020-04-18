@@ -19,7 +19,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				_, err := handlerMsgTransferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "does not exist",
-					Name:     "",
+					Name:     "does not exist",
 					Owner:    nil,
 					NewOwner: nil,
 				})
@@ -208,7 +208,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				account, exists := k.GetAccount(ctx, iovns.GetAccountKey("test", "test"))
+				account, exists := k.GetAccount(ctx, "test", "test")
 				if !exists {
 					panic("unexpected account deletion")
 				}

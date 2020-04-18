@@ -3,7 +3,6 @@ package domain
 import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
@@ -106,11 +105,11 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				_, exists = k.GetAccount(ctx, iovns.GetAccountKey("test", "1"))
+				_, exists = k.GetAccount(ctx, "test", "1")
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				_, exists = k.GetAccount(ctx, iovns.GetAccountKey("test", "2"))
+				_, exists = k.GetAccount(ctx, "test", "2")
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}

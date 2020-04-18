@@ -3,7 +3,6 @@ package domain
 import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
@@ -69,7 +68,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				account, _ := k.GetAccount(ctx, iovns.GetAccountKey("test", "test"))
+				account, _ := k.GetAccount(ctx, "test", "test")
 				if account.ValidUntil != 1100 {
 					t.Fatalf("handlerMsgRenewAccount() expected 1100, got: %d", account.ValidUntil)
 				}

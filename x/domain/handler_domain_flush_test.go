@@ -3,7 +3,6 @@ package domain
 import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
@@ -106,15 +105,15 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				var exists bool
-				_, exists = k.GetAccount(ctx, iovns.GetAccountKey("test", ""))
+				_, exists = k.GetAccount(ctx, "test", "")
 				if !exists {
 					t.Fatalf("handlerMsgFlushDomain() empty account was deleted")
 				}
-				_, exists = k.GetAccount(ctx, iovns.GetAccountKey("test", "1"))
+				_, exists = k.GetAccount(ctx, "test", "1")
 				if exists {
 					t.Fatalf("handlerMsgFlushDomain() account 1 was not deleted")
 				}
-				_, exists = k.GetAccount(ctx, iovns.GetAccountKey("test", "2"))
+				_, exists = k.GetAccount(ctx, "test", "2")
 				if exists {
 					t.Fatalf("handlerMsgFlushDomain() account 2 was not deleted")
 				}
