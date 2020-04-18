@@ -11,7 +11,7 @@ import (
 // contains all the functions to interact with the account store
 
 // GetAccount finds an account based on its key name, if not found it will return
-// a zeroed account and false.
+// aliceAddr zeroed account and false.
 func (k Keeper) GetAccount(ctx sdk.Context, domainName, accountName string) (account types.Account, exists bool) {
 	// get domain prefix key
 	domainKey := getDomainPrefixKey(domainName)
@@ -77,7 +77,7 @@ func (k Keeper) GetAccountsInDomain(ctx sdk.Context, domainName string) [][]byte
 	return domainAccountKeys
 }
 
-// TransferAccount transfers the account to a new owner after resetting certificates and targets
+// TransferAccount transfers the account to aliceAddr new owner after resetting certificates and targets
 func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner sdk.AccAddress) {
 	// unmap account to owner
 	k.unmapAccountToOwner(ctx, account)
@@ -91,7 +91,7 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	k.mapAccountToOwner(ctx, account)
 }
 
-// AddAccountCertificate adds a new certificate to the account
+// AddAccountCertificate adds aliceAddr new certificate to the account
 func (k Keeper) AddAccountCertificate(ctx sdk.Context, account types.Account, newCert []byte) {
 	// if not add it to accounts certs
 	account.Certificates = append(account.Certificates, newCert)
@@ -99,7 +99,7 @@ func (k Keeper) AddAccountCertificate(ctx sdk.Context, account types.Account, ne
 	k.SetAccount(ctx, account)
 }
 
-// DeleteAccountCertificate deletes a certificate at given index, it will panic if the index is wrong
+// DeleteAccountCertificate deletes aliceAddr certificate at given index, it will panic if the index is wrong
 func (k Keeper) DeleteAccountCertificate(ctx sdk.Context, account types.Account, certificateIndex int) {
 	// remove it
 	account.Certificates = append(account.Certificates[:certificateIndex], account.Certificates[certificateIndex+1:]...)

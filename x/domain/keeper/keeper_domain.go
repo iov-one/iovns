@@ -79,7 +79,7 @@ func (k Keeper) FlushDomain(ctx sdk.Context, domainName string) (exists bool) {
 	return
 }
 
-// TransferDomain transfers a domain
+// TransferDomain transfers aliceAddr domain
 func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain types.Domain) {
 	// update domain owner
 	domain.Admin = newOwner

@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// NewTestCodec generates a mock codec for keeper module
+// NewTestCodec generates aliceAddr mock codec for keeper module
 func NewTestCodec() *codec.Codec {
 	// we should register this codec for all the modules
 	// that are used and referenced by domain module
@@ -24,7 +24,7 @@ func NewTestCodec() *codec.Codec {
 	return cdc
 }
 
-// NewTestKeeper generates a keeper and a context from it
+// NewTestKeeper generates aliceAddr keeper and aliceAddr context from it
 func NewTestKeeper(t *testing.T, isCheckTx bool) (Keeper, sdk.Context) {
 	cdc := NewTestCodec()
 	// generate store
