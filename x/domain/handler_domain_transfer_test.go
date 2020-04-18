@@ -31,7 +31,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		},
 		"domain has no superuser": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					HasSuperuser: false,
 				})
@@ -50,7 +50,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		},
 		"domain has expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					HasSuperuser: true,
 				})
@@ -69,7 +69,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		},
 		"msg signer is not domain admin": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					HasSuperuser: true,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -91,7 +91,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				// create domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					HasSuperuser: true,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),

@@ -31,7 +31,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 		},
 		"domain has expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "expired domain",
 					Admin:        nil,
 					ValidUntil:   0,
@@ -55,7 +55,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 		},
 		"account does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -79,7 +79,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 		},
 		"account expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -112,7 +112,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 		},
 		"if domain has super user only domain admin can transfer accounts": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        aliceKey.GetAddress(),
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -145,7 +145,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 		},
 		"if domain has no super user then only account owner can transfer accounts": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -178,7 +178,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 		},
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),

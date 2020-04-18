@@ -31,7 +31,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 		},
 		"success default": {
 			BeforeTest: func(t *testing.T, ctx sdk.Context, k Keeper) {
-				k.SetDomain(ctx, types.Domain{Name: "test"})
+				k.CreateDomain(ctx, types.Domain{Name: "test"})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "1"})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "2"})
 			},
@@ -48,7 +48,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 		},
 		"success with paging": {
 			BeforeTest: func(t *testing.T, ctx sdk.Context, k Keeper) {
-				k.SetDomain(ctx, types.Domain{Name: "test"})
+				k.CreateDomain(ctx, types.Domain{Name: "test"})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "1"})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "2"})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "3"})
@@ -66,7 +66,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 		},
 		"invalid paging": {
 			BeforeTest: func(t *testing.T, ctx sdk.Context, k Keeper) {
-				k.SetDomain(ctx, types.Domain{Name: "test"})
+				k.CreateDomain(ctx, types.Domain{Name: "test"})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "1"})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "2"})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "3"})

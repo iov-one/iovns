@@ -11,7 +11,7 @@ func Test_queryGetAccountsFromOwner(t *testing.T) {
 	testCases := map[string]subTest{
 		"success": {
 			BeforeTest: func(t *testing.T, ctx sdk.Context, k Keeper) {
-				k.SetDomain(ctx, types.Domain{Name: "test"})
+				k.CreateDomain(ctx, types.Domain{Name: "test"})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "1", Owner: aliceAddr})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "2", Owner: aliceAddr})
 			},

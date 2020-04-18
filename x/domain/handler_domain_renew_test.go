@@ -31,7 +31,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 					DomainRenew: 1,
 				})
 				// add domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: 1000,
 				})

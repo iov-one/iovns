@@ -28,7 +28,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 		},
 		"account does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name: "test",
 				})
 
@@ -47,7 +47,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 		},
 		"msg owner does not own domain or account": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
 					Admin: aliceKey.GetAddress(),
 				})
@@ -71,7 +71,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 		},
 		"success domain owner": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
 					Admin: aliceKey.GetAddress(),
 				})
@@ -100,7 +100,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 		},
 		"success account owner": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
 					Admin: aliceKey.GetAddress(),
 				})

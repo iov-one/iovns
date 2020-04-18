@@ -27,7 +27,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 		"fail domain has no superuser": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				// set domain with no superuser
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
 					ValidUntil:   0,
@@ -49,7 +49,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 		},
 		"fail domain admin does not match msg owner": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        bobKey.GetAddress(),
 					ValidUntil:   0,
@@ -72,7 +72,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				// set domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        aliceKey.GetAddress(),
 					ValidUntil:   0,

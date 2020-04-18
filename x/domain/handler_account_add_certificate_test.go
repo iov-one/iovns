@@ -31,7 +31,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 		"domain expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				// add expired domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: 0,
 				})
@@ -52,7 +52,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 		},
 		"account does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				})
@@ -73,7 +73,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 		},
 		"account expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				})
@@ -99,7 +99,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 		},
 		"msg owner is not account owner": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				})
@@ -126,7 +126,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 		},
 		"certificate exists": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				})
@@ -154,7 +154,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 		},
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				})

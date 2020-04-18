@@ -12,12 +12,27 @@ import (
 var ownerToAccountPrefix = []byte("owneracc")
 var ownerToAccountIndexSeparator = []byte(":")
 
-// accountIndexStore returns the index that maps owners to accounts
+var ownerToDomainPrefix = []byte("ownerdom")
+var ownerToDomainIndexSeparator = []byte(":")
+
+// domainIndexStore returns the kvstore space that maps
+// owner to domain keys
+func domainIndexStore(store sdk.KVStore) sdk.KVStore {
+	return prefix.NewStore(store, ownerToDomainPrefix)
+}
+
+// accountIndexStore returns the kvstore space that maps
+// owner to accounts
 func accountIndexStore(store sdk.KVStore) sdk.KVStore {
 	return prefix.NewStore(store, ownerToAccountPrefix)
 }
 
-// getOwnerToAccountKey
+// getOwnerToDomainKey generates the unique key that maps owner to domain
+func getOwnerToDomainKey(owner sdk.AccAddress, domain string) []byte {
+	return bytes.Join([][]byte{owner.Bytes(), []byte(domain)}, ownerToDomainPrefix)
+}
+
+// getOwnerToAccountKey generates the unique key that maps owner to account
 func getOwnerToAccountKey(owner sdk.AccAddress, domain string, account string) []byte {
 	return bytes.Join([][]byte{owner.Bytes(), []byte(domain), []byte(account)}, ownerToAccountIndexSeparator)
 }
@@ -31,6 +46,18 @@ func splitOwnerToAccountKey(key []byte) (addr sdk.AccAddress, domain string, acc
 	}
 	// convert back to their original types
 	addr, domain, account = splitBytes[0], string(splitBytes[1]), string(splitBytes[2])
+	return
+}
+
+// splitOwnerToDomainKey takes an indexed owner to domain key
+// and splits it into owner address and domain name
+func splitOwnerToDomainKey(key []byte) (addr sdk.AccAddress, domain string) {
+	splitBytes := bytes.SplitN(key, ownerToDomainIndexSeparator, 2)
+	if len(splitBytes) != 2 {
+		panic(fmt.Sprintf("expected split lenght: %d", len(splitBytes)))
+	}
+	// convert back to their original types
+	addr, domain = splitBytes[0], string(splitBytes[1])
 	return
 }
 
@@ -56,7 +83,7 @@ func (k Keeper) mapAccountToOwner(ctx sdk.Context, account types.Account) {
 	if store.Has(key) {
 		panic(fmt.Sprintf("existing store key: %s", key))
 	}
-	// delete key
+	// set key
 	store.Set(key, []byte{})
 }
 
@@ -72,4 +99,45 @@ func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress) [][]
 		accountKeys = append(accountKeys, iterator.Key())
 	}
 	return accountKeys
+}
+
+func (k Keeper) mapDomainToOwner(ctx sdk.Context, domain types.Domain) {
+	// get store
+	store := domainIndexStore(ctx.KVStore(k.indexStoreKey))
+	// get unique key
+	key := getOwnerToDomainKey(domain.Admin, domain.Name)
+	// check if key exists TODO remove panic
+	if store.Has(key) {
+		panic(fmt.Sprintf("existing store key: %s", key))
+	}
+	// set key
+	store.Set(key, []byte{})
+}
+
+func (k Keeper) unmapDomainToOwner(ctx sdk.Context, domain types.Domain) {
+	// get store
+	store := domainIndexStore(ctx.KVStore(k.indexStoreKey))
+	// check if key exists TODO remove panic
+	key := getOwnerToDomainKey(domain.Admin, domain.Name)
+	if !store.Has(key) {
+		panic(fmt.Sprintf("missing store key: %s", key))
+	}
+	// delete key
+	store.Delete(key)
+}
+
+// iterDomainToOwner iterates over all the domains owned by address
+// and returns the unique keys
+func (k Keeper) iterDomainToOwner(ctx sdk.Context, address sdk.AccAddress) [][]byte {
+	// get store
+	store := domainIndexStore(ctx.KVStore(k.indexStoreKey))
+	// get iterator
+	iterator := sdk.KVStorePrefixIterator(store, address.Bytes())
+	defer iterator.Close()
+
+	var domainKeys [][]byte
+	for ; iterator.Valid(); iterator.Next() {
+		domainKeys = append(domainKeys, iterator.Key())
+	}
+	return domainKeys
 }

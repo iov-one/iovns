@@ -25,7 +25,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 		},
 		"domain has superuser": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
 					ValidUntil:   0,
@@ -47,7 +47,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 		},
 		"msg owner is not domain admin": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        aliceKey.GetAddress(),
 					ValidUntil:   0,
@@ -70,7 +70,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				// set domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        aliceKey.GetAddress(),
 					ValidUntil:   0,

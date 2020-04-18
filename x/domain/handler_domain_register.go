@@ -40,7 +40,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegist
 		domain.Admin = nil
 	}
 	// save domain
-	keeper.SetDomain(ctx, domain)
+	keeper.CreateDomain(ctx, domain)
 	// generate empty name account
 	acc := types.Account{
 		Domain:       msg.Name,
