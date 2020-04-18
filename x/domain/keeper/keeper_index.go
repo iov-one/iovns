@@ -10,9 +10,14 @@ import (
 
 // ownerToAccountPrefix is the prefix that matches owners to accounts
 var ownerToAccountPrefix = []byte("owneracc")
+
+// ownerToAccountIndexSeparator is the separator used to map owner address + domain + account name
 var ownerToAccountIndexSeparator = []byte(":")
 
+// ownerToDomainPrefix is the prefix that matches owners to domains
 var ownerToDomainPrefix = []byte("ownerdom")
+
+// ownerToDomainIndexSeparator is the separator used to map owner address + domain
 var ownerToDomainIndexSeparator = []byte(":")
 
 // domainIndexStore returns the kvstore space that maps
