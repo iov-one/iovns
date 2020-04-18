@@ -37,3 +37,17 @@ func queryGet(ctx sdk.Context, args []string, _ abci.RequestQuery, k Keeper) ([]
 		Domain: resp,
 	}), nil
 }
+
+type QueryAccountsInDomain struct {
+	Domain         string `json:"domain"`
+	ResultsPerPage int    `json:"results_per_page"`
+	Offset         int    `json:"offset"`
+}
+
+type QueryAccountsInDomainResponse struct {
+}
+
+// queryGetAccountsInDomain returns all accounts in a domain
+func queryGetAccountsInDomain(ctx sdk.Context, args []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	panic("implement")
+}
