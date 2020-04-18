@@ -32,14 +32,14 @@ func accountIndexStore(store sdk.KVStore) sdk.KVStore {
 	return prefix.NewStore(store, ownerToAccountPrefix)
 }
 
-// getOwnerToDomainKey generates the unique key that maps owner to domain
-func getOwnerToDomainKey(owner sdk.AccAddress, domain string) []byte {
-	return bytes.Join([][]byte{owner.Bytes(), []byte(domain)}, ownerToDomainPrefix)
-}
-
 // getOwnerToAccountKey generates the unique key that maps owner to account
 func getOwnerToAccountKey(owner sdk.AccAddress, domain string, account string) []byte {
 	return bytes.Join([][]byte{owner.Bytes(), []byte(domain), []byte(account)}, ownerToAccountIndexSeparator)
+}
+
+// getOwnerToDomainKey generates the unique key that maps owner to domain
+func getOwnerToDomainKey(owner sdk.AccAddress, domain string) []byte {
+	return bytes.Join([][]byte{owner.Bytes(), []byte(domain)}, ownerToDomainPrefix)
 }
 
 // splitOwnerToAccountKey takes an indexed owner to account key and splits it
