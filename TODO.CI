@@ -1,0 +1,4 @@
+1) CI should check that TX routes exposed and CLI tx commands for each module match the total number of messages for the module itself
+2) CI should verify that request models of Rest and CLI for each module match the ones of the module itself until we can better abstract the query/txs to fit inside CLI and RestAPI
+
+3) Abstract test cases better with GotErr, ExpectedError to make tests less verbose and also add helper functions to add state to avoid same operations repetition

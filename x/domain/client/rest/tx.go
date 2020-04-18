@@ -9,10 +9,10 @@ import (
 	"net/http"
 )
 
-// handleRequest is a helper function that takes care of checking base requests, sdk messages, after verifying
+// handleTxRequest is a helper function that takes care of checking base requests, sdk messages, after verifying
 // requests it forwards an error to the client in case of error, otherwise it will return a transaction to sign
 // and send to the /tx endpoint to do a request
-func handleRequest(cliCtx context.CLIContext, baseReq rest.BaseReq, msg sdk.Msg, writer http.ResponseWriter) {
+func handleTxRequest(cliCtx context.CLIContext, baseReq rest.BaseReq, msg sdk.Msg, writer http.ResponseWriter) {
 	baseReq = baseReq.Sanitize()
 	if !baseReq.ValidateBasic(writer) {
 		return
@@ -38,7 +38,7 @@ func registerDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			rest.WriteErrorResponse(writer, http.StatusBadRequest, "failed to parse request")
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -55,7 +55,7 @@ func addAccountCertificatesHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -72,7 +72,7 @@ func delAccountCertificateHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -89,7 +89,7 @@ func deleteAccountHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -106,7 +106,7 @@ func deleteDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -123,7 +123,7 @@ func flushDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -140,7 +140,7 @@ func registerAccountHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -157,7 +157,7 @@ func renewAccountHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -174,7 +174,7 @@ func renewDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -191,7 +191,7 @@ func replaceAccountTargetsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -208,7 +208,7 @@ func transferAccountHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
 
@@ -225,6 +225,6 @@ func transferDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
-		handleRequest(cliCtx, req.BaseReq, req.Message, writer)
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
