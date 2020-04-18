@@ -60,7 +60,7 @@ func (k Keeper) mapAccountToOwner(ctx sdk.Context, account types.Account) {
 	store.Set(key, []byte{})
 }
 
-func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress) {
+func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress) [][]byte {
 	// get store
 	store := accountIndexStore(ctx.KVStore(k.indexStoreKey))
 	// get iterator
@@ -71,4 +71,5 @@ func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress) {
 	for ; iterator.Valid(); iterator.Next() {
 		accountKeys = append(accountKeys, iterator.Key())
 	}
+	return accountKeys
 }
