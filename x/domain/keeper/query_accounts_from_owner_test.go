@@ -20,7 +20,7 @@ func Test_queryGetAccountsFromOwner(t *testing.T) {
 				ResultsPerPage: 0,
 				Offset:         0,
 			},
-			Handler: queryGetAccountsFromOwner,
+			Handler: queryAccountsFromOwnerHandler,
 			WantErr: nil,
 			PtrExpectedResponse: &QueryAccountsFromOwnerResponse{
 				Accounts: []types.Account{

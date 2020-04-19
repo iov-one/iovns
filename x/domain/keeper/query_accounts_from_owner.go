@@ -32,8 +32,8 @@ func (q *QueryAccountsFromOwner) Validate() error {
 	return nil
 }
 
-// queryGetAccountsFromOwner gets all the accounts related to an account address
-func queryGetAccountsFromOwner(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
+// queryAccountsFromOwnerHandler gets all the accounts related to an account address
+func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryAccountsFromOwner)
 	err := json.Unmarshal(req.Data, query)
 	if err != nil {

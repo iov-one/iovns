@@ -35,8 +35,8 @@ type QueryAccountsInDomainResponse struct {
 	Accounts []types.Account `json:"accounts"`
 }
 
-// queryGetAccountsInDomain returns all accounts in aliceAddr domain
-func queryGetAccountsInDomain(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
+// queryAccountsInDomainHandler returns all accounts in aliceAddr domain
+func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryAccountsInDomain)
 	err := json.Unmarshal(req.Data, query)
 	if err != nil {
