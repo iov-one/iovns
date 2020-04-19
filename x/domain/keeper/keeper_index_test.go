@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/domain/types"
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -63,4 +64,190 @@ func Test_indexFunctionality(t *testing.T) {
 		t.Fatalf("expected two keys for %s, got: %d", bobAddr, len(k.iterAccountToOwner(ctx, bobAddr)))
 	}
 
+}
+
+func TestKeeper_iterAccountToOwner(t *testing.T) {
+
+}
+
+func TestKeeper_iterDomainToOwner(t *testing.T) {
+
+}
+
+func TestKeeper_mapAccountToOwner(t *testing.T) {
+
+}
+
+func TestKeeper_mapDomainToOwner(t *testing.T) {
+}
+
+func TestKeeper_unmapAccountToOwner(t *testing.T) {
+
+}
+
+func TestKeeper_unmapDomainToOwner(t *testing.T) {
+
+}
+
+func Test_accAddrFromIndex(t *testing.T) {
+	if !(aliceAddr.String() == accAddrFromIndex(indexAddr(aliceAddr)).String()) {
+		t.Fatalf("mismatched addresses for: %s", aliceAddr.String())
+	}
+}
+
+func Test_accountIndexStore(t *testing.T) {
+	type args struct {
+		store sdk.KVStore
+	}
+	tests := []struct {
+		name string
+		args args
+		want sdk.KVStore
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := accountIndexStore(tt.args.store); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("accountIndexStore() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_domainIndexStore(t *testing.T) {
+	type args struct {
+		store sdk.KVStore
+	}
+	tests := []struct {
+		name string
+		args args
+		want sdk.KVStore
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := domainIndexStore(tt.args.store); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("domainIndexStore() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getOwnerToAccountKey(t *testing.T) {
+	type args struct {
+		owner   sdk.AccAddress
+		domain  string
+		account string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []byte
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getOwnerToAccountKey(tt.args.owner, tt.args.domain, tt.args.account); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getOwnerToAccountKey() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getOwnerToDomainKey(t *testing.T) {
+	type args struct {
+		owner  sdk.AccAddress
+		domain string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []byte
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getOwnerToDomainKey(tt.args.owner, tt.args.domain); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getOwnerToDomainKey() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_indexAddr(t *testing.T) {
+	type args struct {
+		addr sdk.AccAddress
+	}
+	tests := []struct {
+		name string
+		args args
+		want []byte
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := indexAddr(tt.args.addr); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("indexAddr() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_splitOwnerToAccountKey(t *testing.T) {
+	type args struct {
+		key []byte
+	}
+	tests := []struct {
+		name        string
+		args        args
+		wantAddr    sdk.AccAddress
+		wantDomain  string
+		wantAccount string
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotAddr, gotDomain, gotAccount := splitOwnerToAccountKey(tt.args.key)
+			if !reflect.DeepEqual(gotAddr, tt.wantAddr) {
+				t.Errorf("splitOwnerToAccountKey() gotAddr = %v, want %v", gotAddr, tt.wantAddr)
+			}
+			if gotDomain != tt.wantDomain {
+				t.Errorf("splitOwnerToAccountKey() gotDomain = %v, want %v", gotDomain, tt.wantDomain)
+			}
+			if gotAccount != tt.wantAccount {
+				t.Errorf("splitOwnerToAccountKey() gotAccount = %v, want %v", gotAccount, tt.wantAccount)
+			}
+		})
+	}
+}
+
+func Test_splitOwnerToDomainKey(t *testing.T) {
+	type args struct {
+		key []byte
+	}
+	tests := []struct {
+		name       string
+		args       args
+		wantAddr   sdk.AccAddress
+		wantDomain string
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotAddr, gotDomain := splitOwnerToDomainKey(tt.args.key)
+			if !reflect.DeepEqual(gotAddr, tt.wantAddr) {
+				t.Errorf("splitOwnerToDomainKey() gotAddr = %v, want %v", gotAddr, tt.wantAddr)
+			}
+			if gotDomain != tt.wantDomain {
+				t.Errorf("splitOwnerToDomainKey() gotDomain = %v, want %v", gotDomain, tt.wantDomain)
+			}
+		})
+	}
 }

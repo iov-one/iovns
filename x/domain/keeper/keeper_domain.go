@@ -25,9 +25,10 @@ func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Doma
 
 // CreateDomain creates the domain inside the KVStore with its name as key
 func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
-	k.SetDomain(ctx, domain)
 	// map domain to owner
 	k.mapDomainToOwner(ctx, domain)
+	// set domain
+	k.SetDomain(ctx, domain)
 }
 
 func (k Keeper) SetDomain(ctx sdk.Context, domain types.Domain) {
