@@ -1,10 +1,9 @@
 package keeper
 
 import (
-	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -15,8 +14,8 @@ type QueryAccountsFromOwner struct {
 	Offset         int            `json:"offset"`
 }
 
-type QueryAccountsFromOwnerResponse struct {
-	Accounts []types.Account `json:"accounts"`
+func (q *QueryAccountsFromOwner) Route() string {
+	return "accountsFromOwner"
 }
 
 func (q *QueryAccountsFromOwner) Validate() error {
@@ -32,10 +31,14 @@ func (q *QueryAccountsFromOwner) Validate() error {
 	return nil
 }
 
+type QueryAccountsFromOwnerResponse struct {
+	Accounts []types.Account `json:"accounts"`
+}
+
 // queryAccountsFromOwnerHandler gets all the accounts related to an account address
 func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryAccountsFromOwner)
-	err := json.Unmarshal(req.Data, query)
+	err := iovns.DefaultQueryDecode(req.Data, query)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -48,7 +51,12 @@ func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 	nKeys := len(accKeys) // total number of keys
 	// no results
 	if nKeys == 0 {
-		return codec.MustMarshalJSONIndent(k.cdc, QueryAccountsInDomainResponse{}), nil
+		// return response
+		respBytes, err := iovns.DefaultQueryEncode(QueryAccountsFromOwnerResponse{})
+		if err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		return respBytes, nil
 	}
 	// get the index of the first object we want
 	firstObjectIndex := query.Offset*query.ResultsPerPage - query.ResultsPerPage
@@ -73,5 +81,9 @@ func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 		accounts = append(accounts, account)
 	}
 	// return response
-	return codec.MustMarshalJSONIndent(k.cdc, QueryAccountsFromOwnerResponse{Accounts: accounts}), nil
+	respBytes, err := iovns.DefaultQueryEncode(QueryAccountsFromOwnerResponse{Accounts: accounts})
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return respBytes, nil
 }

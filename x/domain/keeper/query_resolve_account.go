@@ -1,10 +1,9 @@
 package keeper
 
 import (
-	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -24,13 +23,17 @@ func (q *QueryResolveAccount) Validate() error {
 	return nil
 }
 
+func (q *QueryResolveAccount) Route() string {
+	return "resolveAccount"
+}
+
 type QueryResolveAccountResponse struct {
 	Account types.Account `json:"account"`
 }
 
 func queryResolveAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	q := new(QueryResolveAccount)
-	err := json.Unmarshal(req.Data, q)
+	err := iovns.DefaultQueryDecode(req.Data, q)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -43,6 +46,10 @@ func queryResolveAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQue
 	if !exists {
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: account %s in domain %s", q.Name, q.Domain)
 	}
-	// marshal to response and submit
-	return codec.MustMarshalJSONIndent(k.cdc, QueryResolveAccountResponse{Account: account}), nil
+	// return response
+	respBytes, err := iovns.DefaultQueryEncode(QueryResolveAccountResponse{Account: account})
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return respBytes, nil
 }

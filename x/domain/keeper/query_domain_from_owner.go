@@ -1,10 +1,9 @@
 package keeper
 
 import (
-	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -13,6 +12,10 @@ type QueryDomainsFromOwner struct {
 	Owner          sdk.AccAddress `json:"owner"`
 	ResultsPerPage int            `json:"results_per_page"`
 	Offset         int            `json:"offset"`
+}
+
+func (q *QueryDomainsFromOwner) Route() string {
+	return "domainsFromOwner"
 }
 
 func (q *QueryDomainsFromOwner) Validate() error {
@@ -34,7 +37,7 @@ type QueryDomainsFromOwnerResponse struct {
 
 func queryDomainsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryDomainsFromOwner)
-	err := json.Unmarshal(req.Data, query)
+	err := iovns.DefaultQueryDecode(req.Data, query)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -47,7 +50,12 @@ func queryDomainsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	nKeys := len(domainKeys) // total number of keys
 	// no results
 	if nKeys == 0 {
-		return codec.MustMarshalJSONIndent(k.cdc, QueryDomainsFromOwnerResponse{}), nil
+		// return response
+		respBytes, err := iovns.DefaultQueryEncode(QueryDomainsFromOwnerResponse{})
+		if err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		return respBytes, nil
 	}
 	// get the index of the first object we want
 	firstObjectIndex := query.Offset*query.ResultsPerPage - query.ResultsPerPage
@@ -72,5 +80,9 @@ func queryDomainsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		domains = append(domains, domain)
 	}
 	// return response
-	return codec.MustMarshalJSONIndent(k.cdc, QueryDomainsFromOwnerResponse{Domains: domains}), nil
+	respBytes, err := iovns.DefaultQueryEncode(QueryDomainsFromOwnerResponse{Domains: domains})
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return respBytes, nil
 }

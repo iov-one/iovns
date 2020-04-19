@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/iovns"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"os"
 	"testing"
@@ -72,7 +72,7 @@ func runQueryTests(t *testing.T, cases map[string]subTest) {
 				return
 			}
 			// marshal expected response and compare with what we've got
-			expectedBytes, err := codec.MarshalJSONIndent(k.cdc, test.PtrExpectedResponse)
+			expectedBytes, err := iovns.DefaultQueryEncode(test.PtrExpectedResponse)
 			if err != nil {
 				t.Fatalf("marshal error: %s", err)
 			}

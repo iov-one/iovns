@@ -1,10 +1,9 @@
 package keeper
 
 import (
-	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -31,6 +30,10 @@ func (q *QueryAccountsInDomain) Validate() error {
 	return nil
 }
 
+func (q *QueryAccountsInDomain) Route() string {
+	return "accountsInDomain"
+}
+
 type QueryAccountsInDomainResponse struct {
 	Accounts []types.Account `json:"accounts"`
 }
@@ -38,7 +41,7 @@ type QueryAccountsInDomainResponse struct {
 // queryAccountsInDomainHandler returns all accounts in aliceAddr domain
 func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryAccountsInDomain)
-	err := json.Unmarshal(req.Data, query)
+	err := iovns.DefaultQueryDecode(req.Data, query)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -50,7 +53,12 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	nKeys := len(accKeys) // total number of keys
 	// no results
 	if nKeys == 0 {
-		return codec.MustMarshalJSONIndent(k.cdc, QueryAccountsInDomainResponse{}), nil
+		// return response
+		respBytes, err := iovns.DefaultQueryEncode(QueryAccountsInDomainResponse{})
+		if err != nil {
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		return respBytes, nil
 	}
 	// get the index of the first object we want
 	firstObjectIndex := query.Offset*query.ResultsPerPage - query.ResultsPerPage
@@ -74,5 +82,9 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		accounts = append(accounts, account)
 	}
 	// return response
-	return codec.MustMarshalJSONIndent(k.cdc, QueryAccountsInDomainResponse{Accounts: accounts}), nil
+	respBytes, err := iovns.DefaultQueryEncode(QueryAccountsInDomainResponse{Accounts: accounts})
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return respBytes, nil
 }
