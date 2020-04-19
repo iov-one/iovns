@@ -39,7 +39,7 @@ func getOwnerToAccountKey(owner sdk.AccAddress, domain string, account string) [
 
 // getOwnerToDomainKey generates the unique key that maps owner to domain
 func getOwnerToDomainKey(owner sdk.AccAddress, domain string) []byte {
-	return bytes.Join([][]byte{owner.Bytes(), []byte(domain)}, ownerToDomainPrefix)
+	return bytes.Join([][]byte{owner.Bytes(), []byte(domain)}, ownerToDomainIndexSeparator)
 }
 
 // splitOwnerToAccountKey takes an indexed owner to account key and splits it
