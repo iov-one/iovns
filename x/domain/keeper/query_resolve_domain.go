@@ -13,7 +13,7 @@ type QueryResolveDomain struct {
 	Name string `json:"name"`
 }
 
-func (q *QueryResolveDomain) Route() string {
+func (q *QueryResolveDomain) QueryPath() string {
 	return "resolveDomain"
 }
 

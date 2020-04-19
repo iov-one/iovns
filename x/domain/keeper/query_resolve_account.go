@@ -23,7 +23,7 @@ func (q *QueryResolveAccount) Validate() error {
 	return nil
 }
 
-func (q *QueryResolveAccount) Route() string {
+func (q *QueryResolveAccount) QueryPath() string {
 	return "resolveAccount"
 }
 

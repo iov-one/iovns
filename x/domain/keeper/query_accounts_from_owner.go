@@ -14,7 +14,7 @@ type QueryAccountsFromOwner struct {
 	Offset         int            `json:"offset"`
 }
 
-func (q *QueryAccountsFromOwner) Route() string {
+func (q *QueryAccountsFromOwner) QueryPath() string {
 	return "accountsFromOwner"
 }
 

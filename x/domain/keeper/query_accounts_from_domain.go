@@ -30,7 +30,7 @@ func (q *QueryAccountsInDomain) Validate() error {
 	return nil
 }
 
-func (q *QueryAccountsInDomain) Route() string {
+func (q *QueryAccountsInDomain) QueryPath() string {
 	return "accountsInDomain"
 }
 
