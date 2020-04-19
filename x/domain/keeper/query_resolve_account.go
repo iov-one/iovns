@@ -13,6 +13,10 @@ type QueryResolveAccount struct {
 	Name   string `json:"name"`
 }
 
+func (q *QueryResolveAccount) Handler() QueryHandlerFunc {
+	return queryResolveAccountHandler
+}
+
 func (q *QueryResolveAccount) Validate() error {
 	if q.Domain == "" {
 		return sdkerrors.Wrapf(types.ErrInvalidDomainName, "empty")

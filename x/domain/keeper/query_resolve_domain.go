@@ -13,6 +13,10 @@ type QueryResolveDomain struct {
 	Name string `json:"name"`
 }
 
+func (q *QueryResolveDomain) Handler() QueryHandlerFunc {
+	return queryResolveDomainHandler
+}
+
 func (q *QueryResolveDomain) QueryPath() string {
 	return "resolveDomain"
 }

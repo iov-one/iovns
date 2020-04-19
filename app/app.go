@@ -149,8 +149,7 @@ func NewNameService(
 		gov.StoreKey, params.StoreKey, evidence.StoreKey, upgrade.StoreKey,
 		// iovns store keys
 		configuration.StoreKey,
-		domain.DomainStoreKey,
-		domain.AccountStoreKey,
+		domain.DomainStoreKey, domain.AccountStoreKey, domain.IndexStoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 

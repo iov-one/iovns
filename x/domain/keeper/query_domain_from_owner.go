@@ -14,6 +14,10 @@ type QueryDomainsFromOwner struct {
 	Offset         int            `json:"offset"`
 }
 
+func (q *QueryDomainsFromOwner) Handler() QueryHandlerFunc {
+	return queryDomainsFromOwnerHandler
+}
+
 func (q *QueryDomainsFromOwner) QueryPath() string {
 	return "domainsFromOwner"
 }

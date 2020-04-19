@@ -14,6 +14,10 @@ type QueryAccountsInDomain struct {
 	Offset         int    `json:"offset"`
 }
 
+func (q *QueryAccountsInDomain) Handler() QueryHandlerFunc {
+	return queryAccountsInDomainHandler
+}
+
 // Validate will validate the query model and set defaults
 func (q *QueryAccountsInDomain) Validate() error {
 	if q.Domain == "" {
