@@ -4,13 +4,36 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
+	"os"
 	"testing"
 )
 
-var aliceAddr, bobAddr = genAddress()
+var aliceAddr, bobAddr sdk.AccAddress
+
+func TestMain(t *testing.M) {
+	aliceAddr, bobAddr = genTestAddress()
+	os.Exit(t.Run())
+}
+
+func genTestAddress() (sdk.AccAddress, sdk.AccAddress) {
+	keyBase := keys.NewInMemory()
+	addr1, _, err := keyBase.CreateMnemonic("alice", keys.English, "", keys.Secp256k1)
+	if err != nil {
+		fmt.Println("unable to generate mock addresses " + err.Error())
+		os.Exit(1)
+	}
+	addr2, _, err := keyBase.CreateMnemonic("bob", keys.English, "", keys.Secp256k1)
+	if err != nil {
+		fmt.Println("unable to generate mock addresses " + err.Error())
+		os.Exit(1)
+	}
+	return addr1.GetAddress(), addr2.GetAddress()
+}
 
 type subTest struct {
 	// BeforeTest are the action to perform before the test
