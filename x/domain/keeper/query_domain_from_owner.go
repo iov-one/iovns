@@ -32,7 +32,7 @@ type QueryDomainsFromOwnerResponse struct {
 	Domains []types.Domain
 }
 
-func queryGetDomainsFromOwner(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
+func queryDomainsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryDomainsFromOwner)
 	err := json.Unmarshal(req.Data, query)
 	if err != nil {

@@ -18,7 +18,7 @@ func Test_queryGetDomainsFromOwner(t *testing.T) {
 				ResultsPerPage: 0,
 				Offset:         0,
 			},
-			Handler: queryGetDomainsFromOwner,
+			Handler: queryDomainsFromOwnerHandler,
 			WantErr: nil,
 			PtrExpectedResponse: &QueryDomainsFromOwnerResponse{
 				Domains: []types.Domain{
