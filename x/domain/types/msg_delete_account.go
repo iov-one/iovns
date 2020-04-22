@@ -24,13 +24,13 @@ func (m MsgDeleteAccount) Type() string {
 // ValidateBasic does stateless checks on the request
 func (m MsgDeleteAccount) ValidateBasic() error {
 	if m.Owner == nil {
-		return sdkerrors.Wrap(ErrInvalidOwner, "owner is empty")
+		return sdkerrors.Wrap(ErrInvalidOwner, "empty")
 	}
 	if m.Name == "" {
-		return sdkerrors.Wrap(ErrInvalidAccountName, "account name is empty")
+		return sdkerrors.Wrap(ErrInvalidAccountName, "empty")
 	}
 	if m.Domain == "" {
-		return sdkerrors.Wrap(ErrInvalidDomainName, "domain name is empty")
+		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
 	}
 	// success
 	return nil

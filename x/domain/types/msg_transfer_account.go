@@ -27,13 +27,13 @@ func (m MsgTransferAccount) Type() string {
 // it checks if the domain name is valid
 func (m MsgTransferAccount) ValidateBasic() error {
 	if m.Domain == "" {
-		return sdkerrors.Wrap(ErrInvalidDomainName, "domain name is missing")
+		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
 	}
 	if m.Name == "" {
-		return sdkerrors.Wrap(ErrInvalidAccountName, "account name is empty")
+		return sdkerrors.Wrap(ErrInvalidAccountName, "empty")
 	}
 	if m.Owner == nil {
-		return sdkerrors.Wrap(ErrInvalidOwner, "owner is empty")
+		return sdkerrors.Wrap(ErrInvalidOwner, "empty")
 	}
 	if m.NewOwner == nil {
 		return sdkerrors.Wrap(ErrInvalidOwner, "new owner is empty")

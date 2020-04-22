@@ -22,13 +22,13 @@ func (m MsgDeleteAccountCertificate) Type() string {
 
 func (m MsgDeleteAccountCertificate) ValidateBasic() error {
 	if m.Domain == "" {
-		return sdkerrors.Wrapf(ErrInvalidDomainName, "domain name is empty")
+		return sdkerrors.Wrapf(ErrInvalidDomainName, "empty")
 	}
 	if m.Name == "" {
-		return sdkerrors.Wrap(ErrInvalidAccountName, "account name is empty")
+		return sdkerrors.Wrap(ErrInvalidAccountName, "empty")
 	}
 	if m.Owner == nil {
-		return sdkerrors.Wrap(ErrInvalidOwner, "owner name is empty")
+		return sdkerrors.Wrap(ErrInvalidOwner, "empty")
 	}
 	if m.DeleteCertificate == nil {
 		return sdkerrors.Wrap(ErrInvalidRequest, "certificate is empty")

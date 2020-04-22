@@ -11,7 +11,7 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg types.MsgDelet
 	// check if domain exists
 	domain, exists := k.GetDomain(ctx, msg.Domain)
 	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "%s does not exist", msg.Domain)
+		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
 	}
 	// check if domain has super user
 	if !domain.HasSuperuser {

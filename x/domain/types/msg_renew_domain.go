@@ -20,7 +20,7 @@ func (m MsgRenewDomain) Type() string {
 
 func (m MsgRenewDomain) ValidateBasic() error {
 	if m.Domain == "" {
-		return sdkerrors.Wrapf(ErrInvalidDomainName, "domain name is empty")
+		return sdkerrors.Wrapf(ErrInvalidDomainName, "empty")
 	}
 	return nil
 }
