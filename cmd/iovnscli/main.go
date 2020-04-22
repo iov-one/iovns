@@ -46,7 +46,7 @@ func main() {
 	// with the cdc
 
 	rootCmd := &cobra.Command{
-		Use:   "appcli",
+		Use:   "iovnscli",
 		Short: "Command line interface for interacting with appd",
 	}
 

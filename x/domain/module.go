@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
 	"github.com/iov-one/iovns/x/domain/client/cli"
+	"github.com/iov-one/iovns/x/domain/client/rest"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 	"github.com/spf13/cobra"
@@ -46,7 +47,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 
 // Register rest routes
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
-	// TODO fill rest routes
+	rest.RegisterRoutes(ctx, rtr, types.ModuleName, keeper.AvailableQueries())
 }
 
 // Get the root query command of this module

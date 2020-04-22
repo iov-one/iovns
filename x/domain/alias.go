@@ -10,6 +10,7 @@ const (
 	ModuleName      = types.ModuleName
 	DomainStoreKey  = types.DomainStoreKey
 	AccountStoreKey = types.AccountStoreKey
+	IndexStoreKey   = types.IndexStoreKey
 	QuerierRoute    = types.QuerierRoute
 	RouterKey       = types.RouterKey
 )

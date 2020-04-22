@@ -28,7 +28,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 		"account does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				// set mock domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					AccountRenew: 100,
 				})
@@ -47,12 +47,12 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
 				// set mock domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					AccountRenew: 100,
 				})
 				// set mock account
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: 1000,

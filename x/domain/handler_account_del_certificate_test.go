@@ -28,7 +28,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 		},
 		"msg signer is not account owner": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
@@ -49,7 +49,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 		},
 		"certificate does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
 					Owner:        aliceKey.GetAddress(),
@@ -71,7 +71,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 		},
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
 					Owner:        aliceKey.GetAddress(),

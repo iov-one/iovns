@@ -25,7 +25,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					DomainRenew:            10,
 				})
 				// add a domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
 					ValidUntil:   0,
@@ -66,7 +66,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					DomainRenew:            10,
 				})
 				// add a domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
 					ValidUntil:   0,
@@ -106,7 +106,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					DomainRenew:            10,
 				})
 				// add a domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
 					ValidUntil:   0,
@@ -179,7 +179,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					DomainRenew:            10,
 				})
 				// add a domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        bobKey.GetAddress(),
 					ValidUntil:   0,
@@ -220,7 +220,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					DomainRenew:            10,
 				})
 				// add a domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        bobKey.GetAddress(),
 					ValidUntil:   0, // domain is expired
@@ -261,7 +261,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					DomainRenew:            10,
 				})
 				// add a domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        bobKey.GetAddress(),
 					ValidUntil:   time.Now().Add(100000 * time.Hour).Unix(),
@@ -270,7 +270,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Broker:       nil,
 				})
 				// add an account that we are gonna try to overwrite
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "exists",
 					Owner:        nil,
@@ -312,7 +312,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					DomainRenew:            10,
 				})
 				// add a domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        bobKey.GetAddress(),
 					ValidUntil:   time.Now().Add(100000 * time.Hour).Unix(),

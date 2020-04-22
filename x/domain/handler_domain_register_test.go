@@ -55,7 +55,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 		},
 		"fail domain name exists": {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:         "exists",
 					Admin:        nil,
 					ValidUntil:   0,

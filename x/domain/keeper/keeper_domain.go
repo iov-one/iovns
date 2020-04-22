@@ -23,7 +23,14 @@ func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Doma
 	return domain, true
 }
 
-// SetDomain saves the domain inside the KVStore with its name as key
+// CreateDomain creates the domain inside the KVStore with its name as key
+func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
+	// map domain to owner
+	k.mapDomainToOwner(ctx, domain)
+	// set domain
+	k.SetDomain(ctx, domain)
+}
+
 func (k Keeper) SetDomain(ctx sdk.Context, domain types.Domain) {
 	store := ctx.KVStore(k.domainStoreKey)
 	store.Set([]byte(domain.Name), k.cdc.MustMarshalBinaryBare(domain))
@@ -39,7 +46,7 @@ func (k Keeper) IterateAllDomains(ctx sdk.Context) sdk.Iterator {
 // DeleteDomain deletes the domain and the accounts in it
 // this operation can only fail in case the domain does not exist
 func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
-	_, exists = k.GetDomain(ctx, domainName)
+	domain, exists := k.GetDomain(ctx, domainName)
 	if !exists {
 		return
 	}
@@ -52,6 +59,8 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 	for _, accountKey := range accountKeys {
 		k.DeleteAccount(ctx, domainName, accountKeyToString(accountKey))
 	}
+	// unmap domain to owner
+	k.unmapDomainToOwner(ctx, domain)
 	// done
 	return true
 }
@@ -79,11 +88,13 @@ func (k Keeper) FlushDomain(ctx sdk.Context, domainName string) (exists bool) {
 	return
 }
 
-// TransferDomain transfers a domain
+// TransferDomain transfers aliceAddr domain
 func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain types.Domain) {
+	// unmap domain owner
+	k.unmapDomainToOwner(ctx, domain)
 	// update domain owner
 	domain.Admin = newOwner
-	// set domain
+	// update domain in kvstore
 	k.SetDomain(ctx, domain)
 	// get account keys related to the domain
 	accountKeys := k.GetAccountsInDomain(ctx, domain.Name)
@@ -93,13 +104,11 @@ func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain 
 		if string(accountKey) == iovns.EmptyAccountName {
 			continue
 		}
-		// get account;
+		// get account
 		account, _ := k.GetAccount(ctx, domain.Name, accountKeyToString(accountKey))
-		// update account
-		account.Certificates = nil // delete certs
-		account.Targets = nil      // delete targets
-		account.Owner = newOwner   // update admin
-		// save to kvstore
-		k.SetAccount(ctx, account)
+		// transfer it
+		k.TransferAccount(ctx, account, newOwner)
 	}
+	// map domain to new owner
+	k.mapDomainToOwner(ctx, domain)
 }

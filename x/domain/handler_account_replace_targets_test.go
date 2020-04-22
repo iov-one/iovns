@@ -77,7 +77,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					ValidBlockchainAddress: regexMatchAll,
 				})
 				// create domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name: "test",
 				})
 			},
@@ -107,7 +107,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					ValidBlockchainAddress: regexMatchAll,
 				})
 				// create domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 				})
@@ -139,12 +139,12 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					ValidBlockchainAddress: regexMatchAll,
 				})
 				// create domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 				})
 				// create account
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: 0,
@@ -177,12 +177,12 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					ValidBlockchainAddress: regexMatchAll,
 				})
 				// create domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 				})
 				// create account
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
@@ -216,12 +216,12 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					ValidBlockchainAddress: regexMatchAll,
 				})
 				// create domain
-				k.SetDomain(ctx, types.Domain{
+				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 				})
 				// create account
-				k.SetAccount(ctx, types.Account{
+				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),

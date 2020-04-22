@@ -51,7 +51,7 @@ func DefaultGenesisState() GenesisState {
 // InitGenesis builds a state from GenesisState
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	for _, domain := range data.DomainsRecords {
-		keeper.SetDomain(ctx, domain)
+		keeper.CreateDomain(ctx, domain)
 	}
 }
 
