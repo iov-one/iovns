@@ -3,6 +3,7 @@ package domain
 import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
@@ -49,6 +50,10 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 		},
 		"fail domain admin does not match msg owner": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					DomainGracePeriod: 1000000000000000,
+				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        bobKey.GetAddress(),
@@ -71,6 +76,60 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 		},
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					DomainGracePeriod: 1000000000000000, // unexpired domain
+				})
+				// set domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:         "test",
+					Admin:        aliceKey.GetAddress(),
+					ValidUntil:   0,
+					HasSuperuser: true,
+					AccountRenew: 0,
+					Broker:       nil,
+				})
+				// add two accounts
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "1",
+				})
+				// add two accounts
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "2",
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+					Domain: "test",
+					Owner:  aliceKey.GetAddress(),
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+				_, exists := k.GetDomain(ctx, "test")
+				if exists {
+					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
+				}
+				_, exists = k.GetAccount(ctx, "test", "1")
+				if exists {
+					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
+				}
+				_, exists = k.GetAccount(ctx, "test", "2")
+				if exists {
+					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
+				}
+			},
+		},
+		"success claim expired": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					DomainGracePeriod: 1,
+				})
 				// set domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",

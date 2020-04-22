@@ -18,4 +18,6 @@ type Config struct {
 	ValidBlockchainAddress string
 	// DomainRenew defines the duration of the domain renewal period in seconds
 	DomainRenew int64
+	// DomainGracePeriod defines the grace period for a domain deletion in seconds
+	DomainGracePeriod int64
 }

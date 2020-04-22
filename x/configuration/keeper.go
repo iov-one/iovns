@@ -67,3 +67,8 @@ func (k Keeper) SetConfig(ctx sdk.Context, conf types.Config) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set([]byte(configKey), k.cdc.MustMarshalBinaryBare(conf))
 }
+
+// GetDomainGrace period returns the default grace period for a domain
+func (k Keeper) GetDomainGracePeriod(ctx sdk.Context) time.Duration {
+	return time.Duration(k.GetConfiguration(ctx).DomainGracePeriod) * time.Second
+}
