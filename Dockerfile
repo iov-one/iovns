@@ -1,23 +1,32 @@
-FROM golang:1.14.1-alpine3.11
-ENV MONIKER=idk
-ENV HOME=/iovnsd
-WORKDIR /iovnsd
-# create build dir
-RUN mkdir /source
-# copy build files to build dir
-COPY ./ /source
-# cd to source
-WORKDIR /source
-# install modules
-RUN go mod download
-# build all
-RUN go build ./cmd/iovnsd
-RUN go build ./cmd/iovnscli
-# move binaries to iovnsd
-RUN mv iovnsd /iovnsd/iovnsd && mv iovnscli /iovnsd/iovnscli
-# change to working dir
-WORKDIR /iovnsd
-# delete build dir
-RUN rm -rf /source
-# copy utility scripts
-COPY ./scripts .
+# Simple usage with a mounted data directory:
+# > docker build -t iovns .
+# > docker run -it -p 46657:46657 -p 46656:46656 -v ~/.iovnsd:/root/.iovnsd -v ~/.iovnscli:/root/.iovnscli iovns iovnsd init
+# > docker run -it -p 46657:46657 -p 46656:46656 -v ~/.iovnsd:/root/.iovnsd -v ~/.iovnscli:/root/.iovnscli iovns iovnsd start
+FROM golang:alpine AS build-env
+
+# Set up dependencies
+ENV PACKAGES curl make git libc-dev bash gcc linux-headers eudev-dev python
+
+# Set working directory for the build
+WORKDIR /go/src/github.com/iov-one/iovns
+
+# Add source files
+COPY . .
+
+# Install minimum necessary dependencies, build Cosmos SDK, remove packages
+RUN apk add --no-cache $PACKAGES && \
+    make install
+
+# Final image
+FROM alpine:edge
+
+# Install ca-certificates
+RUN apk add --update ca-certificates
+WORKDIR /root
+
+# Copy over binaries from the build-env
+COPY --from=build-env /go/bin/iovnsd /usr/bin/iovnsd
+COPY --from=build-env /go/bin/iovnsd /usr/bin/iovnsd
+
+# Run iovnsd by default, omit entrypoint to ease using container with iovnscli
+CMD ["iovnsd"]
