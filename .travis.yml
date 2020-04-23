@@ -27,7 +27,6 @@ script:
   - set -eo pipefail
   - make test
   - make install
-  # TODO add linter
   - printenv TRAVIS_COMMIT_MESSAGE > commit.msg
   - unset TRAVIS_COMMIT_MESSAGE && printenv | grep -Ev "PATH|path|GEM" > env.list
   - export TRAVIS_COMMIT_MESSAGE=`cat commit.msg` && rm -rf commit.msg
@@ -36,7 +35,6 @@ script:
       release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
       if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
-        # TODO gitian build
         docker build --pull ${IMAGE_NAME} .;
       fi;
 
