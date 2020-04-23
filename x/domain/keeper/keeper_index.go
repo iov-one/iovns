@@ -109,18 +109,21 @@ func (k Keeper) mapAccountToOwner(ctx sdk.Context, account types.Account) {
 	store.Set(key, []byte{})
 }
 
-func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress) [][]byte {
+func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress, do func(key []byte) bool) {
 	// get store
 	store := accountIndexStore(ctx.KVStore(k.indexStoreKey))
 	// get iterator
 	iterator := sdk.KVStorePrefixIterator(store, indexAddr(address))
 	defer iterator.Close()
-
-	var accountKeys [][]byte
+	// iterate keys
 	for ; iterator.Valid(); iterator.Next() {
-		accountKeys = append(accountKeys, iterator.Key())
+		// do action
+		keepGoing := do(iterator.Key())
+		// keep going?
+		if !keepGoing {
+			return
+		}
 	}
-	return accountKeys
 }
 
 func (k Keeper) mapDomainToOwner(ctx sdk.Context, domain types.Domain) {
@@ -150,16 +153,16 @@ func (k Keeper) unmapDomainToOwner(ctx sdk.Context, domain types.Domain) {
 
 // iterDomainToOwner iterates over all the domains owned by address
 // and returns the unique keys
-func (k Keeper) iterDomainToOwner(ctx sdk.Context, address sdk.AccAddress) [][]byte {
+func (k Keeper) iterDomainToOwner(ctx sdk.Context, address sdk.AccAddress, do func(key []byte) bool) {
 	// get store
 	store := domainIndexStore(ctx.KVStore(k.indexStoreKey))
 	// get iterator
 	iterator := sdk.KVStorePrefixIterator(store, indexAddr(address))
 	defer iterator.Close()
 
-	var domainKeys [][]byte
 	for ; iterator.Valid(); iterator.Next() {
-		domainKeys = append(domainKeys, iterator.Key())
+		if !do(iterator.Key()) {
+			return
+		}
 	}
-	return domainKeys
 }

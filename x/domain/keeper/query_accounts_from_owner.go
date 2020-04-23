@@ -50,38 +50,39 @@ func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 	if err = query.Validate(); err != nil {
 		return nil, err
 	}
-	// get keys from owner
-	accKeys := k.iterAccountToOwner(ctx, query.Owner)
-	nKeys := len(accKeys) // total number of keys
-	// no results
-	if nKeys == 0 {
-		// return response
+	// generate expected keys
+	keys := make([][]byte, 0, query.ResultsPerPage)
+	index := 0
+	// calculate index range
+	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
+	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
+	do := func(key []byte) bool {
+		// check if our index is grater-equal than our start
+		if index >= indexStart {
+			keys = append(keys, key)
+		}
+		if index == indexEnd {
+			return false
+		}
+		// increase index
+		index++
+		return true
+	}
+	// iterate account keys
+	k.iterAccountToOwner(ctx, query.Owner, do)
+	// check if there are any keys
+	if len(keys) == 0 {
 		respBytes, err := iovns.DefaultQueryEncode(QueryAccountsFromOwnerResponse{})
 		if err != nil {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 		}
 		return respBytes, nil
 	}
-	// get the index of the first object we want
-	firstObjectIndex := query.Offset*query.ResultsPerPage - query.ResultsPerPage
-	// check if there is at least one object at that index
-	if nKeys < firstObjectIndex+1 {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid offset")
-	}
-
-	// get the index for the last object
-	lastObjectIndex := firstObjectIndex + query.ResultsPerPage - 1
-	// check if last object index would outbound our acc keys slice
-	if lastObjectIndex > nKeys {
-		lastObjectIndex = nKeys - 1 // if it does then set last index as the last element of our slice
-	}
-	accounts := make([]types.Account, 0, lastObjectIndex-firstObjectIndex+1)
 	// fill accounts
-	for currIndex := firstObjectIndex; currIndex <= lastObjectIndex; currIndex++ {
-		_, domain, accountName := splitOwnerToAccountKey(accKeys[currIndex])
-		// get account
-		account, _ := k.GetAccount(ctx, domain, accountName)
-		// append
+	accounts := make([]types.Account, 0, len(keys))
+	for _, accKey := range keys {
+		_, domainName, accountName := splitOwnerToAccountKey(accKey)
+		account, _ := k.GetAccount(ctx, domainName, accountName)
 		accounts = append(accounts, account)
 	}
 	// return response

@@ -53,8 +53,12 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 	// delete domain
 	domainStore := ctx.KVStore(k.domainStoreKey)
 	domainStore.Delete([]byte(domainName))
-	// delete accounts,
-	accountKeys := k.GetAccountsInDomain(ctx, domainName)
+	// delete accounts
+	var accountKeys [][]byte
+	k.GetAccountsInDomain(ctx, domainName, func(key []byte) bool {
+		accountKeys = append(accountKeys, key)
+		return true
+	})
 	// delete keys in domain
 	for _, accountKey := range accountKeys {
 		k.DeleteAccount(ctx, domainName, accountKeyToString(accountKey))
@@ -74,7 +78,13 @@ func (k Keeper) FlushDomain(ctx sdk.Context, domainName string) (exists bool) {
 		return
 	}
 	// iterate accounts
-	domainAccountKeys := k.GetAccountsInDomain(ctx, domainName)
+
+	// delete accounts
+	var domainAccountKeys [][]byte
+	k.GetAccountsInDomain(ctx, domainName, func(key []byte) bool {
+		domainAccountKeys = append(domainAccountKeys, key)
+		return true
+	})
 	// now delete accounts
 	for _, accountKey := range domainAccountKeys {
 		// account key is empty then skip
@@ -97,7 +107,13 @@ func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain 
 	// update domain in kvstore
 	k.SetDomain(ctx, domain)
 	// get account keys related to the domain
-	accountKeys := k.GetAccountsInDomain(ctx, domain.Name)
+
+	// delete accounts
+	var accountKeys [][]byte
+	k.GetAccountsInDomain(ctx, domain.Name, func(key []byte) bool {
+		accountKeys = append(accountKeys, key)
+		return true
+	})
 	// iterate over accounts
 	for _, accountKey := range accountKeys {
 		// skip if account key is empty account name
