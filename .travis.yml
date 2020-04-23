@@ -2,6 +2,9 @@ sudo: required
 
 language: go
 
+os:
+  - linux
+
 dist: xenial
 
 go:
@@ -19,9 +22,10 @@ cache:
     - $HOME/gopath/pkg/mod
 
 env:
-  - GO111MODULE=on
-  - BUILD_VERSION=$(echo ${TRAVIS_COMMIT} | cut -c 1-10)
-  - MAIN_GO_VERSION=1.14.2
+  global:
+    - GO111MODULE=on
+    - BUILD_VERSION=$(echo ${TRAVIS_COMMIT} | cut -c 1-10)
+    - MAIN_GO_VERSION=1.14.2
 
 script:
   - set -eo pipefail
