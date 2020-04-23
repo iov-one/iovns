@@ -23,7 +23,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgTr
 	// check if account exists
 	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
 	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", msg.Name)
+		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
 	}
 	// check if account has expired
 	if iovns.SecondsToTime(account.ValidUntil).Before(ctx.BlockTime()) {

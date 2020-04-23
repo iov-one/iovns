@@ -12,7 +12,7 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg ty
 	// get account
 	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
 	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", msg.Name)
+		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
 	}
 	// check if signer is account owner
 	if !msg.Owner.Equals(account.Owner) {

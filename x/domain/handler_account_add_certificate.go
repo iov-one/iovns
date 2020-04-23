@@ -22,7 +22,7 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg type
 	// get account
 	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
 	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", msg.Name)
+		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
 	}
 	// check if current time is after account validity time
 	if ctx.BlockTime().After(iovns.SecondsToTime(account.ValidUntil)) {

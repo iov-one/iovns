@@ -48,7 +48,7 @@ func queryResolveAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQue
 	// do query
 	account, exists := k.GetAccount(ctx, q.Domain, q.Name)
 	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: account %s in domain %s", q.Name, q.Domain)
+		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", q.Domain, q.Name)
 	}
 	// return response
 	respBytes, err := iovns.DefaultQueryEncode(QueryResolveAccountResponse{Account: account})
