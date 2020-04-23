@@ -69,7 +69,7 @@ func (k Keeper) SetConfig(ctx sdk.Context, conf types.Config) {
 }
 
 // GetDomainGrace period returns the default grace period before domains
-// can be claimed by someone who does not have to be the owner of the domain
+// can be deleted by someone other than the owner him/herself
 func (k Keeper) GetDomainGracePeriod(ctx sdk.Context) time.Duration {
 	return time.Duration(k.GetConfiguration(ctx).DomainGracePeriod) * time.Second
 }
