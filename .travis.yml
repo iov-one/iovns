@@ -2,6 +2,9 @@ sudo: required
 
 language: go
 
+os:
+  - linux
+
 dist: xenial
 
 go:
@@ -19,15 +22,19 @@ cache:
     - $HOME/gopath/pkg/mod
 
 env:
-  - GO111MODULE=on
-  - BUILD_VERSION=$(echo ${TRAVIS_COMMIT} | cut -c 1-10)
-  - MAIN_GO_VERSION=1.14.2
+  global:
+    - GO111MODULE=on
+    - BUILD_VERSION=$(echo ${TRAVIS_COMMIT} | cut -c 1-10)
+    - GORACE="halt_on_error=1"
+    - MAIN_GO_VERSION=1.14.2
+    - VERSION=$(git describe --tags --abbrev=9 | sed 's/^v//')
+    - COMMIT=$(git log -1 --format='%H')
+    - IMAGE_NAME="iov1/iovns:${BUILD_VERSION}"
 
 script:
   - set -eo pipefail
   - make test
   - make install
-  # TODO add linter
   - printenv TRAVIS_COMMIT_MESSAGE > commit.msg
   - unset TRAVIS_COMMIT_MESSAGE && printenv | grep -Ev "PATH|path|GEM" > env.list
   - export TRAVIS_COMMIT_MESSAGE=`cat commit.msg` && rm -rf commit.msg
@@ -36,8 +43,7 @@ script:
       release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
       if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
-        # TODO gitian build
-        docker build --pull ${IMAGE_NAME} .;
+        docker build --pull ${IMAGE_NAME} . ;
       fi;
 
       if [[ $release_latest == "yes" ]]; then

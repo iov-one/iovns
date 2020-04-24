@@ -26,7 +26,7 @@ WORKDIR /root
 
 # Copy over binaries from the build-env
 COPY --from=build-env /go/bin/iovnsd /usr/bin/iovnsd
-COPY --from=build-env /go/bin/iovnsd /usr/bin/iovnsd
+COPY --from=build-env /go/bin/iovnscli /usr/bin/iovnscli
 
 # Run iovnsd by default, omit entrypoint to ease using container with iovnscli
 CMD ["iovnsd"]
