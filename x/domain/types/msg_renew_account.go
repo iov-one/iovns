@@ -20,10 +20,10 @@ func (m MsgRenewAccount) Type() string {
 
 func (m MsgRenewAccount) ValidateBasic() error {
 	if m.Domain == "" {
-		return sdkerrors.Wrap(ErrInvalidDomainName, "domain name is empty")
+		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
 	}
 	if m.Name == "" {
-		return sdkerrors.Wrap(ErrInvalidAccountName, "account name is empty")
+		return sdkerrors.Wrap(ErrInvalidAccountName, "empty")
 	}
 	return nil
 }

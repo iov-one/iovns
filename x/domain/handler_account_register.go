@@ -23,12 +23,12 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgReg
 	}
 	// validate account name
 	if !regexp.MustCompile(conf.ValidName).MatchString(msg.Name) {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidAccountName, "account name %s is invalid", msg.Name)
+		return nil, sdkerrors.Wrapf(types.ErrInvalidAccountName, "invalid name: %s", msg.Name)
 	}
 	// check if domain name exists
 	domain, ok := k.GetDomain(ctx, msg.Domain)
 	if !ok {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "domain %s does not exist", msg.Domain)
+		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
 	}
 	// check if domain has super user that owner equals to the domain admin
 	if domain.HasSuperuser && !domain.Admin.Equals(msg.Owner) {

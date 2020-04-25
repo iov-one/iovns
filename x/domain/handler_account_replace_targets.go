@@ -29,7 +29,7 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg types
 	// get account
 	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
 	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", msg.Name)
+		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
 	}
 	// check if expired
 	if ctx.BlockTime().After(iovns.SecondsToTime(account.ValidUntil)) {

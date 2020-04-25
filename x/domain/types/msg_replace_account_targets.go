@@ -23,13 +23,13 @@ func (m MsgReplaceAccountTargets) Type() string {
 
 func (m MsgReplaceAccountTargets) ValidateBasic() error {
 	if m.Domain == "" {
-		return sdkerrors.Wrap(ErrInvalidDomainName, "empty domain name")
+		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
 	}
 	if m.Name == "" {
-		return sdkerrors.Wrap(ErrInvalidAccountName, "empty account name")
+		return sdkerrors.Wrap(ErrInvalidAccountName, "empty")
 	}
 	if m.Owner == nil {
-		return sdkerrors.Wrap(ErrInvalidOwner, "empty owner")
+		return sdkerrors.Wrap(ErrInvalidOwner, "empty")
 	}
 	if len(m.NewTargets) == 0 {
 		return sdkerrors.Wrap(ErrInvalidRequest, "empty blockchain targets")

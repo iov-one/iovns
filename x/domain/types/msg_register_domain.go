@@ -40,7 +40,7 @@ func (m MsgRegisterDomain) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidRegisterDomainRequest, "account renew value can not be zero")
 	}
 	if m.Name == "" {
-		return sdkerrors.Wrap(ErrInvalidRegisterDomainRequest, "domain name is missing")
+		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
 	}
 	// success
 	return nil

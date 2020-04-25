@@ -12,12 +12,12 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgDele
 	// check if domain exists
 	domain, exists := k.GetDomain(ctx, msg.Domain)
 	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "domain %s does not exist", msg.Domain)
+		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
 	}
 	// check if account exists
 	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
 	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "accounts %s does not exist", msg.Name)
+		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
 	}
 	// check if msg.Owner is either domain owner or account owner
 	if !domain.Admin.Equals(msg.Owner) && !account.Owner.Equals(msg.Owner) {

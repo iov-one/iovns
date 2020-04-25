@@ -20,10 +20,10 @@ func (m MsgDeleteDomain) Type() string {
 
 func (m MsgDeleteDomain) ValidateBasic() error {
 	if m.Domain == "" {
-		return sdkerrors.Wrap(ErrInvalidDomainName, "domain is empty")
+		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
 	}
 	if m.Owner == nil {
-		return sdkerrors.Wrap(ErrInvalidOwner, "owner is empty")
+		return sdkerrors.Wrap(ErrInvalidOwner, "empty")
 	}
 	// success
 	return nil

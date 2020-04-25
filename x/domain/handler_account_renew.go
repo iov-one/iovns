@@ -16,7 +16,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgRenew
 	// get account
 	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
 	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found: %s", msg.Name)
+		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
 	}
 	k.UpdateAccountValidity(ctx, account, domain.AccountRenew)
 	// success; todo emit event??
