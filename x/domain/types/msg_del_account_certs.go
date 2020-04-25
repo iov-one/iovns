@@ -12,15 +12,15 @@ type MsgDeleteAccountCertificate struct {
 	Owner             sdk.AccAddress
 }
 
-func (m MsgDeleteAccountCertificate) Route() string {
+func (m *MsgDeleteAccountCertificate) Route() string {
 	return RouterKey
 }
 
-func (m MsgDeleteAccountCertificate) Type() string {
+func (m *MsgDeleteAccountCertificate) Type() string {
 	return "delete_certificate_account"
 }
 
-func (m MsgDeleteAccountCertificate) ValidateBasic() error {
+func (m *MsgDeleteAccountCertificate) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrapf(ErrInvalidDomainName, "domain name is empty")
 	}
@@ -36,10 +36,10 @@ func (m MsgDeleteAccountCertificate) ValidateBasic() error {
 	return nil
 }
 
-func (m MsgDeleteAccountCertificate) GetSignBytes() []byte {
+func (m *MsgDeleteAccountCertificate) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-func (m MsgDeleteAccountCertificate) GetSigners() []sdk.AccAddress {
+func (m *MsgDeleteAccountCertificate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

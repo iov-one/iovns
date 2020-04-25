@@ -13,15 +13,15 @@ type MsgReplaceAccountTargets struct {
 	Owner      sdk.AccAddress
 }
 
-func (m MsgReplaceAccountTargets) Route() string {
+func (m *MsgReplaceAccountTargets) Route() string {
 	return RouterKey
 }
 
-func (m MsgReplaceAccountTargets) Type() string {
+func (m *MsgReplaceAccountTargets) Type() string {
 	return "replace_account_targets"
 }
 
-func (m MsgReplaceAccountTargets) ValidateBasic() error {
+func (m *MsgReplaceAccountTargets) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrap(ErrInvalidDomainName, "empty domain name")
 	}
@@ -37,10 +37,10 @@ func (m MsgReplaceAccountTargets) ValidateBasic() error {
 	return nil
 }
 
-func (m MsgReplaceAccountTargets) GetSignBytes() []byte {
+func (m *MsgReplaceAccountTargets) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-func (m MsgReplaceAccountTargets) GetSigners() []sdk.AccAddress {
+func (m *MsgReplaceAccountTargets) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

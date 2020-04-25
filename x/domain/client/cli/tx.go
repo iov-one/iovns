@@ -34,7 +34,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 
 func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:                        "register [domain-name] [has-superuser] [account-renew]",
+		Use:                        "register",
 		Short:                      "registers a domain",
 		SuggestionsMinimumDistance: 2,
 		Args:                       cobra.ExactArgs(3),
@@ -64,7 +64,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{&msg})
 		},
 	}
 }

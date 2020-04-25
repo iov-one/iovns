@@ -11,15 +11,15 @@ type MsgFlushDomain struct {
 	Owner  sdk.AccAddress
 }
 
-func (m MsgFlushDomain) Route() string {
+func (m *MsgFlushDomain) Route() string {
 	return RouterKey
 }
 
-func (m MsgFlushDomain) Type() string {
+func (m *MsgFlushDomain) Type() string {
 	return "delete_domain"
 }
 
-func (m MsgFlushDomain) ValidateBasic() error {
+func (m *MsgFlushDomain) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrap(ErrInvalidDomainName, "domain name is empty")
 	}
@@ -29,10 +29,10 @@ func (m MsgFlushDomain) ValidateBasic() error {
 	return nil
 }
 
-func (m MsgFlushDomain) GetSignBytes() []byte {
+func (m *MsgFlushDomain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-func (m MsgFlushDomain) GetSigners() []sdk.AccAddress {
+func (m *MsgFlushDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

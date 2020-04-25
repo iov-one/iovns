@@ -11,15 +11,15 @@ type MsgTransferDomain struct {
 	NewAdmin sdk.AccAddress
 }
 
-func (m MsgTransferDomain) Route() string {
+func (m *MsgTransferDomain) Route() string {
 	return RouterKey
 }
 
-func (m MsgTransferDomain) Type() string {
+func (m *MsgTransferDomain) Type() string {
 	return "transfer_domain"
 }
 
-func (m MsgTransferDomain) ValidateBasic() error {
+func (m *MsgTransferDomain) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
 	}
@@ -32,10 +32,10 @@ func (m MsgTransferDomain) ValidateBasic() error {
 	return nil
 }
 
-func (m MsgTransferDomain) GetSignBytes() []byte {
+func (m *MsgTransferDomain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-func (m MsgTransferDomain) GetSigners() []sdk.AccAddress {
+func (m *MsgTransferDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

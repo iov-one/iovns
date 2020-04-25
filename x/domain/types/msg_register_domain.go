@@ -8,31 +8,31 @@ import (
 // MsgRegisterDomain is the request used to register new domains
 type MsgRegisterDomain struct {
 	// Name is the name of the domain we want to register
-	Name string `json:"domain"`
+	Name string `json:"domain" arg:"--domain" helper:"name of the domain"`
 	// Admin is the address of the newly registered domain
 	Admin sdk.AccAddress `json:"admin"`
 	// HasSuperuser defines if the domain registered has an owner or not
 	HasSuperuser bool `json:"has_superuser"`
 	// Broker TODO document
-	Broker sdk.AccAddress `json:"broker"`
+	Broker sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
 	// AccountRenew defines the expiration time in seconds of each newly registered account.
-	AccountRenew int64
+	AccountRenew int64 `json:"account_renew" arg:"--account-renew" helper:"account's renewal time in seconds"`
 	// TODO MSGFEEs
 }
 
 // Route returns the name of the module
-func (m MsgRegisterDomain) Route() string {
+func (m *MsgRegisterDomain) Route() string {
 	return RouterKey
 }
 
 // Type returns the action
-func (m MsgRegisterDomain) Type() string {
+func (m *MsgRegisterDomain) Type() string {
 	return "register_domain"
 }
 
 // ValidateBasic does stateless checks on the request
 // it checks if the domain name is valid
-func (m MsgRegisterDomain) ValidateBasic() error {
+func (m *MsgRegisterDomain) ValidateBasic() error {
 	if m.Admin == nil {
 		return sdkerrors.Wrap(ErrInvalidRegisterDomainRequest, "admin is missing")
 	}
@@ -47,12 +47,14 @@ func (m MsgRegisterDomain) ValidateBasic() error {
 }
 
 // GetSignBytes returns an ordered json of the request
-func (m MsgRegisterDomain) GetSignBytes() []byte {
+func (m *MsgRegisterDomain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners returns the list of address that should list the request
 // in this case the admin of the domain
-func (m MsgRegisterDomain) GetSigners() []sdk.AccAddress {
+func (m *MsgRegisterDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Admin}
 }
+
+// Implement command

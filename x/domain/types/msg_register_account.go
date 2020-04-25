@@ -15,17 +15,17 @@ type MsgRegisterAccount struct {
 }
 
 // Route returns the route key for the request
-func (m MsgRegisterAccount) Route() string {
+func (m *MsgRegisterAccount) Route() string {
 	return RouterKey
 }
 
 // Type returns the type of the msg
-func (m MsgRegisterAccount) Type() string {
+func (m *MsgRegisterAccount) Type() string {
 	return "register_account"
 }
 
 // ValidateBasic checks the request in a stateless way
-func (m MsgRegisterAccount) ValidateBasic() error {
+func (m *MsgRegisterAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrap(ErrInvalidDomainName, "empty domain name")
 	}
@@ -39,11 +39,11 @@ func (m MsgRegisterAccount) ValidateBasic() error {
 }
 
 // GetSignBytes returns the expected signature
-func (m MsgRegisterAccount) GetSignBytes() []byte {
+func (m *MsgRegisterAccount) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners returns the expected signers of the request
-func (m MsgRegisterAccount) GetSigners() []sdk.AccAddress {
+func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

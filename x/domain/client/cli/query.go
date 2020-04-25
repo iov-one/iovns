@@ -2,18 +2,20 @@ package cli
 
 import (
 	"fmt"
+	"github.com/alexflint/go-arg"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/iov-one/iovns/x/domain/types"
+	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/tutils"
 	"github.com/spf13/cobra"
 )
 
 // GetQueryCmd builds the commands for queries in the domain module
-func GetQueryCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
+func GetQueryCmd(moduleQueryPath string, cdc *codec.Codec, queries []iovns.QueryCommand) *cobra.Command {
 	domainQueryCmd := &cobra.Command{
-		Use:                        storeKey, // store key is same as module name
+		Use:                        moduleQueryPath, // store key is same as module name
 		Short:                      "querying commands for the domain module",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
@@ -21,29 +23,60 @@ func GetQueryCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	}
 	domainQueryCmd.AddCommand(
 		flags.GetCommands(
-			GetCmdQueryDomain(storeKey, cdc), // add query domain command
+			generateQueryCommands(moduleQueryPath, cdc, queries)...,
 		)...,
 	)
-
 	return domainQueryCmd
 }
 
-// GetQueryDomain is the command used to query a domain by its name
-func GetCmdQueryDomain(queryRoute string, cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
-		Use:                "get [name]",
-		Short:              "get a domain by its name",
-		DisableFlagParsing: false,
-		Args:               cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			name := args[0]
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryDomain, name), nil)
-			if err != nil {
-				return err
-			}
-			// print output
-			return cliCtx.PrintOutput(fmt.Sprintf("%s", res))
-		},
+// generateQueryCommands generate the query commands from each iovns.QueryCommand type provided.
+func generateQueryCommands(moduleQueryPath string, cdc *codec.Codec, queryCommands []iovns.QueryCommand) []*cobra.Command {
+	cmds := make([]*cobra.Command, len(queryCommands))
+	// generate commands
+	for i, queryInterface := range queryCommands {
+		// get query type so we can clone it
+		// when we want to unmarshal data
+		typ := tutils.GetPtrType(queryInterface)
+		cmd := &cobra.Command{
+			Use:   queryInterface.Use(),
+			Short: queryInterface.Description(),
+			Long:  queryInterface.Description(),
+			RunE: func(cmd *cobra.Command, args []string) (err error) {
+				// clone query type
+				query := tutils.CloneFromType(typ).(iovns.QueryCommand)
+				argParser, err := arg.NewParser(arg.Config{Program: query.Use()}, query)
+				if err != nil {
+					return
+				}
+				// parse args
+				err = argParser.Parse(args)
+				if err != nil {
+					return
+				}
+				// generate cli CTX
+				cliCtx := context.NewCLIContext().WithCodec(cdc)
+				// set path
+				path := fmt.Sprintf("custom/%s/%s", moduleQueryPath, query.QueryPath())
+				// get request bytes
+				b, err := iovns.DefaultQueryEncode(query)
+				if err != nil {
+					return
+				}
+				// do query
+				res, _, err := cliCtx.QueryWithData(path, b)
+				if err != nil {
+					return err
+				}
+				// print output
+				err = cliCtx.PrintOutput(res)
+				if err != nil {
+					return
+				}
+				// success
+				return nil
+			},
+		}
+		cmds[i] = cmd
 	}
+	return cmds
 }

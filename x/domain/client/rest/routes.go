@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/tutils"
 	"io/ioutil"
 	"net/http"
 )
@@ -37,8 +38,13 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string
 	}
 }
 
-func queryHandlerBuild(cliCtx context.CLIContext, storeName string, query iovns.QueryHandler) http.HandlerFunc {
+func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType iovns.QueryHandler) http.HandlerFunc {
+	// get query type
+	typ := tutils.GetPtrType(queryType)
+	// return function
 	return func(writer http.ResponseWriter, request *http.Request) {
+		// clone queryType so we can unmarshal data to it
+		query := tutils.CloneFromType(typ).(iovns.QueryHandler)
 		// read request bytes
 		b, err := ioutil.ReadAll(request.Body)
 		if err != nil {
