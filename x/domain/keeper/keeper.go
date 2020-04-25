@@ -26,6 +26,8 @@ type ConfigurationKeeper interface {
 	GetValidDomainRegexp(ctx sdk.Context) string
 	// GetDomainRenewDuration returns the default duration of aliceAddr domain renewal
 	GetDomainRenewDuration(ctx sdk.Context) time.Duration
+	// GetDomainGracePeriod returns the grace period duration
+	GetDomainGracePeriod(ctx sdk.Context) time.Duration
 }
 
 // Keeper of the domain store
