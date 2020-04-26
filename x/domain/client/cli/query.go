@@ -45,8 +45,8 @@ func processQueryCmd(cdc *codec.Codec, path string, q interface{}, _ interface{}
 	if err != nil {
 		return
 	}
-	// print output
-	return cliCtx.PrintOutput(res)
+	_, err = fmt.Fprintf(cliCtx.Output, "%s\n\n", res)
+	return err
 }
 
 func getQueryResolveDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
