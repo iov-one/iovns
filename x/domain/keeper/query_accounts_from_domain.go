@@ -9,9 +9,17 @@ import (
 )
 
 type QueryAccountsInDomain struct {
-	Domain         string `json:"domain"`
-	ResultsPerPage int    `json:"results_per_page"`
-	Offset         int    `json:"offset"`
+	Domain         string `json:"domain" arg:"positional"`
+	ResultsPerPage int    `json:"results_per_page" arg:"positional"`
+	Offset         int    `json:"offset" arg:"positional"`
+}
+
+func (q *QueryAccountsInDomain) Use() string {
+	return "domain-accounts"
+}
+
+func (q *QueryAccountsInDomain) Description() string {
+	return "returns all the accounts contained in a domain"
 }
 
 func (q *QueryAccountsInDomain) Handler() QueryHandlerFunc {

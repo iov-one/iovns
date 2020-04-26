@@ -14,6 +14,14 @@ type QueryAccountsFromOwner struct {
 	Offset         int            `json:"offset"`
 }
 
+func (q *QueryAccountsFromOwner) Use() string {
+	return "owner-accounts"
+}
+
+func (q *QueryAccountsFromOwner) Description() string {
+	return "gets all the accounts owned by a given address"
+}
+
 func (q *QueryAccountsFromOwner) Handler() QueryHandlerFunc {
 	return queryAccountsFromOwnerHandler
 }
