@@ -20,18 +20,17 @@ type MsgRegisterDomain struct {
 	// TODO MSGFEEs
 }
 
-// Route returns the name of the module
+// Route implements sdk.Msg
 func (m *MsgRegisterDomain) Route() string {
 	return RouterKey
 }
 
-// Type returns the action
+// Type implements sdk.Msg
 func (m *MsgRegisterDomain) Type() string {
 	return "register_domain"
 }
 
-// ValidateBasic does stateless checks on the request
-// it checks if the domain name is valid
+// ValidateBasic implements sdk.Msg
 func (m *MsgRegisterDomain) ValidateBasic() error {
 	if m.Admin == nil {
 		return sdkerrors.Wrap(ErrInvalidRegisterDomainRequest, "admin is missing")
@@ -46,15 +45,12 @@ func (m *MsgRegisterDomain) ValidateBasic() error {
 	return nil
 }
 
-// GetSignBytes returns an ordered json of the request
+// GetSignBytes implements sdk.Msg
 func (m *MsgRegisterDomain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-// GetSigners returns the list of address that should list the request
-// in this case the admin of the domain
+// GetSigners implements sdk.Msg
 func (m *MsgRegisterDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Admin}
 }
-
-// Implement command

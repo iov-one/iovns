@@ -5,21 +5,31 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// MsgDeleteAccountCertificates is the request
+// model used to remove certificates from an
+// account
 type MsgDeleteAccountCertificate struct {
-	Domain            string
-	Name              string
+	// Domain is the name of the domain of the account
+	Domain string
+	// Name is the name of the account
+	Name string
+	// DeleteCertificate is the certificate to delete
 	DeleteCertificate []byte
-	Owner             sdk.AccAddress
+	// Owner is the owner of the account
+	Owner sdk.AccAddress
 }
 
+// Route implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) Route() string {
 	return RouterKey
 }
 
+// Type implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) Type() string {
 	return "delete_certificate_account"
 }
 
+// ValidateBasic implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrapf(ErrInvalidDomainName, "empty")
@@ -36,10 +46,12 @@ func (m *MsgDeleteAccountCertificate) ValidateBasic() error {
 	return nil
 }
 
+// GetSignBytes implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
+// GetSigners implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }
