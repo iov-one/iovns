@@ -12,17 +12,17 @@ type MsgDeleteAccount struct {
 }
 
 // Route returns the name of the module
-func (m MsgDeleteAccount) Route() string {
+func (m *MsgDeleteAccount) Route() string {
 	return RouterKey
 }
 
 // Type returns the action
-func (m MsgDeleteAccount) Type() string {
+func (m *MsgDeleteAccount) Type() string {
 	return "delete_account"
 }
 
 // ValidateBasic does stateless checks on the request
-func (m MsgDeleteAccount) ValidateBasic() error {
+func (m *MsgDeleteAccount) ValidateBasic() error {
 	if m.Owner == nil {
 		return sdkerrors.Wrap(ErrInvalidOwner, "empty")
 	}
@@ -37,12 +37,12 @@ func (m MsgDeleteAccount) ValidateBasic() error {
 }
 
 // GetSignBytes returns an ordered json of the request
-func (m MsgDeleteAccount) GetSignBytes() []byte {
+func (m *MsgDeleteAccount) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners returns the list of address that should list the request
 // in this case the admin of the domain
-func (m MsgDeleteAccount) GetSigners() []sdk.AccAddress {
+func (m *MsgDeleteAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

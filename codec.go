@@ -1,6 +1,8 @@
 package iovns
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 // QueryEncoder defines a function that encodes query models to bytes
 type QueryEncoder func(queryModel interface{}) ([]byte, error)
@@ -10,8 +12,8 @@ type QueryDecoder func(data []byte, ptrTargetModel interface{}) error
 
 // DefaultQueryEncode is the default function used
 // to marshal query models into bytes
-var DefaultQueryEncode = json.Marshal
+var DefaultQueryEncode QueryEncoder = json.Marshal
 
 // DefaultQueryDecode is the default function used to
 // decode query bytes to query models
-var DefaultQueryDecode = json.Unmarshal
+var DefaultQueryDecode QueryDecoder = json.Unmarshal

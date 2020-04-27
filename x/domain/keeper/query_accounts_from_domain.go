@@ -9,9 +9,17 @@ import (
 )
 
 type QueryAccountsInDomain struct {
-	Domain         string `json:"domain"`
-	ResultsPerPage int    `json:"results_per_page"`
-	Offset         int    `json:"offset"`
+	Domain         string `json:"domain" arg:"positional"`
+	ResultsPerPage int    `json:"results_per_page" arg:"positional"`
+	Offset         int    `json:"offset" arg:"positional"`
+}
+
+func (q *QueryAccountsInDomain) Use() string {
+	return "domain-accounts"
+}
+
+func (q *QueryAccountsInDomain) Description() string {
+	return "returns all the accounts contained in a domain"
 }
 
 func (q *QueryAccountsInDomain) Handler() QueryHandlerFunc {
@@ -53,36 +61,29 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	if err = query.Validate(); err != nil {
 		return nil, err
 	}
-	accKeys := k.GetAccountsInDomain(ctx, query.Domain)
-	nKeys := len(accKeys) // total number of keys
-	// no results
-	if nKeys == 0 {
-		// return response
-		respBytes, err := iovns.DefaultQueryEncode(QueryAccountsInDomainResponse{})
-		if err != nil {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+	keys := make([][]byte, 0, query.ResultsPerPage)
+	index := 0
+	// calculate index range
+	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
+	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
+	do := func(key []byte) bool {
+		// check if our index is grater-equal than our start
+		if index >= indexStart {
+			keys = append(keys, key)
 		}
-		return respBytes, nil
+		if index == indexEnd {
+			return false
+		}
+		// increase index
+		index++
+		return true
 	}
-	// get the index of the first object we want
-	firstObjectIndex := query.Offset*query.ResultsPerPage - query.ResultsPerPage
-	// check if there is at least one object at that index
-	if nKeys < firstObjectIndex+1 {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid offset")
-	}
-
-	// get the index for the last object
-	lastObjectIndex := firstObjectIndex + query.ResultsPerPage - 1
-	// check if last object index would outbound our acc keys slice
-	if lastObjectIndex > nKeys {
-		lastObjectIndex = nKeys - 1 // if it does then set last index as the last element of our slice
-	}
-	accounts := make([]types.Account, 0, lastObjectIndex-firstObjectIndex+1)
-	// fill accounts
-	for currIndex := firstObjectIndex; currIndex <= lastObjectIndex; currIndex++ {
-		// get account
-		account, _ := k.GetAccount(ctx, query.Domain, accountKeyToString(accKeys[currIndex]))
-		// append
+	// iterate keys
+	k.GetAccountsInDomain(ctx, query.Domain, do)
+	// get accounts
+	accounts := make([]types.Account, 0, len(keys))
+	for _, key := range keys {
+		account, _ := k.GetAccount(ctx, query.Domain, accountKeyToString(key))
 		accounts = append(accounts, account)
 	}
 	// return response

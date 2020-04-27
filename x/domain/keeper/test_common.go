@@ -25,7 +25,7 @@ func NewTestCodec() *codec.Codec {
 }
 
 // NewTestKeeper generates aliceAddr keeper and aliceAddr context from it
-func NewTestKeeper(t *testing.T, isCheckTx bool) (Keeper, sdk.Context) {
+func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context) {
 	cdc := NewTestCodec()
 	// generate store
 	mdb := db.NewMemDB()

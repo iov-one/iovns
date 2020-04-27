@@ -13,6 +13,14 @@ type QueryResolveAccount struct {
 	Name   string `json:"name"`
 }
 
+func (q *QueryResolveAccount) Use() string {
+	return "resolve-account"
+}
+
+func (q *QueryResolveAccount) Description() string {
+	return "resolves the given account"
+}
+
 func (q *QueryResolveAccount) Handler() QueryHandlerFunc {
 	return queryResolveAccountHandler
 }

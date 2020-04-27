@@ -14,18 +14,18 @@ type MsgTransferAccount struct {
 }
 
 // Route returns the name of the module
-func (m MsgTransferAccount) Route() string {
+func (m *MsgTransferAccount) Route() string {
 	return RouterKey
 }
 
 // Type returns the action
-func (m MsgTransferAccount) Type() string {
+func (m *MsgTransferAccount) Type() string {
 	return "transfer_account"
 }
 
 // ValidateBasic does stateless checks on the request
 // it checks if the domain name is valid
-func (m MsgTransferAccount) ValidateBasic() error {
+func (m *MsgTransferAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
 	}
@@ -43,12 +43,12 @@ func (m MsgTransferAccount) ValidateBasic() error {
 }
 
 // GetSignBytes returns an ordered json of the request
-func (m MsgTransferAccount) GetSignBytes() []byte {
+func (m *MsgTransferAccount) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners returns the list of address that should list the request
 // in this case the admin of the domain
-func (m MsgTransferAccount) GetSigners() []sdk.AccAddress {
+func (m *MsgTransferAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

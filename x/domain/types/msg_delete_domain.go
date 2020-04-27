@@ -10,15 +10,15 @@ type MsgDeleteDomain struct {
 	Owner  sdk.AccAddress
 }
 
-func (m MsgDeleteDomain) Route() string {
+func (m *MsgDeleteDomain) Route() string {
 	return RouterKey
 }
 
-func (m MsgDeleteDomain) Type() string {
+func (m *MsgDeleteDomain) Type() string {
 	return "delete_domain"
 }
 
-func (m MsgDeleteDomain) ValidateBasic() error {
+func (m *MsgDeleteDomain) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
 	}
@@ -29,10 +29,10 @@ func (m MsgDeleteDomain) ValidateBasic() error {
 	return nil
 }
 
-func (m MsgDeleteDomain) GetSignBytes() []byte {
+func (m *MsgDeleteDomain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-func (m MsgDeleteDomain) GetSigners() []sdk.AccAddress {
+func (m *MsgDeleteDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

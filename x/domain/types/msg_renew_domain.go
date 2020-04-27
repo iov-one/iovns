@@ -10,25 +10,25 @@ type MsgRenewDomain struct {
 	Domain string
 }
 
-func (m MsgRenewDomain) Route() string {
+func (m *MsgRenewDomain) Route() string {
 	return RouterKey
 }
 
-func (m MsgRenewDomain) Type() string {
+func (m *MsgRenewDomain) Type() string {
 	return "renew_domain"
 }
 
-func (m MsgRenewDomain) ValidateBasic() error {
+func (m *MsgRenewDomain) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrapf(ErrInvalidDomainName, "empty")
 	}
 	return nil
 }
 
-func (m MsgRenewDomain) GetSignBytes() []byte {
+func (m *MsgRenewDomain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-func (m MsgRenewDomain) GetSigners() []sdk.AccAddress {
+func (m *MsgRenewDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{}
 }

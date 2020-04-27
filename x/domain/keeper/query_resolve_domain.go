@@ -10,7 +10,15 @@ import (
 
 // QueryResolveDomain is the request made to
 type QueryResolveDomain struct {
-	Name string `json:"name"`
+	Name string `json:"name" arg:"positional"`
+}
+
+func (q *QueryResolveDomain) Use() string {
+	return "resolve-domain"
+}
+
+func (q *QueryResolveDomain) Description() string {
+	return "resolves a domain"
 }
 
 func (q *QueryResolveDomain) Handler() QueryHandlerFunc {

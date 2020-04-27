@@ -12,15 +12,15 @@ type MsgAddAccountCertificates struct {
 	NewCertificate []byte
 }
 
-func (m MsgAddAccountCertificates) Route() string {
+func (m *MsgAddAccountCertificates) Route() string {
 	return RouterKey
 }
 
-func (m MsgAddAccountCertificates) Type() string {
+func (m *MsgAddAccountCertificates) Type() string {
 	return "add_certificates_account"
 }
 
-func (m MsgAddAccountCertificates) ValidateBasic() error {
+func (m *MsgAddAccountCertificates) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrapf(ErrInvalidDomainName, "empty")
 	}
@@ -36,10 +36,10 @@ func (m MsgAddAccountCertificates) ValidateBasic() error {
 	return nil
 }
 
-func (m MsgAddAccountCertificates) GetSignBytes() []byte {
+func (m *MsgAddAccountCertificates) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-func (m MsgAddAccountCertificates) GetSigners() []sdk.AccAddress {
+func (m *MsgAddAccountCertificates) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

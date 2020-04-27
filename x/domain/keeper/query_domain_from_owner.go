@@ -14,6 +14,14 @@ type QueryDomainsFromOwner struct {
 	Offset         int            `json:"offset"`
 }
 
+func (q *QueryDomainsFromOwner) Use() string {
+	return "owner-domains"
+}
+
+func (q *QueryDomainsFromOwner) Description() string {
+	return "gets all the domains owned by the given address"
+}
+
 func (q *QueryDomainsFromOwner) Handler() QueryHandlerFunc {
 	return queryDomainsFromOwnerHandler
 }
@@ -50,40 +58,33 @@ func queryDomainsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		return nil, err
 	}
 	// get domain keys
-	domainKeys := k.iterDomainToOwner(ctx, query.Owner)
-	nKeys := len(domainKeys) // total number of keys
-	// no results
-	if nKeys == 0 {
-		// return response
-		respBytes, err := iovns.DefaultQueryEncode(QueryDomainsFromOwnerResponse{})
-		if err != nil {
-			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+	// generate expected keys
+	keys := make([][]byte, 0, query.ResultsPerPage)
+	index := 0
+	// calculate index range
+	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
+	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
+	do := func(key []byte) bool {
+		// check if our index is grater-equal than our start
+		if index >= indexStart {
+			keys = append(keys, key)
 		}
-		return respBytes, nil
+		if index == indexEnd {
+			return false
+		}
+		// increase index
+		index++
+		return true
 	}
-	// get the index of the first object we want
-	firstObjectIndex := query.Offset*query.ResultsPerPage - query.ResultsPerPage
-	// check if there is at least one object at that index
-	if nKeys < firstObjectIndex+1 {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid offset")
-	}
-
-	// get the index for the last object
-	lastObjectIndex := firstObjectIndex + query.ResultsPerPage - 1
-	// check if last object index would outbound our acc keys slice
-	if lastObjectIndex > nKeys {
-		lastObjectIndex = nKeys - 1 // if it does then set last index as the last element of our slice
-	}
-	domains := make([]types.Domain, 0, lastObjectIndex-firstObjectIndex+1)
-	// fill accounts
-	for currIndex := firstObjectIndex; currIndex <= lastObjectIndex; currIndex++ {
-		// get domainName
-		_, domainName := splitOwnerToDomainKey(domainKeys[currIndex])
+	// fill domain keys
+	k.iterDomainToOwner(ctx, query.Owner, do)
+	// get domains
+	domains := make([]types.Domain, 0, len(keys))
+	for _, key := range keys {
+		_, domainName := splitOwnerToDomainKey(key)
 		domain, _ := k.GetDomain(ctx, domainName)
-		// append
 		domains = append(domains, domain)
 	}
-	// return response
 	respBytes, err := iovns.DefaultQueryEncode(QueryDomainsFromOwnerResponse{Domains: domains})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())

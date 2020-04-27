@@ -61,20 +61,20 @@ func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 }
 
 // GetAccountsInDomain provides all the account keys related to the given domain name
-func (k Keeper) GetAccountsInDomain(ctx sdk.Context, domainName string) [][]byte {
+func (k Keeper) GetAccountsInDomain(ctx sdk.Context, domainName string, do func(key []byte) bool) {
 	// get store
 	accountStore := prefix.NewStore(ctx.KVStore(k.accountStoreKey), []byte(domainName))
 	// create iterator
 	iterator := accountStore.Iterator(nil, nil)
 	defer iterator.Close()
-	// create keys
-	var domainAccountKeys [][]byte
 	for ; iterator.Valid(); iterator.Next() {
-		// append
-		domainAccountKeys = append(domainAccountKeys, iterator.Key())
+		continueIterating := do(iterator.Key())
+		if !continueIterating {
+			return
+		}
 	}
 	// return keys
-	return domainAccountKeys
+	return
 }
 
 // TransferAccount transfers the account to aliceAddr new owner after resetting certificates and targets
