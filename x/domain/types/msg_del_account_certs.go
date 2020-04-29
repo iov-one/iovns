@@ -5,7 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// MsgDeleteAccountCertificates is the request
+// MsgDeleteAccountCertificate is the request
 // model used to remove certificates from an
 // account
 type MsgDeleteAccountCertificate struct {

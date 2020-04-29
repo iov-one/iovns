@@ -23,10 +23,6 @@ type Domain struct {
 	Broker sdk.AccAddress
 }
 
-func (d Domain) String() string {
-	panic("implement plz")
-}
-
 // Account defines an account that belongs to a domain
 type Account struct {
 	// Domain references the domain this account belongs to

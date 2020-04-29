@@ -33,10 +33,10 @@ func (m *MsgRegisterDomain) Type() string {
 // ValidateBasic implements sdk.Msg
 func (m *MsgRegisterDomain) ValidateBasic() error {
 	if m.Admin == nil {
-		return sdkerrors.Wrap(ErrInvalidRegisterDomainRequest, "admin is missing")
+		return sdkerrors.Wrap(ErrInvalidRequest, "admin is missing")
 	}
 	if m.AccountRenew == 0 {
-		return sdkerrors.Wrap(ErrInvalidRegisterDomainRequest, "account renew value can not be zero")
+		return sdkerrors.Wrap(ErrInvalidRequest, "account renew value can not be zero")
 	}
 	if m.Name == "" {
 		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")

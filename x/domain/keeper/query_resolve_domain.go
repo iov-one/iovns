@@ -8,27 +8,34 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-// QueryResolveDomain is the request made to
+// QueryResolveDomain is the request model
+// used to resolve a domain
 type QueryResolveDomain struct {
+	// Name is the domain name
 	Name string `json:"name" arg:"positional"`
 }
 
+// Use is a placeholder
 func (q *QueryResolveDomain) Use() string {
 	return "resolve-domain"
 }
 
+// Description is a placeholder
 func (q *QueryResolveDomain) Description() string {
 	return "resolves a domain"
 }
 
+// Handler implements the local queryHandler
 func (q *QueryResolveDomain) Handler() QueryHandlerFunc {
 	return queryResolveDomainHandler
 }
 
+// QueryPath implements iovns.QueryHandler
 func (q *QueryResolveDomain) QueryPath() string {
 	return "resolveDomain"
 }
 
+// Validate implements iovns.QueryHandler
 func (q *QueryResolveDomain) Validate() error {
 	if q.Name == "" {
 		return sdkerrors.Wrapf(types.ErrInvalidDomainName, "empty")
@@ -36,10 +43,14 @@ func (q *QueryResolveDomain) Validate() error {
 	return nil
 }
 
+// QueryResolveDomainResponse is response returned
+// by the QueryResolveDomain query
 type QueryResolveDomainResponse struct {
+	// Domain contains the queried domain information
 	Domain types.Domain `json:"domain"`
 }
 
+// queryResolveDomainHandler takes care of resolving domains
 func queryResolveDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	q := new(QueryResolveDomain)
 	err := iovns.DefaultQueryDecode(req.Data, q)

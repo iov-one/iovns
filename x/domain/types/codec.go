@@ -5,12 +5,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
+// ModuleCdc instantiates a new codec for the domain module
 var ModuleCdc = codec.New()
 
 func init() {
 	RegisterCodec(ModuleCdc)
 }
 
+// RegisterCodec registers the sdk.Msg for the module
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(&MsgRegisterDomain{}, fmt.Sprintf("%s/RegisterDomain", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgTransferDomain{}, fmt.Sprintf("%s/TransferDomain", ModuleName), nil)

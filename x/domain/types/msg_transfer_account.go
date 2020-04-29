@@ -5,26 +5,30 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// MsgTransferAccount is the message used to transfer accounts
+// MsgTransferAccount is the request
+// model used to transfer accounts
 type MsgTransferAccount struct {
-	Domain   string
-	Name     string
-	Owner    sdk.AccAddress
+	// Domain is the domain name of the account
+	Domain string
+	// Account is the account name
+	Name string
+	// Owner is the actual owner of the account
+	Owner sdk.AccAddress
+	// NewOwner is the new owner of the account
 	NewOwner sdk.AccAddress
 }
 
-// Route returns the name of the module
+// Route implements sdk.Msg
 func (m *MsgTransferAccount) Route() string {
 	return RouterKey
 }
 
-// Type returns the action
+// Type implements sdk.Msg
 func (m *MsgTransferAccount) Type() string {
 	return "transfer_account"
 }
 
-// ValidateBasic does stateless checks on the request
-// it checks if the domain name is valid
+// ValidateBasic implements sdk.Msg
 func (m *MsgTransferAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
@@ -42,13 +46,12 @@ func (m *MsgTransferAccount) ValidateBasic() error {
 	return nil
 }
 
-// GetSignBytes returns an ordered json of the request
+// GetSignBytes implements sdk.Msg
 func (m *MsgTransferAccount) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-// GetSigners returns the list of address that should list the request
-// in this case the admin of the domain
+// GetSigners implements sdk.Msg
 func (m *MsgTransferAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

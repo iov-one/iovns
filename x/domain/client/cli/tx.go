@@ -17,6 +17,7 @@ import (
 	"os"
 )
 
+// GetTxCmd clubs together all the CLI tx commands
 func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	domainTxCmd := &cobra.Command{
 		Use:                        storeKey,

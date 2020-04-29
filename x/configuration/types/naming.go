@@ -12,5 +12,5 @@ const (
 	QuerierRoute = ModuleName
 )
 
-// Query Routes const
+// QueryConfig is the route key used to query a config
 const QueryConfig = "configuration"

@@ -90,6 +90,7 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, storeName str
 	}
 }
 
+// RegisterRoutes clubs together the tx and query routes
 func RegisterRoutes(cliContext context.CLIContext, r *mux.Router, storeName string, queries []iovns.QueryHandler) {
 	// register tx routes
 	registerTxRoutes(cliContext, r, storeName)

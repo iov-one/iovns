@@ -8,28 +8,38 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
+// QueryAccountsFromOwner queries all the accounts
+// owner by a certain sdk.AccAddress
 type QueryAccountsFromOwner struct {
-	Owner          sdk.AccAddress `json:"owner"`
-	ResultsPerPage int            `json:"results_per_page"`
-	Offset         int            `json:"offset"`
+	// Owner is the owner of the accounts
+	Owner sdk.AccAddress `json:"owner"`
+	// ResultsPerPage is the number of results returned in each page
+	ResultsPerPage int `json:"results_per_page"`
+	// Offset is the page number
+	Offset int `json:"offset"`
 }
 
+// Use is a placeholder
 func (q *QueryAccountsFromOwner) Use() string {
 	return "owner-accounts"
 }
 
+// Description is a placeholder
 func (q *QueryAccountsFromOwner) Description() string {
 	return "gets all the accounts owned by a given address"
 }
 
+// Handler implements local queryHandler
 func (q *QueryAccountsFromOwner) Handler() QueryHandlerFunc {
 	return queryAccountsFromOwnerHandler
 }
 
+// QueryPath implements iovns.QueryHandler
 func (q *QueryAccountsFromOwner) QueryPath() string {
 	return "accountsFromOwner"
 }
 
+// Validate implements iovns.QueryHandler
 func (q *QueryAccountsFromOwner) Validate() error {
 	if q.Owner == nil {
 		return sdkerrors.Wrapf(types.ErrInvalidOwner, "empty")
@@ -43,7 +53,11 @@ func (q *QueryAccountsFromOwner) Validate() error {
 	return nil
 }
 
+// QueryAccountsFromOwnerResponse is the response model
+// returned by QueryAccountsFromOwner
 type QueryAccountsFromOwnerResponse struct {
+	// Accounts is a slice containing the accounts
+	// returned by the query
 	Accounts []types.Account `json:"accounts"`
 }
 
