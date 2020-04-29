@@ -39,25 +39,25 @@ script:
   - unset TRAVIS_COMMIT_MESSAGE && printenv | grep -Ev "PATH|path|GEM" > env.list
   - export TRAVIS_COMMIT_MESSAGE=`cat commit.msg` && rm -rf commit.msg
   - if [[ "$TRAVIS_GO_VERSION" == "$MAIN_GO_VERSION" && "$TRAVIS_OS_NAME" == "linux" ]]; then
-      release_latest=$( [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_TAG" == "" && "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]] && echo "yes" || echo "no" );
-      release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
+    release_latest=$( [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_TAG" == "" && "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]] && echo "yes" || echo "no" );
+    release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
-      if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
-        make build
-        docker build --pull --tag ${IMAGE_NAME} . ;
-      fi;
+    if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
+    make build;
+    docker build --pull --tag ${IMAGE_NAME} . ;
+    fi;
 
-      if [[ $release_latest == "yes" ]]; then
-        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-        docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:latest" ;
-        docker push "iov1/iovns:latest";
-        docker logout;
-      fi;
+    if [[ $release_latest == "yes" ]]; then
+    docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+    docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:latest" ;
+    docker push "iov1/iovns:latest";
+    docker logout;
+    fi;
 
-      if [[ $release_tag == "yes" ]]; then
-        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-        docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:$TRAVIS_TAG" ;
-        docker push "iov1/iovns:$TRAVIS_TAG";
-        docker logout;
-      fi;
+    if [[ $release_tag == "yes" ]]; then
+    docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+    docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:$TRAVIS_TAG" ;
+    docker push "iov1/iovns:$TRAVIS_TAG";
+    docker logout;
+    fi;
     fi;
