@@ -1,32 +1,30 @@
-# Simple usage with a mounted data directory:
-# > docker build -t iovns .
-# > docker run -it -p 46657:46657 -p 46656:46656 -v ~/.iovnsd:/root/.iovnsd -v ~/.iovnscli:/root/.iovnscli iovns iovnsd init
-# > docker run -it -p 46657:46657 -p 46656:46656 -v ~/.iovnsd:/root/.iovnsd -v ~/.iovnscli:/root/.iovnscli iovns iovnsd start
-FROM golang:alpine AS build-env
+FROM alpine:3.11
 
-# Set up dependencies
-ENV PACKAGES curl make git libc-dev bash gcc linux-headers eudev-dev python
+ENV NSDHOME /root
+ENV NSCLIHOME /root
 
-# Set working directory for the build
-WORKDIR /go/src/github.com/iov-one/iovns
+RUN apk update && \
+    apk upgrade && \
+    apk --no-cache add curl jq && \
+    addgroup iovnsduser && \
+    adduser -S -G iovnsduser iovnsduser -h "$NSDHOME"
 
-# Add source files
-COPY . .
+# Run the container with iovnsduser by default. (UID=100, GID=1000)
+USER iovnsduser
 
-# Install minimum necessary dependencies, build Cosmos SDK, remove packages
-RUN apk add --no-cache $PACKAGES && \
-    make install
+# p2p, rpc and prometheus port
+EXPOSE 46656 46657 46660
 
-# Final image
-FROM alpine:edge
+ARG NSDBINARY=cmd/iovnsd/iovnsd
+ARG NSDCLIBINARY=cmd/iovnscli/iovnscli
 
-# Install ca-certificates
-RUN apk add --update ca-certificates
+COPY $NSDBINARY /usr/bin/iovnsd
+COPY $NSCLIBINARY /usr/bin/iovnscli
+
 WORKDIR /root
-
-# Copy over binaries from the build-env
-COPY --from=build-env /go/bin/iovnsd /usr/bin/iovnsd
-COPY --from=build-env /go/bin/iovnscli /usr/bin/iovnscli
 
 # Run iovnsd by default, omit entrypoint to ease using container with iovnscli
 CMD ["iovnsd"]
+STOPSIGNAL SIGTERM
+
+VOLUME $NSDHOME $NSCLIHOME
