@@ -8,25 +8,33 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
+// QueryAccountsInDomain is the request model used to
+// query accounts contained in a domain
 type QueryAccountsInDomain struct {
-	Domain         string `json:"domain" arg:"positional"`
-	ResultsPerPage int    `json:"results_per_page" arg:"positional"`
-	Offset         int    `json:"offset" arg:"positional"`
+	// Domain is the domain name
+	Domain string `json:"domain" arg:"positional"`
+	// ResultsPerPage is the results that each page should contain
+	ResultsPerPage int `json:"results_per_page" arg:"positional"`
+	// Offset is the page number
+	Offset int `json:"offset" arg:"positional"`
 }
 
+// Use is a placeholder
 func (q *QueryAccountsInDomain) Use() string {
 	return "domain-accounts"
 }
 
+// Description is a placeholder
 func (q *QueryAccountsInDomain) Description() string {
 	return "returns all the accounts contained in a domain"
 }
 
+// Handler implements queryHandler
 func (q *QueryAccountsInDomain) Handler() QueryHandlerFunc {
 	return queryAccountsInDomainHandler
 }
 
-// Validate will validate the query model and set defaults
+// Validate implements iovns.QueryHandler
 func (q *QueryAccountsInDomain) Validate() error {
 	if q.Domain == "" {
 		return sdkerrors.Wrapf(types.ErrInvalidDomainName, "empty")
@@ -42,11 +50,15 @@ func (q *QueryAccountsInDomain) Validate() error {
 	return nil
 }
 
+// QueryPath implements iovns.QueryHandler
 func (q *QueryAccountsInDomain) QueryPath() string {
 	return "accountsInDomain"
 }
 
+// QueryAccountsInDomainResponse is the response model
+// returned after a QueryAccountsInDomain query
 type QueryAccountsInDomainResponse struct {
+	// Accounts is a slice of the accounts found
 	Accounts []types.Account `json:"accounts"`
 }
 

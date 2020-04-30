@@ -8,28 +8,38 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
+// QueryDomainsFromOwner is the request model used
+// to query domains owned by a sdk.AccAddress
 type QueryDomainsFromOwner struct {
-	Owner          sdk.AccAddress `json:"owner"`
-	ResultsPerPage int            `json:"results_per_page"`
-	Offset         int            `json:"offset"`
+	// Owner is the address of the owner of the domains
+	Owner sdk.AccAddress `json:"owner"`
+	// ResultsPerPage is the number of results displayed in a page
+	ResultsPerPage int `json:"results_per_page"`
+	// Offset is the page number
+	Offset int `json:"offset"`
 }
 
+// Use is a placeholder
 func (q *QueryDomainsFromOwner) Use() string {
 	return "owner-domains"
 }
 
+// Description is a placeholder
 func (q *QueryDomainsFromOwner) Description() string {
 	return "gets all the domains owned by the given address"
 }
 
+// Handler implements the local queryHandler
 func (q *QueryDomainsFromOwner) Handler() QueryHandlerFunc {
 	return queryDomainsFromOwnerHandler
 }
 
+// QueryPath implements iovns.QueryHandler
 func (q *QueryDomainsFromOwner) QueryPath() string {
 	return "domainsFromOwner"
 }
 
+// Validate implements iovns.QueryHandler
 func (q *QueryDomainsFromOwner) Validate() error {
 	if q.Owner == nil {
 		return sdkerrors.Wrapf(types.ErrInvalidOwner, "empty")
@@ -43,10 +53,15 @@ func (q *QueryDomainsFromOwner) Validate() error {
 	return nil
 }
 
+// QueryDomainsFromOwnerResponse is the response
+// returned by the QueryDomainsFromOwner query
 type QueryDomainsFromOwnerResponse struct {
+	// Domains is a slice of the domains
+	// found by the query
 	Domains []types.Domain
 }
 
+// queryDomainsFromOwnerHandler is the query handler used to get all the domains owned by an sdk.AccAddress
 func queryDomainsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryDomainsFromOwner)
 	err := iovns.DefaultQueryDecode(req.Data, query)

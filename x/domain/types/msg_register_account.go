@@ -6,25 +6,32 @@ import (
 	"github.com/iov-one/iovns"
 )
 
+// MsgRegisterAccount is the request
+// model used to register new accounts
 type MsgRegisterAccount struct {
-	Domain  string
-	Name    string
-	Owner   sdk.AccAddress
+	// Domain is the domain of the account
+	Domain string
+	// Name is the name of the account
+	Name string
+	// Owner is the owner of the account
+	Owner sdk.AccAddress
+	// Targets are the blockchain addresses of the account
 	Targets []iovns.BlockchainAddress
-	Broker  sdk.AccAddress
+	// Broker is the account that facilitated the transaction
+	Broker sdk.AccAddress
 }
 
-// Route returns the route key for the request
+// Route implements sdk.Msg
 func (m *MsgRegisterAccount) Route() string {
 	return RouterKey
 }
 
-// Type returns the type of the msg
+// Type implements sdk.Msg
 func (m *MsgRegisterAccount) Type() string {
 	return "register_account"
 }
 
-// ValidateBasic checks the request in a stateless way
+// ValidateBasic implements sdk.Msg
 func (m *MsgRegisterAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
@@ -38,12 +45,12 @@ func (m *MsgRegisterAccount) ValidateBasic() error {
 	return nil
 }
 
-// GetSignBytes returns the expected signature
+// GetSignBytes implements sdk.Msg
 func (m *MsgRegisterAccount) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-// GetSigners returns the expected signers of the request
+// GetSigners implements sdk.Msg
 func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

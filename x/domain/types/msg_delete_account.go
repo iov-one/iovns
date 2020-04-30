@@ -5,23 +5,28 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// MsgDeleteAccount is the request model
+// used to delete an account
 type MsgDeleteAccount struct {
+	// Domain is the name of the domain of the account
 	Domain string
-	Name   string
-	Owner  sdk.AccAddress
+	// Name is the name of the account
+	Name string
+	// Owner is the owner of the account
+	Owner sdk.AccAddress
 }
 
-// Route returns the name of the module
+// Route implements sdk.Msg
 func (m *MsgDeleteAccount) Route() string {
 	return RouterKey
 }
 
-// Type returns the action
+// Type implements sdk.Msg
 func (m *MsgDeleteAccount) Type() string {
 	return "delete_account"
 }
 
-// ValidateBasic does stateless checks on the request
+// ValidateBasic implements sdk.Msg
 func (m *MsgDeleteAccount) ValidateBasic() error {
 	if m.Owner == nil {
 		return sdkerrors.Wrap(ErrInvalidOwner, "empty")
@@ -36,13 +41,12 @@ func (m *MsgDeleteAccount) ValidateBasic() error {
 	return nil
 }
 
-// GetSignBytes returns an ordered json of the request
+// GetSignBytes implements sdk.Msg
 func (m *MsgDeleteAccount) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-// GetSigners returns the list of address that should list the request
-// in this case the admin of the domain
+// GetSigners implements sdk.Msg
 func (m *MsgDeleteAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

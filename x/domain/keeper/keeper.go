@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// ParamSubspace is a placeholder
 type ParamSubspace interface {
 }
 

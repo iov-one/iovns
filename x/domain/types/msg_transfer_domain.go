@@ -5,20 +5,25 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// MsgTransferDomain is the request model
+// used to transfer a domain
 type MsgTransferDomain struct {
 	Domain   string
 	Owner    sdk.AccAddress
 	NewAdmin sdk.AccAddress
 }
 
+// Route implements sdk.Msg
 func (m *MsgTransferDomain) Route() string {
 	return RouterKey
 }
 
+// Type implements sdk.Msg
 func (m *MsgTransferDomain) Type() string {
 	return "transfer_domain"
 }
 
+// ValidateBasic implements sdk.Msg
 func (m *MsgTransferDomain) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrap(ErrInvalidDomainName, "empty")
@@ -32,10 +37,12 @@ func (m *MsgTransferDomain) ValidateBasic() error {
 	return nil
 }
 
+// GetSignBytes implements sdk.Msg
 func (m *MsgTransferDomain) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
+// GetSigners implements sdk.Msg
 func (m *MsgTransferDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }

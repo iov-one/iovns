@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// GetQueryCmd builds all the query commands for the module
 func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	// group config queries under a sub-command
 	configQueryCmd := &cobra.Command{

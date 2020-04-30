@@ -16,12 +16,14 @@ const configKey = "config"
 type paramSubspace interface {
 }
 
+// Keeper is the key value store handler for the configuration module
 type Keeper struct {
 	storeKey   sdk.StoreKey
 	cdc        *codec.Codec
 	paramspace paramSubspace // TODO define what this is
 }
 
+// NewKeeper is Keeper constructor
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace paramSubspace) Keeper {
 	return Keeper{
 		storeKey:   key,
@@ -30,6 +32,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace paramSubspace) Kee
 	}
 }
 
+// Logger provides logging facilities for Keeper
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf(types.ModuleName))
 }
@@ -68,7 +71,7 @@ func (k Keeper) SetConfig(ctx sdk.Context, conf types.Config) {
 	store.Set([]byte(configKey), k.cdc.MustMarshalBinaryBare(conf))
 }
 
-// GetDomainGrace period returns the default grace period before domains
+// GetDomainGracePeriod returns the default grace period before domains
 // can be deleted by someone other than the owner him/herself
 func (k Keeper) GetDomainGracePeriod(ctx sdk.Context) time.Duration {
 	return time.Duration(k.GetConfiguration(ctx).DomainGracePeriod) * time.Second

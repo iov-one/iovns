@@ -48,6 +48,7 @@ func buildRouter(queries []iovns.QueryHandler) queryRouter {
 	return router
 }
 
+// NewQuerier builds the query handler for the module
 func NewQuerier(k Keeper) sdk.Querier {
 	// get queries
 	queries := AvailableQueries()

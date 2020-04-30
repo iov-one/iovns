@@ -7,6 +7,7 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
+// NewHandler builds the tx requests handler for the domain module
 func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
