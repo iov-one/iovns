@@ -6,11 +6,11 @@ ENV NSCLIHOME /app
 RUN apk update && \
     apk upgrade && \
     apk --no-cache add curl jq && \
-    addgroup iovnsduser && \
-    adduser -S -G iovnsduser iovnsduser -h "$NSDHOME"
+    addgroup iovnsuser && \
+    adduser -S -G iovnsuser iovnsuser -h "$NSDHOME" -h "$NSCLIHOME"
 
-# Run the container with iovnsduser by default. (UID=100, GID=1000)
-USER iovnsduser
+# Run the container with iovnsuser by default. (UID=100, GID=1000)
+USER iovnsuser
 
 # p2p, rpc and prometheus port
 EXPOSE 46656 46657 46660
