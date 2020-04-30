@@ -31,7 +31,7 @@ func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
 	k.SetDomain(ctx, domain)
 }
 
-// SetDomain updates or creates in the store a new domain
+// SetDomain updates or creates a new domain in the store
 func (k Keeper) SetDomain(ctx sdk.Context, domain types.Domain) {
 	store := ctx.KVStore(k.domainStoreKey)
 	store.Set([]byte(domain.Name), k.cdc.MustMarshalBinaryBare(domain))
