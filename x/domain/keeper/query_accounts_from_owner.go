@@ -9,7 +9,7 @@ import (
 )
 
 // QueryAccountsFromOwner queries all the accounts
-// owner by a certain sdk.AccAddress
+// owned by a certain sdk.AccAddress
 type QueryAccountsFromOwner struct {
 	// Owner is the owner of the accounts
 	Owner sdk.AccAddress `json:"owner"`
