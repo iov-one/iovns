@@ -1,16 +1,16 @@
 FROM alpine:3.11
 
-ENV NSDHOME /root
-ENV NSCLIHOME /root
+ENV NSDHOME /app
+ENV NSCLIHOME /app
 
 RUN apk update && \
     apk upgrade && \
     apk --no-cache add curl jq && \
-    addgroup iovnsduser && \
-    adduser -S -G iovnsduser iovnsduser -h "$NSDHOME"
+    addgroup iovnsuser && \
+    adduser -S -G iovnsuser iovnsuser -h "$NSDHOME" -h "$NSCLIHOME"
 
-# Run the container with iovnsduser by default. (UID=100, GID=1000)
-USER iovnsduser
+# Run the container with iovnsuser by default. (UID=100, GID=1000)
+USER iovnsuser
 
 # p2p, rpc and prometheus port
 EXPOSE 46656 46657 46660
@@ -21,7 +21,7 @@ ARG NSDCLIBINARY=cmd/iovnscli/iovnscli
 COPY $NSDBINARY /usr/bin/iovnsd
 COPY $NSCLIBINARY /usr/bin/iovnscli
 
-WORKDIR /root
+WORKDIR /app
 
 # Run iovnsd by default, omit entrypoint to ease using container with iovnscli
 CMD ["iovnsd"]
