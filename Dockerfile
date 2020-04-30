@@ -1,7 +1,7 @@
 FROM alpine:3.11
 
-ENV NSDHOME /root
-ENV NSCLIHOME /root
+ENV NSDHOME /app
+ENV NSCLIHOME /app
 
 RUN apk update && \
     apk upgrade && \
@@ -21,7 +21,7 @@ ARG NSDCLIBINARY=cmd/iovnscli/iovnscli
 COPY $NSDBINARY /usr/bin/iovnsd
 COPY $NSCLIBINARY /usr/bin/iovnscli
 
-WORKDIR /root
+WORKDIR /app
 
 # Run iovnsd by default, omit entrypoint to ease using container with iovnscli
 CMD ["iovnsd"]
