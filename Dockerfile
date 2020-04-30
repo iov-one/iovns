@@ -16,7 +16,7 @@ USER iovnsuser
 EXPOSE 46656 46657 46660
 
 ARG NSDBINARY=cmd/iovnsd/iovnsd
-ARG NSDCLIBINARY=cmd/iovnscli/iovnscli
+ARG NSCLIBINARY=cmd/iovnscli/iovnscli
 
 COPY $NSDBINARY /usr/bin/iovnsd
 COPY $NSCLIBINARY /usr/bin/iovnscli
