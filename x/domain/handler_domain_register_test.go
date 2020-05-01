@@ -15,7 +15,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				configSetter := getConfigSetter(k.ConfigurationKeeper)
 				// set config
 				configSetter.SetConfig(ctx, configuration.Config{
-					Owner:       aliceKey.GetAddress(),
+					Owners:      []sdk.AccAddress{aliceKey.GetAddress()},
 					ValidDomain: "^(.*?)?",
 				})
 			},
@@ -106,7 +106,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
 				// add config with owner
 				config := configuration.Config{
-					Owner:                  aliceKey.GetAddress(),
+					Owners:                 []sdk.AccAddress{aliceKey.GetAddress()},
 					ValidDomain:            "^(.*?)?",
 					ValidName:              "",
 					ValidBlockchainID:      "",

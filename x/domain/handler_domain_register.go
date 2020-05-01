@@ -22,7 +22,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegist
 		return
 	}
 	// if domain has not a super user then admin must be configuration owner
-	if !msg.HasSuperuser && !msg.Admin.Equals(keeper.ConfigurationKeeper.GetOwner(ctx)) {
+	if !msg.HasSuperuser && !keeper.ConfigurationKeeper.IsOwner(ctx, msg.Admin) {
 		err = sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to register a domain without a superuser", msg.Admin)
 		return
 	}

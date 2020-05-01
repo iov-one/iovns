@@ -50,9 +50,20 @@ func (k Keeper) GetConfiguration(ctx sdk.Context) types.Config {
 	return conf
 }
 
-// GetOwner returns the owner of domains with no superuser
-func (k Keeper) GetOwner(ctx sdk.Context) sdk.AccAddress {
-	return k.GetConfiguration(ctx).Owner
+// GetOwners returns the owner of domains with no superuser
+func (k Keeper) GetOwners(ctx sdk.Context) []sdk.AccAddress {
+	return k.GetConfiguration(ctx).Owners
+}
+
+// IsOwner checks if the provided address is an owner or not
+func (k Keeper) IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool {
+	owners := k.GetOwners(ctx)
+	for _, owner := range owners {
+		if owner.Equals(addr) {
+			return true
+		}
+	}
+	return false
 }
 
 // GetDomainRenewDuration returns the duration of a domain renewal period

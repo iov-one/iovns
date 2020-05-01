@@ -20,8 +20,8 @@ type ParamSubspace interface {
 type ConfigurationKeeper interface {
 	// GetConfiguration returns the configuration
 	GetConfiguration(ctx sdk.Context) configuration.Config
-	// GetOwner returns the owner
-	GetOwner(ctx sdk.Context) sdk.AccAddress
+	// IsOwner returns if the provided address is an owner or not
+	IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool
 	// GetValidDomainRegexp returns the regular expression that aliceAddr domain name must match
 	// in order to be valid
 	GetValidDomainRegexp(ctx sdk.Context) string
