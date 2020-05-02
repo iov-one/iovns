@@ -14,4 +14,6 @@ const (
 	RouterKey = ModuleName
 	// QuerierRoute defines the query path used to interact with the domain module
 	QuerierRoute = ModuleName
+	// DefaultParamSpace defines the key for the default param space
+	DefaultParamSpace = ModuleName
 )

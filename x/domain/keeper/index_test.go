@@ -11,7 +11,7 @@ func Test_accountIndexing(t *testing.T) {
 		accountKeys = append(accountKeys, key)
 		return true
 	}
-	k, ctx := NewTestKeeper(t, true)
+	k, ctx, _ := NewTestKeeper(t, true)
 	k.CreateAccount(ctx, types.Account{
 		Domain: "test",
 		Name:   "1",
@@ -63,7 +63,7 @@ func Test_domainIndexing(t *testing.T) {
 		domainKeys = append(domainKeys, key)
 		return true
 	}
-	k, ctx := NewTestKeeper(t, true)
+	k, ctx, _ := NewTestKeeper(t, true)
 	k.CreateDomain(ctx, types.Domain{
 		Name:  "1",
 		Admin: bobAddr,

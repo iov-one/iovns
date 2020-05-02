@@ -13,7 +13,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 	cases := map[string]subTest{
 		"account does not exist": {
 			BeforeTest: nil,
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "does not exist",
@@ -27,14 +27,14 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			AfterTest: nil,
 		},
 		"msg signer is not account owner": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
@@ -48,7 +48,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			AfterTest: nil,
 		},
 		"certificate does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
@@ -56,7 +56,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 					Certificates: nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
@@ -70,7 +70,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
@@ -78,7 +78,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 					Certificates: [][]byte{[]byte("test")},
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
@@ -89,7 +89,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 					t.Fatalf("handlerMsgDeleteAccountCertificates() got error: %s", err)
 				}
 			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// check if certificate is still present
 				account, _ := k.GetAccount(ctx, "test", "test")
 				for _, cert := range account.Certificates {

@@ -10,6 +10,8 @@ const (
 	RouterKey = ModuleName
 	// QuerierRoute is used to process queries for the module
 	QuerierRoute = ModuleName
+	// DefaultParamSpace defines the key for the configuration paramspace
+	DefaultParamSpace = ModuleName
 )
 
 // QueryConfig is the route key used to query a config

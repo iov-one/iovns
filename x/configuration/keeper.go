@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/tendermint/tendermint/libs/log"
 	"time"
@@ -13,18 +14,20 @@ import (
 // since the configuration is only one the key will always be one
 const configKey = "config"
 
-type paramSubspace interface {
-}
+// feeKey defines the key used for fees
+// since the fee params are only one
+// this is the only key we will need
+const feeKey = "fee"
 
 // Keeper is the key value store handler for the configuration module
 type Keeper struct {
 	storeKey   sdk.StoreKey
 	cdc        *codec.Codec
-	paramspace paramSubspace // TODO define what this is
+	paramspace params.Subspace
 }
 
 // NewKeeper is Keeper constructor
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace paramSubspace) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace params.Subspace) Keeper {
 	return Keeper{
 		storeKey:   key,
 		cdc:        cdc,

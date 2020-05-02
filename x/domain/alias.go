@@ -19,6 +19,8 @@ const (
 	QuerierRoute = types.QuerierRoute
 	// RouterKey aliases types.RouterKey
 	RouterKey = types.RouterKey
+	// DefaultParamSpace defines domain module default param space key
+	DefaultParamSpace = types.DefaultParamSpace
 )
 
 // aliasing for types

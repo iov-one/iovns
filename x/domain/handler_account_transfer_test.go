@@ -13,10 +13,10 @@ import (
 func Test_handlerAccountTransfer(t *testing.T) {
 	testCases := map[string]subTest{
 		"domain does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// do nothing
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "does not exist",
 					Name:     "does not exist",
@@ -30,7 +30,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 			AfterTest: nil,
 		},
 		"domain has expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "expired domain",
 					Admin:        nil,
@@ -40,7 +40,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "expired domain",
 					Name:     "",
@@ -54,7 +54,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 			AfterTest: nil,
 		},
 		"account does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
@@ -64,7 +64,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "this account does not exist",
@@ -78,7 +78,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 			AfterTest: nil,
 		},
 		"account expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
@@ -97,7 +97,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
@@ -111,7 +111,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 			AfterTest: nil,
 		},
 		"if domain has super user only domain admin can transfer accounts": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        aliceKey.GetAddress(),
@@ -130,7 +130,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
@@ -144,7 +144,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 			AfterTest: nil,
 		},
 		"if domain has no super user then only account owner can transfer accounts": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
@@ -163,7 +163,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
@@ -177,7 +177,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
@@ -196,7 +196,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferAccount(ctx, k, types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
@@ -207,7 +207,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
 				}
 			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account, exists := k.GetAccount(ctx, "test", "test")
 				if !exists {
 					panic("unexpected account deletion")

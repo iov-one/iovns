@@ -24,13 +24,13 @@ var (
 type AppModuleBasic struct{}
 
 func (AppModuleBasic) Name() string                   { return types.ModuleName }
-func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { RegisterCodec(cdc) }
+func (AppModuleBasic) RegisterCodec(cdc *codec.Codec) { types.RegisterCodec(cdc) }
 func (AppModuleBasic) DefaultGenesis() json.RawMessage {
-	return ModuleCdc.MustMarshalJSON(DefaultGenesisState())
+	return types.ModuleCdc.MustMarshalJSON(DefaultGenesisState())
 }
 func (AppModuleBasic) ValidateGenesis(b json.RawMessage) (err error) {
 	var data GenesisState
-	err = ModuleCdc.UnmarshalJSON(b, &data)
+	err = types.ModuleCdc.UnmarshalJSON(b, &data)
 	if err != nil {
 		return
 	}
@@ -74,12 +74,12 @@ func (a AppModule) NewQuerierHandler() sdk.Querier {
 
 func (a AppModule) InitGenesis(ctx sdk.Context, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState GenesisState
-	ModuleCdc.MustUnmarshalJSON(data, &genesisState)
+	types.ModuleCdc.MustUnmarshalJSON(data, &genesisState)
 	InitGenesis(ctx, a.keeper, genesisState)
 	return []abci.ValidatorUpdate{}
 }
 
 func (a AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 	genesisState := ExportGenesis(ctx, a.keeper)
-	return ModuleCdc.MustMarshalJSON(genesisState)
+	return types.ModuleCdc.MustMarshalJSON(genesisState)
 }

@@ -8,7 +8,7 @@ import (
 
 func Benchmark_accountToOwnerIndexing(b *testing.B) {
 	// get keeper
-	k, ctx := NewTestKeeper(b, true)
+	k, ctx, _ := NewTestKeeper(b, true)
 	// generate mock accounts
 	number := 100000
 	for i := 0; i < number; i++ {
@@ -28,7 +28,7 @@ func Benchmark_accountToOwnerIndexing(b *testing.B) {
 
 func Benchmark_domainToOwnerIndexing(b *testing.B) {
 	// get keeper
-	k, ctx := NewTestKeeper(b, true)
+	k, ctx, _ := NewTestKeeper(b, true)
 	// generate mock domains
 	number := 100000
 	for i := 0; i < number; i++ {
@@ -47,7 +47,7 @@ func Benchmark_domainToOwnerIndexing(b *testing.B) {
 
 func Benchmark_domainToAccountIndexing(b *testing.B) {
 	// get keeper
-	k, ctx := NewTestKeeper(b, true)
+	k, ctx, _ := NewTestKeeper(b, true)
 	// generate mock accounts
 	number := 100000
 	for i := 0; i < number; i++ {
