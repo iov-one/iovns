@@ -24,6 +24,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	configQueryCmd.AddCommand(
 		flags.GetCommands(
 			getCmdQueryConfig(queryRoute, cdc),
+			getCmdQueryFees(queryRoute, cdc),
 		)...,
 	)
 	// return cmd list
