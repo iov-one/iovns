@@ -90,3 +90,43 @@ func (k Keeper) SetConfig(ctx sdk.Context, conf types.Config) {
 func (k Keeper) GetDomainGracePeriod(ctx sdk.Context) time.Duration {
 	return time.Duration(k.GetConfiguration(ctx).DomainGracePeriod) * time.Second
 }
+
+// OperationAllowed evaluates a message to check if it is allowed
+// to perform actions on the configuration module.
+// This checks if quorum is reached in the number of signatures in the message
+// against the number of active owners in the current configuration
+func (k Keeper) OperationAllowed(ctx sdk.Context, msg sdk.Msg) bool {
+	owners := k.GetOwners(ctx)
+	/* skip creating a set due to conversion to string
+	it would not cause a problem but since the performance
+	gain would be minimal it's not worth to change the way
+	we assert address equality.
+	ownersSet := make(map[string]struct{})
+	for _, owner := range owners {
+		ownersSet[owner] = struct{}{}
+	}
+	*/
+	signers := msg.GetSigners()
+	validSigners := 0
+	// range over signers
+	for _, signer := range signers {
+		// range over owners
+		for _, owner := range owners {
+			// if a signer matches an owner
+			if owner.Equals(signer) {
+				// then increase the valid signers count by one
+				validSigners += 1
+				// break because there cannot be more
+				// than one owner with the same address
+				break
+			}
+		}
+	}
+	// check if valid signers reaches the quorum
+	quorum := len(owners)/2 + len(owners)%2
+	if validSigners >= quorum {
+		return true
+	}
+	// quorum was not reached
+	return false
+}

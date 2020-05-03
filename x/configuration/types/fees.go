@@ -47,6 +47,7 @@ func (m LengthFeeMapper) MarshalJSON() ([]byte, error) {
 }
 
 func (m *LengthFeeMapper) UnmarshalJSON(b []byte) error {
+	// make map if it is has not been initialized
 	if *m == nil {
 		*m = make(LengthFeeMapper)
 	}
@@ -109,12 +110,14 @@ func (f *Fees) MarshalJSON() ([]byte, error) {
 }
 
 func (f *Fees) UnmarshalJSON(b []byte) error {
+	// init maps if nil
 	if f.DefaultFees == nil {
 		f.DefaultFees = make(map[msgUniqueID]sdk.Coin)
 	}
 	if f.LengthFees == nil {
 		f.LengthFees = make(map[msgUniqueID]LengthFeeMapper)
 	}
+	// re-use types used for marshalling
 	type coin struct {
 		Denom  string `json:"denom"`
 		Amount string `json:"amount"`
@@ -125,10 +128,12 @@ func (f *Fees) UnmarshalJSON(b []byte) error {
 	}
 	x.DefaultFees = make(map[string]coin)
 	x.LengthFees = make(map[string]LengthFeeMapper)
+	// unmarshal
 	err := json.Unmarshal(b, &x)
 	if err != nil {
 		return err
 	}
+	// set default fees
 	for k, v := range x.DefaultFees {
 		sdkInt, ok := sdk.NewIntFromString(v.Amount)
 		if !ok {

@@ -1,15 +1,17 @@
 package configuration
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
 
-// NewHandler returns the handlers for the configuration
-// since configuration has no active handlers, it does nothing
+// NewHandler returns the handlers for the configuration module
 func NewHandler(k Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
-		return &sdk.Result{
-			Data:   nil,
-			Log:    "",
-			Events: nil,
-		}, nil
+		switch msg.(type) {
+
+		default:
+			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "unknown request")
+		}
 	}
 }
