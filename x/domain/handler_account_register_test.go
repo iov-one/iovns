@@ -35,7 +35,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
@@ -76,7 +76,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
@@ -116,7 +116,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "this won't match",
 					Owner:  aliceKey.GetAddress(),
@@ -148,7 +148,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "this does not exist",
 					Name:   "works",
 					Owner:  aliceKey.GetAddress(),
@@ -189,7 +189,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(), // invalid owner
@@ -230,7 +230,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  bobKey.GetAddress(),
@@ -281,7 +281,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "exists",
 					Owner:  bobKey.GetAddress(),
@@ -322,7 +322,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  bobKey.GetAddress(),

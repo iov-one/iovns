@@ -9,7 +9,7 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg types.MsgAddAccountCertificates) (*sdk.Result, error) {
+func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *types.MsgAddAccountCertificates) (*sdk.Result, error) {
 	// get domain
 	domain, exists := k.GetDomain(ctx, msg.Domain)
 	if !exists {
@@ -37,6 +37,11 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg type
 		if bytes.Equal(cert, msg.NewCertificate) {
 			return nil, sdkerrors.Wrapf(types.ErrCertificateExists, "certificate is already present")
 		}
+	}
+	// collect fees
+	err := k.CollectFees(ctx, msg, msg.Owner)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
 	// add certificate
 	k.AddAccountCertificate(ctx, account, msg.NewCertificate)

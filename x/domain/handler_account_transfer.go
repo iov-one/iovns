@@ -10,7 +10,7 @@ import (
 
 // handlerMsgTransferAccount transfers account to a new owner
 // after clearing targets and certificates
-func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgTransferAccount) (*sdk.Result, error) {
+func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferAccount) (*sdk.Result, error) {
 	// check if domain exists
 	domain, exists := k.GetDomain(ctx, msg.Domain)
 	if !exists {

@@ -15,7 +15,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgRenewAccount(ctx, k, types.MsgRenewAccount{
+				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "does not exist",
 					Name:   "",
 				})
@@ -34,7 +34,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgRenewAccount(ctx, k, types.MsgRenewAccount{
+				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "does not exist",
 				})
@@ -59,7 +59,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgRenewAccount(ctx, k, types.MsgRenewAccount{
+				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
 				})

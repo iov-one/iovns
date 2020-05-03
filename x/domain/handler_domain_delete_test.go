@@ -16,7 +16,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				// don't do anything
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "this does not exist",
 					Owner:  bobKey.GetAddress(),
 				})
@@ -38,7 +38,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  bobKey.GetAddress(),
 				})
@@ -64,7 +64,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  aliceKey.GetAddress(),
 				})
@@ -101,7 +101,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  aliceKey.GetAddress(),
 				})
@@ -151,7 +151,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  aliceKey.GetAddress(),
 				})

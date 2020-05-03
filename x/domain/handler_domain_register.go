@@ -9,7 +9,7 @@ import (
 )
 
 // handleMsgRegisterDomain handles the domain registration process
-func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg types.MsgRegisterDomain) (resp *sdk.Result, err error) {
+func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
 	// check if domain exists
 	if _, ok := keeper.GetDomain(ctx, msg.Name); ok {
 		err = sdkerrors.Wrap(types.ErrDomainAlreadyExists, msg.Name)

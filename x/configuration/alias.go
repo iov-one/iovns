@@ -30,3 +30,8 @@ const DefaultParamSpace = types.DefaultParamSpace
 
 // Fees aliases types.Fees
 type Fees = types.Fees
+
+// function aliases
+
+// NewFees aliases types.NewFees
+var NewFees = types.NewFees

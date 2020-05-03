@@ -1,19 +1,23 @@
 package configuration
 
 import (
+	"encoding/json"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration/types"
 )
 
 // GetFees returns the network fees
-func (k Keeper) GetFees(ctx sdk.Context) types.Fees {
+func (k Keeper) GetFees(ctx sdk.Context) *types.Fees {
 	store := ctx.KVStore(k.storeKey)
 	value := store.Get([]byte(feeKey))
 	if value == nil {
 		panic("no length fees set")
 	}
-	var fees types.Fees
-	k.cdc.MustUnmarshalBinaryBare(value, &fees)
+	var fees = new(types.Fees)
+	err := json.Unmarshal(value, fees)
+	if err != nil {
+		panic(err)
+	}
 	return fees
 }
 
@@ -31,7 +35,11 @@ func (k Keeper) SetDefaultFees(ctx sdk.Context, msg sdk.Msg, coin sdk.Coin) {
 	k.SetFees(ctx, fees)
 }
 
-func (k Keeper) SetFees(ctx sdk.Context, fees types.Fees) {
+func (k Keeper) SetFees(ctx sdk.Context, fees *types.Fees) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(feeKey), k.cdc.MustMarshalBinaryBare(fees))
+	b, err := json.Marshal(fees)
+	if err != nil {
+		panic(err)
+	}
+	store.Set([]byte(feeKey), b)
 }

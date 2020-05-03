@@ -16,7 +16,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgRenewDomain(ctx, k, types.MsgRenewDomain{Domain: "does not exist"})
+				_, err := handlerMsgRenewDomain(ctx, k, &types.MsgRenewDomain{Domain: "does not exist"})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("handlerMsgRenewDomain() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
 				}
@@ -37,7 +37,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgRenewDomain(ctx, k, types.MsgRenewDomain{Domain: "test"})
+				_, err := handlerMsgRenewDomain(ctx, k, &types.MsgRenewDomain{Domain: "test"})
 				if err != nil {
 					t.Fatalf("handlerMsgRenewDomain() got error: %s", err)
 				}

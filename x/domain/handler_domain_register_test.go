@@ -22,7 +22,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// register domain with superuser
-				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
+				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "domain",
 					HasSuperuser: true,
 					AccountRenew: 10,
@@ -31,7 +31,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					t.Fatalf("handleMsgRegisterDomain() with superuser, got error: %s", err)
 				}
 				// register domain without super user
-				_, err = handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
+				_, err = handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "domain-without-superuser",
 					Admin:        aliceKey.GetAddress(),
 					HasSuperuser: false,
@@ -66,7 +66,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
+				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "exists",
 					Admin:        nil,
 					HasSuperuser: false,
@@ -90,7 +90,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
+				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "invalid-name",
 					Admin:        nil,
 					HasSuperuser: false,
@@ -119,7 +119,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mock *keeper.Mocks) {
 				// try to register domain with no super user
-				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
+				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "some-domain",
 					Admin:        bobKey.GetAddress(),
 					HasSuperuser: false,

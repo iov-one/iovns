@@ -26,7 +26,7 @@ type SupplyKeeper interface {
 // ConfigurationKeeper defines the behaviour of the configuration state checks
 type ConfigurationKeeper interface {
 	// GetFees gets the fees
-	GetFees(ctx sdk.Context) configuration.Fees
+	GetFees(ctx sdk.Context) *configuration.Fees
 	// GetConfiguration returns the configuration
 	GetConfiguration(ctx sdk.Context) configuration.Config
 	// IsOwner returns if the provided address is an owner or not

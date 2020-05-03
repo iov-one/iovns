@@ -14,7 +14,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 		"account does not exist": {
 			BeforeTest: nil,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
+				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "does not exist",
 					DeleteCertificate: nil,
@@ -35,7 +35,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
+				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: nil,
@@ -57,7 +57,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
+				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("does not exist"),
@@ -79,7 +79,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgDeleteAccountCertificate(ctx, k, types.MsgDeleteAccountCertificate{
+				_, err := handlerMsgDeleteAccountCertificate(ctx, k, &types.MsgDeleteAccountCertificate{
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("test"),

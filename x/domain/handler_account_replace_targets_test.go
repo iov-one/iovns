@@ -24,7 +24,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "",
 					Name:   "",
 					NewTargets: []iovns.BlockchainAddress{
@@ -51,7 +51,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "does not exist",
 					Name:   "",
 					NewTargets: []iovns.BlockchainAddress{
@@ -82,7 +82,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "test",
 					NewTargets: []iovns.BlockchainAddress{
 						{
@@ -113,7 +113,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "does not exist",
 					NewTargets: []iovns.BlockchainAddress{
@@ -151,7 +151,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "test",
 					NewTargets: []iovns.BlockchainAddress{
@@ -190,7 +190,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "test",
 					NewTargets: []iovns.BlockchainAddress{
@@ -229,7 +229,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "test",
 					NewTargets: []iovns.BlockchainAddress{

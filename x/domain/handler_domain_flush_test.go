@@ -13,7 +13,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 		"domain does not exist": {
 			BeforeTest: nil,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgFlushDomain(ctx, k, types.MsgFlushDomain{
+				_, err := handlerMsgFlushDomain(ctx, k, &types.MsgFlushDomain{
 					Domain: "does not exist",
 					Owner:  nil,
 				})
@@ -35,7 +35,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgFlushDomain(ctx, k, types.MsgFlushDomain{
+				_, err := handlerMsgFlushDomain(ctx, k, &types.MsgFlushDomain{
 					Domain: "test",
 					Owner:  nil,
 				})
@@ -57,7 +57,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgFlushDomain(ctx, k, types.MsgFlushDomain{
+				_, err := handlerMsgFlushDomain(ctx, k, &types.MsgFlushDomain{
 					Domain: "test",
 					Owner:  bobKey.GetAddress(),
 				})
@@ -95,7 +95,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgFlushDomain(ctx, k, types.MsgFlushDomain{
+				_, err := handlerMsgFlushDomain(ctx, k, &types.MsgFlushDomain{
 					Domain: "test",
 					Owner:  aliceKey.GetAddress(),
 				})

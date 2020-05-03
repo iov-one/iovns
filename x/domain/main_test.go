@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/types"
 	"os"
 	"testing"
 )
@@ -58,6 +59,25 @@ func runTests(t *testing.T, tests map[string]subTest) {
 		mocks.Supply.SetSendCoinsFromAccountToModule(func(ctx sdk.Context, addr sdk.AccAddress, moduleName string, coins sdk.Coins) error {
 			return nil
 		})
+		// set default fees
+		setFees := domainKeeper.ConfigurationKeeper.(configurationSetter).SetFees
+		fees := configuration.NewFees()
+		defFee := sdk.NewCoin("testcoin", sdk.NewInt(10))
+
+		fees.UpsertDefaultFees(&types.MsgRegisterDomain{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgAddAccountCertificates{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgDeleteAccountCertificate{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgDeleteDomain{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgDeleteAccount{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgFlushDomain{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgRegisterAccount{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgRenewAccount{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgRenewDomain{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgReplaceAccountTargets{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgTransferAccount{}, defFee)
+		fees.UpsertDefaultFees(&types.MsgTransferDomain{}, defFee)
+
+		setFees(ctx, fees)
 		// run sub subTest
 		t.Run(name, func(t *testing.T) {
 			// run before subTest
@@ -80,6 +100,7 @@ func runTests(t *testing.T, tests map[string]subTest) {
 // in test cases we expose this method
 type configurationSetter interface {
 	SetConfig(ctx sdk.Context, config configuration.Config)
+	SetFees(ctx sdk.Context, fees *configuration.Fees)
 }
 
 // getConfigSetter exposes the configurationSetter interface

@@ -7,7 +7,7 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgRenewAccount) (*sdk.Result, error) {
+func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewAccount) (*sdk.Result, error) {
 	// get domain
 	domain, exists := k.GetDomain(ctx, msg.Domain)
 	if !exists {
