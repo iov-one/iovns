@@ -13,6 +13,8 @@ func NewQuerier(k Keeper) sdk.Querier {
 		switch path[0] {
 		case types.QueryConfig:
 			return queryConfig(ctx, req, k)
+		case types.QueryFees:
+			return queryFees(ctx, req, k)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown query for module: %s", types.ModuleName)
 		}
@@ -23,4 +25,10 @@ func NewQuerier(k Keeper) sdk.Querier {
 func queryConfig(ctx sdk.Context, _ abci.RequestQuery, k Keeper) ([]byte, error) {
 	config := k.GetConfiguration(ctx)
 	return types.ModuleCdc.MustMarshalJSON(types.QueryConfigResponse{Configuration: config}), nil
+}
+
+// queryFees returns the fees
+func queryFees(ctx sdk.Context, _ abci.RequestQuery, k Keeper) ([]byte, error) {
+	fees := k.GetFees(ctx)
+	return types.ModuleCdc.MustMarshalJSON(types.QueryFeesResponse{Fees: fees}), nil
 }

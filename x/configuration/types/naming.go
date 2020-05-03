@@ -14,5 +14,8 @@ const (
 	DefaultParamSpace = ModuleName
 )
 
-// QueryConfig is the route key used to query a config
+// QueryConfig is the route key used to query configuration data
 const QueryConfig = "configuration"
+
+// QueryFees is the route key used to query fees data
+const QueryFees = "fees"

@@ -110,6 +110,10 @@ func (f *Fees) MarshalJSON() ([]byte, error) {
 }
 
 func (f *Fees) UnmarshalJSON(b []byte) error {
+	// init fees if nil
+	if f == nil {
+		*f = Fees{}
+	}
 	// init maps if nil
 	if f.DefaultFees == nil {
 		f.DefaultFees = make(map[msgUniqueID]sdk.Coin)
