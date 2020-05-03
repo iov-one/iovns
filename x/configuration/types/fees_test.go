@@ -15,45 +15,45 @@ import (
 func TestFeesCases(t *testing.T) {
 	t.Run("cases", func(t *testing.T) {
 		f := NewFees()
-		_, ok := f.CalculateLengthFees(MsgUpdateConfig{}, 0)
+		_, ok := f.CalculateLevelFees(MsgUpdateConfig{}, 0)
 		// no fees expected
 		if ok {
-			t.Fatalf("CalculateLengthFees() unexpected result: %v", ok)
+			t.Fatalf("CalculateLevelFees() unexpected result: %v", ok)
 		}
 		// get default fees
 		coinFee := sdk.NewCoin("test", sdk.NewInt(10))
 		f.UpsertDefaultFees(MsgUpdateConfig{}, coinFee)
-		res, ok := f.CalculateLengthFees(MsgUpdateConfig{}, 0)
+		res, ok := f.CalculateLevelFees(MsgUpdateConfig{}, 0)
 		if !ok {
-			t.Fatalf("CalculateLengthFees() result expected")
+			t.Fatalf("CalculateLevelFees() result expected")
 		}
 		if !res.IsEqual(coinFee) {
-			t.Fatalf("CalculateLengthFees() wanted: %s, got: %s", coinFee, res)
+			t.Fatalf("CalculateLevelFees() wanted: %s, got: %s", coinFee, res)
 		}
 		// get level fees
 		levelFee := sdk.NewCoin("test", sdk.NewInt(15))
-		f.UpsertLengthFees(MsgUpdateConfig{}, 10, levelFee)
-		res, ok = f.CalculateLengthFees(MsgUpdateConfig{}, 10)
+		f.UpsertLevelFees(MsgUpdateConfig{}, 10, levelFee)
+		res, ok = f.CalculateLevelFees(MsgUpdateConfig{}, 10)
 		if !ok {
-			t.Fatalf("CalculateLengthFees() result expected")
+			t.Fatalf("CalculateLevelFees() result expected")
 		}
 		if !res.IsEqual(levelFee) {
 			t.Fatalf("CalculatELengthFees() wanted: %s, got: %s", levelFee, res)
 		}
 		// get default fee because level does not exist
-		res, ok = f.CalculateLengthFees(MsgUpdateConfig{}, 11)
+		res, ok = f.CalculateLevelFees(MsgUpdateConfig{}, 11)
 		if !ok {
-			t.Fatalf("CalculateLengthFees() result expected")
+			t.Fatalf("CalculateLevelFees() result expected")
 		}
 		if !res.IsEqual(coinFee) {
-			t.Fatalf("CalculateLengthFees() want: %s, got: %s", coinFee, res)
+			t.Fatalf("CalculateLevelFees() want: %s, got: %s", coinFee, res)
 		}
 	})
 }
 
 func TestLengthFeeMapper_MarshalUnmarshal(t *testing.T) {
 	rand.Seed(time.Now().UnixNano())
-	x := make(LengthFeeMapper)
+	x := make(LevelFeeMapper)
 	for i := 0; i < 500; i++ {
 		x[strconv.Itoa(rand.Int())] = sdk.NewCoin("idk", sdk.NewInt(int64(rand.Int())))
 	}
@@ -71,7 +71,7 @@ func TestLengthFeeMapper_MarshalUnmarshal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("got error: %s", err)
 	}
-	var y = make(LengthFeeMapper)
+	var y = make(LevelFeeMapper)
 	err = json.Unmarshal(b, &y)
 	if err != nil {
 		t.Fatalf("got error: %s", err)
@@ -87,8 +87,8 @@ func TestFees_MarshalUnmarshalJSON(t *testing.T) {
 	fees.UpsertDefaultFees(MsgUpdateConfig{}, sdk.NewCoin("test", sdk.NewInt(2)))
 	fees.UpsertDefaultFees(&types.MsgRegisterDomain{}, sdk.NewCoin("test", sdk.NewInt(1)))
 	// insert length fees
-	fees.UpsertLengthFees(MsgUpdateConfig{}, 10, sdk.NewCoin("test", sdk.NewInt(10)))
-	fees.UpsertLengthFees(&types.MsgRegisterDomain{}, 4, sdk.NewCoin("test", sdk.NewInt(15)))
+	fees.UpsertLevelFees(MsgUpdateConfig{}, 10, sdk.NewCoin("test", sdk.NewInt(10)))
+	fees.UpsertLevelFees(&types.MsgRegisterDomain{}, 4, sdk.NewCoin("test", sdk.NewInt(15)))
 	x, err := json.Marshal(fees)
 	if err != nil {
 		t.Fatalf("got error: %s", err)

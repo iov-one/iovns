@@ -24,7 +24,7 @@ func (k Keeper) GetFees(ctx sdk.Context) *types.Fees {
 // SetLengthFees sets the fee based on msg and length
 func (k Keeper) SetLengthFees(ctx sdk.Context, msg sdk.Msg, length int, coin sdk.Coin) {
 	fees := k.GetFees(ctx)
-	fees.UpsertLengthFees(msg, length, coin)
+	fees.UpsertLevelFees(msg, length, coin)
 	k.SetFees(ctx, fees)
 }
 

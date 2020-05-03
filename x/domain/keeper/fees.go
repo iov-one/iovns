@@ -40,7 +40,7 @@ func (k Keeper) CollectFees(ctx sdk.Context, msg sdk.Msg, addr sdk.AccAddress) e
 		panic(fmt.Sprintf("unrecognized sdk.Msg: %T", msg))
 	}
 	feeConfig := k.ConfigurationKeeper.GetFees(ctx)
-	fee, ok := feeConfig.CalculateLengthFees(msg, level)
+	fee, ok := feeConfig.CalculateLevelFees(msg, level)
 	if !ok {
 		panic(fmt.Sprintf("unable to get expected fees for %T", msg))
 	}

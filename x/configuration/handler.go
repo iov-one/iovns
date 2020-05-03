@@ -45,7 +45,7 @@ func handleDeleteLevelFee(ctx sdk.Context, msg types.MsgDeleteLevelFee, k Keeper
 	fees := k.GetFees(ctx)
 	// not checking int overflow for 32bit machines because I suppose
 	// our signers who are the owners are not trying to play themselves
-	fees.DeleteLengthFee(msg, int(msg.Level.Int64()))
+	fees.DeleteLevelFee(msg, int(msg.Level.Int64()))
 	// update fee
 	k.SetFees(ctx, fees)
 	// success TODO emit event?
@@ -77,7 +77,7 @@ func handleUpsertLevelFee(ctx sdk.Context, msg types.MsgUpsertLevelFee, k Keeper
 	// get current fees
 	fees := k.GetFees(ctx)
 	// update level fee
-	fees.UpsertLengthFees(msg, int(msg.Level.Int64()), msg.Fee)
+	fees.UpsertLevelFees(msg, int(msg.Level.Int64()), msg.Fee)
 	// save in state
 	k.SetFees(ctx, fees)
 	// success TODO emit event?

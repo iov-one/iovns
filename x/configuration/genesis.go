@@ -47,7 +47,7 @@ func ValidateGenesis(data GenesisState) error {
 	if data.Fees == nil {
 		return fmt.Errorf("empty fees")
 	}
-	if data.Fees.LengthFees == nil {
+	if data.Fees.LevelFees == nil {
 		return fmt.Errorf("empty length fees")
 	}
 	if data.Fees.DefaultFees == nil {

@@ -10,11 +10,11 @@ import (
 // that sdk.Msg are parsed into unique IDs
 type msgUniqueID string
 
-// LengthFeeMapper maps fees based on length
-type LengthFeeMapper map[string]sdk.Coin
+// LevelFeeMapper maps fees based on level
+type LevelFeeMapper map[string]sdk.Coin
 
 // MarshalJSON marshals the map in a deterministic way
-func (m LengthFeeMapper) MarshalJSON() ([]byte, error) {
+func (m LevelFeeMapper) MarshalJSON() ([]byte, error) {
 	// golang marshals deterministically
 	// maps keys are ordered and structs
 	// follow order of their fields
@@ -46,10 +46,10 @@ func (m LengthFeeMapper) MarshalJSON() ([]byte, error) {
 	return result, nil
 }
 
-func (m *LengthFeeMapper) UnmarshalJSON(b []byte) error {
+func (m *LevelFeeMapper) UnmarshalJSON(b []byte) error {
 	// make map if it is has not been initialized
 	if *m == nil {
-		*m = make(LengthFeeMapper)
+		*m = make(LevelFeeMapper)
 	}
 	// use this subtype to make sure the
 	// order will be the same even in case
@@ -73,12 +73,12 @@ func (m *LengthFeeMapper) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// LengthFees contains different type of fees
+// LevelFees contains different type of fees
 // to calculate coins to detract when
 // processing different messages
 type Fees struct {
-	// LengthFees maps msg fees to their length
-	LengthFees map[msgUniqueID]LengthFeeMapper
+	// LevelFees maps msg fees to their level
+	LevelFees map[msgUniqueID]LevelFeeMapper
 	// DefaultFees maps the default fees for a msg
 	DefaultFees map[msgUniqueID]sdk.Coin
 }
@@ -93,11 +93,11 @@ func (f *Fees) MarshalJSON() ([]byte, error) {
 		Amount string `json:"amount"`
 	}
 	type fee struct {
-		LengthFees  map[msgUniqueID]LengthFeeMapper `json:"length_fees"`
-		DefaultFees map[msgUniqueID]coin            `json:"default_fees"`
+		LevelFees   map[msgUniqueID]LevelFeeMapper `json:"level_fees"`
+		DefaultFees map[msgUniqueID]coin           `json:"default_fees"`
 	}
 	var x = fee{
-		LengthFees:  f.LengthFees,
+		LevelFees:   f.LevelFees,
 		DefaultFees: make(map[msgUniqueID]coin, len(f.DefaultFees)),
 	}
 	for k, v := range f.DefaultFees {
@@ -114,8 +114,8 @@ func (f *Fees) UnmarshalJSON(b []byte) error {
 	if f.DefaultFees == nil {
 		f.DefaultFees = make(map[msgUniqueID]sdk.Coin)
 	}
-	if f.LengthFees == nil {
-		f.LengthFees = make(map[msgUniqueID]LengthFeeMapper)
+	if f.LevelFees == nil {
+		f.LevelFees = make(map[msgUniqueID]LevelFeeMapper)
 	}
 	// re-use types used for marshalling
 	type coin struct {
@@ -123,11 +123,11 @@ func (f *Fees) UnmarshalJSON(b []byte) error {
 		Amount string `json:"amount"`
 	}
 	var x struct {
-		DefaultFees map[string]coin            `json:"default_fees"`
-		LengthFees  map[string]LengthFeeMapper `json:"length_fees"`
+		DefaultFees map[string]coin           `json:"default_fees"`
+		LevelFees   map[string]LevelFeeMapper `json:"level_fees"`
 	}
 	x.DefaultFees = make(map[string]coin)
-	x.LengthFees = make(map[string]LengthFeeMapper)
+	x.LevelFees = make(map[string]LevelFeeMapper)
 	// unmarshal
 	err := json.Unmarshal(b, &x)
 	if err != nil {
@@ -141,9 +141,9 @@ func (f *Fees) UnmarshalJSON(b []byte) error {
 		}
 		f.DefaultFees[msgUniqueID(k)] = sdk.NewCoin(v.Denom, sdkInt)
 	}
-	for k, v := range x.LengthFees {
+	for k, v := range x.LevelFees {
 
-		f.LengthFees[msgUniqueID(k)] = v
+		f.LevelFees[msgUniqueID(k)] = v
 	}
 	return nil
 }
@@ -151,20 +151,20 @@ func (f *Fees) UnmarshalJSON(b []byte) error {
 // NewFees is Fees constructor
 func NewFees() *Fees {
 	return &Fees{
-		LengthFees:  make(map[msgUniqueID]LengthFeeMapper),
+		LevelFees:   make(map[msgUniqueID]LevelFeeMapper),
 		DefaultFees: make(map[msgUniqueID]sdk.Coin),
 	}
 }
 
-// CalculateLengthFees calculates fees based on message type and length
-// if there is no length fee then it retreats to the default fees for msg
+// CalculateLevelFees calculates fees based on message type and level
+// if there is no level fee then it retreats to the default fees for msg
 // false is returned only in the case in which no fee was found or can be applied.
-func (f *Fees) CalculateLengthFees(msg sdk.Msg, length int) (sdk.Coin, bool) {
-	sdkIntLength := sdk.NewInt(int64(length))
+func (f *Fees) CalculateLevelFees(msg sdk.Msg, level int) (sdk.Coin, bool) {
+	sdkIntLevel := sdk.NewInt(int64(level))
 	msgID := f.getMsgID(msg)
 	// get fees per message type
-	msgFees, ok := f.LengthFees[msgID]
-	// if fees based on sdkIntLength are not found
+	msgFees, ok := f.LevelFees[msgID]
+	// if fees based on sdkIntLevel are not found
 	// return the default fee
 	if !ok {
 		// if the fee was not found then
@@ -177,10 +177,10 @@ func (f *Fees) CalculateLengthFees(msg sdk.Msg, length int) (sdk.Coin, bool) {
 		// if found return the default fee
 		return fee, true
 	}
-	// get fees based on sdkIntLength
-	fee, ok := msgFees[sdkIntLength.String()]
+	// get fees based on sdkIntLevel
+	fee, ok := msgFees[sdkIntLevel.String()]
 	if !ok {
-		// if not found return the default length fee
+		// if not found return the default level fee
 		defaultFee, ok := f.DefaultFees[msgID]
 		if !ok {
 			// no fees found
@@ -198,18 +198,18 @@ func (f *Fees) getMsgID(msg sdk.Msg) msgUniqueID {
 	return msgUniqueID(fmt.Sprintf("%s/%s", msg.Route(), msg.Type()))
 }
 
-// UpsertLengthFees updates or sets the length fees for the message
-func (f *Fees) UpsertLengthFees(msg sdk.Msg, length int, coin sdk.Coin) {
-	sdkIntLength := sdk.NewInt(int64(length))
+// UpsertLevelFees updates or sets the level fees for the message
+func (f *Fees) UpsertLevelFees(msg sdk.Msg, level int, coin sdk.Coin) {
+	sdkIntLevel := sdk.NewInt(int64(level))
 	msgID := f.getMsgID(msg)
-	feesMap, ok := f.LengthFees[msgID]
+	feesMap, ok := f.LevelFees[msgID]
 	// if fee map for that msg type does not exist create it
 	if !ok {
-		f.LengthFees[msgID] = make(LengthFeeMapper)
-		feesMap = f.LengthFees[msgID]
+		f.LevelFees[msgID] = make(LevelFeeMapper)
+		feesMap = f.LevelFees[msgID]
 	}
 	// update fees
-	feesMap[sdkIntLength.String()] = coin
+	feesMap[sdkIntLevel.String()] = coin
 }
 
 // UpsertDefaultFees updates or sets the default fees for sdk.Msg
@@ -217,13 +217,13 @@ func (f *Fees) UpsertDefaultFees(msg sdk.Msg, coin sdk.Coin) {
 	f.DefaultFees[f.getMsgID(msg)] = coin
 }
 
-func (f *Fees) DeleteLengthFee(msg sdk.Msg, length int) {
-	sdkIntLength := sdk.NewInt(int64(length))
-	feeMap, ok := f.LengthFees[f.getMsgID(msg)]
+func (f *Fees) DeleteLevelFee(msg sdk.Msg, level int) {
+	sdkIntLevel := sdk.NewInt(int64(level))
+	feeMap, ok := f.LevelFees[f.getMsgID(msg)]
 	if !ok {
 		return
 	}
-	delete(feeMap, sdkIntLength.String())
+	delete(feeMap, sdkIntLevel.String())
 }
 
 func (f *Fees) DeleteDefaultFee(msg sdk.Msg) {
