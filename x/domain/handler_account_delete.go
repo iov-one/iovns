@@ -8,7 +8,7 @@ import (
 )
 
 // handlerMsgDelete account deletes the account from the system
-func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgDeleteAccount) (*sdk.Result, error) {
+func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteAccount) (*sdk.Result, error) {
 	// check if domain exists
 	domain, exists := k.GetDomain(ctx, msg.Domain)
 	if !exists {

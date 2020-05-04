@@ -11,11 +11,11 @@ import (
 func Test_handlerMsgRenewAccount(t *testing.T) {
 	cases := map[string]subTest{
 		"domain does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgRenewAccount(ctx, k, types.MsgRenewAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "does not exist",
 					Name:   "",
 				})
@@ -26,15 +26,15 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"account does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set mock domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					AccountRenew: 100,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgRenewAccount(ctx, k, types.MsgRenewAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "does not exist",
 				})
@@ -45,7 +45,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set mock domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
@@ -58,8 +58,8 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 					ValidUntil: 1000,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgRenewAccount(ctx, k, types.MsgRenewAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
 					Domain: "test",
 					Name:   "test",
 				})
@@ -67,7 +67,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 					t.Fatalf("handlerMsgRenewAccount() got error: %s", err)
 				}
 			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account, _ := k.GetAccount(ctx, "test", "test")
 				if account.ValidUntil != 1100 {
 					t.Fatalf("handlerMsgRenewAccount() expected 1100, got: %d", account.ValidUntil)

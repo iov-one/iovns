@@ -16,12 +16,21 @@ type ParamSubspace interface {
 
 // list expected keepers
 
+// SupplyKeeper defines the behaviour
+// of the supply keeper used to collect
+// and then distribute the fees
+type SupplyKeeper interface {
+	SendCoinsFromAccountToModule(ctx sdk.Context, addr sdk.AccAddress, moduleName string, coins sdk.Coins) error
+}
+
 // ConfigurationKeeper defines the behaviour of the configuration state checks
 type ConfigurationKeeper interface {
+	// GetFees gets the fees
+	GetFees(ctx sdk.Context) *configuration.Fees
 	// GetConfiguration returns the configuration
 	GetConfiguration(ctx sdk.Context) configuration.Config
-	// GetOwner returns the owner
-	GetOwner(ctx sdk.Context) sdk.AccAddress
+	// IsOwner returns if the provided address is an owner or not
+	IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool
 	// GetValidDomainRegexp returns the regular expression that aliceAddr domain name must match
 	// in order to be valid
 	GetValidDomainRegexp(ctx sdk.Context) string
@@ -36,6 +45,7 @@ type ConfigurationKeeper interface {
 type Keeper struct {
 	// external keepers
 	ConfigurationKeeper ConfigurationKeeper
+	SupplyKeeper        SupplyKeeper
 	// default fields
 	domainStoreKey  sdk.StoreKey // contains the domain kvstore
 	accountStoreKey sdk.StoreKey // contains the account kvstore
@@ -45,14 +55,15 @@ type Keeper struct {
 }
 
 // NewKeeper creates aliceAddr domain keeper
-func NewKeeper(cdc *codec.Codec, domainKey sdk.StoreKey, accountKey sdk.StoreKey, indexStoreKey sdk.StoreKey, configKeeper ConfigurationKeeper, paramspace ParamSubspace) Keeper {
+func NewKeeper(cdc *codec.Codec, domainKey sdk.StoreKey, accountKey sdk.StoreKey, indexStoreKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, paramspace ParamSubspace) Keeper {
 	keeper := Keeper{
 		domainStoreKey:      domainKey,
 		accountStoreKey:     accountKey,
 		indexStoreKey:       indexStoreKey,
 		cdc:                 cdc,
 		ConfigurationKeeper: configKeeper,
-		paramspace:          nil,
+		SupplyKeeper:        supply,
+		paramspace:          paramspace,
 	}
 	return keeper
 }

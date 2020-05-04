@@ -8,7 +8,7 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
+func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
 	// get account
 	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
 	if !exists {

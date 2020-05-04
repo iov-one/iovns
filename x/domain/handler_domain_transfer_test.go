@@ -14,11 +14,11 @@ import (
 func Test_handlerMsgTransferDomain(t *testing.T) {
 	cases := map[string]subTest{
 		"domain does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgTransferDomain(ctx, k, types.MsgTransferDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
 					Domain:   "does not exist",
 					Owner:    nil,
 					NewAdmin: nil,
@@ -30,14 +30,14 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			AfterTest: nil,
 		},
 		"domain has no superuser": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					HasSuperuser: false,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgTransferDomain(ctx, k, types.MsgTransferDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
 					Domain:   "test",
 					Owner:    nil,
 					NewAdmin: nil,
@@ -49,14 +49,14 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			AfterTest: nil,
 		},
 		"domain has expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					HasSuperuser: true,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgTransferDomain(ctx, k, types.MsgTransferDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
 					Domain:   "test",
 					Owner:    nil,
 					NewAdmin: nil,
@@ -68,7 +68,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			AfterTest: nil,
 		},
 		"msg signer is not domain admin": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					HasSuperuser: true,
@@ -76,8 +76,8 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Admin:        aliceKey.GetAddress(),
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgTransferDomain(ctx, k, types.MsgTransferDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
 					Domain:   "test",
 					Owner:    bobKey.GetAddress(),
 					NewAdmin: nil,
@@ -89,7 +89,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
@@ -129,8 +129,8 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgTransferDomain(ctx, k, types.MsgTransferDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
 					Domain:   "test",
 					Owner:    aliceKey.GetAddress(),
 					NewAdmin: bobKey.GetAddress(),
@@ -139,7 +139,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					t.Fatalf("handlerMsgTransferDomain() got error: %s", err)
 				}
 			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// check domain new owner
 				domain, _ := k.GetDomain(ctx, "test")
 				if !bobKey.GetAddress().Equals(domain.Admin) {

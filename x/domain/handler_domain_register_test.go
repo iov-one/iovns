@@ -4,6 +4,7 @@ import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
 )
@@ -11,17 +12,17 @@ import (
 func TestHandleMsgRegisterDomain(t *testing.T) {
 	testCases := map[string]subTest{
 		"success": {
-			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				configSetter := getConfigSetter(k.ConfigurationKeeper)
 				// set config
 				configSetter.SetConfig(ctx, configuration.Config{
-					Owner:       aliceKey.GetAddress(),
+					Owners:      []sdk.AccAddress{aliceKey.GetAddress()},
 					ValidDomain: "^(.*?)?",
 				})
 			},
-			Test: func(t *testing.T, k Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// register domain with superuser
-				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
+				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "domain",
 					HasSuperuser: true,
 					AccountRenew: 10,
@@ -30,7 +31,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					t.Fatalf("handleMsgRegisterDomain() with superuser, got error: %s", err)
 				}
 				// register domain without super user
-				_, err = handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
+				_, err = handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "domain-without-superuser",
 					Admin:        aliceKey.GetAddress(),
 					HasSuperuser: false,
@@ -41,7 +42,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					t.Fatalf("handleMsgRegisterDomain() without superuser, got error: %s", err)
 				}
 			},
-			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// TODO do reflect.DeepEqual checks on expected results vs results returned
 				_, ok := k.GetDomain(ctx, "domain")
 				if !ok {
@@ -54,7 +55,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 		},
 		"fail domain name exists": {
-			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "exists",
 					Admin:        nil,
@@ -64,8 +65,8 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "exists",
 					Admin:        nil,
 					HasSuperuser: false,
@@ -79,7 +80,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail domain does not match valid domain regexp": {
-			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// get set config function
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				// set configs with a domain regexp that matches nothing
@@ -88,8 +89,8 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					DomainRenew: 0,
 				})
 			},
-			Test: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "invalid-name",
 					Admin:        nil,
 					HasSuperuser: false,
@@ -103,10 +104,10 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail domain with no super user must be registered by configuration owner": {
-			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// add config with owner
 				config := configuration.Config{
-					Owner:                  aliceKey.GetAddress(),
+					Owners:                 []sdk.AccAddress{aliceKey.GetAddress()},
 					ValidDomain:            "^(.*?)?",
 					ValidName:              "",
 					ValidBlockchainID:      "",
@@ -116,9 +117,9 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, config)
 			},
-			Test: func(t *testing.T, k Keeper, ctx sdk.Context) {
+			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mock *keeper.Mocks) {
 				// try to register domain with no super user
-				_, err := handleMsgRegisterDomain(ctx, k, types.MsgRegisterDomain{
+				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "some-domain",
 					Admin:        bobKey.GetAddress(),
 					HasSuperuser: false,

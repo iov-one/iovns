@@ -12,8 +12,8 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 	cases := map[string]subTest{
 		"domain does not exist": {
 			BeforeTest: nil,
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgFlushDomain(ctx, k, types.MsgFlushDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgFlushDomain(ctx, k, &types.MsgFlushDomain{
 					Domain: "does not exist",
 					Owner:  nil,
 				})
@@ -24,7 +24,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 			AfterTest: nil,
 		},
 		"domain has superuser": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        nil,
@@ -34,8 +34,8 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgFlushDomain(ctx, k, types.MsgFlushDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgFlushDomain(ctx, k, &types.MsgFlushDomain{
 					Domain: "test",
 					Owner:  nil,
 				})
@@ -46,7 +46,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 			AfterTest: nil,
 		},
 		"msg owner is not domain admin": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        aliceKey.GetAddress(),
@@ -56,8 +56,8 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgFlushDomain(ctx, k, types.MsgFlushDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgFlushDomain(ctx, k, &types.MsgFlushDomain{
 					Domain: "test",
 					Owner:  bobKey.GetAddress(),
 				})
@@ -68,7 +68,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
@@ -94,8 +94,8 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 					Name:   "2",
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgFlushDomain(ctx, k, types.MsgFlushDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgFlushDomain(ctx, k, &types.MsgFlushDomain{
 					Domain: "test",
 					Owner:  aliceKey.GetAddress(),
 				})
@@ -103,7 +103,7 @@ func Test_handlerMsgFlushDomain(t *testing.T) {
 					t.Fatalf("handlerMsgFlushDomain() got error: %s", err)
 				}
 			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				var exists bool
 				_, exists = k.GetAccount(ctx, "test", "")
 				if !exists {

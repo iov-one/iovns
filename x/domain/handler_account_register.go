@@ -13,7 +13,7 @@ import (
 )
 
 // handleMsgRegisterAccount registers the domain
-func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg types.MsgRegisterAccount) (*sdk.Result, error) {
+func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRegisterAccount) (*sdk.Result, error) {
 	// verify request
 	// get config
 	conf := k.ConfigurationKeeper.GetConfiguration(ctx)

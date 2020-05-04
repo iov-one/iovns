@@ -8,7 +8,7 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg types.MsgTransferDomain) (*sdk.Result, error) {
+func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
 	// get domain
 	domain, exists := k.GetDomain(ctx, msg.Domain)
 	if !exists {

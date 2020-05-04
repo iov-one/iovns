@@ -9,7 +9,7 @@ import (
 )
 
 // handlerMsgReplaceAccountTargets replaces account targets
-func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg types.MsgReplaceAccountTargets) (*sdk.Result, error) {
+func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *types.MsgReplaceAccountTargets) (*sdk.Result, error) {
 	// get configuration
 	config := k.ConfigurationKeeper.GetConfiguration(ctx)
 	// validate blockchain targets

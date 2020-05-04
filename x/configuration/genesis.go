@@ -12,12 +12,14 @@ import (
 // the state when it needs to be exported.
 type GenesisState struct {
 	Config types.Config `json:"config"`
+	Fees   *types.Fees  `json:"fees"`
 }
 
 // NewGenesisState is GenesisState constructor
-func NewGenesisState(conf types.Config) GenesisState {
+func NewGenesisState(conf types.Config, fees *types.Fees) GenesisState {
 	return GenesisState{
 		Config: conf,
+		Fees:   fees,
 	}
 }
 
@@ -27,7 +29,7 @@ func ValidateGenesis(data GenesisState) error {
 	if conf.DomainRenew < 0 {
 		return fmt.Errorf("empty domain renew")
 	}
-	if conf.Owner == nil {
+	if conf.Owners == nil {
 		return fmt.Errorf("empty owner")
 	}
 	if _, err := regexp.Compile(conf.ValidBlockchainAddress); err != nil {
@@ -42,20 +44,33 @@ func ValidateGenesis(data GenesisState) error {
 	if conf.ValidName == "" {
 		return fmt.Errorf("empty valid name regexp")
 	}
+	if data.Fees == nil {
+		return fmt.Errorf("empty fees")
+	}
+	if data.Fees.LevelFees == nil {
+		return fmt.Errorf("empty length fees")
+	}
+	if data.Fees.DefaultFees == nil {
+		return fmt.Errorf("empty default fees")
+	}
 	return nil
 }
 
 // DefaultGenesisState returns the default genesis state
 // TODO this needs to be updated, although it will be imported from iovns chain
 func DefaultGenesisState() GenesisState {
-	return GenesisState{Config: types.Config{
-		Owner:                  sdk.AccAddress{},
-		ValidDomain:            "^(.*?)?",
-		ValidName:              "^(.*?)?",
-		ValidBlockchainID:      "^(.*?)?",
-		ValidBlockchainAddress: "^(.*?)?",
-		DomainRenew:            0,
-	}}
+	return GenesisState{
+		Config: types.Config{
+			Owners:                 []sdk.AccAddress{},
+			ValidDomain:            "^(.*?)?",
+			ValidName:              "^(.*?)?",
+			ValidBlockchainID:      "^(.*?)?",
+			ValidBlockchainAddress: "^(.*?)?",
+			DomainRenew:            0,
+		},
+
+		Fees: types.NewFees(),
+	}
 }
 
 // InitGenesis sets the initial state of the configuration module

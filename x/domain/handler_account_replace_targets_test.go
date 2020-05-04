@@ -15,7 +15,7 @@ import (
 func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 	cases := map[string]subTest{
 		"invalid blockchain target": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match nothing
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
@@ -23,8 +23,8 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					ValidBlockchainAddress: regexMatchNothing,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "",
 					Name:   "",
 					NewTargets: []iovns.BlockchainAddress{
@@ -42,7 +42,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 			AfterTest: nil,
 		},
 		"domain does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match all
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
@@ -50,8 +50,8 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					ValidBlockchainAddress: regexMatchAll,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "does not exist",
 					Name:   "",
 					NewTargets: []iovns.BlockchainAddress{
@@ -69,7 +69,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 			AfterTest: nil,
 		},
 		"domain expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match all
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
@@ -81,8 +81,8 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					Name: "test",
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "test",
 					NewTargets: []iovns.BlockchainAddress{
 						{
@@ -99,7 +99,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 			AfterTest: nil,
 		},
 		"account does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match all
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
@@ -112,8 +112,8 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "does not exist",
 					NewTargets: []iovns.BlockchainAddress{
@@ -131,7 +131,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 			AfterTest: nil,
 		},
 		"account expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match all
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
@@ -150,8 +150,8 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					ValidUntil: 0,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "test",
 					NewTargets: []iovns.BlockchainAddress{
@@ -169,7 +169,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 			AfterTest: nil,
 		},
 		"signer is not owner of account": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match all
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
@@ -189,8 +189,8 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					Owner:      aliceKey.GetAddress(),
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "test",
 					NewTargets: []iovns.BlockchainAddress{
@@ -208,7 +208,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match all
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
@@ -228,8 +228,8 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					Owner:      aliceKey.GetAddress(),
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, types.MsgReplaceAccountTargets{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "test",
 					NewTargets: []iovns.BlockchainAddress{
@@ -244,7 +244,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					t.Fatalf("handlerMsgReplaceAccountTargets() got error: %s", err)
 				}
 			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				expected := []iovns.BlockchainAddress{{
 					ID:      "valid",
 					Address: "valid",

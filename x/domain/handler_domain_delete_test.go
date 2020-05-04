@@ -12,11 +12,11 @@ import (
 func Test_handleMsgDomainDelete(t *testing.T) {
 	cases := map[string]subTest{
 		"fail domain does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// don't do anything
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "this does not exist",
 					Owner:  bobKey.GetAddress(),
 				})
@@ -26,7 +26,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 		},
 		"fail domain has no superuser": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set domain with no superuser
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
@@ -37,8 +37,8 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  bobKey.GetAddress(),
 				})
@@ -49,7 +49,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail domain admin does not match msg owner": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1000000000000000,
@@ -63,8 +63,8 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  aliceKey.GetAddress(),
 				})
@@ -75,7 +75,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1000000000000000, // unexpired domain
@@ -100,8 +100,8 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:   "2",
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  aliceKey.GetAddress(),
 				})
@@ -109,7 +109,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
 				}
 			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, exists := k.GetDomain(ctx, "test")
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
@@ -125,7 +125,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 		},
 		"success claim expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1,
@@ -150,8 +150,8 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:   "2",
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgDeleteDomain(ctx, k, types.MsgDeleteDomain{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
 					Owner:  aliceKey.GetAddress(),
 				})
@@ -159,7 +159,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
 				}
 			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, exists := k.GetDomain(ctx, "test")
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")

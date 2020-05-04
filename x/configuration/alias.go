@@ -23,3 +23,15 @@ const QueryConfig = types.QueryConfig
 
 // StoreKey aliases types.StoreKey
 const StoreKey = types.StoreKey
+
+const DefaultParamSpace = types.DefaultParamSpace
+
+// Type aliases
+
+// Fees aliases types.Fees
+type Fees = types.Fees
+
+// function aliases
+
+// NewFees aliases types.NewFees
+var NewFees = types.NewFees

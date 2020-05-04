@@ -7,7 +7,7 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-func handlerMsgFlushDomain(ctx sdk.Context, k keeper.Keeper, msg types.MsgFlushDomain) (*sdk.Result, error) {
+func handlerMsgFlushDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgFlushDomain) (*sdk.Result, error) {
 	// get domain
 	domain, exists := k.GetDomain(ctx, msg.Domain)
 	if !exists {

@@ -14,7 +14,7 @@ import (
 func Test_handleMsgRegisterAccount(t *testing.T) {
 	testCases := map[string]subTest{
 		"fail invalid blockchain targets address": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
@@ -34,8 +34,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
@@ -55,7 +55,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 		},
 		// TODO cleanup comments
 		"fail invalid blockchain targets id": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
@@ -75,8 +75,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
@@ -95,7 +95,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail invalid account name": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				// set configs with a domain regexp that matches nothing
@@ -115,8 +115,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "this won't match",
 					Owner:  aliceKey.GetAddress(),
@@ -135,7 +135,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail domain name does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
@@ -147,8 +147,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					DomainRenew:            10,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "this does not exist",
 					Name:   "works",
 					Owner:  aliceKey.GetAddress(),
@@ -167,7 +167,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail only owner of domain with superuser can register accounts": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
@@ -188,8 +188,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(), // invalid owner
@@ -208,7 +208,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail domain has expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
@@ -229,8 +229,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  bobKey.GetAddress(),
@@ -249,7 +249,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail account exists": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
@@ -280,8 +280,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "exists",
 					Owner:  bobKey.GetAddress(),
@@ -300,7 +300,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
@@ -321,8 +321,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Broker:       nil,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handleMsgRegisterAccount(ctx, k, types.MsgRegisterAccount{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
 					Owner:  bobKey.GetAddress(),

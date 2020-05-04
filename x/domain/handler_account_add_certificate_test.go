@@ -15,8 +15,8 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 	cases := map[string]subTest{
 		"domain does not exist": {
 			BeforeTest: nil,
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, types.MsgAddAccountCertificates{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "does not exist",
 					Name:           "",
 					Owner:          nil,
@@ -29,7 +29,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 			AfterTest: nil,
 		},
 		"domain expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// add expired domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
@@ -37,8 +37,8 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 				})
 				//
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, types.MsgAddAccountCertificates{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "test",
 					Name:           "",
 					Owner:          nil,
@@ -51,15 +51,15 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 			AfterTest: nil,
 		},
 		"account does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				})
 				//
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, types.MsgAddAccountCertificates{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "test",
 					Name:           "does not exist",
 					Owner:          nil,
@@ -72,7 +72,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 			AfterTest: nil,
 		},
 		"account expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -84,8 +84,8 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 					ValidUntil: 0,
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, types.MsgAddAccountCertificates{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          nil,
@@ -98,7 +98,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 			AfterTest: nil,
 		},
 		"msg owner is not account owner": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -111,8 +111,8 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 					Owner:      aliceKey.GetAddress(),
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, types.MsgAddAccountCertificates{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          bobKey.GetAddress(),
@@ -125,7 +125,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 			AfterTest: nil,
 		},
 		"certificate exists": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -139,8 +139,8 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 					Certificates: [][]byte{[]byte("test")},
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, types.MsgAddAccountCertificates{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          aliceKey.GetAddress(),
@@ -153,7 +153,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
@@ -166,8 +166,8 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 					Owner:      aliceKey.GetAddress(),
 				})
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
-				_, err := handlerMsgAddAccountCertificates(ctx, k, types.MsgAddAccountCertificates{
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "test",
 					Name:           "test",
 					Owner:          aliceKey.GetAddress(),
@@ -177,7 +177,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 					t.Fatalf("handlerMsgAddAccountCertificates() got error: %s", err)
 				}
 			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context) {
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				expected := [][]byte{[]byte("test")}
 				account, _ := k.GetAccount(ctx, "test", "test")
 				if !reflect.DeepEqual(account.Certificates, expected) {
