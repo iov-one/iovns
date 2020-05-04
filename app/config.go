@@ -6,7 +6,7 @@ const (
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address
 	Bech32MainPrefix = "star"
 
-	// Atom in https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+	// IOV in https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 	CoinType = 234
 
 	// BIP44Prefix is the parts of the BIP44 HD path that are fixed by
