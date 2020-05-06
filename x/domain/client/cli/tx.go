@@ -40,6 +40,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 		getCmdRenewAccount(cdc),
 		getCmdDelAccountCerts(cdc),
 		getCmdRegisterAccount(cdc),
+		getCmdSetAccountMetadata(cdc),
 	)...)
 	return domainTxCmd
 }
@@ -528,5 +529,48 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "name of the domain you want to register")
 	cmd.Flags().Bool("has-superuser", true, "define if this domain has a superuser or not")
 	cmd.Flags().Int64("account-renew", 10000000, "account duration in seconds before expiration")
+	return cmd
+}
+
+func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "set-account-metadata",
+		Short: "sets account metadata",
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			// get flags
+			domain, err := cmd.Flags().GetString("domain")
+			if err != nil {
+				return
+			}
+			name, err := cmd.Flags().GetString("name")
+			if err != nil {
+				return
+			}
+			metadata, err := cmd.Flags().GetString("metadata")
+			if err != nil {
+				return err
+			}
+			msg := &types.MsgSetAccountMetadata{
+				Domain:         domain,
+				Name:           name,
+				Owner:          cliCtx.GetFromAddress(),
+				NewMetadataURI: metadata,
+			}
+			// check if valid
+			if err = msg.ValidateBasic(); err != nil {
+				return err
+			}
+			// broadcast request
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+		},
+	}
+	// add flags
+	cmd.Flags().String("domain", "", "the domain name of account")
+	cmd.Flags().String("name", "", "the name of the account whose targets you want to replace")
+	cmd.Flags().String("metadata", "", "the new metadata URI, leave empty to unset")
+	// return cmd
 	return cmd
 }

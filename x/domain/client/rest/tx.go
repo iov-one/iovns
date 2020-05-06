@@ -228,3 +228,20 @@ func transferDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
+
+// transferDomain is the request model for transferDomainHandler
+type setAccountMetadata struct {
+	BaseReq rest.BaseReq                 `json:"base_req"`
+	Message *types.MsgSetAccountMetadata `json:"message"`
+}
+
+// transferDomainHandler builds the transaction to sign to transfer domains
+func setAccountMetadataHandler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		var req setAccountMetadata
+		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
+			return
+		}
+		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
+	}
+}

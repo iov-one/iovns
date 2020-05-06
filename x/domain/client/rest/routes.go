@@ -14,18 +14,19 @@ import (
 // txRouteList clubs together all the transaction routes, which are the transactions
 // // that return the bytes to sign to send a request that modifies state to the domain module
 var txRoutesList = map[string]func(cliContext context.CLIContext) http.HandlerFunc{
-	"registerDomain":         registerDomainHandler,
-	"addAccountCertificates": addAccountCertificatesHandler,
-	"delAccountCertificates": delAccountCertificateHandler,
-	"deleteAccount":          deleteAccountHandler,
-	"deleteDomain":           deleteDomainHandler,
-	"flushDomain":            flushDomainHandler,
-	"registerAccount":        registerAccountHandler,
-	"renewAccount":           renewAccountHandler,
-	"renewDomain":            renewDomainHandler,
-	"replaceAccountTargets":  replaceAccountTargetsHandler,
-	"transferAccountHandler": transferAccountHandler,
-	"transferDomainHandler":  transferDomainHandler,
+	"registerDomain":            registerDomainHandler,
+	"addAccountCertificates":    addAccountCertificatesHandler,
+	"delAccountCertificates":    delAccountCertificateHandler,
+	"deleteAccount":             deleteAccountHandler,
+	"deleteDomain":              deleteDomainHandler,
+	"flushDomain":               flushDomainHandler,
+	"registerAccount":           registerAccountHandler,
+	"renewAccount":              renewAccountHandler,
+	"renewDomain":               renewDomainHandler,
+	"replaceAccountTargets":     replaceAccountTargetsHandler,
+	"transferAccountHandler":    transferAccountHandler,
+	"transferDomainHandler":     transferDomainHandler,
+	"setAccountMetadataHandler": setAccountMetadataHandler,
 }
 
 // registerTxRoutes registers all the transaction routes to the router
