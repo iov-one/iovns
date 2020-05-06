@@ -10,7 +10,7 @@ import (
 
 // GetDomain returns the domain based on its name, if domain is not found ok will be false
 func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Domain, ok bool) {
-	store := ctx.KVStore(k.domainStoreKey)
+	store := domainStore(ctx.KVStore(k.storeKey))
 	// get domain in form of bytes
 	domainBytes := store.Get([]byte(domainName))
 	// if nothing is returned, return nil
@@ -33,15 +33,24 @@ func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
 
 // SetDomain updates or creates a new domain in the store
 func (k Keeper) SetDomain(ctx sdk.Context, domain types.Domain) {
-	store := ctx.KVStore(k.domainStoreKey)
+	store := domainStore(ctx.KVStore(k.storeKey))
 	store.Set([]byte(domain.Name), k.cdc.MustMarshalBinaryBare(domain))
 }
 
 // IterateAllDomains will return an iterator for all the domain keys
 // present in the KVStore, it's callers duty to close the iterator.
-func (k Keeper) IterateAllDomains(ctx sdk.Context) sdk.Iterator {
-	store := ctx.KVStore(k.domainStoreKey)
-	return sdk.KVStorePrefixIterator(store, []byte{})
+func (k Keeper) IterateAllDomains(ctx sdk.Context) []types.Domain {
+	store := domainStore(ctx.KVStore(k.storeKey))
+	iterator := store.Iterator(nil, nil)
+	defer iterator.Close()
+	var domains []types.Domain
+	for ; iterator.Valid(); iterator.Next() {
+		var d types.Domain
+		domainBytes := store.Get(iterator.Key())
+		k.cdc.MustUnmarshalBinaryBare(domainBytes, &d)
+		domains = append(domains, d)
+	}
+	return domains
 }
 
 // DeleteDomain deletes the domain and the accounts in it
@@ -52,7 +61,7 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 		return
 	}
 	// delete domain
-	domainStore := ctx.KVStore(k.domainStoreKey)
+	domainStore := domainStore(ctx.KVStore(k.storeKey))
 	domainStore.Delete([]byte(domainName))
 	// delete accounts
 	var accountKeys [][]byte

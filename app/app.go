@@ -287,8 +287,6 @@ func NewNameService(
 	app.domainKeeper = domain.NewKeeper(
 		app.cdc,
 		keys[domain.DomainStoreKey],
-		keys[domain.AccountStoreKey],
-		keys[domain.IndexStoreKey],
 		app.configurationKeeper,
 		app.supplyKeeper,
 		app.subspaces[domain.ModuleName],

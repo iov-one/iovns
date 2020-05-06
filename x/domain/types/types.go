@@ -40,4 +40,6 @@ type Account struct {
 	// Broker can be empty
 	// it identifies an entity that facilitated the transaction of the account
 	Broker sdk.AccAddress
+	// MetadataURI contains a link to extra information regarding the account
+	MetadataURI string
 }

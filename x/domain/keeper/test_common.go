@@ -40,14 +40,10 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	ms := store.NewCommitMultiStore(mdb)
 	// generate store keys
 	configurationStoreKey := sdk.NewKVStoreKey(configuration.StoreKey) // configuration module store key
-	accountStoreKey := sdk.NewKVStoreKey(types.DomainStoreKey)         // account module store key
 	domainStoreKey := sdk.NewKVStoreKey(types.AccountStoreKey)         // domain module store key
-	indexStoreKey := sdk.NewKVStoreKey(types.IndexStoreKey)            // index store key
 	// generate sub store for each module referenced by the keeper
 	ms.MountStoreWithDB(configurationStoreKey, sdk.StoreTypeIAVL, mdb) // mount configuration module
-	ms.MountStoreWithDB(accountStoreKey, sdk.StoreTypeIAVL, mdb)       // mount account module
 	ms.MountStoreWithDB(domainStoreKey, sdk.StoreTypeIAVL, mdb)        // mount domain module
-	ms.MountStoreWithDB(indexStoreKey, sdk.StoreTypeIAVL, mdb)
 	// test no errors
 	require.Nil(t, ms.LoadLatestVersion())
 	// create Mocks
@@ -59,5 +55,5 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	// create context
 	ctx := sdk.NewContext(ms, tmtypes.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
-	return NewKeeper(cdc, domainStoreKey, accountStoreKey, indexStoreKey, confKeeper, mocks.Supply.Mock(), nil), ctx, mocks
+	return NewKeeper(cdc, domainStoreKey, confKeeper, mocks.Supply.Mock(), nil), ctx, mocks
 }

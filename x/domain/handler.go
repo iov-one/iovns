@@ -37,6 +37,10 @@ func NewHandler(k Keeper) sdk.Handler {
 			return handlerMsgReplaceAccountTargets(ctx, k, msg)
 		case *types.MsgTransferAccount:
 			return handlerMsgTransferAccount(ctx, k, msg)
+		/*
+			case *types.MsgSetAccountMetadata:
+				// return handleMsgSetAccountMetadata(ctx, k, msg)
+		*/
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("unregonized request: %T", msg))
 		}
