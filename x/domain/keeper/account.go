@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -11,11 +10,10 @@ import (
 // contains all the functions to interact with the account store
 
 // GetAccount finds an account based on its key name, if not found it will return
-// aliceAddr zeroed account and false.
+// a zeroed account and false.
 func (k Keeper) GetAccount(ctx sdk.Context, domainName, accountName string) (account types.Account, exists bool) {
 	// get domain prefix key
-	domainKey := getDomainPrefixKey(domainName)
-	store := prefix.NewStore(ctx.KVStore(k.accountStoreKey), domainKey)
+	store := accountsInDomainStore(ctx.KVStore(k.storeKey), domainName)
 	// get account key
 	accountKey := getAccountKey(accountName)
 	// get account
@@ -39,10 +37,10 @@ func (k Keeper) CreateAccount(ctx sdk.Context, account types.Account) {
 
 // SetAccount upserts account data
 func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
-	// get domain prefix key and account key
-	domainKey, accountKey := getDomainPrefixKey(account.Domain), getAccountKey(account.Name)
 	// get prefixed store
-	store := prefix.NewStore(ctx.KVStore(k.accountStoreKey), domainKey)
+	store := accountsInDomainStore(ctx.KVStore(k.storeKey), account.Domain)
+	// get account key
+	accountKey := getAccountKey(account.Name)
 	// set store
 	store.Set(accountKey, k.cdc.MustMarshalBinaryBare(account))
 }
@@ -51,10 +49,9 @@ func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
 func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 	// we need to retrieve account in order to unmap the account from the index; TODO can we avoid this?
 	account, _ := k.GetAccount(ctx, domainName, accountName)
-	// delete account
-	domainKey := getDomainPrefixKey(domainName)
-	accountKey := getAccountKey(accountName)
-	store := prefix.NewStore(ctx.KVStore(k.accountStoreKey), domainKey)
+	store := accountsInDomainStore(ctx.KVStore(k.storeKey), domainName)
+	// get account key
+	accountKey := getAccountKey(account.Name)
 	store.Delete(accountKey)
 	// unmap account to owner
 	k.unmapAccountToOwner(ctx, account)
@@ -63,9 +60,9 @@ func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 // GetAccountsInDomain provides all the account keys related to the given domain name
 func (k Keeper) GetAccountsInDomain(ctx sdk.Context, domainName string, do func(key []byte) bool) {
 	// get store
-	accountStore := prefix.NewStore(ctx.KVStore(k.accountStoreKey), []byte(domainName))
+	store := accountsInDomainStore(ctx.KVStore(k.storeKey), domainName)
 	// create iterator
-	iterator := accountStore.Iterator(nil, nil)
+	iterator := store.Iterator(nil, nil)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		continueIterating := do(iterator.Key())
@@ -123,4 +120,19 @@ func (k Keeper) ReplaceAccountTargets(ctx sdk.Context, account types.Account, ta
 	account.Targets = targets
 	// update account
 	k.SetAccount(ctx, account)
+}
+
+// IterateAllAccounts returns all the accounts inside the store
+func (k Keeper) IterateAllAccounts(ctx sdk.Context) []types.Account {
+	store := accountStore(ctx.KVStore(k.storeKey))
+	iterator := store.Iterator(nil, nil)
+	defer iterator.Close()
+	var accounts []types.Account
+	for ; iterator.Valid(); iterator.Next() {
+		var a types.Account
+		accountBytes := store.Get(iterator.Key())
+		k.cdc.MustUnmarshalBinaryBare(accountBytes, &a)
+		accounts = append(accounts, a)
+	}
+	return accounts
 }

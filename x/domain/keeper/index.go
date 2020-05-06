@@ -9,13 +9,13 @@ import (
 )
 
 // ownerToAccountPrefix is the prefix that matches owners to accounts
-var ownerToAccountPrefix = []byte("owneracc")
+var ownerToAccountPrefix = []byte{0x04}
 
 // ownerToAccountIndexSeparator is the separator used to map owner address + domain + account name
 var ownerToAccountIndexSeparator = []byte(":")
 
 // ownerToDomainPrefix is the prefix that matches owners to domains
-var ownerToDomainPrefix = []byte("ownerdom")
+var ownerToDomainPrefix = []byte{0x05}
 
 // ownerToDomainIndexSeparator is the separator used to map owner address + domain
 var ownerToDomainIndexSeparator = []byte(":")
@@ -85,7 +85,7 @@ func splitOwnerToDomainKey(key []byte) (addr sdk.AccAddress, domain string) {
 
 func (k Keeper) unmapAccountToOwner(ctx sdk.Context, account types.Account) {
 	// get store
-	store := accountIndexStore(ctx.KVStore(k.indexStoreKey))
+	store := accountIndexStore(indexStore(ctx.KVStore(k.storeKey)))
 
 	// check if key exists TODO remove panic
 	key := getOwnerToAccountKey(account.Owner, account.Domain, account.Name)
@@ -99,7 +99,7 @@ func (k Keeper) unmapAccountToOwner(ctx sdk.Context, account types.Account) {
 // mapAccountToOwner maps accounts to an owner
 func (k Keeper) mapAccountToOwner(ctx sdk.Context, account types.Account) {
 	// get store
-	store := accountIndexStore(ctx.KVStore(k.indexStoreKey))
+	store := accountIndexStore(indexStore(ctx.KVStore(k.storeKey)))
 	key := getOwnerToAccountKey(account.Owner, account.Domain, account.Name)
 	// check if key exists TODO remove panic
 	if store.Has(key) {
@@ -111,7 +111,7 @@ func (k Keeper) mapAccountToOwner(ctx sdk.Context, account types.Account) {
 
 func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress, do func(key []byte) bool) {
 	// get store
-	store := accountIndexStore(ctx.KVStore(k.indexStoreKey))
+	store := accountIndexStore(indexStore(ctx.KVStore(k.storeKey)))
 	// get iterator
 	iterator := sdk.KVStorePrefixIterator(store, indexAddr(address))
 	defer iterator.Close()
@@ -128,7 +128,7 @@ func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress, do f
 
 func (k Keeper) mapDomainToOwner(ctx sdk.Context, domain types.Domain) {
 	// get store
-	store := domainIndexStore(ctx.KVStore(k.indexStoreKey))
+	store := domainIndexStore(indexStore(ctx.KVStore(k.storeKey)))
 	// get unique key
 	key := getOwnerToDomainKey(domain.Admin, domain.Name)
 	// check if key exists TODO remove panic
@@ -141,7 +141,7 @@ func (k Keeper) mapDomainToOwner(ctx sdk.Context, domain types.Domain) {
 
 func (k Keeper) unmapDomainToOwner(ctx sdk.Context, domain types.Domain) {
 	// get store
-	store := domainIndexStore(ctx.KVStore(k.indexStoreKey))
+	store := domainIndexStore(indexStore(ctx.KVStore(k.storeKey)))
 	// check if key exists TODO remove panic
 	key := getOwnerToDomainKey(domain.Admin, domain.Name)
 	if !store.Has(key) {
@@ -155,7 +155,7 @@ func (k Keeper) unmapDomainToOwner(ctx sdk.Context, domain types.Domain) {
 // and returns the unique keys
 func (k Keeper) iterDomainToOwner(ctx sdk.Context, address sdk.AccAddress, do func(key []byte) bool) {
 	// get store
-	store := domainIndexStore(ctx.KVStore(k.indexStoreKey))
+	store := domainIndexStore(indexStore(ctx.KVStore(k.storeKey)))
 	// get iterator
 	iterator := sdk.KVStorePrefixIterator(store, indexAddr(address))
 	defer iterator.Close()

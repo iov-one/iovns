@@ -80,5 +80,8 @@ func InitGenesis(ctx sdk.Context, k Keeper, data GenesisState) {
 
 // ExportGenesis saves the state of the configuration module
 func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
-	return GenesisState{Config: k.GetConfiguration(ctx)}
+	return GenesisState{
+		Config: k.GetConfiguration(ctx),
+		Fees:   k.GetFees(ctx),
+	}
 }

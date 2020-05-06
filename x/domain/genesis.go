@@ -10,11 +10,13 @@ import (
 type GenesisState struct {
 	// DomainRecords contains the records of registered domains
 	DomainsRecords []types.Domain `json:"domain_records"`
+	// AccountRecords contains the records of registered accounts
+	AccountsRecords []types.Account `json:"account_records"`
 }
 
 // NewGenesisState builds a genesis state including the domains provided
-func NewGenesisState(domains []types.Domain) GenesisState {
-	return GenesisState{DomainsRecords: domains}
+func NewGenesisState(domains []types.Domain, accounts []types.Account) GenesisState {
+	return GenesisState{DomainsRecords: domains, AccountsRecords: accounts}
 }
 
 // ValidateGenesis validates a genesis state
@@ -35,36 +37,28 @@ func ValidateGenesis(data GenesisState) error {
 
 // DefaultGenesisState creates an empty genesis state for the domain module
 func DefaultGenesisState() GenesisState {
-	// TODO remove.
-	return GenesisState{DomainsRecords: []types.Domain{
-		{
-			Name:         "test",
-			Admin:        nil,
-			ValidUntil:   0,
-			HasSuperuser: false,
-			AccountRenew: 0,
-			Broker:       nil,
-		},
-	}}
+	return GenesisState{DomainsRecords: []types.Domain{}, AccountsRecords: []types.Account{}}
 }
 
 // InitGenesis builds a state from GenesisState
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
+	// insert domains
 	for _, domain := range data.DomainsRecords {
 		keeper.CreateDomain(ctx, domain)
+	}
+	// insert accounts
+	for _, account := range data.AccountsRecords {
+		keeper.CreateAccount(ctx, account)
 	}
 }
 
 // ExportGenesis saves the state of the domain module
 func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
-	var records []types.Domain
-	iterator := k.IterateAllDomains(ctx)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		domain, _ := k.GetDomain(ctx, string(iterator.Key()))
-		records = append(records, domain)
-	}
-	return GenesisState{DomainsRecords: records}
+	// save domain data
+	domains := k.IterateAllDomains(ctx)
+	// save account data
+	accounts := k.IterateAllAccounts(ctx)
+	return GenesisState{DomainsRecords: domains, AccountsRecords: accounts}
 }
 
 // validateDomain checks if a domain is valid or not
