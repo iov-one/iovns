@@ -15,22 +15,22 @@ type MsgSetAccountMetadata struct {
 	// NewMetadataURI is the metadata URI of the account
 	// we want to update or insert
 	NewMetadataURI string
-	// Signer is the owner of the account
-	Signer sdk.AccAddress
+	// Owner is the owner of the account
+	Owner sdk.AccAddress
 }
 
 // Route implements sdk.Msg
-func (m MsgSetAccountMetadata) Route() string {
+func (m *MsgSetAccountMetadata) Route() string {
 	return RouterKey
 }
 
 // Type implements sdk.Msg
-func (m MsgSetAccountMetadata) Type() string {
+func (m *MsgSetAccountMetadata) Type() string {
 	return "set_account_metadata"
 }
 
 // ValidateBasic implements sdk.Msg
-func (m MsgSetAccountMetadata) ValidateBasic() error {
+func (m *MsgSetAccountMetadata) ValidateBasic() error {
 	if m.Domain == "" {
 		return sdkerrors.Wrapf(ErrInvalidDomainName, "empty")
 	}
@@ -40,18 +40,18 @@ func (m MsgSetAccountMetadata) ValidateBasic() error {
 	if m.NewMetadataURI == "" {
 		return sdkerrors.Wrapf(ErrInvalidRequest, "metadata uri is empty")
 	}
-	if m.Signer.Empty() {
+	if m.Owner.Empty() {
 		return sdkerrors.Wrap(ErrInvalidOwner, "empty")
 	}
 	return nil
 }
 
 // GetSignBytes implements sdk.Msg
-func (m MsgSetAccountMetadata) GetSignBytes() []byte {
+func (m *MsgSetAccountMetadata) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m MsgSetAccountMetadata) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Signer}
+func (m *MsgSetAccountMetadata) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }

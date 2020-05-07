@@ -7,7 +7,7 @@
 - add iterate all accounts
 - change one store key for domain
 - change shorter indexing keys
-- add MsgSetAccountURI
+- add MsgSetAccountURI: handlers, cli tx, rest tx
 - remove panic if fees are missing
 ## 0.2.0
 - change path prefix to star
