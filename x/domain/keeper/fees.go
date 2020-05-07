@@ -1,10 +1,10 @@
 package keeper
 
 import (
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/iov-one/iovns/x/domain/types"
+	"log"
 )
 
 // CollectFees collects the fees of a msg and sends them
@@ -36,13 +36,13 @@ func (k Keeper) CollectFees(ctx sdk.Context, msg sdk.Msg, addr sdk.AccAddress) e
 		level = len(msg.Domain)
 	case *types.MsgTransferAccount:
 		level = len(msg.Domain)
-	default:
-		panic(fmt.Sprintf("unrecognized sdk.Msg: %T", msg))
 	}
 	feeConfig := k.ConfigurationKeeper.GetFees(ctx)
 	fee, ok := feeConfig.CalculateLevelFees(msg, level)
 	if !ok {
-		panic(fmt.Sprintf("unable to get expected fees for %T", msg))
+		// TODO we need to panic here
+		log.Printf("WARNING unable to get expected fees for: %s/%s", types.ModuleName, msg.Type())
+		return nil
 	}
 	// transfer fee to distribution
 	return k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, addr, distribution.ModuleName, sdk.NewCoins(fee))
