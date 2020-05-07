@@ -24,7 +24,7 @@ var txRoutesList = map[string]func(cliContext context.CLIContext) http.HandlerFu
 	"renewAccount":              renewAccountHandler,
 	"renewDomain":               renewDomainHandler,
 	"replaceAccountTargets":     replaceAccountTargetsHandler,
-	"transferAccountHandler":    transferAccountHandler,
+	"transferAccount":    transferAccountHandler,
 	"transferDomainHandler":     transferDomainHandler,
 	"setAccountMetadataHandler": setAccountMetadataHandler,
 }
