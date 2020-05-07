@@ -11,7 +11,7 @@ var (
 	// AccountPrefixStore is the prefix used to define the prefixed store containing account data
 	AccountStorePrefix = []byte{0x01}
 	// IndexStorePrefix is the prefix used to defines the prefixed store containing indexing data
-	IndexStorePrefix = []byte{0x2}
+	IndexStorePrefix = []byte{0x02}
 )
 
 // domainStore returns the domain store from the module's kvstore
