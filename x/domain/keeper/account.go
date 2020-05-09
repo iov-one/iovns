@@ -35,6 +35,8 @@ func (k Keeper) CreateAccount(ctx sdk.Context, account types.Account) {
 	k.mapAccountToOwner(ctx, account)
 	// map targets to account
 	k.mapTargetToAccount(ctx, account, account.Targets...)
+	// map certs to account
+	k.mapCertificateToAccount(ctx, account, account.Certificates...)
 }
 
 // SetAccount upserts account data
@@ -59,6 +61,8 @@ func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 	k.unmapAccountToOwner(ctx, account)
 	// unmap targets to account
 	k.unmapTargetToAccount(ctx, account, account.Targets...)
+	// unmap certificates
+	k.unmapCertificateToAccount(ctx, account, account.Certificates...)
 }
 
 // GetAccountsInDomain provides all the account keys related to the given domain name
@@ -84,6 +88,8 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	k.unmapAccountToOwner(ctx, account)
 	// unmap account targets
 	k.unmapTargetToAccount(ctx, account, account.Targets...)
+	// unmap certs
+	k.unmapCertificateToAccount(ctx, account, account.Certificates...)
 	// update account
 	account.Owner = newOwner   // transfer owner
 	account.Certificates = nil // remove certs
@@ -94,6 +100,8 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	k.mapAccountToOwner(ctx, account)
 	// map accounts new targets
 	k.mapTargetToAccount(ctx, account, account.Targets...)
+	// map certificates
+	k.mapCertificateToAccount(ctx, account, account.Certificates...)
 }
 
 // AddAccountCertificate adds aliceAddr new certificate to the account
@@ -102,14 +110,19 @@ func (k Keeper) AddAccountCertificate(ctx sdk.Context, account types.Account, ne
 	account.Certificates = append(account.Certificates, newCert)
 	// update account
 	k.SetAccount(ctx, account)
+	// map certificate
+	k.mapCertificateToAccount(ctx, account, newCert)
 }
 
 // DeleteAccountCertificate deletes aliceAddr certificate at given index, it will panic if the index is wrong
 func (k Keeper) DeleteAccountCertificate(ctx sdk.Context, account types.Account, certificateIndex int) {
+	cert := account.Certificates[certificateIndex]
 	// remove it
 	account.Certificates = append(account.Certificates[:certificateIndex], account.Certificates[certificateIndex+1:]...)
 	// update account
 	k.SetAccount(ctx, account)
+	// unmap certificate
+	k.unmapCertificateToAccount(ctx, account, cert)
 }
 
 // UpdateAccountValidity updates an account expiration time

@@ -22,6 +22,7 @@ func AvailableQueries() []iovns.QueryHandler {
 		&QueryAccountsFromOwner{},
 		&QueryDomainsFromOwner{},
 		&QueryTargetAccounts{},
+		&QueryCertificateAccounts{},
 	}
 	return queries
 }
@@ -510,7 +511,7 @@ func queryResolveDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuer
 //  QueryTargetAccounts gets accounts from a target
 type QueryTargetAccounts struct {
 	// Target is the blockchain target we want to query
-	Target types.BlockchainAddress
+	Target types.BlockchainAddress `json:"target"`
 	// ResultsPerPage is the number of results displayed in a page
 	ResultsPerPage int `json:"results_per_page"`
 	// Offset is the page number
@@ -593,6 +594,92 @@ func queryTargetAccountsHandler(ctx sdk.Context, _ []string, req abci.RequestQue
 	}
 	// return response
 	b, err := iovns.DefaultQueryEncode(QueryTargetAccountsResponse{Accounts: accounts})
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
+	}
+	return b, nil
+}
+
+type QueryCertificateAccounts struct {
+	// Certificate is the certificate we want to query
+	Certificate types.Certificate `json:"cert"`
+	// ResultsPerPage is the number of results displayed in a page
+	ResultsPerPage int `json:"results_per_page"`
+	// Offset is the page number
+	Offset int `json:"offset"`
+}
+
+func (q *QueryCertificateAccounts) QueryPath() string {
+	return "certificateAccounts"
+}
+
+func (q *QueryCertificateAccounts) Validate() error {
+	if len(q.Certificate) == 0 {
+		return sdkerrors.Wrapf(types.ErrInvalidRequest, "certificate is empty")
+	}
+	if q.ResultsPerPage == 0 {
+		q.ResultsPerPage = 100
+	}
+	if q.Offset == 0 {
+		q.Offset = 1
+	}
+
+	return nil
+}
+
+func (q *QueryCertificateAccounts) Handler() QueryHandlerFunc {
+	return queryCertificateAccountsHandler
+}
+
+type QueryCertificateAccountsResponse struct {
+	Accounts []types.Account `json:"accounts"`
+}
+
+func queryCertificateAccountsHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	q := new(QueryCertificateAccounts)
+	// decode query
+	err := iovns.DefaultQueryDecode(req.Data, q)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+	// validate
+	if err := q.Validate(); err != nil {
+		return nil, err
+	}
+	// generate expected keys
+	keys := make([][]byte, 0, q.ResultsPerPage)
+	// calculate index range
+	indexStart := q.ResultsPerPage*q.Offset - q.ResultsPerPage // start index
+	indexEnd := indexStart + q.ResultsPerPage - 1              // index end
+	i := 0
+	do := func(key []byte) bool {
+		// check if our index is grater-equal than our start
+		if i >= indexStart {
+			keys = append(keys, key)
+		}
+		if i == indexEnd {
+			return false
+		}
+		// increase index
+		i++
+		return true
+	}
+	// fill keys
+	k.iterateCertificateAccounts(ctx, q.Certificate, do)
+	// get accounts
+	accounts := make([]types.Account, 0, len(keys))
+	for _, key := range keys {
+		// get account name
+		account := types.Account{}
+		index.MustUnpack(key, &account)
+		account, ok := k.GetAccount(ctx, account.Domain, account.Name)
+		if !ok {
+			panic(fmt.Sprintf("account was not found for key %x", key))
+		}
+		accounts = append(accounts, account)
+	}
+	// return response
+	b, err := iovns.DefaultQueryEncode(QueryCertificateAccountsResponse{Accounts: accounts})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}

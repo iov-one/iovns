@@ -23,15 +23,52 @@ var ownerToDomainIndexSeparator = []byte(":")
 
 var blockchainTargetsPrefix = []byte{0x06}
 
+var certificatesPrefix = []byte{0x07}
+
+// blockchainTargetIndexedStore returns the store used to index blockchain targets
 func blockchainTargetIndexedStore(store sdk.KVStore, target types.BlockchainAddress) index.Store {
 	return index.NewIndexedStore(store, blockchainTargetsPrefix, target)
+}
+
+// certificatesIndexedStore returns the store used to index certificates
+func certificatesIndexedStore(store sdk.KVStore, cert types.Certificate) index.Store {
+	return index.NewIndexedStore(store, certificatesPrefix, cert)
+}
+
+// mapCertificateToAccount maps given account to  a certificate
+func (k Keeper) mapCertificateToAccount(ctx sdk.Context, account types.Account, certs ...types.Certificate) {
+	for _, cert := range certs {
+		if len(cert) == 0 {
+			continue
+		}
+		store := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
+		store.Set(account.Index())
+	}
+}
+
+// unmapCertificateToAccount removes an account associated to a certificate
+func (k Keeper) unmapCertificateToAccount(ctx sdk.Context, account types.Account, certs ...types.Certificate) {
+	for _, cert := range certs {
+		if len(cert) == 0 {
+			continue
+		}
+		store := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
+		if !store.Delete(account.Index()) {
+			panic(fmt.Sprintf("index not found: cert %x missing in account: %#v", cert, account))
+		}
+	}
+}
+
+func (k Keeper) iterateCertificateAccounts(ctx sdk.Context, cert types.Certificate, do func(key []byte) bool) {
+	store := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
+	store.IterateKeys(do)
 }
 
 func (k Keeper) mapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) {
 	for _, target := range targets {
 		// if targets are empty ignore
 		if target.Address == "" && target.ID == "" {
-			return
+			continue
 		}
 		// otherwise map target to given account
 		store := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
@@ -43,7 +80,7 @@ func (k Keeper) unmapTargetToAccount(ctx sdk.Context, account types.Account, tar
 	for _, target := range targets {
 		// if targets are empty then ignore the process
 		if target.ID == "" && target.Address == "" {
-			return
+			continue
 		}
 		store := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
 		if ok := store.Delete(account.Index()); !ok {

@@ -39,7 +39,7 @@ type Account struct {
 	// Targets is the list of blockchain addresses this account belongs to
 	Targets []BlockchainAddress
 	// Certificates contains the list of certificates to identify the account owner
-	Certificates [][]byte
+	Certificates []Certificate
 	// Broker can be empty
 	// it identifies an entity that facilitated the transaction of the account
 	Broker sdk.AccAddress
@@ -88,4 +88,15 @@ func (b BlockchainAddress) Index() []byte {
 	encodedID := utils.Base64Encode(b.ID)
 	encodedAddress := utils.Base64Encode(b.Address)
 	return bytes.Join([][]byte{encodedID, encodedAddress}, iovns.Separator)
+}
+
+// Certificate defines a certificate
+type Certificate []byte
+
+func (c Certificate) Index() []byte {
+	return nil
+}
+
+func (c *Certificate) Unpack(_ []byte) error {
+	return nil
 }
