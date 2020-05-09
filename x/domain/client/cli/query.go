@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/types"
 	"github.com/spf13/cobra"
 )
 
@@ -28,6 +29,7 @@ func GetQueryCmd(moduleQueryPath string, cdc *codec.Codec) *cobra.Command {
 			getQueryDomainAccounts(moduleQueryPath, cdc),
 			getQueryOwnerAccount(moduleQueryPath, cdc),
 			getQueryOwnerDomain(moduleQueryPath, cdc),
+			getQueryTargetAccounts(moduleQueryPath, cdc),
 		)...,
 	)
 	return domainQueryCmd
@@ -229,6 +231,54 @@ func getQueryResolveAccount(modulePath string, cdc *codec.Codec) *cobra.Command 
 	// add flags
 	cmd.Flags().String("domain", "", "the domain name of the account")
 	cmd.Flags().String("name", "", "the name of the account you want to resolve")
+	// return cmd
+	return cmd
+}
+
+func getQueryTargetAccounts(modulePath string, cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "resolve-target",
+		Short: "resolves a blockchain target into accounts",
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			// get flags
+			id, err := cmd.Flags().GetString("blockchain-id")
+			if err != nil {
+				return err
+			}
+			addr, err := cmd.Flags().GetString("blockchain-address")
+			if err != nil {
+				return err
+			}
+			rpp, err := cmd.Flags().GetInt("rpp")
+			if err != nil {
+				return err
+			}
+			offset, err := cmd.Flags().GetInt("offset")
+			if err != nil {
+				return err
+			}
+			// get query & validate
+			q := keeper.QueryTargetAccounts{
+				Target: types.BlockchainAddress{
+					ID:      id,
+					Address: addr,
+				},
+				ResultsPerPage: rpp,
+				Offset:         offset,
+			}
+			if err = q.Validate(); err != nil {
+				return err
+			}
+			// get query path
+			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
+			return processQueryCmd(cdc, path, q, new(keeper.QueryTargetAccountsResponse))
+		},
+	}
+	// add flags
+	cmd.Flags().String("blockchain-id", "", "the domain name of the account")
+	cmd.Flags().String("blockchain-address", "", "the name of the account you want to resolve")
+	cmd.Flags().Int("offset", 1, "the page offset")
+	cmd.Flags().Int("rpp", 100, "results per page")
 	// return cmd
 	return cmd
 }

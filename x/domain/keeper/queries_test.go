@@ -142,3 +142,63 @@ func Test_queryResolveDomainHandler(t *testing.T) {
 
 	runQueryTests(t, testCases)
 }
+
+func Test_queryTargetAccountsHandler(t *testing.T) {
+	testCases := map[string]subTest{
+		"success": {
+			BeforeTest: func(t *testing.T, ctx types.Context, k Keeper) {
+				target := types2.BlockchainAddress{
+					ID:      "id-1",
+					Address: "addr-1",
+				}
+				k.CreateAccount(ctx, types2.Account{
+					Domain:     "test",
+					Name:       "1",
+					Owner:      bobAddr,
+					ValidUntil: 0,
+					Targets:    []types2.BlockchainAddress{target},
+				})
+				k.CreateAccount(ctx, types2.Account{
+					Domain:     "test",
+					Name:       "2",
+					Owner:      bobAddr,
+					ValidUntil: 0,
+					Targets:    []types2.BlockchainAddress{target},
+				})
+			},
+			Request: &QueryTargetAccounts{
+				Target: types2.BlockchainAddress{
+					ID:      "id-1",
+					Address: "addr-1",
+				},
+			},
+			Handler: queryTargetAccountsHandler,
+			WantErr: nil,
+			PtrExpectedResponse: &QueryTargetAccountsResponse{
+				Accounts: []types2.Account{
+					{
+						Domain:     "test",
+						Name:       "1",
+						Owner:      bobAddr,
+						ValidUntil: 0,
+						Targets: []types2.BlockchainAddress{{
+							ID:      "id-1",
+							Address: "addr-1",
+						}},
+					},
+					{
+						Domain:     "test",
+						Name:       "2",
+						Owner:      bobAddr,
+						ValidUntil: 0,
+						Targets: []types2.BlockchainAddress{{
+							ID:      "id-1",
+							Address: "addr-1",
+						}},
+					},
+				}},
+		},
+	}
+
+	runQueryTests(t, testCases)
+}

@@ -1,8 +1,11 @@
 package types
 
 import (
+	"bytes"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/pkg/utils"
 	"time"
 )
 
@@ -34,7 +37,7 @@ type Account struct {
 	// ValidUntil defines a unix timestamp of the expiration of the account
 	ValidUntil int64
 	// Targets is the list of blockchain addresses this account belongs to
-	Targets []iovns.BlockchainAddress
+	Targets []BlockchainAddress
 	// Certificates contains the list of certificates to identify the account owner
 	Certificates [][]byte
 	// Broker can be empty
@@ -42,4 +45,47 @@ type Account struct {
 	Broker sdk.AccAddress
 	// MetadataURI contains a link to extra information regarding the account
 	MetadataURI string
+}
+
+func (a Account) Index() []byte {
+	encodedDomain := utils.Base64Encode(a.Domain)
+	encodedName := utils.Base64Encode(a.Name)
+	return bytes.Join([][]byte{encodedDomain, encodedName}, iovns.Separator)
+}
+
+// Unpack converts a byte key into an account
+// composed only of domain and name
+func (a *Account) Unpack(key []byte) error {
+	if a == nil {
+		*a = Account{}
+	}
+	splits := bytes.Split(key, iovns.Separator)
+	if len(splits) != 2 {
+		return fmt.Errorf("unpack: unxpected number of splits from key %x: %d", key, len(splits))
+	}
+	domain, err := utils.Base64Decode(splits[0])
+	if err != nil {
+		return fmt.Errorf("unpack: %s", err)
+	}
+	a.Domain = domain
+	name, err := utils.Base64Decode(splits[1])
+	if err != nil {
+		return fmt.Errorf("unpack: %s", err)
+	}
+	a.Name = name
+	return nil
+}
+
+// BlockchainAddress defines an address coming from different DLTs
+type BlockchainAddress struct {
+	// ID defines a blockchain ID
+	ID string
+	// Address is the blockchain address
+	Address string
+}
+
+func (b BlockchainAddress) Index() []byte {
+	encodedID := utils.Base64Encode(b.ID)
+	encodedAddress := utils.Base64Encode(b.Address)
+	return bytes.Join([][]byte{encodedID, encodedAddress}, iovns.Separator)
 }

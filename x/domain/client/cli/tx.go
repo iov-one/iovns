@@ -11,7 +11,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
 	"github.com/spf13/cobra"
 	"os"
@@ -165,7 +164,7 @@ func getCmdReplaceAccountTargets(cdc *codec.Codec) *cobra.Command {
 			}
 			defer f.Close()
 			// unmarshal targets
-			var targets []iovns.BlockchainAddress
+			var targets []types.BlockchainAddress
 			err = json.NewDecoder(f).Decode(&targets)
 			if err != nil {
 				return

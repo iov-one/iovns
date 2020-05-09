@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/iovns/pkg/index"
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
@@ -19,6 +20,42 @@ var ownerToDomainPrefix = []byte{0x05}
 
 // ownerToDomainIndexSeparator is the separator used to map owner address + domain
 var ownerToDomainIndexSeparator = []byte(":")
+
+var blockchainTargetsPrefix = []byte{0x06}
+
+func blockchainTargetIndexedStore(store sdk.KVStore, target types.BlockchainAddress) index.Store {
+	return index.NewIndexedStore(store, blockchainTargetsPrefix, target)
+}
+
+func (k Keeper) mapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) {
+	for _, target := range targets {
+		// if targets are empty ignore
+		if target.Address == "" && target.ID == "" {
+			return
+		}
+		// otherwise map target to given account
+		store := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+		store.Set(account.Index())
+	}
+}
+
+func (k Keeper) unmapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) {
+	for _, target := range targets {
+		// if targets are empty then ignore the process
+		if target.ID == "" && target.Address == "" {
+			return
+		}
+		store := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+		if ok := store.Delete(account.Index()); !ok {
+			panic(fmt.Sprintf("index not found: target %#v, account: %#v", target, account))
+		}
+	}
+}
+
+func (k Keeper) iterateBlockchainTargetsAccounts(ctx sdk.Context, target types.BlockchainAddress, do func(key []byte) bool) {
+	store := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+	store.IterateKeys(do)
+}
 
 // domainIndexStore returns the kvstore space that maps
 // owner to domain keys

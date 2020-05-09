@@ -193,7 +193,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 }
 
 // validateBlockchainTargets validates different blockchain targets address and ID
-func validateBlockchainTargets(targets []iovns.BlockchainAddress, conf configuration.Config) error {
+func validateBlockchainTargets(targets []types.BlockchainAddress, conf configuration.Config) error {
 	validBlockchainID := regexp.MustCompile(conf.ValidBlockchainID)
 	validBlockchainAddress := regexp.MustCompile(conf.ValidBlockchainAddress)
 	// iterate over targets to check their validity

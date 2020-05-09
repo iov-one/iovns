@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
 )
@@ -107,5 +108,91 @@ func Test_domainIndexing(t *testing.T) {
 func Test_addressIndexing(t *testing.T) {
 	if !(aliceAddr.String() == accAddrFromIndex(indexAddr(aliceAddr)).String()) {
 		t.Fatalf("mismatched addresses for: %s", aliceAddr.String())
+	}
+}
+
+func Test_targetsIndexing(t *testing.T) {
+	accMatch := func(acc1, acc2 types.Account) error {
+		if acc1.Name != acc2.Name {
+			return fmt.Errorf("name mismatch: %s <-> %s", acc1.Name, acc2.Name)
+		}
+		if acc1.Domain != acc2.Domain {
+			return fmt.Errorf("domain mismatch: %s<-> %s", acc1.Domain, acc2.Domain)
+		}
+		return nil
+	}
+	var accountKeys [][]byte
+	do := func(key []byte) bool {
+		accountKeys = append(accountKeys, key)
+		return true
+	}
+	k, ctx, _ := NewTestKeeper(t, true)
+	// create one target
+	targetA := types.BlockchainAddress{
+		ID:      "t1",
+		Address: "1",
+	}
+	targetB := types.BlockchainAddress{
+		ID:      "t2",
+		Address: "2",
+	}
+	// create one account
+	accountA := types.Account{
+		Domain: "test",
+		Name:   "1",
+		Targets: []types.BlockchainAddress{
+			targetA,
+			targetB,
+		},
+		Owner: aliceAddr,
+	}
+	// insert account
+	k.CreateAccount(ctx, accountA)
+	// iterate targets
+	k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	if len(accountKeys) != 1 {
+		t.Fatalf("expected 1 keys, got: %d", len(accountKeys))
+	}
+	// generate test account
+	acc := &types.Account{}
+	err := acc.Unpack(accountKeys[0])
+	if err != nil {
+		t.Fatalf("unpack error: %d", err)
+	}
+	// check if it matches
+	if err := accMatch(*acc, accountA); err != nil {
+		t.Fatal(err)
+	}
+	// DeleteAccount
+	accountKeys = nil
+	k.DeleteAccount(ctx, accountA.Domain, accountA.Name)
+	k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	if len(accountKeys) != 0 {
+		t.Fatalf("no key expected, got: %d", len(accountKeys))
+	}
+	// ReplaceAccountTargets
+	accountKeys = nil
+	k.CreateAccount(ctx, accountA)
+	k.ReplaceAccountTargets(ctx, accountA, []types.BlockchainAddress{targetB})
+	k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	if len(accountKeys) != 0 {
+		t.Fatalf("no key expected, got: %d", len(accountKeys))
+	}
+	accountKeys = nil
+	k.iterateBlockchainTargetsAccounts(ctx, targetB, do)
+	if len(accountKeys) != 1 {
+		t.Fatalf("expected 1 key, got: %d", len(accountKeys))
+	}
+	if err := accMatch(*acc, accountA); err != nil {
+		t.Fatal(err)
+	}
+	// TransferAccount
+	accountKeys = nil
+	accountA, _ = k.GetAccount(ctx, accountA.Domain, accountA.Name) // edited the account before, so update it
+	k.TransferAccount(ctx, accountA, bobAddr)
+	// check if targetA is associated with any account
+	k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	if len(accountKeys) != 0 {
+		t.Fatalf("expected 0 keys, got: %d", len(accountKeys))
 	}
 }

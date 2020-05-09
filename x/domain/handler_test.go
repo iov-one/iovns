@@ -441,7 +441,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
-					Targets: []iovns.BlockchainAddress{
+					Targets: []types2.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "won't work",
@@ -482,7 +482,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(),
-					Targets: []iovns.BlockchainAddress{
+					Targets: []types2.BlockchainAddress{
 						{
 							ID:      "invalid blockchain id",
 							Address: "valid blockchain address",
@@ -522,7 +522,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "this won't match",
 					Owner:  aliceKey.GetAddress(),
-					Targets: []iovns.BlockchainAddress{
+					Targets: []types2.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -554,7 +554,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "this does not exist",
 					Name:   "works",
 					Owner:  aliceKey.GetAddress(),
-					Targets: []iovns.BlockchainAddress{
+					Targets: []types2.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -595,7 +595,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  aliceKey.GetAddress(), // invalid owner
-					Targets: []iovns.BlockchainAddress{
+					Targets: []types2.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -636,7 +636,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  bobKey.GetAddress(),
-					Targets: []iovns.BlockchainAddress{
+					Targets: []types2.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -687,7 +687,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "exists",
 					Owner:  bobKey.GetAddress(),
-					Targets: []iovns.BlockchainAddress{
+					Targets: []types2.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -728,7 +728,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  bobKey.GetAddress(),
-					Targets: []iovns.BlockchainAddress{
+					Targets: []types2.BlockchainAddress{
 						{
 							ID:      "works",
 							Address: "works",
@@ -833,7 +833,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types2.MsgReplaceAccountTargets{
 					Domain: "",
 					Name:   "",
-					NewTargets: []iovns.BlockchainAddress{
+					NewTargets: []types2.BlockchainAddress{
 						{
 							ID:      "invalid",
 							Address: "invalid",
@@ -860,7 +860,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types2.MsgReplaceAccountTargets{
 					Domain: "does not exist",
 					Name:   "",
-					NewTargets: []iovns.BlockchainAddress{
+					NewTargets: []types2.BlockchainAddress{
 						{
 							ID:      "valid",
 							Address: "valid",
@@ -890,7 +890,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx types.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types2.MsgReplaceAccountTargets{
 					Domain: "test",
-					NewTargets: []iovns.BlockchainAddress{
+					NewTargets: []types2.BlockchainAddress{
 						{
 							ID:      "valid",
 							Address: "valid",
@@ -922,7 +922,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types2.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "does not exist",
-					NewTargets: []iovns.BlockchainAddress{
+					NewTargets: []types2.BlockchainAddress{
 						{
 							ID:      "valid",
 							Address: "valid",
@@ -960,7 +960,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types2.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "test",
-					NewTargets: []iovns.BlockchainAddress{
+					NewTargets: []types2.BlockchainAddress{
 						{
 							ID:      "valid",
 							Address: "valid",
@@ -999,7 +999,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types2.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "test",
-					NewTargets: []iovns.BlockchainAddress{
+					NewTargets: []types2.BlockchainAddress{
 						{
 							ID:      "valid",
 							Address: "valid",
@@ -1038,7 +1038,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types2.MsgReplaceAccountTargets{
 					Domain: "test",
 					Name:   "test",
-					NewTargets: []iovns.BlockchainAddress{
+					NewTargets: []types2.BlockchainAddress{
 						{
 							ID:      "valid",
 							Address: "valid",
@@ -1051,7 +1051,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx types.Context, mocks *keeper.Mocks) {
-				expected := []iovns.BlockchainAddress{{
+				expected := []types2.BlockchainAddress{{
 					ID:      "valid",
 					Address: "valid",
 				}}
@@ -1986,7 +1986,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Name:       "1",
 					Owner:      aliceKey.GetAddress(),
 					ValidUntil: 0,
-					Targets: []iovns.BlockchainAddress{{
+					Targets: []types2.BlockchainAddress{{
 						ID:      "test",
 						Address: "test",
 					}},
@@ -1999,7 +1999,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Name:       "2",
 					Owner:      aliceKey.GetAddress(),
 					ValidUntil: 0,
-					Targets: []iovns.BlockchainAddress{{
+					Targets: []types2.BlockchainAddress{{
 						ID:      "test",
 						Address: "test",
 					}},

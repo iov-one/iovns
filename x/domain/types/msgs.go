@@ -3,7 +3,6 @@ package types
 import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns"
 )
 
 // MsgAddAccountCertificates is the message used
@@ -242,7 +241,7 @@ type MsgRegisterAccount struct {
 	// Owner is the owner of the account
 	Owner types.AccAddress
 	// Targets are the blockchain addresses of the account
-	Targets []iovns.BlockchainAddress
+	Targets []BlockchainAddress
 	// Broker is the account that facilitated the transaction
 	Broker types.AccAddress
 }
@@ -415,7 +414,7 @@ type MsgReplaceAccountTargets struct {
 	// Name is the name of the account
 	Name string
 	// NewTargets are the new blockchain addresses
-	NewTargets []iovns.BlockchainAddress
+	NewTargets []BlockchainAddress
 	// Owner is the owner of the account
 	Owner types.AccAddress
 }

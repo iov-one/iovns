@@ -33,6 +33,8 @@ func (k Keeper) CreateAccount(ctx sdk.Context, account types.Account) {
 	k.SetAccount(ctx, account)
 	// map account to owner
 	k.mapAccountToOwner(ctx, account)
+	// map targets to account
+	k.mapTargetToAccount(ctx, account, account.Targets...)
 }
 
 // SetAccount upserts account data
@@ -55,6 +57,8 @@ func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 	store.Delete(accountKey)
 	// unmap account to owner
 	k.unmapAccountToOwner(ctx, account)
+	// unmap targets to account
+	k.unmapTargetToAccount(ctx, account, account.Targets...)
 }
 
 // GetAccountsInDomain provides all the account keys related to the given domain name
@@ -78,6 +82,8 @@ func (k Keeper) GetAccountsInDomain(ctx sdk.Context, domainName string, do func(
 func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner sdk.AccAddress) {
 	// unmap account to owner
 	k.unmapAccountToOwner(ctx, account)
+	// unmap account targets
+	k.unmapTargetToAccount(ctx, account, account.Targets...)
 	// update account
 	account.Owner = newOwner   // transfer owner
 	account.Certificates = nil // remove certs
@@ -86,6 +92,8 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	k.SetAccount(ctx, account)
 	// map account to new owner
 	k.mapAccountToOwner(ctx, account)
+	// map accounts new targets
+	k.mapTargetToAccount(ctx, account, account.Targets...)
 }
 
 // AddAccountCertificate adds aliceAddr new certificate to the account
@@ -115,11 +123,15 @@ func (k Keeper) UpdateAccountValidity(ctx sdk.Context, account types.Account, ac
 }
 
 // ReplaceAccountTargets updates an account targets
-func (k Keeper) ReplaceAccountTargets(ctx sdk.Context, account types.Account, targets []iovns.BlockchainAddress) {
+func (k Keeper) ReplaceAccountTargets(ctx sdk.Context, account types.Account, targets []types.BlockchainAddress) {
+	// unmap old targets
+	k.unmapTargetToAccount(ctx, account, account.Targets...)
 	// replace targets
 	account.Targets = targets
 	// update account
 	k.SetAccount(ctx, account)
+	// map new targets
+	k.mapTargetToAccount(ctx, account, targets...)
 }
 
 // IterateAllAccounts returns all the accounts inside the store
