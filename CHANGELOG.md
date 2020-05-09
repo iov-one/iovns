@@ -1,7 +1,7 @@
 # Changelog 
 
 ## HEAD
-
+- add resolve certificates
 - add resolve blockchain targets
 - add generalized indexing strategy
 - change move blockchain address from iovns types to domain module types
