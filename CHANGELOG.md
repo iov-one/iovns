@@ -1,6 +1,7 @@
 # Changelog 
 
 ## HEAD
+- fix add signers in msg renew account and renew domain
 - add resolve certificates
 - add resolve blockchain targets
 - add generalized indexing strategy
