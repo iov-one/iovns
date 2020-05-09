@@ -310,6 +310,7 @@ func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
 			// build msg
 			msg := &types.MsgRenewDomain{
 				Domain: domain,
+				Signer: cliCtx.GetFromAddress(),
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -346,6 +347,7 @@ func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
 			msg := &types.MsgRenewAccount{
 				Domain: domain,
 				Name:   name,
+				Signer: cliCtx.GetFromAddress(),
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {

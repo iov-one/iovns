@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 )
 
@@ -14,7 +14,7 @@ type MsgAddAccountCertificates struct {
 	// Name is the name of the account
 	Name string
 	// Owner is the owner of the account
-	Owner types.AccAddress
+	Owner sdk.AccAddress
 	// NewCertificate is the new certificate to add
 	NewCertificate []byte
 }
@@ -48,12 +48,12 @@ func (m *MsgAddAccountCertificates) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgAddAccountCertificates) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgAddAccountCertificates) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Owner}
+func (m *MsgAddAccountCertificates) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }
 
 // MsgDeleteAccountCertificate is the request
@@ -67,7 +67,7 @@ type MsgDeleteAccountCertificate struct {
 	// DeleteCertificate is the certificate to delete
 	DeleteCertificate []byte
 	// Owner is the owner of the account
-	Owner types.AccAddress
+	Owner sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -99,12 +99,12 @@ func (m *MsgDeleteAccountCertificate) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgDeleteAccountCertificate) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Owner}
+func (m *MsgDeleteAccountCertificate) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }
 
 // MsgDeleteAccount is the request model
@@ -115,7 +115,7 @@ type MsgDeleteAccount struct {
 	// Name is the name of the account
 	Name string
 	// Owner is the owner of the account
-	Owner types.AccAddress
+	Owner sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -145,19 +145,19 @@ func (m *MsgDeleteAccount) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgDeleteAccount) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgDeleteAccount) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Owner}
+func (m *MsgDeleteAccount) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }
 
 // MsgDeleteDomain is the request
 // model to delete a domain
 type MsgDeleteDomain struct {
 	Domain string
-	Owner  types.AccAddress
+	Owner  sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -184,12 +184,12 @@ func (m *MsgDeleteDomain) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgDeleteDomain) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgDeleteDomain) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Owner}
+func (m *MsgDeleteDomain) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }
 
 // MsgFlushDomain is used to flush a domain
@@ -197,7 +197,7 @@ type MsgFlushDomain struct {
 	// Domain is the domain name to flush
 	Domain string
 	// Owner is the owner of the domain
-	Owner types.AccAddress
+	Owner sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -223,12 +223,12 @@ func (m *MsgFlushDomain) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgFlushDomain) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgFlushDomain) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Owner}
+func (m *MsgFlushDomain) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }
 
 // MsgRegisterAccount is the request
@@ -239,11 +239,11 @@ type MsgRegisterAccount struct {
 	// Name is the name of the account
 	Name string
 	// Owner is the owner of the account
-	Owner types.AccAddress
+	Owner sdk.AccAddress
 	// Targets are the blockchain addresses of the account
 	Targets []BlockchainAddress
 	// Broker is the account that facilitated the transaction
-	Broker types.AccAddress
+	Broker sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -272,12 +272,12 @@ func (m *MsgRegisterAccount) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgRegisterAccount) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgRegisterAccount) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Owner}
+func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }
 
 // MsgRegisterDomain is the request used to register new domains
@@ -285,11 +285,11 @@ type MsgRegisterDomain struct {
 	// Name is the name of the domain we want to register
 	Name string `json:"domain" arg:"--domain" helper:"name of the domain"`
 	// Admin is the address of the newly registered domain
-	Admin types.AccAddress `json:"admin"`
+	Admin sdk.AccAddress `json:"admin"`
 	// HasSuperuser defines if the domain registered has an owner or not
 	HasSuperuser bool `json:"has_superuser"`
 	// Broker TODO document
-	Broker types.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
+	Broker sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
 	// AccountRenew defines the expiration time in seconds of each newly registered account.
 	AccountRenew int64 `json:"account_renew" arg:"--account-renew" helper:"account's renewal time in seconds"`
 	// TODO MSGFEEs
@@ -322,12 +322,12 @@ func (m *MsgRegisterDomain) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgRegisterDomain) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgRegisterDomain) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Admin}
+func (m *MsgRegisterDomain) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Admin}
 }
 
 // MsgRenewAccount is the request
@@ -337,6 +337,8 @@ type MsgRenewAccount struct {
 	Domain string
 	// Name is the name of the account
 	Name string
+	// Signer is the signer of the request
+	Signer sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -362,12 +364,12 @@ func (m *MsgRenewAccount) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgRenewAccount) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgRenewAccount) GetSigners() []types.AccAddress {
-	return []types.AccAddress{}
+func (m *MsgRenewAccount) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Signer}
 }
 
 // MsgRenewDomain is the request
@@ -375,6 +377,8 @@ func (m *MsgRenewAccount) GetSigners() []types.AccAddress {
 type MsgRenewDomain struct {
 	// Domain is the domain name to renew
 	Domain string
+	// Signer is the request signer
+	Signer sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -397,12 +401,12 @@ func (m *MsgRenewDomain) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgRenewDomain) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgRenewDomain) GetSigners() []types.AccAddress {
-	return []types.AccAddress{}
+func (m *MsgRenewDomain) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Signer}
 }
 
 // MsgReplaceAccountTargets is the request model
@@ -416,7 +420,7 @@ type MsgReplaceAccountTargets struct {
 	// NewTargets are the new blockchain addresses
 	NewTargets []BlockchainAddress
 	// Owner is the owner of the account
-	Owner types.AccAddress
+	Owner sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -448,12 +452,12 @@ func (m *MsgReplaceAccountTargets) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgReplaceAccountTargets) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgReplaceAccountTargets) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Owner}
+func (m *MsgReplaceAccountTargets) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }
 
 // MsgSetAccountMetadata is the function used
@@ -467,7 +471,7 @@ type MsgSetAccountMetadata struct {
 	// we want to update or insert
 	NewMetadataURI string
 	// Owner is the owner of the account
-	Owner types.AccAddress
+	Owner sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -499,12 +503,12 @@ func (m *MsgSetAccountMetadata) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgSetAccountMetadata) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgSetAccountMetadata) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Owner}
+func (m *MsgSetAccountMetadata) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }
 
 // MsgTransferAccount is the request
@@ -515,9 +519,9 @@ type MsgTransferAccount struct {
 	// Account is the account name
 	Name string
 	// Owner is the actual owner of the account
-	Owner types.AccAddress
+	Owner sdk.AccAddress
 	// NewOwner is the new owner of the account
-	NewOwner types.AccAddress
+	NewOwner sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -550,20 +554,20 @@ func (m *MsgTransferAccount) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgTransferAccount) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgTransferAccount) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Owner}
+func (m *MsgTransferAccount) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }
 
 // MsgTransferDomain is the request model
 // used to transfer a domain
 type MsgTransferDomain struct {
 	Domain   string
-	Owner    types.AccAddress
-	NewAdmin types.AccAddress
+	Owner    sdk.AccAddress
+	NewAdmin sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -592,10 +596,10 @@ func (m *MsgTransferDomain) ValidateBasic() error {
 
 // GetSignBytes implements sdk.Msg
 func (m *MsgTransferDomain) GetSignBytes() []byte {
-	return types.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgTransferDomain) GetSigners() []types.AccAddress {
-	return []types.AccAddress{m.Owner}
+func (m *MsgTransferDomain) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.Owner}
 }
