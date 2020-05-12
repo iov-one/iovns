@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"path"
+
+	"github.com/rakyll/statik/fs"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -25,6 +28,9 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/iov-one/iovns/app"
+
+	// unnamed import of statik for swagger UI support
+	_ "github.com/iov-one/iovns/swagger-ui/statik"
 )
 
 func main() {
@@ -148,6 +154,16 @@ func registerRoutes(rs *lcd.RestServer) {
 	client.RegisterRoutes(rs.CliCtx, rs.Mux)
 	authrest.RegisterTxRoutes(rs.CliCtx, rs.Mux)
 	app.ModuleBasics.RegisterRESTRoutes(rs.CliCtx, rs.Mux)
+	registerSwaggerUI(rs)
+}
+
+func registerSwaggerUI(rs *lcd.RestServer) {
+	statikFS, err := fs.New()
+	if err != nil {
+		panic(err)
+	}
+	staticServer := http.FileServer(statikFS)
+	rs.Mux.PathPrefix("/").Handler(staticServer)
 }
 
 func initConfig(cmd *cobra.Command) error {
