@@ -30,7 +30,7 @@ tags:
     description: Query app version
 schemes:
   - https
-host: localhost
+host: http://localhost:1317
 securityDefinitions:
   kms:
     type: basic
@@ -85,7 +85,7 @@ paths:
                         example: 0
                   network:
                     type: string
-                    example: gaia-2
+                    example: iovns-2
                   channels:
                     type: string
                   listen_addr:
@@ -251,7 +251,7 @@ paths:
         - in: query
           name: message.action
           type: string
-          description: "transaction events such as 'message.action=send' which results in the following endpoint: 'GET /txs?message.action=send'. note that each module documents its own events. look for xx_events.md in the corresponding cosmos-sdk/docs/spec directory"
+          description: "transaction events such as 'message.action=send' which results in the following endpoint: 'GET /txs?message.action=send'. note that each module documents its own events. look for xx_events.md in the corresponding cosmos-sdk/swagger-ui/spec directory"
           x-example: "send"
         - in: query
           name: message.sender

@@ -7765,7 +7765,7 @@
                         h = r.lastError(),
                         d = h ? h.get("message") : "";
                     return s.default.createElement(i, {
-                        className: "swagger-ui"
+                        className: "docs"
                     }, c ? s.default.createElement(c, null) : null, "loading" === p && s.default.createElement("div", {
                         className: "info"
                     }, s.default.createElement("div", {
@@ -11983,7 +11983,7 @@
             }
         }
     }, function(t, e) {
-        t.exports = '---\nurl: "https://petstore.swagger.io/v2/swagger.json"\ndom_id: "#swagger-ui"\nvalidatorUrl: "https://online.swagger.io/validator"\noauth2RedirectUrl: "http://localhost:3200/oauth2-redirect.html"\n'
+        t.exports = '---\nurl: "https://petstore.swagger.io/v2/swagger.json"\ndom_id: "#docs"\nvalidatorUrl: "https://online.swagger.io/validator"\noauth2RedirectUrl: "http://localhost:3200/oauth2-redirect.html"\n'
     }, function(t, e, n) {
         "use strict";
         var r = n(521);
@@ -13170,4 +13170,4 @@
         }), i)
     }])
 });
-//# sourceMappingURL=swagger-ui-standalone-preset.js.map
+//# sourceMappingURL=docs-standalone-preset.js.map
