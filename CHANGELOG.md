@@ -2,6 +2,7 @@
 
 ## HEAD
 
+- implement iovns lite client swagger
 
 ## 0.2.1
 

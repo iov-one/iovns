@@ -44,6 +44,10 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 	typ := tutils.GetPtrType(queryType)
 	// return function
 	return func(writer http.ResponseWriter, request *http.Request) {
+		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(writer, cliCtx, request)
+		if !ok {
+			return
+		}
 		// clone queryType so we can unmarshal data to it
 		query := tutils.CloneFromType(typ).(iovns.QueryHandler)
 		// read request bytes
@@ -61,6 +65,7 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 		// verify query correctness
 		if err = query.Validate(); err != nil {
 			rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
+			return
 		}
 		// marshal request to bytes understandable to the app query processor
 		requestBytes, err := iovns.DefaultQueryEncode(query)
@@ -72,11 +77,13 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 		// build query path
 		queryPath := fmt.Sprintf("custom/%s/%s", storeName, query.QueryPath())
 		// do query
-		res, _, err := cliCtx.QueryWithData(queryPath, requestBytes)
+		res, height, err := cliCtx.QueryWithData(queryPath, requestBytes)
 		if err != nil {
 			rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
 			return
 		}
+
+		cliCtx = cliCtx.WithHeight(height)
 		// success
 		rest.PostProcessResponse(writer, cliCtx, res)
 	}
@@ -86,8 +93,8 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 // the domain module's keeper
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string, queries []iovns.QueryHandler) {
 	for _, query := range queries {
-		path := fmt.Sprintf("%s/query/%s", storeName, query.QueryPath())
-		r.HandleFunc(path, queryHandlerBuild(cliCtx, storeName, query))
+		path := fmt.Sprintf("/%s/query/%s", storeName, query.QueryPath())
+		r.HandleFunc(path, queryHandlerBuild(cliCtx, storeName, query)).Methods("POST")
 	}
 }
 

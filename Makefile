@@ -10,8 +10,11 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=NewApp \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) 
 BUILD_FLAGS := -ldflags '$(ldflags)'
+BINDIR ?= $(GOPATH)/bin
 
 export GO111MODULE := on
+
+include contrib/devtools/Makefile
 
 all: install
 
@@ -39,3 +42,13 @@ lint:
 
 test:
 	go test -mod=readonly -race ./...
+
+update-swagger-docs: statik
+	$(BINDIR)/statik -src=swagger-ui/swagger-ui -dest=swagger-ui -f -m
+	@if [ -n "$(git status --porcelain)" ]; then \
+        echo "\033[91mSwagger docs are out of sync!!!\033[0m";\
+        exit 1;\
+    else \
+    	echo "\033[92mSwagger docs are in sync\033[0m";\
+    fi
+.PHONY: update-swagger-docs
