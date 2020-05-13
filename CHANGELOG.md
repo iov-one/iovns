@@ -2,10 +2,16 @@
 
 ## HEAD
 
+Breaking changes
+
+- Change naming of some json keys in genesis.json
+
 ## 0.2.2
+
 - implement iovns lite client swagger
 
 ## 0.2.1
+
 - fix properly export genesis state
 - fix properly init genesis state from old state
 - fix iterate all domains
@@ -16,4 +22,5 @@
 - remove panic if fees are missing
 
 ## 0.2.0
+
 - change path prefix to star
