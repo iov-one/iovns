@@ -2537,24 +2537,6 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Coin"
-  IBCValidator:
-    type: object
-    properties:
-      address:
-        $ref: "#/definitions/ValidatorAddress"
-      pub_key:
-        type: object
-        properties:
-          type:
-            type: string
-          value:
-            type: string
-      voting_power:
-        type: string
-        example: "1000"
-      proposer_priority:
-        type: string
-        example: "1000"
   ConsensusState:
     type: object
     properties:
@@ -2592,9 +2574,9 @@ definitions:
       validators:
         type: array
         items:
-          $ref: "#/definitions/IBCValidator"
+          $ref: "#/definitions/TendermintValidator"
       proposer:
-        $ref: "#/definitions/IBCValidator"
+        $ref: "#/definitions/TendermintValidator"
   ClientState:
     type: object
     properties:
