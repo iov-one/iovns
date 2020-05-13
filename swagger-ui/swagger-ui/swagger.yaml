@@ -1990,6 +1990,28 @@ paths:
           description: Accounts, domain or owner not found
         "500":
           description: Internal Server Error
+  "/domain/query/domainsFromOwner":
+    post:
+      summary: Returns all the domains owned by a given address
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/requestBodies/ResolveDomainsFromOwnerQueryBody"
+        description: Resolve domains owned by an address
+      tags:
+        - Domain
+      responses:
+        "200":
+          description: Domains resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrayOfDomains"
+        "400":
+          description: domain or owner not found
+        "500":
+          description: Internal Server Error
 components:
   requestBodies:
     WithdrawRequestBody:
@@ -2027,6 +2049,20 @@ components:
         owner:
           $ref: "#/components/schemas/Address"
           description: Owner address of the accounts
+        results_per_page:
+          type: number
+          example: 5
+          description: Results per page
+        offset:
+          type: number
+          example: 1
+          description: Page number
+    ResolveDomainsFromOwnerQueryBody:
+      type: object
+      properties:
+        owner:
+          $ref: "#/components/schemas/Address"
+          description: Owner address of the domains
         results_per_page:
           type: number
           example: 5
@@ -2839,6 +2875,12 @@ components:
         broker:
           $ref: "#/components/schemas/Address"
           description: Address of the broker
+    ArrayOfDomains:
+      type: object
+      properties:
+        accounts:
+          type: array
+          $ref: "#/components/schemas/Domain"
     Account:
       type: object
       properties:
