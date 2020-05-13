@@ -2012,6 +2012,28 @@ paths:
           description: domain or owner not found
         "500":
           description: Internal Server Error
+  "/domain/query/resolveAccount":
+    post:
+      summary: Resolves an account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/requestBodies/ResolveAccountQueryBody"
+        description: Resolve an account
+      tags:
+        - Domain
+      responses:
+        "200":
+          description: Account resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "400":
+          description: Account not found
+        "500":
+          description: Internal Server Error
 components:
   requestBodies:
     WithdrawRequestBody:
@@ -2071,6 +2093,15 @@ components:
           type: number
           example: 1
           description: Page number
+    ResolveAccountQueryBody:
+      type: object
+      properties:
+        domain:
+          type: string
+          description: Name of the domain
+        name:
+          type: string
+          description: Account name
   securitySchemes:
     kms:
       type: http
