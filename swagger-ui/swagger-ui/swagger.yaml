@@ -1924,6 +1924,28 @@ paths:
           description: Invalid coin denomination
         "500":
           description: Internal Server Error
+  "/domain/query/resolveDomain":
+    post:
+      summary: Resolve a domain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResolveDomainQueryBody"
+        description: Resolve domain query
+      tags:
+        - Domain
+      responses:
+        "200":
+          description: Domain resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Domain"
+        "400":
+          description: Domain not found
+        "500":
+          description: Internal Server Error
 components:
   requestBodies:
     WithdrawRequestBody:
@@ -2715,3 +2737,74 @@ components:
               type: integer
             total_power:
               type: integer
+    Domain:
+      type: object
+      properties:
+        name:
+          type: string
+          example: bazoooka
+          description: Name of the domain
+        admin:
+          $ref: "#/components/schemas/Address"
+          description: Owner of the domain
+        calidUntil:
+          type: number
+          description: ValidUntil is a unix timestamp that defines for how long the domain is valid
+        hasSuperUser:
+          type: bool
+          description: If the domain is owned by a super user or not
+        accountRenew:
+          type: number
+          description: The duration of each created or renewed account under the domain
+        broker:
+          $ref: "#/components/schemas/Address"
+          description: Address of the broker
+    Account:
+      type: object
+      properties:
+        domain:
+          type: string
+          example: bazooka
+          description: Name of the domain
+        name:
+          type: string
+          example: launcher
+          description: Name of the address
+        owner:
+          $ref: "#/components/schemas/Address"
+          description: Owner of the address
+        validUntil:
+          type: number
+          description: ValidUntil is a unix timestamp that defines for how long the domain is valid
+        broker:
+          $ref: "#/components/schemas/Address"
+          description: Address of the broker
+        targets:
+          type: array
+          $ref: "#/components/schemas/Target"
+        certificates:
+          type: array
+          items:
+            type: string
+          description: Certificates
+        metadataURI:
+          type: string
+          description: Link to extra information regarding the account
+    Target:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cosmos-hub-1
+          description: Blockchain ID
+        address:
+          type: array
+          $ref: "#/components/schemas/Address"
+          description: Blockchain address
+    ResolveDomainQueryBody:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Name
+          description: Name of the domain
