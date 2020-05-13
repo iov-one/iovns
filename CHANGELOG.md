@@ -2,10 +2,10 @@
 
 ## HEAD
 
+## 0.2.2
 - implement iovns lite client swagger
 
 ## 0.2.1
-
 - fix properly export genesis state
 - fix properly init genesis state from old state
 - fix iterate all domains
