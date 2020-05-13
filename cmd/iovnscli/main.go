@@ -163,7 +163,7 @@ func registerSwaggerUI(rs *lcd.RestServer) {
 		panic(err)
 	}
 	staticServer := http.FileServer(statikFS)
-	rs.Mux.PathPrefix("/swagger-ui/").Handler(http.StripPrefix("/swagger-ui/", staticServer))
+	rs.Mux.PathPrefix("/").Handler(http.StripPrefix("/", staticServer))
 }
 
 func initConfig(cmd *cobra.Command) error {
