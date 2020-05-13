@@ -2,13 +2,15 @@
 swagger: "2.0"
 info:
   version: "3.0"
-  title: IOVNS-Lite
+  title: IOVNS Lite
   description: A REST interface for state queries, transaction generation and broadcasting.
 tags:
   - name: Transactions
     description: Search, encode, or broadcast transactions.
   - name: Tendermint RPC
     description: Tendermint APIs, such as query blocks, transactions and validatorset
+  - name: Domain
+    description: Domain name related functionalities
   - name: Auth
     description: Authenticate accounts
   - name: Bank
@@ -87,7 +89,7 @@ paths:
                     type: string
                   listen_addr:
                     type: string
-                    example: 192.168.56.1:26656
+                    example: 192.168.56.1:46656
                   version:
                     description: Tendermint version
                     type: string
@@ -101,7 +103,7 @@ paths:
                         example: on
                       rpc_address:
                         type: string
-                        example: tcp://0.0.0.0:26657
+                        example: tcp://0.0.0.0:46657
         500:
           description: Failed to query node status
   /syncing:
@@ -943,31 +945,6 @@ paths:
                 type: string
         500:
           description: Internal Server Error
-  # TODO: We need to either fix this route when the validator is not found or add a slashed validator in the contract tests
-  #  /slashing/validators/{validatorPubKey}/signing_info:
-  #    get:
-  #      summary: Get sign info of given validator
-  #      description: Get sign info of given validator
-  #      produces:
-  #        - application/json
-  #      tags:
-  #        - Slashing
-  #      parameters:
-  #        - type: string
-  #          description: Bech32 validator public key
-  #          name: validatorPubKey
-  #          required: true
-  #          in: path
-  #          x-example: starvalconspub1zcjduepq0vu2zgkgk49efa0nqwzndanq5m4c7pa3u4apz4g2r9gspqg6g9cs3k9cuf
-  #      responses:
-  #        200:
-  #          description: OK
-  #          schema:
-  #            $ref: "#/definitions/SigningInfo"
-  #        400:
-  #          description: Invalid validator public key
-  #        500:
-  #          description: Internal Server Error
   /slashing/signing_infos:
     get:
       summary: Get sign info of given all validators
@@ -2654,42 +2631,6 @@ definitions:
             $ref: "#/definitions/ValidatorSet"
           next_validator_set:
             $ref: "#/definitions/ValidatorSet"
-  ConnectionResponse:
-    type: object
-    properties:
-      connection:
-        $ref: "#/definitions/Connection"
-      proof:
-        $ref: "#/definitions/Proof"
-      proof_path:
-        $ref: "#/definitions/ProofPath"
-      proof_height:
-        type: integer
-  Connection:
-    type: object
-    properties:
-      state:
-        type: string
-      client_id:
-        type: string
-      counterparty:
-        $ref: "#/definitions/ConnectionCounterparty"
-      versions:
-        type: array
-        items:
-          type: string
-  ConnectionCounterparty:
-    type: object
-    properties:
-      client_id:
-        type: string
-      connection_id:
-        type: string
-      prefix:
-        type: object
-        properties:
-          key_prefix:
-            type: string
   ProofPath:
     type: object
     properties:
@@ -2715,62 +2656,6 @@ definitions:
         $ref: "#/definitions/ProofPath"
       proof_height:
         type: integer
-  ChannelResponse:
-    type: object
-    properties:
-      channel:
-        $ref: "#/definitions/Channel"
-      proof:
-        $ref: "#/definitions/Proof"
-      proof_path:
-        $ref: "#/definitions/ProofPath"
-      proof_height:
-        type: integer
-  Channel:
-    type: object
-    properties:
-      state:
-        type: string
-      ordering:
-        type: string
-      counterparty:
-        $ref: "#/definitions/Counterparty"
-      connection_hops:
-        type: array
-        items:
-          type: string
-      version:
-        type: string
-  ChannelCounterparty:
-    type: object
-    properties:
-      port_id:
-        type: string
-      channel_id:
-        type: string
-  Packet:
-    type: object
-    properties:
-      type:
-        type: string
-      value:
-        type: object
-        properties:
-          sequence:
-            type: integer
-          timeout:
-            type: integer
-          source_port:
-            type: string
-          source_channel:
-            type: string
-          destination_port:
-            type: string
-          destination_channel:
-            type: string
-          data:
-            type: string
-  # TODO: DuplicateVoteEvidence
   DuplicateVoteEvidence:
     type: string
   Evidence:
