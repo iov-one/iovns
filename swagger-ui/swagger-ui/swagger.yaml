@@ -1931,7 +1931,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ResolveDomainQueryBody"
+              $ref: "#/components/requestBodies/ResolveDomainQueryBody"
         description: Resolve domain query
       tags:
         - Domain
@@ -1946,6 +1946,28 @@ paths:
           description: Domain not found
         "500":
           description: Internal Server Error
+  "/domain/query/accountsInDomain":
+    post:
+      summary: Returns all the accounts registered under a domain
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/requestBodies/ResolveAccountsInDomainQueryBody"
+        description: Resolve accouts in domain query
+      tags:
+        - Domain
+      responses:
+        "200":
+          description: Accounts resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrayOfAccounts"
+        "400":
+          description: Accounts or domain not found
+        "500":
+          description: Internal Server Error
 components:
   requestBodies:
     WithdrawRequestBody:
@@ -1955,6 +1977,28 @@ components:
             properties:
               base_req:
                 $ref: "#/components/schemas/BaseReq"
+    ResolveDomainQueryBody:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Name
+          description: Name of the domain
+    ResolveAccountsInDomainQueryBody:
+      type: object
+      properties:
+        domain:
+          type: string
+          example: bazooka
+          description: Name of the domain
+        results_per_page:
+          type: number
+          example: 5
+          description: Results per page
+        offset:
+          type: number
+          example: 1
+          description: Page number
   securitySchemes:
     kms:
       type: http
@@ -2790,6 +2834,12 @@ components:
         metadataURI:
           type: string
           description: Link to extra information regarding the account
+    ArrayOfAccounts:
+      type: object
+      properties:
+        accounts:
+          type: array
+          $ref: "#/components/schemas/Account"
     Target:
       type: object
       properties:
@@ -2801,10 +2851,3 @@ components:
           type: array
           $ref: "#/components/schemas/Address"
           description: Blockchain address
-    ResolveDomainQueryBody:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Name
-          description: Name of the domain
