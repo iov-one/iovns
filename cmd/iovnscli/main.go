@@ -30,7 +30,7 @@ import (
 	"github.com/iov-one/iovns/app"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/iov-one/iovns/docs/statik"
+	_ "github.com/iov-one/iovns/swagger-ui/statik"
 )
 
 func main() {
@@ -163,7 +163,7 @@ func registerSwaggerUI(rs *lcd.RestServer) {
 		panic(err)
 	}
 	staticServer := http.FileServer(statikFS)
-	rs.Mux.PathPrefix("/docs/").Handler(http.StripPrefix("/docs/", staticServer))
+	rs.Mux.PathPrefix("/swagger-ui/").Handler(http.StripPrefix("/swagger-ui/", staticServer))
 }
 
 func initConfig(cmd *cobra.Command) error {

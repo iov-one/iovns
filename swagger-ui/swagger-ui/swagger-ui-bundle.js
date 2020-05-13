@@ -33490,7 +33490,7 @@
             e.visual = {}, n(e, []), n(e.visual, [/\uD83C[\uDDE6-\uDDFF]\uD83C[\uDDE6-\uDDFF]/])
         }()
     }, function(e, t) {
-        e.exports = '---\nurl: "https://petstore.swagger.io/v2/swagger.json"\ndom_id: "#docs"\nvalidatorUrl: "https://online.swagger.io/validator"\noauth2RedirectUrl: "http://localhost:3200/oauth2-redirect.html"\n'
+        e.exports = '---\nurl: "https://petstore.swagger.io/v2/swagger.json"\ndom_id: "#swagger-ui"\nvalidatorUrl: "https://online.swagger.io/validator"\noauth2RedirectUrl: "http://localhost:3200/oauth2-redirect.html"\n'
     }, function(e, t, n) {
         var r, o, i;
         o = [], r = function() {
@@ -41097,13 +41097,13 @@
                         return g = "loading" === t.loadingStatus() ? s.default.createElement("div", {
                             className: "loading"
                         }) : s.default.createElement("h4", null, "No API definition provided."), s.default.createElement("div", {
-                            className: "docs"
+                            className: "swagger-ui"
                         }, s.default.createElement("div", {
                             className: "loading-container"
                         }, g))
                     }
                     return s.default.createElement("div", {
-                        className: "docs"
+                        className: "swagger-ui"
                     }, s.default.createElement(r, null), s.default.createElement(i, {
                         isSwagger2: v,
                         isOAS3: m,
@@ -41773,4 +41773,4 @@
         }, o.resolve = i, e.exports = o, o.id = 1058
     }])
 });
-//# sourceMappingURL=docs-bundle.js.map
+//# sourceMappingURL=swagger-ui-bundle.js.map

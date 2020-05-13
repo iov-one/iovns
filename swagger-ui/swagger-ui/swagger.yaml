@@ -28,9 +28,6 @@ tags:
     description: Minting module APIs
   - name: Misc
     description: Query app version
-schemes:
-  - https
-host: http://localhost:1317
 securityDefinitions:
   kms:
     type: basic

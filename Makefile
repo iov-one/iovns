@@ -44,7 +44,7 @@ test:
 	go test -mod=readonly -race ./...
 
 update-swagger-docs: statik
-	$(BINDIR)/statik -src=docs/swagger-ui -dest=docs -f -m
+	$(BINDIR)/statik -src=swagger-ui/swagger-ui -dest=swagger-ui -f -m
 	@if [ -n "$(git status --porcelain)" ]; then \
         echo "\033[91mSwagger docs are out of sync!!!\033[0m";\
         exit 1;\
