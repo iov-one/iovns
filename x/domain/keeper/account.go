@@ -37,12 +37,12 @@ func (k Keeper) CreateAccount(ctx sdk.Context, account types.Account) {
 	// map targets to account
 	err := k.mapTargetToAccount(ctx, account, account.Targets...)
 	if err != nil {
-		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 	// map certs to account
 	err = k.mapCertificateToAccount(ctx, account, account.Certificates...)
 	if err != nil {
-		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 }
 
@@ -102,12 +102,12 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	// unmap account targets
 	err := k.unmapTargetToAccount(ctx, account, account.Targets...)
 	if err != nil {
-		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 	// unmap certs
 	err = k.unmapCertificateToAccount(ctx, account, account.Certificates...)
 	if err != nil {
-		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 	// update account
 	account.Owner = newOwner   // transfer owner
@@ -120,12 +120,12 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	// map accounts new targets
 	err = k.mapTargetToAccount(ctx, account, account.Targets...)
 	if err != nil {
-		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 	// map certificates
 	err = k.mapCertificateToAccount(ctx, account, account.Certificates...)
 	if err != nil {
-		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 }
 
@@ -138,7 +138,7 @@ func (k Keeper) AddAccountCertificate(ctx sdk.Context, account types.Account, ne
 	// map certificate
 	err := k.mapCertificateToAccount(ctx, account, newCert)
 	if err != nil {
-		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 }
 
@@ -152,7 +152,7 @@ func (k Keeper) DeleteAccountCertificate(ctx sdk.Context, account types.Account,
 	// unmap certificate
 	err := k.unmapCertificateToAccount(ctx, account, cert)
 	if err != nil {
-		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 }
 
@@ -171,7 +171,7 @@ func (k Keeper) ReplaceAccountTargets(ctx sdk.Context, account types.Account, ta
 	// unmap old targets
 	err := k.unmapTargetToAccount(ctx, account, account.Targets...)
 	if err != nil {
-		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 	// replace targets
 	account.Targets = targets
@@ -180,7 +180,7 @@ func (k Keeper) ReplaceAccountTargets(ctx sdk.Context, account types.Account, ta
 	// map new targets
 	err = k.mapTargetToAccount(ctx, account, targets...)
 	if err != nil {
-		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 }
 
