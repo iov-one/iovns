@@ -8,13 +8,40 @@ import (
 	"math"
 )
 
+// Unpacker defines a type that
+// can unpack itself from a byte key
+type Unpacker interface {
+	Unpack(b []byte) error
+}
+
+// Indexed defines an object that can save itself
+// into byte data using Pack, and retrive unique info
+// about himself from Pack through Unpack
+type Indexed interface {
+	// Pack marshals the object into a unique byte key
+	Pack() ([]byte, error)
+}
+
+// Unpack takes an unpacker and fills it based on key
+func Unpack(key []byte, unpacker Unpacker) error {
+	return unpacker.Unpack(key)
+}
+
+// MustUnpack panics if Unpack fails
+func MustUnpack(key []byte, unpacker Unpacker) {
+	err := unpacker.Unpack(key)
+	if err != nil {
+		panic(fmt.Sprintf("failure in unpacking %x key at %T: %s", key, unpacker, err))
+	}
+}
+
 // PackBytes takes a bytes slice and packs it
 func PackBytes(keys [][]byte) ([]byte, error) {
 	var packedKey []byte
 	for _, key := range keys {
 		pKey, err := packBytes(key)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("index: PackBytes: %w", err)
 		}
 		packedKey = append(packedKey, pKey...)
 	}
@@ -24,7 +51,7 @@ func PackBytes(keys [][]byte) ([]byte, error) {
 func packBytes(k []byte) ([]byte, error) {
 	packed := new(bytes.Buffer)
 	if len(k) == 0 {
-		return nil, errors.New("0 length key")
+		return nil, errors.New("empty key")
 	}
 	if len(k) > math.MaxUint8-1 {
 		return nil, fmt.Errorf("key length exceeded: %d", len(k))
@@ -43,10 +70,13 @@ func packBytes(k []byte) ([]byte, error) {
 }
 
 // UnpackBytes reads a key and returns the
-// byte arrays composing said key
+// byte arrays composing said key, it fails
+// only if the given key length is not valid
+// or if the byte representing the size does not
+// match the real length of the key.
 func UnpackBytes(k []byte) ([][]byte, error) {
 	// check if minimum length is matched
-	if len(k) <= 1 {
+	if len(k) < 2 {
 		return nil, fmt.Errorf("minimum length not reached: %d", len(k))
 	}
 	kCopy := make([]byte, len(k))
@@ -67,6 +97,7 @@ func UnpackBytes(k []byte) ([][]byte, error) {
 	// get key
 	packed.Reset()
 	var result [][]byte
+	// get bytes of key from size_byte_index->size_index
 	result = append(result, packed.Bytes()[1:size+1])
 	// check if there are more keys
 	if len(k) > 1+size {
