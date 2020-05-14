@@ -37,6 +37,12 @@ func decode(src []byte) ([]byte, error) {
 	return dst, nil
 }
 
+// index takes an indexer and builds the unique
+// defining key of it, returns an error only
+// if the key can not index itself. It uses
+// the reserved separator to signal the end of the
+// index, if the index contains the key then it is
+// base64 encoded in order not to overwrite longer indexes
 func index(i Indexer) ([]byte, error) {
 	indexKey, err := i.Index()
 	if err != nil {
@@ -44,7 +50,7 @@ func index(i Indexer) ([]byte, error) {
 	}
 	if bytes.Contains(indexKey, []byte{ReservedSeparator}) {
 		// TODO print a warning, receiving an index with the separator inside should not happen, my dear.
-		log.Printf("Key %x, containing separator was encoded.", indexKey)
+		log.Printf("key %T:%x, containing separator was encoded.", i, indexKey)
 		indexKey = encode(indexKey)
 	}
 	indexKey = append(indexKey, ReservedSeparator)
@@ -52,7 +58,9 @@ func index(i Indexer) ([]byte, error) {
 }
 
 // NewIndexedStore returns a prefixed indexed Store
-// with the provided indexer key
+// with the provided prefix + Indexer, it returns
+// an error only if the indexer cannot marshal itself
+// into a byte key
 func NewIndexedStore(kv types.KVStore, pref []byte, indexer Indexer) (Store, error) {
 	// get indexing key
 	indexingKey, err := index(indexer)
@@ -82,7 +90,10 @@ func (s Store) IterateKeys(do func(b []byte) bool) {
 	}
 }
 
-// Set sets a key in the index returned by indexer
+// Set sets a key in the index, using an Indexed
+// type that can marshal itself into bytes
+// returns an error only if the key can not
+// index itself into bytes
 func (s Store) Set(indexed Indexed) error {
 	key, err := indexed.Pack()
 	if err != nil {
@@ -92,7 +103,9 @@ func (s Store) Set(indexed Indexed) error {
 	return nil
 }
 
-// Delete deletes a key from the indexed Store
+// Delete deletes an Indexed item from the Index Store
+// returns an error only if the item can not marshal
+// itself into bytes, or if the key does not exist
 func (s Store) Delete(indexed Indexed) error {
 	key, err := indexed.Pack()
 	if err != nil {
