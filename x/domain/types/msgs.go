@@ -285,7 +285,8 @@ type MsgRegisterDomain struct {
 	// Name is the name of the domain we want to register
 	Name string `json:"domain" arg:"--domain" helper:"name of the domain"`
 	// Admin is the address of the newly registered domain
-	Admin sdk.AccAddress `json:"admin"`
+	Admin    sdk.AccAddress `json:"admin"`
+	FeePayer sdk.AccAddress
 	// HasSuperuser defines if the domain registered has an owner or not
 	HasSuperuser bool `json:"has_superuser"`
 	// Broker TODO document

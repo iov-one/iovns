@@ -1,11 +1,9 @@
 package types
 
 import (
-	"bytes"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
-	"github.com/iov-one/iovns/pkg/utils"
+	"github.com/iov-one/iovns/pkg/index"
 	"time"
 )
 
@@ -27,6 +25,8 @@ type Domain struct {
 }
 
 // Account defines an account that belongs to a domain
+
+// owner:account
 type Account struct {
 	// Domain references the domain this account belongs to
 	Domain string
@@ -47,32 +47,26 @@ type Account struct {
 	MetadataURI string
 }
 
-func (a Account) Index() []byte {
-	encodedDomain := utils.Base64Encode(a.Domain)
-	encodedName := utils.Base64Encode(a.Name)
-	return bytes.Join([][]byte{encodedDomain, encodedName}, iovns.Separator)
+func (a Account) Pack() ([]byte, error) {
+	key, err := index.PackBytes([][]byte{[]byte(a.Domain), []byte(a.Name)})
+	if err != nil {
+		return nil, err
+	}
+	return key, nil
 }
 
 // Unpack converts a byte key into an account
 // composed only of domain and name
 func (a *Account) Unpack(key []byte) error {
-	if a == nil {
-		*a = Account{}
-	}
-	splits := bytes.Split(key, iovns.Separator)
-	if len(splits) != 2 {
-		return fmt.Errorf("unpack: unxpected number of splits from key %x: %d", key, len(splits))
-	}
-	domain, err := utils.Base64Decode(splits[0])
+	keys, err := index.UnpackBytes(key)
 	if err != nil {
-		return fmt.Errorf("unpack: %s", err)
+		return err
 	}
-	a.Domain = domain
-	name, err := utils.Base64Decode(splits[1])
-	if err != nil {
-		return fmt.Errorf("unpack: %s", err)
+	if len(keys) != 2 {
+		return fmt.Errorf("unexpected number of keys for %T: %d", a, len(keys))
 	}
-	a.Name = name
+	a.Domain = string(keys[0])
+	a.Name = string(keys[1])
 	return nil
 }
 
@@ -84,19 +78,13 @@ type BlockchainAddress struct {
 	Address string
 }
 
-func (b BlockchainAddress) Index() []byte {
-	encodedID := utils.Base64Encode(b.ID)
-	encodedAddress := utils.Base64Encode(b.Address)
-	return bytes.Join([][]byte{encodedID, encodedAddress}, iovns.Separator)
+func (b BlockchainAddress) Index() ([]byte, error) {
+	return index.PackBytes([][]byte{[]byte(b.ID), []byte(b.Address)})
 }
 
 // Certificate defines a certificate
 type Certificate []byte
 
-func (c Certificate) Index() []byte {
-	return nil
-}
-
-func (c *Certificate) Unpack(_ []byte) error {
-	return nil
+func (c Certificate) Index() ([]byte, error) {
+	return c, nil
 }

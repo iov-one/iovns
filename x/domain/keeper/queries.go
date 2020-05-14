@@ -135,20 +135,20 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		return nil, err
 	}
 	keys := make([][]byte, 0, query.ResultsPerPage)
-	index := 0
+	i := 0
 	// calculate index range
 	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
 	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
 	do := func(key []byte) bool {
 		// check if our index is grater-equal than our start
-		if index >= indexStart {
+		if i >= indexStart {
 			keys = append(keys, key)
 		}
-		if index == indexEnd {
+		if i == indexEnd {
 			return false
 		}
 		// increase index
-		index++
+		i++
 		return true
 	}
 	// iterate keys
@@ -233,20 +233,20 @@ func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 	}
 	// generate expected keys
 	keys := make([][]byte, 0, query.ResultsPerPage)
-	index := 0
+	i := 0
 	// calculate index range
 	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
 	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
 	do := func(key []byte) bool {
 		// check if our index is grater-equal than our start
-		if index >= indexStart {
+		if i >= indexStart {
 			keys = append(keys, key)
 		}
-		if index == indexEnd {
+		if i == indexEnd {
 			return false
 		}
 		// increase index
-		index++
+		i++
 		return true
 	}
 	// iterate account keys
@@ -341,20 +341,20 @@ func queryDomainsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	// get domain keys
 	// generate expected keys
 	keys := make([][]byte, 0, query.ResultsPerPage)
-	index := 0
-	// calculate index range
+	i := 0
+	// calculate i range
 	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
 	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
 	do := func(key []byte) bool {
-		// check if our index is grater-equal than our start
-		if index >= indexStart {
+		// check if our i is grater-equal than our start
+		if i >= indexStart {
 			keys = append(keys, key)
 		}
-		if index == indexEnd {
+		if i == indexEnd {
 			return false
 		}
-		// increase index
-		index++
+		// increase i
+		i++
 		return true
 	}
 	// fill domain keys
@@ -579,7 +579,10 @@ func queryTargetAccountsHandler(ctx sdk.Context, _ []string, req abci.RequestQue
 		return true
 	}
 	// fill keys
-	k.iterateBlockchainTargetsAccounts(ctx, q.Target, do)
+	err = k.iterateBlockchainTargetsAccounts(ctx, q.Target, do)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
 	// get accounts
 	accounts := make([]types.Account, 0, len(keys))
 	for _, key := range keys {
@@ -665,7 +668,10 @@ func queryCertificateAccountsHandler(ctx sdk.Context, _ []string, req abci.Reque
 		return true
 	}
 	// fill keys
-	k.iterateCertificateAccounts(ctx, q.Certificate, do)
+	err = k.iterateCertificateAccounts(ctx, q.Certificate, do)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
 	// get accounts
 	accounts := make([]types.Account, 0, len(keys))
 	for _, key := range keys {

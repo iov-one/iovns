@@ -26,72 +26,102 @@ var blockchainTargetsPrefix = []byte{0x06}
 var certificatesPrefix = []byte{0x07}
 
 // blockchainTargetIndexedStore returns the store used to index blockchain targets
-func blockchainTargetIndexedStore(store sdk.KVStore, target types.BlockchainAddress) index.Store {
+func blockchainTargetIndexedStore(store sdk.KVStore, target types.BlockchainAddress) (index.Store, error) {
 	return index.NewIndexedStore(store, blockchainTargetsPrefix, target)
 }
 
 // certificatesIndexedStore returns the store used to index certificates
-func certificatesIndexedStore(store sdk.KVStore, cert types.Certificate) index.Store {
+func certificatesIndexedStore(store sdk.KVStore, cert types.Certificate) (index.Store, error) {
 	return index.NewIndexedStore(store, certificatesPrefix, cert)
 }
 
 // mapCertificateToAccount maps given account to  a certificate
-func (k Keeper) mapCertificateToAccount(ctx sdk.Context, account types.Account, certs ...types.Certificate) {
+func (k Keeper) mapCertificateToAccount(ctx sdk.Context, account types.Account, certs ...types.Certificate) error {
 	for _, cert := range certs {
 		if len(cert) == 0 {
 			continue
 		}
-		store := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
-		store.Set(account.Index())
+		store, err := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
+		if err != nil {
+			return err
+		}
+		err = store.Set(account)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // unmapCertificateToAccount removes an account associated to a certificate
-func (k Keeper) unmapCertificateToAccount(ctx sdk.Context, account types.Account, certs ...types.Certificate) {
+func (k Keeper) unmapCertificateToAccount(ctx sdk.Context, account types.Account, certs ...types.Certificate) error {
 	for _, cert := range certs {
 		if len(cert) == 0 {
 			continue
 		}
-		store := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
-		if !store.Delete(account.Index()) {
-			panic(fmt.Sprintf("index not found: cert %x missing in account: %#v", cert, account))
+		store, err := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
+		if err != nil {
+			return err
+		}
+		if err = store.Delete(account); err != nil {
+			return err
 		}
 	}
+	return nil
 }
 
-func (k Keeper) iterateCertificateAccounts(ctx sdk.Context, cert types.Certificate, do func(key []byte) bool) {
-	store := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
+func (k Keeper) iterateCertificateAccounts(ctx sdk.Context, cert types.Certificate, do func(key []byte) bool) error {
+	store, err := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
+	if err != nil {
+		return err
+	}
 	store.IterateKeys(do)
+	return nil
 }
 
-func (k Keeper) mapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) {
+func (k Keeper) mapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) error {
 	for _, target := range targets {
 		// if targets are empty ignore
 		if target.Address == "" && target.ID == "" {
 			continue
 		}
 		// otherwise map target to given account
-		store := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
-		store.Set(account.Index())
+		store, err := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+		if err != nil {
+			return err
+		}
+		err = store.Set(account)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func (k Keeper) unmapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) {
+func (k Keeper) unmapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) error {
 	for _, target := range targets {
 		// if targets are empty then ignore the process
 		if target.ID == "" && target.Address == "" {
 			continue
 		}
-		store := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
-		if ok := store.Delete(account.Index()); !ok {
-			panic(fmt.Sprintf("index not found: target %#v, account: %#v", target, account))
+		store, err := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+		if err != nil {
+			return err
+		}
+		if err = store.Delete(account); err != nil {
+			return err
 		}
 	}
+	return nil
 }
 
-func (k Keeper) iterateBlockchainTargetsAccounts(ctx sdk.Context, target types.BlockchainAddress, do func(key []byte) bool) {
-	store := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+func (k Keeper) iterateBlockchainTargetsAccounts(ctx sdk.Context, target types.BlockchainAddress, do func(key []byte) bool) error {
+	store, err := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+	if err != nil {
+		return err
+	}
 	store.IterateKeys(do)
+	return nil
 }
 
 // domainIndexStore returns the kvstore space that maps

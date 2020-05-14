@@ -150,13 +150,16 @@ func Test_targetsIndexing(t *testing.T) {
 	// insert account
 	k.CreateAccount(ctx, accountA)
 	// iterate targets
-	k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	err := k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 1 {
 		t.Fatalf("expected 1 keys, got: %d", len(accountKeys))
 	}
 	// generate test account
 	acc := &types.Account{}
-	err := acc.Unpack(accountKeys[0])
+	err = acc.Unpack(accountKeys[0])
 	if err != nil {
 		t.Fatalf("unpack error: %d", err)
 	}
@@ -167,7 +170,10 @@ func Test_targetsIndexing(t *testing.T) {
 	// DeleteAccount
 	accountKeys = nil
 	k.DeleteAccount(ctx, accountA.Domain, accountA.Name)
-	k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	err = k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 0 {
 		t.Fatalf("no key expected, got: %d", len(accountKeys))
 	}
@@ -175,12 +181,18 @@ func Test_targetsIndexing(t *testing.T) {
 	accountKeys = nil
 	k.CreateAccount(ctx, accountA)
 	k.ReplaceAccountTargets(ctx, accountA, []types.BlockchainAddress{targetB})
-	k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	err = k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 0 {
 		t.Fatalf("no key expected, got: %d", len(accountKeys))
 	}
 	accountKeys = nil
-	k.iterateBlockchainTargetsAccounts(ctx, targetB, do)
+	err = k.iterateBlockchainTargetsAccounts(ctx, targetB, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 1 {
 		t.Fatalf("expected 1 key, got: %d", len(accountKeys))
 	}
@@ -192,7 +204,10 @@ func Test_targetsIndexing(t *testing.T) {
 	accountA, _ = k.GetAccount(ctx, accountA.Domain, accountA.Name) // edited the account before, so update it
 	k.TransferAccount(ctx, accountA, bobAddr)
 	// check if targetA is associated with any account
-	k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	err = k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 0 {
 		t.Fatalf("expected 0 keys, got: %d", len(accountKeys))
 	}
@@ -229,15 +244,21 @@ func Test_certificatesIndexing(t *testing.T) {
 		Name:         "2",
 		Owner:        aliceAddr,
 		ValidUntil:   0,
-		Certificates: []types.Certificate{certA},
+		Certificates: []types.Certificate{certA, certB},
 		MetadataURI:  "",
 	}
 	// create accounts
 	k.CreateAccount(ctx, accountA)
 	k.CreateAccount(ctx, accountB)
 	// get certs
-	k.iterateCertificateAccounts(ctx, certA, do)
+	err := k.iterateCertificateAccounts(ctx, certA, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 2 {
+		for _, k := range accountKeys {
+			t.Logf("%s", k)
+		}
 		t.Fatalf("expected 2 keys, got: %d", len(accountKeys))
 	}
 	acc := types.Account{}
@@ -253,7 +274,10 @@ func Test_certificatesIndexing(t *testing.T) {
 	// delete account
 	accountKeys = nil
 	k.DeleteAccount(ctx, accountB.Domain, accountB.Name)
-	k.iterateCertificateAccounts(ctx, certA, do)
+	err = k.iterateCertificateAccounts(ctx, certA, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 1 {
 		t.Fatalf("expected 1 key, got: %d", len(accountKeys))
 	}
@@ -266,7 +290,10 @@ func Test_certificatesIndexing(t *testing.T) {
 	accountKeys = nil
 	k.TransferAccount(ctx, accountA, aliceAddr)
 	// check if certs has no matches
-	k.iterateCertificateAccounts(ctx, certA, do)
+	err = k.iterateCertificateAccounts(ctx, certA, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 0 {
 		t.Fatalf("expected 0 keys, got: %d", len(accountKeys))
 	}
@@ -275,7 +302,10 @@ func Test_certificatesIndexing(t *testing.T) {
 	accountA, _ = k.GetAccount(ctx, accountA.Domain, accountA.Name) // get updated account
 	k.AddAccountCertificate(ctx, accountA, certB)                   // add cert
 	// check if accountA has B cert
-	k.iterateCertificateAccounts(ctx, certB, do)
+	err = k.iterateCertificateAccounts(ctx, certB, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 1 {
 		t.Fatalf("expected 0 keys, got: %d", len(accountKeys))
 	}
@@ -288,7 +318,10 @@ func Test_certificatesIndexing(t *testing.T) {
 	accountKeys = nil
 	accountA, _ = k.GetAccount(ctx, accountA.Domain, accountA.Name)
 	k.DeleteAccountCertificate(ctx, accountA, 0)
-	k.iterateCertificateAccounts(ctx, certB, do)
+	err = k.iterateCertificateAccounts(ctx, certB, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 0 {
 		t.Fatalf("expected 0 keys, got: %d", len(accountKeys))
 	}

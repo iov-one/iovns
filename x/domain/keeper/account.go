@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -34,9 +35,15 @@ func (k Keeper) CreateAccount(ctx sdk.Context, account types.Account) {
 	// map account to owner
 	k.mapAccountToOwner(ctx, account)
 	// map targets to account
-	k.mapTargetToAccount(ctx, account, account.Targets...)
+	err := k.mapTargetToAccount(ctx, account, account.Targets...)
+	if err != nil {
+		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+	}
 	// map certs to account
-	k.mapCertificateToAccount(ctx, account, account.Certificates...)
+	err = k.mapCertificateToAccount(ctx, account, account.Certificates...)
+	if err != nil {
+		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+	}
 }
 
 // SetAccount upserts account data
@@ -60,9 +67,15 @@ func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 	// unmap account to owner
 	k.unmapAccountToOwner(ctx, account)
 	// unmap targets to account
-	k.unmapTargetToAccount(ctx, account, account.Targets...)
+	err := k.unmapTargetToAccount(ctx, account, account.Targets...)
+	if err != nil {
+		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
+	}
 	// unmap certificates
-	k.unmapCertificateToAccount(ctx, account, account.Certificates...)
+	err = k.unmapCertificateToAccount(ctx, account, account.Certificates...)
+	if err != nil {
+		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
+	}
 }
 
 // GetAccountsInDomain provides all the account keys related to the given domain name
@@ -87,9 +100,15 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	// unmap account to owner
 	k.unmapAccountToOwner(ctx, account)
 	// unmap account targets
-	k.unmapTargetToAccount(ctx, account, account.Targets...)
+	err := k.unmapTargetToAccount(ctx, account, account.Targets...)
+	if err != nil {
+		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+	}
 	// unmap certs
-	k.unmapCertificateToAccount(ctx, account, account.Certificates...)
+	err = k.unmapCertificateToAccount(ctx, account, account.Certificates...)
+	if err != nil {
+		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+	}
 	// update account
 	account.Owner = newOwner   // transfer owner
 	account.Certificates = nil // remove certs
@@ -99,9 +118,15 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	// map account to new owner
 	k.mapAccountToOwner(ctx, account)
 	// map accounts new targets
-	k.mapTargetToAccount(ctx, account, account.Targets...)
+	err = k.mapTargetToAccount(ctx, account, account.Targets...)
+	if err != nil {
+		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+	}
 	// map certificates
-	k.mapCertificateToAccount(ctx, account, account.Certificates...)
+	err = k.mapCertificateToAccount(ctx, account, account.Certificates...)
+	if err != nil {
+		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+	}
 }
 
 // AddAccountCertificate adds aliceAddr new certificate to the account
@@ -111,7 +136,10 @@ func (k Keeper) AddAccountCertificate(ctx sdk.Context, account types.Account, ne
 	// update account
 	k.SetAccount(ctx, account)
 	// map certificate
-	k.mapCertificateToAccount(ctx, account, newCert)
+	err := k.mapCertificateToAccount(ctx, account, newCert)
+	if err != nil {
+		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+	}
 }
 
 // DeleteAccountCertificate deletes aliceAddr certificate at given index, it will panic if the index is wrong
@@ -122,7 +150,10 @@ func (k Keeper) DeleteAccountCertificate(ctx sdk.Context, account types.Account,
 	// update account
 	k.SetAccount(ctx, account)
 	// unmap certificate
-	k.unmapCertificateToAccount(ctx, account, cert)
+	err := k.unmapCertificateToAccount(ctx, account, cert)
+	if err != nil {
+		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+	}
 }
 
 // UpdateAccountValidity updates an account expiration time
@@ -138,13 +169,19 @@ func (k Keeper) UpdateAccountValidity(ctx sdk.Context, account types.Account, ac
 // ReplaceAccountTargets updates an account targets
 func (k Keeper) ReplaceAccountTargets(ctx sdk.Context, account types.Account, targets []types.BlockchainAddress) {
 	// unmap old targets
-	k.unmapTargetToAccount(ctx, account, account.Targets...)
+	err := k.unmapTargetToAccount(ctx, account, account.Targets...)
+	if err != nil {
+		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+	}
 	// replace targets
 	account.Targets = targets
 	// update account
 	k.SetAccount(ctx, account)
 	// map new targets
-	k.mapTargetToAccount(ctx, account, targets...)
+	err = k.mapTargetToAccount(ctx, account, targets...)
+	if err != nil {
+		panic(fmt.Sprintf("indexing error: (%#v): %w", account, err))
+	}
 }
 
 // IterateAllAccounts returns all the accounts inside the store
