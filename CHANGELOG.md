@@ -2,6 +2,8 @@
 
 ## HEAD
 
+- iovnscli: accept certificate as file
+
 Breaking changes
 
 - Change naming of some json keys in genesis.json
