@@ -2,11 +2,9 @@
 
 ## HEAD
 
-- allow empty account name on msg.Validate()
-
 Breaking changes
 
-- change naming of some json keys in genesis.json
+- Change naming of some json keys in genesis.json
 
 ## 0.2.2
 
