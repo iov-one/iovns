@@ -35,9 +35,6 @@ func (m *MsgAddAccountCertificates) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
-	if m.Name == "" {
-		return errors.Wrap(ErrInvalidAccountName, "empty")
-	}
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
@@ -86,9 +83,6 @@ func (m *MsgDeleteAccountCertificate) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
-	if m.Name == "" {
-		return errors.Wrap(ErrInvalidAccountName, "empty")
-	}
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
@@ -133,9 +127,6 @@ func (m *MsgDeleteAccount) Type() string {
 func (m *MsgDeleteAccount) ValidateBasic() error {
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")
-	}
-	if m.Name == "" {
-		return errors.Wrap(ErrInvalidAccountName, "empty")
 	}
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
@@ -265,9 +256,6 @@ func (m *MsgRegisterAccount) ValidateBasic() error {
 	if m.Owner.Empty() {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
-	if m.Name == "" {
-		return errors.Wrap(ErrInvalidAccountName, "empty")
-	}
 	return nil
 }
 
@@ -314,9 +302,6 @@ func (m *MsgRegisterDomain) ValidateBasic() error {
 	if m.AccountRenew == 0 {
 		return errors.Wrap(ErrInvalidRequest, "account renew value can not be zero")
 	}
-	if m.Name == "" {
-		return errors.Wrap(ErrInvalidDomainName, "empty")
-	}
 	// success
 	return nil
 }
@@ -354,9 +339,6 @@ func (m *MsgRenewAccount) Type() string {
 func (m *MsgRenewAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
-	}
-	if m.Name == "" {
-		return errors.Wrap(ErrInvalidAccountName, "empty")
 	}
 	return nil
 }
@@ -435,9 +417,6 @@ func (m *MsgReplaceAccountTargets) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
-	if m.Name == "" {
-		return errors.Wrap(ErrInvalidAccountName, "empty")
-	}
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
@@ -486,9 +465,6 @@ func (m *MsgSetAccountMetadata) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
-	if m.Name == "" {
-		return errors.Wrapf(ErrInvalidAccountName, "empty")
-	}
 	if m.NewMetadataURI == "" {
 		return errors.Wrapf(ErrInvalidRequest, "metadata uri is empty")
 	}
@@ -535,9 +511,6 @@ func (m *MsgTransferAccount) Type() string {
 func (m *MsgTransferAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
-	}
-	if m.Name == "" {
-		return errors.Wrap(ErrInvalidAccountName, "empty")
 	}
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")
