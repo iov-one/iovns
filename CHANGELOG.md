@@ -5,11 +5,12 @@
 - add resolve certificates
 - add resolve blockchain targets
 - add generalized indexing strategy
-- change move blockchain address from iovns types to domain module types
+- abstract indexing 
 
 Breaking changes
 
 - Change naming of some json keys in genesis.json
+- change move blockchain address from iovns types to domain module types
 
 ## 0.2.2
 
