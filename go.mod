@@ -3,10 +3,12 @@ module github.com/iov-one/iovns
 go 1.14
 
 require (
+	cloud.google.com/go v0.34.0
 	github.com/alexflint/go-arg v1.3.0
 	github.com/btcsuite/btcd v0.0.0-20190807005414-4063feeff79a // indirect
 	github.com/cosmos/cosmos-sdk v0.38.3
 	github.com/golang/mock v1.3.1 // indirect
+	github.com/googleapis/gax-go v1.0.3 // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/onsi/ginkgo v1.8.0 // indirect
 	github.com/onsi/gomega v1.5.0 // indirect

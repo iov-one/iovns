@@ -409,9 +409,9 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg *types.MsgRegis
 		AccountRenew: time.Duration(msg.AccountRenew) * time.Second,
 		Broker:       msg.Broker,
 	}
-	// if domain has not a super user then remove domain admin
+	// if domain has not a super user then set domain to 0 address
 	if !domain.HasSuperuser {
-		domain.Admin = nil
+		domain.Admin = iovns.ZeroAddress // TODO change with module address
 	}
 	// save domain
 	keeper.CreateDomain(ctx, domain)
@@ -419,7 +419,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, keeper Keeper, msg *types.MsgRegis
 	acc := types.Account{
 		Domain:       msg.Name,
 		Name:         "",
-		Owner:        msg.Admin,
+		Owner:        msg.Admin, // TODO this is not clear, why the domain admin is zero address while this is msg.Admin
 		ValidUntil:   ctx.BlockTime().Add(domain.AccountRenew).Unix(),
 		Targets:      nil,
 		Certificates: nil,

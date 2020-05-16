@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+// EmptyAccountNameIdentifier defines how empty
+// account names of a domain are identified
+const EmptyAccountNameIdentifier = "*"
+
 // Domain defines a domain
 type Domain struct {
 	// Name is the name of the domain
@@ -70,7 +74,14 @@ type Account struct {
 }
 
 func (a Account) Pack() ([]byte, error) {
-	key, err := index.PackBytes([][]byte{[]byte(a.Domain), []byte(a.Name)})
+	// in order to avoid empty keys
+	// indexing in case account name
+	// is empty, we index it as '*'
+	var name = a.Name
+	if a.Name == "" {
+		name = EmptyAccountNameIdentifier
+	}
+	key, err := index.PackBytes([][]byte{[]byte(a.Domain), []byte(name)})
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +99,11 @@ func (a *Account) Unpack(key []byte) error {
 		return fmt.Errorf("unexpected number of keys for %T: %d", a, len(keys))
 	}
 	a.Domain = string(keys[0])
-	a.Name = string(keys[1])
+	name := string(keys[1])
+	if name == EmptyAccountNameIdentifier {
+		name = ""
+	}
+	a.Name = name
 	return nil
 }
 
