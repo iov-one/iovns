@@ -33,9 +33,12 @@ func (k Keeper) CreateAccount(ctx sdk.Context, account types.Account) {
 	// create account
 	k.SetAccount(ctx, account)
 	// map account to owner
-	k.mapAccountToOwner(ctx, account)
+	err := k.mapAccountToOwner(ctx, account)
+	if err != nil {
+		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
+	}
 	// map targets to account
-	err := k.mapTargetToAccount(ctx, account, account.Targets...)
+	err = k.mapTargetToAccount(ctx, account, account.Targets...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
@@ -65,9 +68,12 @@ func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 	accountKey := getAccountKey(account.Name)
 	store.Delete(accountKey)
 	// unmap account to owner
-	k.unmapAccountToOwner(ctx, account)
+	err := k.unmapAccountToOwner(ctx, account)
+	if err != nil {
+		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
+	}
 	// unmap targets to account
-	err := k.unmapTargetToAccount(ctx, account, account.Targets...)
+	err = k.unmapTargetToAccount(ctx, account, account.Targets...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
 	}
@@ -98,9 +104,12 @@ func (k Keeper) GetAccountsInDomain(ctx sdk.Context, domainName string, do func(
 // TransferAccount transfers the account to aliceAddr new owner after resetting certificates and targets
 func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner sdk.AccAddress) {
 	// unmap account to owner
-	k.unmapAccountToOwner(ctx, account)
+	err := k.unmapAccountToOwner(ctx, account)
+	if err != nil {
+		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
+	}
 	// unmap account targets
-	err := k.unmapTargetToAccount(ctx, account, account.Targets...)
+	err = k.unmapTargetToAccount(ctx, account, account.Targets...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
@@ -116,7 +125,10 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	// save account
 	k.SetAccount(ctx, account)
 	// map account to new owner
-	k.mapAccountToOwner(ctx, account)
+	err = k.mapAccountToOwner(ctx, account)
+	if err != nil {
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
+	}
 	// map accounts new targets
 	err = k.mapTargetToAccount(ctx, account, account.Targets...)
 	if err != nil {
