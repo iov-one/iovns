@@ -29,7 +29,10 @@ func Test_accountIndexing(t *testing.T) {
 		Name:   "3",
 		Owner:  aliceAddr,
 	})
-	k.iterAccountToOwner(ctx, aliceAddr, do)
+	err := k.iterAccountToOwner(ctx, aliceAddr, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	// expected two keys
 	if len(accountKeys) != 2 {
 		t.Fatalf("expected two keys, got: %d", len(accountKeys))
@@ -39,20 +42,29 @@ func Test_accountIndexing(t *testing.T) {
 	acc, _ := k.GetAccount(ctx, "test", "1")
 	k.TransferAccount(ctx, acc, bobAddr)
 	// expected two keys for account bobAddr
-	k.iterAccountToOwner(ctx, bobAddr, do)
+	err = k.iterAccountToOwner(ctx, bobAddr, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 2 {
 		t.Fatalf("expected two keys for %s, got: %d", bobAddr, len(accountKeys))
 	}
 	accountKeys = nil
 	// expect one key for aliceAddr
-	k.iterAccountToOwner(ctx, aliceAddr, do)
+	err = k.iterAccountToOwner(ctx, aliceAddr, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 1 {
 		t.Fatalf("expected two keys for %s, got: %d", bobAddr, len(accountKeys))
 	}
 	accountKeys = nil
 	// delete account from bobAddr
 	k.DeleteAccount(ctx, "test", "1") // belongs to bobAddr
-	k.iterAccountToOwner(ctx, bobAddr, do)
+	err = k.iterAccountToOwner(ctx, bobAddr, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(accountKeys) != 1 {
 		t.Fatalf("expected two keys for %s, got: %d", bobAddr, len(accountKeys))
 	}
@@ -75,7 +87,10 @@ func Test_domainIndexing(t *testing.T) {
 		Admin: aliceAddr,
 	})
 	// check number of keys mapped to owner
-	k.iterDomainToOwner(ctx, bobAddr, do)
+	err := k.iterDomainToOwner(ctx, bobAddr, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if l := len(domainKeys); l != 1 {
 		t.Fatalf("expected %d keys got: %d", 1, l)
 	}
@@ -84,13 +99,19 @@ func Test_domainIndexing(t *testing.T) {
 	domain, _ := k.GetDomain(ctx, "1")
 	k.TransferDomain(ctx, aliceAddr, domain)
 	// check if addr b has 0 keys
-	k.iterDomainToOwner(ctx, bobAddr, do)
+	err = k.iterDomainToOwner(ctx, bobAddr, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if l := len(domainKeys); l != 0 {
 		t.Fatalf("expected %d keys got: %d", 0, l)
 	}
 	domainKeys = nil
 	// check if addr a has 2 keys
-	k.iterDomainToOwner(ctx, aliceAddr, do)
+	err = k.iterDomainToOwner(ctx, aliceAddr, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if l := len(domainKeys); l != 2 {
 		t.Fatalf("expected %d keys got: %d", 2, l)
 	}
@@ -98,17 +119,12 @@ func Test_domainIndexing(t *testing.T) {
 	// delete domain
 	_ = k.DeleteDomain(ctx, "2")
 	// check if addr b has 1 key
-	k.iterDomainToOwner(ctx, aliceAddr, do)
+	err = k.iterDomainToOwner(ctx, aliceAddr, do)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if l := len(domainKeys); l != 1 {
 		t.Fatalf("expected %d keys got: %d", 1, l)
-	}
-}
-
-// checks if the functions that convert address to indexed address and indexed address to address
-// are reversible and compatible
-func Test_addressIndexing(t *testing.T) {
-	if !(aliceAddr.String() == accAddrFromIndex(indexAddr(aliceAddr)).String()) {
-		t.Fatalf("mismatched addresses for: %s", aliceAddr.String())
 	}
 }
 

@@ -250,7 +250,10 @@ func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 		return true
 	}
 	// iterate account keys
-	k.iterAccountToOwner(ctx, query.Owner, do)
+	err = k.iterAccountToOwner(ctx, query.Owner, do)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
+	}
 	// check if there are any keys
 	if len(keys) == 0 {
 		respBytes, err := iovns.DefaultQueryEncode(QueryAccountsFromOwnerResponse{})
@@ -262,8 +265,13 @@ func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 	// fill accounts
 	accounts := make([]types.Account, 0, len(keys))
 	for _, accKey := range keys {
-		_, domainName, accountName := splitOwnerToAccountKey(accKey)
-		account, _ := k.GetAccount(ctx, domainName, accountName)
+		// get indexed account
+		indexedAccount := types.Account{}
+		err = index.Unpack(accKey, &indexedAccount)
+		if err != nil {
+			panic(err)
+		}
+		account, _ := k.GetAccount(ctx, indexedAccount.Domain, indexedAccount.Name)
 		accounts = append(accounts, account)
 	}
 	// return response
