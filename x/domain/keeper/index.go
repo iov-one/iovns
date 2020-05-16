@@ -26,12 +26,14 @@ var certificatesPrefix = []byte{0x07}
 
 // blockchainTargetIndexedStore returns the store used to index blockchain targets
 func blockchainTargetIndexedStore(store sdk.KVStore, target types.BlockchainAddress) (index.Store, error) {
-	return index.NewIndexedStore(store, blockchainTargetsPrefix, target)
+	prefixedIndexStore := indexStore(store)
+	return index.NewIndexedStore(prefixedIndexStore, blockchainTargetsPrefix, target)
 }
 
 // certificatesIndexedStore returns the store used to index certificates
 func certificatesIndexedStore(store sdk.KVStore, cert types.Certificate) (index.Store, error) {
-	return index.NewIndexedStore(store, certificatesPrefix, cert)
+	prefixedIndexStore := indexStore(store)
+	return index.NewIndexedStore(prefixedIndexStore, certificatesPrefix, cert)
 }
 
 // mapCertificateToAccount maps given account to  a certificate
@@ -81,7 +83,7 @@ func (k Keeper) iterateCertificateAccounts(ctx sdk.Context, cert types.Certifica
 func (k Keeper) mapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) error {
 	for _, target := range targets {
 		// if targets are empty ignore
-		if target.Address == "" && target.ID == "" {
+		if target.Address == "" || target.ID == "" {
 			continue
 		}
 		// otherwise map target to given account
@@ -100,7 +102,7 @@ func (k Keeper) mapTargetToAccount(ctx sdk.Context, account types.Account, targe
 func (k Keeper) unmapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) error {
 	for _, target := range targets {
 		// if targets are empty then ignore the process
-		if target.ID == "" && target.Address == "" {
+		if target.ID == "" || target.Address == "" {
 			continue
 		}
 		store, err := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
