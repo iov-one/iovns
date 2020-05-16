@@ -2,6 +2,7 @@ package domain
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/domain/types"
 )
@@ -9,21 +10,21 @@ import (
 // GenesisState represents the state of the domain module
 type GenesisState struct {
 	// DomainRecords contains the records of registered domains
-	DomainsRecords []types.Domain `json:"domain_records"`
+	Domains []types.Domain `json:"domains"`
 	// AccountRecords contains the records of registered accounts
-	AccountsRecords []types.Account `json:"account_records"`
+	Accounts []types.Account `json:"accounts"`
 }
 
 // NewGenesisState builds a genesis state including the domains provided
 func NewGenesisState(domains []types.Domain, accounts []types.Account) GenesisState {
-	return GenesisState{DomainsRecords: domains, AccountsRecords: accounts}
+	return GenesisState{Domains: domains, Accounts: accounts}
 }
 
 // ValidateGenesis validates a genesis state
 // checking for domain validity and no domain name repetitions
 func ValidateGenesis(data GenesisState) error {
-	namesSet := make(map[string]struct{}, len(data.DomainsRecords))
-	for _, domain := range data.DomainsRecords {
+	namesSet := make(map[string]struct{}, len(data.Domains))
+	for _, domain := range data.Domains {
 		if _, ok := namesSet[domain.Name]; ok {
 			return fmt.Errorf("domain name %s declared twice", domain.Name)
 		}
@@ -37,17 +38,17 @@ func ValidateGenesis(data GenesisState) error {
 
 // DefaultGenesisState creates an empty genesis state for the domain module
 func DefaultGenesisState() GenesisState {
-	return GenesisState{DomainsRecords: []types.Domain{}, AccountsRecords: []types.Account{}}
+	return GenesisState{Domains: []types.Domain{}, Accounts: []types.Account{}}
 }
 
 // InitGenesis builds a state from GenesisState
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	// insert domains
-	for _, domain := range data.DomainsRecords {
+	for _, domain := range data.Domains {
 		keeper.CreateDomain(ctx, domain)
 	}
 	// insert accounts
-	for _, account := range data.AccountsRecords {
+	for _, account := range data.Accounts {
 		keeper.CreateAccount(ctx, account)
 	}
 }
@@ -58,7 +59,7 @@ func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
 	domains := k.IterateAllDomains(ctx)
 	// save account data
 	accounts := k.IterateAllAccounts(ctx)
-	return GenesisState{DomainsRecords: domains, AccountsRecords: accounts}
+	return GenesisState{Domains: domains, Accounts: accounts}
 }
 
 // validateDomain checks if a domain is valid or not

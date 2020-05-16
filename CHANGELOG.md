@@ -7,6 +7,13 @@
 - add generalized indexing strategy
 - change move blockchain address from iovns types to domain module types
 
+Breaking changes
+
+- Change naming of some json keys in genesis.json
+
+## 0.2.2
+
+- implement iovns lite client swagger
 
 ## 0.2.1
 
@@ -20,4 +27,5 @@
 - remove panic if fees are missing
 
 ## 0.2.0
+
 - change path prefix to star
