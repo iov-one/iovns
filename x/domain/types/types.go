@@ -24,9 +24,31 @@ type Domain struct {
 	Broker sdk.AccAddress
 }
 
-// Account defines an account that belongs to a domain
+func (d Domain) Index() ([]byte, error) {
+	key, err := index.PackBytes([][]byte{[]byte(d.Name)})
+	if err != nil {
+		return nil, err
+	}
+	return key, nil
+}
 
-// owner:account
+func (d Domain) Pack() ([]byte, error) {
+	return d.Index()
+}
+
+func (d *Domain) Unpack(key []byte) error {
+	unpackedKeys, err := index.UnpackBytes(key)
+	if err != nil {
+		return err
+	}
+	if len(unpackedKeys) != 1 {
+		return fmt.Errorf("unpack domain expected one key, got: %d", len(unpackedKeys))
+	}
+	d.Name = string(unpackedKeys[0])
+	return nil
+}
+
+// Account defines an account that belongs to a domain
 type Account struct {
 	// Domain references the domain this account belongs to
 	Domain string

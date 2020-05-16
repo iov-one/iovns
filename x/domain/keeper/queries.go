@@ -358,12 +358,22 @@ func queryDomainsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		return true
 	}
 	// fill domain keys
-	k.iterDomainToOwner(ctx, query.Owner, do)
+	err = k.iterDomainToOwner(ctx, query.Owner, do)
+	if err != nil {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+	}
 	// get domains
 	domains := make([]types.Domain, 0, len(keys))
 	for _, key := range keys {
-		_, domainName := splitOwnerToDomainKey(key)
-		domain, _ := k.GetDomain(ctx, domainName)
+		// prepare the domain index key unpacker
+		indexedDomain := types.Domain{}
+		err = index.Unpack(key, &indexedDomain)
+		// if it's not found or unpacked then we need to panic
+		if err != nil {
+			panic("unexpected domain key not found: " + err.Error())
+		}
+		// get domain
+		domain, _ := k.GetDomain(ctx, indexedDomain.Name)
 		domains = append(domains, domain)
 	}
 	respBytes, err := iovns.DefaultQueryEncode(QueryDomainsFromOwnerResponse{Domains: domains})

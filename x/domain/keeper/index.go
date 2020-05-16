@@ -19,7 +19,6 @@ var ownerToAccountIndexSeparator = []byte(":")
 var ownerToDomainPrefix = []byte{0x05}
 
 // ownerToDomainIndexSeparator is the separator used to map owner address + domain
-var ownerToDomainIndexSeparator = []byte(":")
 
 var blockchainTargetsPrefix = []byte{0x06}
 
@@ -124,12 +123,6 @@ func (k Keeper) iterateBlockchainTargetsAccounts(ctx sdk.Context, target types.B
 	return nil
 }
 
-// domainIndexStore returns the kvstore space that maps
-// owner to domain keys
-func domainIndexStore(store sdk.KVStore) sdk.KVStore {
-	return prefix.NewStore(store, ownerToDomainPrefix)
-}
-
 // accountIndexStore returns the kvstore space that maps
 // owner to accounts
 func accountIndexStore(store sdk.KVStore) sdk.KVStore {
@@ -157,12 +150,6 @@ func accAddrFromIndex(indexedAddr []byte) sdk.AccAddress {
 	return accAddr
 }
 
-// getOwnerToDomainKey generates the unique key that maps owner to domain
-func getOwnerToDomainKey(owner sdk.AccAddress, domain string) []byte {
-	addrBytes := indexAddr(owner)
-	return bytes.Join([][]byte{addrBytes, []byte(domain)}, ownerToDomainIndexSeparator)
-}
-
 // splitOwnerToAccountKey takes an indexed owner to account key and splits it
 // into owner address, domain name and account name
 func splitOwnerToAccountKey(key []byte) (addr sdk.AccAddress, domain string, account string) {
@@ -172,18 +159,6 @@ func splitOwnerToAccountKey(key []byte) (addr sdk.AccAddress, domain string, acc
 	}
 	// convert back to their original types
 	addr, domain, account = accAddrFromIndex(splitBytes[0]), string(splitBytes[1]), string(splitBytes[2])
-	return
-}
-
-// splitOwnerToDomainKey takes an indexed owner to domain key
-// and splits it into owner address and domain name
-func splitOwnerToDomainKey(key []byte) (addr sdk.AccAddress, domain string) {
-	splitBytes := bytes.SplitN(key, ownerToDomainIndexSeparator, 2)
-	if len(splitBytes) != 2 {
-		panic(fmt.Sprintf("expected split lenght: %d", len(splitBytes)))
-	}
-	// convert back to their original types
-	addr, domain = accAddrFromIndex(splitBytes[0]), string(splitBytes[1])
 	return
 }
 
@@ -230,43 +205,44 @@ func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress, do f
 	}
 }
 
-func (k Keeper) mapDomainToOwner(ctx sdk.Context, domain types.Domain) {
-	// get store
-	store := domainIndexStore(indexStore(ctx.KVStore(k.storeKey)))
-	// get unique key
-	key := getOwnerToDomainKey(domain.Admin, domain.Name)
-	// check if key exists TODO remove panic
-	if store.Has(key) {
-		panic(fmt.Sprintf("existing store key: %s", key))
+func (k Keeper) mapDomainToOwner(ctx sdk.Context, domain types.Domain) error {
+	// get index store
+	store, err := ownerToDomainIndexStore(ctx.KVStore(k.storeKey), domain)
+	if err != nil {
+		return err
 	}
 	// set key
-	store.Set(key, []byte{})
+	err = store.Set(domain)
+	if err != nil {
+		return err
+	}
+	// success
+	return nil
 }
 
-func (k Keeper) unmapDomainToOwner(ctx sdk.Context, domain types.Domain) {
+func (k Keeper) unmapDomainToOwner(ctx sdk.Context, domain types.Domain) error {
 	// get store
-	store := domainIndexStore(indexStore(ctx.KVStore(k.storeKey)))
-	// check if key exists TODO remove panic
-	key := getOwnerToDomainKey(domain.Admin, domain.Name)
-	if !store.Has(key) {
-		panic(fmt.Sprintf("missing store key: %s", key))
+	store, err := ownerToDomainIndexStore(ctx.KVStore(k.storeKey), domain)
+	if err != nil {
+		return err
 	}
-	// delete key
-	store.Delete(key)
+	// delete domain
+	err = store.Delete(domain)
+	if err != nil {
+		return err
+	}
+	// success
+	return nil
 }
 
 // iterDomainToOwner iterates over all the domains owned by address
 // and returns the unique keys
-func (k Keeper) iterDomainToOwner(ctx sdk.Context, address sdk.AccAddress, do func(key []byte) bool) {
+func (k Keeper) iterDomainToOwner(ctx sdk.Context, address sdk.AccAddress, do func(key []byte) bool) error {
 	// get store
-	store := domainIndexStore(indexStore(ctx.KVStore(k.storeKey)))
-	// get iterator
-	iterator := sdk.KVStorePrefixIterator(store, indexAddr(address))
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		if !do(iterator.Key()) {
-			return
-		}
+	store, err := ownerToDomainIndexStore(ctx.KVStore(k.storeKey), types.Domain{Admin: address})
+	if err != nil {
+		return err
 	}
+	store.IterateKeys(do)
+	return nil
 }
