@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-// EmptyAccountNameIdentifier defines how empty
-// account names of a domain are identified
-const EmptyAccountNameIdentifier = "*"
+// emptyAccountNameIndexIdentifier defines how empty
+// account names of a domain are identified in indexes
+const emptyAccountNameIndexIdentifier = "*"
 
 // Domain defines a domain
 type Domain struct {
@@ -79,7 +79,7 @@ func (a Account) Pack() ([]byte, error) {
 	// is empty, we index it as '*'
 	var name = a.Name
 	if a.Name == "" {
-		name = EmptyAccountNameIdentifier
+		name = emptyAccountNameIndexIdentifier
 	}
 	key, err := index.PackBytes([][]byte{[]byte(a.Domain), []byte(name)})
 	if err != nil {
@@ -100,7 +100,7 @@ func (a *Account) Unpack(key []byte) error {
 	}
 	a.Domain = string(keys[0])
 	name := string(keys[1])
-	if name == EmptyAccountNameIdentifier {
+	if name == emptyAccountNameIndexIdentifier {
 		name = ""
 	}
 	a.Name = name
