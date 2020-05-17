@@ -28,6 +28,8 @@ type Domain struct {
 	Broker sdk.AccAddress `json:"broker"`
 }
 
+// Index implements Indexer and packs the
+// domain into an index key using its name
 func (d Domain) Index() ([]byte, error) {
 	key, err := index.PackBytes([][]byte{[]byte(d.Name)})
 	if err != nil {
@@ -36,10 +38,15 @@ func (d Domain) Index() ([]byte, error) {
 	return key, nil
 }
 
+// Pack implements Indexed and allows
+// the domain to be saved as a value
+// in an index deterministically
 func (d Domain) Pack() ([]byte, error) {
 	return d.Index()
 }
 
+// Unpack implements Unpacker and allows
+// the domain to be retrieved from an index key
 func (d *Domain) Unpack(key []byte) error {
 	unpackedKeys, err := index.UnpackBytes(key)
 	if err != nil {
@@ -73,6 +80,9 @@ type Account struct {
 	MetadataURI string `json:"metadata_uri"`
 }
 
+// Pack implements Indexed and allows
+// the account to be saved as a value
+// in an index deterministically
 func (a Account) Pack() ([]byte, error) {
 	// in order to avoid empty keys
 	// indexing in case account name
@@ -88,8 +98,8 @@ func (a Account) Pack() ([]byte, error) {
 	return key, nil
 }
 
-// Unpack converts a byte key into an account
-// composed only of domain and name
+// Unpack implements Unpacker and allows
+// the account to be retrieved from an index key
 func (a *Account) Unpack(key []byte) error {
 	keys, err := index.UnpackBytes(key)
 	if err != nil {
@@ -115,6 +125,9 @@ type BlockchainAddress struct {
 	Address string `json:"address"`
 }
 
+// Index implements Indexer and packs the
+// blockchain address into an index key using
+// its blockchain ID and address
 func (b BlockchainAddress) Index() ([]byte, error) {
 	return index.PackBytes([][]byte{[]byte(b.ID), []byte(b.Address)})
 }
@@ -122,6 +135,9 @@ func (b BlockchainAddress) Index() ([]byte, error) {
 // Certificate defines a certificate
 type Certificate []byte
 
+// Index implements Indexer and packs the
+// certificate into an index key using the
+// certificate itself
 func (c Certificate) Index() ([]byte, error) {
 	return c, nil
 }
