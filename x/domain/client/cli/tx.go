@@ -2,8 +2,12 @@ package cli
 
 import (
 	"bufio"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -14,7 +18,6 @@ import (
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 // GetTxCmd clubs together all the CLI tx commands
@@ -367,6 +370,7 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "del-certs",
 		Short: "delete certificates of an account",
+		Long:  "delete certificates of an account. Either use cert or cert-file flags",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -380,16 +384,41 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
-			newCert, err := cmd.Flags().GetBytesHex("cert")
+			cert, err := cmd.Flags().GetBytesHex("cert")
 			if err != nil {
 				return
+			}
+			certFile, err := cmd.Flags().GetString("cert-file")
+			if err != nil {
+				return
+			}
+
+			var c []byte
+			switch {
+			case len(cert) == 0 && len(certFile) == 0:
+				return ErrCertificateNotProvided
+			case len(cert) != 0 && len(certFile) != 0:
+				return ErrCertificateProvideOnlyOne
+			case len(cert) != 0 && len(certFile) == 0:
+				c = cert
+			case len(cert) == 0 && len(certFile) != 0:
+				cf, err := os.Open(certFile)
+				if err != nil {
+					return err
+				}
+				cfb, err := ioutil.ReadAll(cf)
+				if err != nil {
+					return err
+				}
+				c = make([]byte, hex.EncodedLen(len(cfb)))
+				hex.Encode(c, cfb)
 			}
 			// build msg
 			msg := &types.MsgDeleteAccountCertificate{
 				Domain:            domain,
 				Name:              name,
 				Owner:             cliCtx.GetFromAddress(),
-				DeleteCertificate: newCert,
+				DeleteCertificate: c,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -403,6 +432,7 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "domain name of the account")
 	cmd.Flags().String("name", "", "account name")
 	cmd.Flags().BytesHex("cert", []byte{}, "hex bytes of the certificate you want to delete")
+	cmd.Flags().String("cert-file", "", "directory of certificate file. File content will be encoded to hex")
 	// return cmd
 	return cmd
 }
@@ -411,6 +441,7 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-certs",
 		Short: "add certificates to account",
+		Long:  "add certificates of an account. Either use cert or cert-file flags",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -424,16 +455,42 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
-			newCert, err := cmd.Flags().GetBytesHex("cert")
+			cert, err := cmd.Flags().GetBytesHex("cert")
 			if err != nil {
 				return
 			}
+			certFile, err := cmd.Flags().GetString("cert-file")
+			if err != nil {
+				return
+			}
+
+			var c []byte
+			switch {
+			case len(cert) == 0 && len(certFile) == 0:
+				return ErrCertificateNotProvided
+			case len(cert) != 0 && len(certFile) != 0:
+				return ErrCertificateProvideOnlyOne
+			case len(cert) != 0 && len(certFile) == 0:
+				c = cert
+			case len(cert) == 0 && len(certFile) != 0:
+				cf, err := os.Open(certFile)
+				if err != nil {
+					return err
+				}
+				cfb, err := ioutil.ReadAll(cf)
+				if err != nil {
+					return err
+				}
+				c = make([]byte, hex.EncodedLen(len(cfb)))
+				hex.Encode(c, cfb)
+			}
+
 			// build msg
 			msg := &types.MsgAddAccountCertificates{
 				Domain:         domain,
 				Name:           name,
 				Owner:          cliCtx.GetFromAddress(),
-				NewCertificate: newCert,
+				NewCertificate: c,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -447,6 +504,7 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "domain of the account")
 	cmd.Flags().String("name", "", "name of the account")
 	cmd.Flags().BytesHex("cert", []byte{}, "hex bytes of the certificate you want to add")
+	cmd.Flags().String("cert-file", "", "directory of certificate file. File content will be encoded to hex")
 	// return cmd
 	return cmd
 }
