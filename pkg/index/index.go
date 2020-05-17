@@ -75,12 +75,12 @@ func NewIndexedStore(kv types.KVStore, pref []byte, indexer Indexer) (Store, err
 	return Store{indexedStore}, nil
 }
 
-// IterateKeys iterates over keys given an Indexer
+// IterateAllKeys iterates over all keys in the index
 // performing the do function on those keys, if 'do'
 // returns false then the iteration stops
-// CONTRACT: while IterateKeys is running no operations
+// CONTRACT: while IterateAllKeys is running no operations
 // can be performed on the kv Store associated with Store
-func (s Store) IterateKeys(do func(b []byte) bool) {
+func (s Store) IterateAllKeys(do func(b []byte) bool) {
 	iterator := types.KVStorePrefixIterator(s.kv, []byte{})
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {

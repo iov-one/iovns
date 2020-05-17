@@ -70,7 +70,7 @@ func (k Keeper) iterateCertificateAccounts(ctx sdk.Context, cert types.Certifica
 	if err != nil {
 		return err
 	}
-	store.IterateKeys(do)
+	store.IterateAllKeys(do)
 	return nil
 }
 
@@ -115,7 +115,7 @@ func (k Keeper) iterateBlockchainTargetsAccounts(ctx sdk.Context, target types.B
 	if err != nil {
 		return err
 	}
-	store.IterateKeys(do)
+	store.IterateAllKeys(do)
 	return nil
 }
 
@@ -154,7 +154,7 @@ func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress, do f
 	if err != nil {
 		return err
 	}
-	store.IterateKeys(do)
+	store.IterateAllKeys(do)
 	return nil
 }
 
@@ -196,6 +196,6 @@ func (k Keeper) iterDomainToOwner(ctx sdk.Context, address sdk.AccAddress, do fu
 	if err != nil {
 		return err
 	}
-	store.IterateKeys(do)
+	store.IterateAllKeys(do)
 	return nil
 }
