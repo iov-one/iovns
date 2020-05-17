@@ -2,9 +2,10 @@ package configuration
 
 import (
 	"fmt"
+	"regexp"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration/types"
-	"regexp"
 )
 
 // GenesisState is used to unmarshal the genesis state
@@ -29,7 +30,7 @@ func ValidateGenesis(data GenesisState) error {
 	if conf.DomainRenew < 0 {
 		return fmt.Errorf("empty domain renew")
 	}
-	if conf.Owners == nil {
+	if conf.Configurer == nil {
 		return fmt.Errorf("empty owner")
 	}
 	if _, err := regexp.Compile(conf.ValidBlockchainAddress); err != nil {
@@ -61,7 +62,7 @@ func ValidateGenesis(data GenesisState) error {
 func DefaultGenesisState() GenesisState {
 	return GenesisState{
 		Config: types.Config{
-			Owners:                 []sdk.AccAddress{},
+			Configurer:             sdk.AccAddress{},
 			ValidDomain:            "^(.*?)?",
 			ValidName:              "^(.*?)?",
 			ValidBlockchainID:      "^(.*?)?",
