@@ -187,7 +187,7 @@ type replaceAccountTargets struct {
 // replaceAccountTargets builds the transaction to sign to replace account targets
 func replaceAccountTargetsHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		var req renewDomain
+		var req replaceAccountTargets
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}
