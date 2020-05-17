@@ -3,25 +3,37 @@ package index
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	"github.com/cosmos/cosmos-sdk/types"
 	"log"
 )
 
+// ReservedSeparator is the uint8 used to separate
+// index key identifiers from the value of the key itself
 const ReservedSeparator byte = 0xFF
+
+// errKeyNotFound is for testing purposes and signals when a key was not found in the KVStore
+var errKeyNotFound = errors.New("provided key is not inside the KVStore")
 
 // Index defines the behaviour
 // of a type that can index itself
 // into an unique byte key
 type Indexer interface {
+	// Index should return an unique byte key for the object
 	Index() ([]byte, error)
 }
 
+// Store contains the prefixed
+// KVStore of an indexed entity
 type Store struct {
 	kv types.KVStore
 }
 
+// encode encodes bytes in base64 format
+// it's used when index keys contain the
+// reserved separator
 func encode(src []byte) []byte {
 	dst := make([]byte, base64.RawStdEncoding.EncodedLen(len(src)))
 	base64.RawStdEncoding.Encode(dst, src)
@@ -41,8 +53,8 @@ func decode(src []byte) ([]byte, error) {
 // defining key of it, returns an error only
 // if the key can not index itself. It uses
 // the reserved separator to signal the end of the
-// index, if the index contains the key then it is
-// base64 encoded in order not to overwrite longer indexes
+// index key, if the index contains the key then it is
+// base64 encoded.
 func index(i Indexer) ([]byte, error) {
 	indexKey, err := i.Index()
 	if err != nil {
@@ -50,17 +62,15 @@ func index(i Indexer) ([]byte, error) {
 	}
 	if bytes.Contains(indexKey, []byte{ReservedSeparator}) {
 		// TODO print a warning, receiving an index with the separator inside should not happen, my dear.
-		log.Printf("key %T:%x, containing separator was encoded.", i, indexKey)
+		log.Printf("key %T:%x, containing reserved separator was encoded.", i, indexKey)
 		indexKey = encode(indexKey)
 	}
 	indexKey = append(indexKey, ReservedSeparator)
 	return indexKey, nil
 }
 
-// NewIndexedStore returns a prefixed indexed Store
-// with the provided prefix + Indexer, it returns
-// an error only if the indexer cannot marshal itself
-// into a byte key
+// NewIndexedStore returns a prefixed indexed Store with the provided prefix + Indexer, it returns
+// an error only if the indexer cannot marshal itself into a byte key
 func NewIndexedStore(kv types.KVStore, pref []byte, indexer Indexer) (Store, error) {
 	// get indexing key
 	indexingKey, err := index(indexer)
@@ -112,7 +122,7 @@ func (s Store) Delete(indexed Indexed) error {
 		return err
 	}
 	if !s.kv.Has(key) {
-		return fmt.Errorf("key not found: %x", key)
+		return fmt.Errorf("%w: %x", errKeyNotFound, key)
 	}
 	s.kv.Delete(key)
 	return nil

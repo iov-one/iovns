@@ -2,8 +2,10 @@ package index
 
 import sdk "github.com/cosmos/cosmos-sdk/types"
 
+// addrIndexer is just a type alias for sdk.AccAddress
 type addrIndexer []byte
 
+// Index wraps normal sdk.AccAddress into a valid Indexer
 func (a addrIndexer) Index() ([]byte, error) {
 	return a, nil
 }
