@@ -3,6 +3,7 @@
 ## HEAD
 
 - allow empty account name on msg.Validate()
+- enable fees for all domain module handlers
 
 ## 0.2.3
 
