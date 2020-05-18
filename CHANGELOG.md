@@ -3,6 +3,7 @@
 ## HEAD
 
 - allow empty account name on msg.Validate()
+- remove certificate indexing
 
 ## 0.2.3
 
