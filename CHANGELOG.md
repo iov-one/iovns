@@ -2,6 +2,8 @@
 
 ## HEAD
 
+- allow empty account name on msg.Validate()
+
 ## 0.2.3
 
 - fix add signers in msg renew account and renew domain
