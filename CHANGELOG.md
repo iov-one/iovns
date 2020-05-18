@@ -1,15 +1,17 @@
 # Changelog 
 
 ## HEAD
+
+## 0.2.3
+
 - fix add signers in msg renew account and renew domain
 - add resolve certificates
 - add resolve blockchain targets
 - add generalized indexing strategy
 - abstract indexing 
-
 - iovnscli: accept certificate as file
 
-Breaking changes
+### Breaking changes
 
 - Change naming of some json keys in genesis.json
 - change move blockchain address from iovns types to domain module types
