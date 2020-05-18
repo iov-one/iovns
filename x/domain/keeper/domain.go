@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -26,7 +27,10 @@ func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Doma
 // CreateDomain creates the domain inside the KVStore with its name as key
 func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
 	// map domain to owner
-	k.mapDomainToOwner(ctx, domain)
+	err := k.mapDomainToOwner(ctx, domain)
+	if err != nil {
+		panic(fmt.Errorf("indexing error: (%#v): %w", domain, err))
+	}
 	// set domain
 	k.SetDomain(ctx, domain)
 }
@@ -74,7 +78,10 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 		k.DeleteAccount(ctx, domainName, accountKeyToString(accountKey))
 	}
 	// unmap domain to owner
-	k.unmapDomainToOwner(ctx, domain)
+	err := k.unmapDomainToOwner(ctx, domain)
+	if err != nil {
+		panic(fmt.Errorf("indexing error: (%#v): %w", domain, err))
+	}
 	// done
 	return true
 }
@@ -111,7 +118,10 @@ func (k Keeper) FlushDomain(ctx sdk.Context, domainName string) (exists bool) {
 // TransferDomain transfers aliceAddr domain
 func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain types.Domain) {
 	// unmap domain owner
-	k.unmapDomainToOwner(ctx, domain)
+	err := k.unmapDomainToOwner(ctx, domain)
+	if err != nil {
+		panic(fmt.Errorf("indexing error: (%#v): %w", domain, err))
+	}
 	// update domain owner
 	domain.Admin = newOwner
 	// update domain in kvstore
@@ -136,5 +146,8 @@ func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain 
 		k.TransferAccount(ctx, account, newOwner)
 	}
 	// map domain to new owner
-	k.mapDomainToOwner(ctx, domain)
+	err = k.mapDomainToOwner(ctx, domain)
+	if err != nil {
+		panic(fmt.Errorf("indexing error: (%#v): %w", domain, err))
+	}
 }
