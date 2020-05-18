@@ -15,63 +15,10 @@ var ownerToDomainPrefix = []byte{0x05}
 // blockchainTargetsPrefix is the prefix used to index targets to account
 var blockchainTargetsPrefix = []byte{0x06}
 
-// certificatesPrefix is the prefix used to index certificates to accounts
-var certificatesPrefix = []byte{0x07}
-
 // blockchainTargetIndexedStore returns the store used to index blockchain targets
 func blockchainTargetIndexedStore(store sdk.KVStore, target types.BlockchainAddress) (index.Store, error) {
 	prefixedIndexStore := indexStore(store)
 	return index.NewIndexedStore(prefixedIndexStore, blockchainTargetsPrefix, target)
-}
-
-// certificatesIndexedStore returns the store used to index certificates
-func certificatesIndexedStore(store sdk.KVStore, cert types.Certificate) (index.Store, error) {
-	prefixedIndexStore := indexStore(store)
-	return index.NewIndexedStore(prefixedIndexStore, certificatesPrefix, cert)
-}
-
-// mapCertificateToAccount maps given account to  a certificate
-func (k Keeper) mapCertificateToAccount(ctx sdk.Context, account types.Account, certs ...types.Certificate) error {
-	for _, cert := range certs {
-		if len(cert) == 0 {
-			continue
-		}
-		store, err := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
-		if err != nil {
-			return err
-		}
-		err = store.Set(account)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// unmapCertificateToAccount removes an account associated to a certificate
-func (k Keeper) unmapCertificateToAccount(ctx sdk.Context, account types.Account, certs ...types.Certificate) error {
-	for _, cert := range certs {
-		if len(cert) == 0 {
-			continue
-		}
-		store, err := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
-		if err != nil {
-			return err
-		}
-		if err = store.Delete(account); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (k Keeper) iterateCertificateAccounts(ctx sdk.Context, cert types.Certificate, do func(key []byte) bool) error {
-	store, err := certificatesIndexedStore(ctx.KVStore(k.storeKey), cert)
-	if err != nil {
-		return err
-	}
-	store.IterateAllKeys(do)
-	return nil
 }
 
 func (k Keeper) mapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) error {
