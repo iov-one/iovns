@@ -2,12 +2,17 @@
 
 ## HEAD
 
+- refactor configuration module to be used with multisig wallets
 - allow empty account name on msg.Validate()
 - enable fees for all domain module handlers
 - remove certificate indexing
 - fix account transfer
 - fix account renew timestamp
 - fix account store keys that end up reading contents of other accounts
+
+### Breaking changes
+
+- configuration struct signature in genesis file changed 
 
 ## 0.2.3
 
