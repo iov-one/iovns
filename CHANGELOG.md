@@ -5,6 +5,7 @@
 - allow empty account name on msg.Validate()
 - remove certificate indexing
 - fix account transfer
+- fix account store keys that end up reading contents of other accounts
 
 ## 0.2.3
 
