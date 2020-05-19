@@ -3,6 +3,7 @@
 ## HEAD
 
 - allow empty account name on msg.Validate()
+- enable fees for all domain module handlers
 - remove certificate indexing
 - fix account transfer
 
