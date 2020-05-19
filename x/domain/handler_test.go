@@ -797,14 +797,14 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 				// set mock domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					AccountRenew: 100,
+					AccountRenew: 1000 * time.Second,
 					Admin:        bobKey.GetAddress(),
 				})
 				// set mock account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
-					ValidUntil: 1000,
+					ValidUntil: iovns.TimeToSeconds(time.Unix(1000, 0)),
 					Owner:      aliceKey.GetAddress(),
 				})
 			},
@@ -819,8 +819,9 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account, _ := k.GetAccount(ctx, "test", "test")
-				if account.ValidUntil != 1100 {
-					t.Fatalf("handlerMsgRenewAccount() expected 1100, got: %d", account.ValidUntil)
+				want := iovns.TimeToSeconds(time.Unix(1000, 0).Add(1000 * time.Second))
+				if account.ValidUntil != want {
+					t.Fatalf("handlerMsgRenewAccount() want: %d, got: %d", want, account.ValidUntil)
 				}
 			},
 		},
