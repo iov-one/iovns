@@ -1938,7 +1938,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 				// add config
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					DomainRenew: 1,
+					DomainRenew: 1 * time.Second,
 				})
 				// add domain
 				k.CreateDomain(ctx, types.Domain{
