@@ -16,7 +16,7 @@ import (
 
 // NewHandler builds the tx requests handler for the domain module
 func NewHandler(k Keeper) sdk.Handler {
-	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+	f := func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
 		// domain handlers
 		case *types.MsgRegisterDomain:
@@ -49,6 +49,15 @@ func NewHandler(k Keeper) sdk.Handler {
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("unregonized request: %T", msg))
 		}
+	}
+
+	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+		resp, err := f(ctx, msg)
+		if err != nil {
+			msg := fmt.Sprintf("tx rejected %T: %s", msg, err)
+			k.Logger(ctx).With("module", types.ModuleName).Info(msg)
+		}
+		return resp, err
 	}
 }
 
@@ -331,7 +340,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 		}
 	}
 	// transfer account
-	k.TransferAccount(ctx, account, msg.Owner)
+	k.TransferAccount(ctx, account, msg.NewOwner)
 	// success, todo emit event?
 	return &sdk.Result{}, nil
 }
