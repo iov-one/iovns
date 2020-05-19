@@ -42,11 +42,6 @@ func (k Keeper) CreateAccount(ctx sdk.Context, account types.Account) {
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
-	// map certs to account
-	err = k.mapCertificateToAccount(ctx, account, account.Certificates...)
-	if err != nil {
-		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
-	}
 }
 
 // SetAccount upserts account data
@@ -74,11 +69,6 @@ func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 	}
 	// unmap targets to account
 	err = k.unmapTargetToAccount(ctx, account, account.Targets...)
-	if err != nil {
-		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
-	}
-	// unmap certificates
-	err = k.unmapCertificateToAccount(ctx, account, account.Certificates...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
 	}
@@ -113,11 +103,6 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
-	// unmap certs
-	err = k.unmapCertificateToAccount(ctx, account, account.Certificates...)
-	if err != nil {
-		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
-	}
 	// update account
 	account.Owner = newOwner   // transfer owner
 	account.Certificates = nil // remove certs
@@ -134,11 +119,7 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
-	// map certificates
-	err = k.mapCertificateToAccount(ctx, account, account.Certificates...)
-	if err != nil {
-		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
-	}
+
 }
 
 // AddAccountCertificate adds aliceAddr new certificate to the account
@@ -147,25 +128,14 @@ func (k Keeper) AddAccountCertificate(ctx sdk.Context, account types.Account, ne
 	account.Certificates = append(account.Certificates, newCert)
 	// update account
 	k.SetAccount(ctx, account)
-	// map certificate
-	err := k.mapCertificateToAccount(ctx, account, newCert)
-	if err != nil {
-		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
-	}
 }
 
 // DeleteAccountCertificate deletes aliceAddr certificate at given index, it will panic if the index is wrong
 func (k Keeper) DeleteAccountCertificate(ctx sdk.Context, account types.Account, certificateIndex int) {
-	cert := account.Certificates[certificateIndex]
-	// remove it
+	// remove cert
 	account.Certificates = append(account.Certificates[:certificateIndex], account.Certificates[certificateIndex+1:]...)
 	// update account
 	k.SetAccount(ctx, account)
-	// unmap certificate
-	err := k.unmapCertificateToAccount(ctx, account, cert)
-	if err != nil {
-		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
-	}
 }
 
 // UpdateAccountValidity updates an account expiration time
