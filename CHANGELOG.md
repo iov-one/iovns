@@ -5,7 +5,7 @@
 - allow empty account name on msg.Validate()
 - remove certificate indexing
 - fix account transfer
-
+- fix account renew timestamp
 ## 0.2.3
 
 - fix add signers in msg renew account and renew domain
