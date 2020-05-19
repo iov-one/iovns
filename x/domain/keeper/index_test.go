@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"github.com/iov-one/iovns/pkg/index"
 	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
 )
@@ -221,120 +220,6 @@ func Test_targetsIndexing(t *testing.T) {
 	k.TransferAccount(ctx, accountA, bobAddr)
 	// check if targetA is associated with any account
 	err = k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(accountKeys) != 0 {
-		t.Fatalf("expected 0 keys, got: %d", len(accountKeys))
-	}
-}
-
-func Test_certificatesIndexing(t *testing.T) {
-	k, ctx, _ := NewTestKeeper(t, true)
-	accMatch := func(acc1, acc2 types.Account) error {
-		if acc1.Name != acc2.Name {
-			return fmt.Errorf("name mismatch: %s <-> %s", acc1.Name, acc2.Name)
-		}
-		if acc1.Domain != acc2.Domain {
-			return fmt.Errorf("domain mismatch: %s<-> %s", acc1.Domain, acc2.Domain)
-		}
-		return nil
-	}
-	var accountKeys [][]byte
-	do := func(key []byte) bool {
-		accountKeys = append(accountKeys, key)
-		return true
-	}
-	certA := types.Certificate("test")
-	certB := types.Certificate("test2")
-	accountA := types.Account{
-		Domain:       "test",
-		Name:         "1",
-		Owner:        bobAddr,
-		ValidUntil:   0,
-		Certificates: []types.Certificate{certA},
-		MetadataURI:  "",
-	}
-	accountB := types.Account{
-		Domain:       "test",
-		Name:         "2",
-		Owner:        aliceAddr,
-		ValidUntil:   0,
-		Certificates: []types.Certificate{certA, certB},
-		MetadataURI:  "",
-	}
-	// create accounts
-	k.CreateAccount(ctx, accountA)
-	k.CreateAccount(ctx, accountB)
-	// get certs
-	err := k.iterateCertificateAccounts(ctx, certA, do)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(accountKeys) != 2 {
-		for _, k := range accountKeys {
-			t.Logf("%s", k)
-		}
-		t.Fatalf("expected 2 keys, got: %d", len(accountKeys))
-	}
-	acc := types.Account{}
-	index.MustUnpack(accountKeys[0], &acc)
-	// check if accounts match
-	if err := accMatch(acc, accountA); err != nil {
-		t.Fatal(err)
-	}
-	index.MustUnpack(accountKeys[1], &acc)
-	if err := accMatch(acc, accountB); err != nil {
-		t.Fatal(err)
-	}
-	// delete account
-	accountKeys = nil
-	k.DeleteAccount(ctx, accountB.Domain, accountB.Name)
-	err = k.iterateCertificateAccounts(ctx, certA, do)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(accountKeys) != 1 {
-		t.Fatalf("expected 1 key, got: %d", len(accountKeys))
-	}
-	// check if A is the only account with the key
-	index.MustUnpack(accountKeys[0], &acc)
-	if err := accMatch(acc, accountA); err != nil {
-		t.Fatal(err)
-	}
-	// transfer account
-	accountKeys = nil
-	k.TransferAccount(ctx, accountA, aliceAddr)
-	// check if certs has no matches
-	err = k.iterateCertificateAccounts(ctx, certA, do)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(accountKeys) != 0 {
-		t.Fatalf("expected 0 keys, got: %d", len(accountKeys))
-	}
-	// now add certificates
-	accountKeys = nil
-	accountA, _ = k.GetAccount(ctx, accountA.Domain, accountA.Name) // get updated account
-	k.AddAccountCertificate(ctx, accountA, certB)                   // add cert
-	// check if accountA has B cert
-	err = k.iterateCertificateAccounts(ctx, certB, do)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(accountKeys) != 1 {
-		t.Fatalf("expected 0 keys, got: %d", len(accountKeys))
-	}
-	// check that accountA is correctly matched to certB
-	index.MustUnpack(accountKeys[0], &acc)
-	if err := accMatch(acc, accountA); err != nil {
-		t.Fatal(err)
-	}
-	// delete cert
-	accountKeys = nil
-	accountA, _ = k.GetAccount(ctx, accountA.Domain, accountA.Name)
-	k.DeleteAccountCertificate(ctx, accountA, 0)
-	err = k.iterateCertificateAccounts(ctx, certB, do)
 	if err != nil {
 		t.Fatal(err)
 	}

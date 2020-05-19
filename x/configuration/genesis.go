@@ -66,7 +66,7 @@ func DefaultGenesisState() GenesisState {
 			ValidName:              "^(.*?)?",
 			ValidBlockchainID:      "^(.*?)?",
 			ValidBlockchainAddress: "^(.*?)?",
-			DomainRenew:            0,
+			DomainRenew:            86400,
 		},
 
 		Fees: types.NewFees(),

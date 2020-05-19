@@ -134,10 +134,3 @@ func (b BlockchainAddress) Index() ([]byte, error) {
 
 // Certificate defines a certificate
 type Certificate []byte
-
-// Index implements Indexer and packs the
-// certificate into an index key using the
-// certificate itself
-func (c Certificate) Index() ([]byte, error) {
-	return c, nil
-}
