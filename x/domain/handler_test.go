@@ -1473,7 +1473,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Domain:   "test",
 					Name:     "test",
 					Owner:    aliceKey.GetAddress(),
-					NewOwner: aliceKey.GetAddress(),
+					NewOwner: charlieKey.GetAddress(),
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
@@ -1490,8 +1490,8 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				if account.Certificates != nil {
 					t.Fatalf("handlerAccountTransfer() account certificates were not deleted")
 				}
-				if !account.Owner.Equals(aliceKey.GetAddress()) {
-					t.Fatalf("handlerAccounTransfer() expected new owner: %s, got: %s", aliceKey.GetAddress(), account.Owner)
+				if !account.Owner.Equals(charlieKey.GetAddress()) {
+					t.Fatalf("handlerAccounTransfer() expected new owner: %s, got: %s", charlieKey.GetAddress(), account.Owner)
 				}
 			},
 		},

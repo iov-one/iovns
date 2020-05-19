@@ -13,6 +13,7 @@ import (
 
 var aliceKey keys.Info
 var bobKey keys.Info
+var charlieKey keys.Info
 
 const regexMatchAll = "^(.*?)?"
 const regexMatchNothing = "$^"
@@ -32,6 +33,12 @@ func TestMain(t *testing.M) {
 		os.Exit(1)
 	}
 	bobKey = addr2
+	addr3, _, err := keyBase.CreateMnemonic("charli", keys.English, "", keys.Secp256k1)
+	if err != nil {
+		fmt.Println("unable to generate mock addresses " + err.Error())
+		os.Exit(1)
+	}
+	charlieKey = addr3
 	// run and exit
 	os.Exit(t.Run())
 }
