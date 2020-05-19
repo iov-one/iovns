@@ -25,7 +25,7 @@ func Test_getDomainPrefixKey(t *testing.T) {
 		{
 			name: "panic",
 			args: args{
-				domainName: "test" + string(0xFF),
+				domainName: string([]byte{116, 101, 115, 116, 255}),
 			},
 			want:        nil,
 			expectPanic: true,

@@ -1,11 +1,11 @@
 package keeper
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/pkg/index"
-	"strings"
 )
 
 var (
@@ -43,7 +43,7 @@ func accountsInDomainStore(store types.KVStore, domain string) types.KVStore {
 
 // getDomainPrefixKey returns the domain prefix byte key
 func getDomainPrefixKey(domainName string) []byte {
-	if strings.ContainsRune(domainName, rune(index.ReservedSeparator)) {
+	if bytes.Contains([]byte(domainName), []byte{index.ReservedSeparator}) {
 		panic(fmt.Sprintf("wrong configuration: domain name '%s' should not contain reserved separator 0xFF", domainName))
 	}
 	return append([]byte(domainName), index.ReservedSeparator)
