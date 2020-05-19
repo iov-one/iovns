@@ -3,9 +3,9 @@
 ## Create keys if you don't have them ready
 
 ```shell script
-iovnscli keys add w1
-iovnscli keys add w2
-iovnscli keys add w3
+iovnscli keys add w1 --recover # salad velvet type bamboo neglect prize guess eternal tornado sadness obvious deliver horn capable apart analyst offer echo noise destroy ocean tumble cricket unable
+iovnscli keys add w2 --recover # salmon post develop tumble funny hobby original vintage history length neglect identify frequent tooth then cluster there gravity bridge grow actress trouble obvious elder
+iovnscli keys add w3 --recover # ahead increase coral dutch visual armed good raw skull blur duty move jazz bundle monster surface stairs error trash day ankle meadow famous universe
 ```
 
 ## Import addresses that does not exist locally
@@ -24,7 +24,7 @@ iovnscli keys add --multisig=name1,name2,name3[...] --multisig-threshold=K new_k
 ```
 In our example:
 ```shell script
-iovnscli keys add --multisig=w1,w2,w3,p1 --multisig-threshold=3 msig1
+iovnscli keys add --multisig=w1,w2,w3,p1 --multisig-threshold=3 msig1 # star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg if the mnemonics above are used
 ```
 
 ## Generate transaction
