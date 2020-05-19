@@ -2,29 +2,59 @@ package keeper
 
 import (
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/pkg/index"
+	"strings"
 )
 
-// ownerToDomainIndexStore returns the store that indexes all the domains owned by an sdk.AccAddress
-func ownerToDomainIndexStore(kvstore sdk.KVStore, addr sdk.AccAddress) (index.Store, error) {
-	// check if admin is provided
-	if addr.Empty() {
-		return index.Store{}, fmt.Errorf("cannot index empty address")
-	}
-	// get index store
-	indexPrefixedStore := indexStore(kvstore)
-	// get address to domain index
-	return index.NewAddressIndex(indexPrefixedStore, ownerToDomainPrefix, addr)
+var (
+	// DomainStorePrefix is the prefix used to define the prefixed store containing domain data
+	DomainStorePrefix = []byte{0x00}
+	// AccountPrefixStore is the prefix used to define the prefixed store containing account data
+	AccountStorePrefix = []byte{0x01}
+	// IndexStorePrefix is the prefix used to defines the prefixed store containing indexing data
+	IndexStorePrefix = []byte{0x02}
+)
+
+// domainStore returns the domain store from the module's kvstore
+func domainStore(store types.KVStore) types.KVStore {
+	return prefix.NewStore(store, DomainStorePrefix)
 }
 
-// ownerToAccountIndexStore returns the indexed store that indexes all the accounts owned by an sdk.AccAddress
-func ownerToAccountIndexStore(kvstore sdk.KVStore, addr sdk.AccAddress) (index.Store, error) {
-	if addr.Empty() {
-		return index.Store{}, fmt.Errorf("cannot index empty address")
+// accountStore returns the account store from the module's kvstore
+func accountStore(store types.KVStore) types.KVStore {
+	return prefix.NewStore(store, AccountStorePrefix)
+}
+
+// indexStore returns the indexing store from the module's kvstore
+func indexStore(store types.KVStore) types.KVStore {
+	return prefix.NewStore(store, IndexStorePrefix)
+}
+
+// accountInDomainsStore returns the prefixed store containing
+// all the account keys contained in a domain
+func accountsInDomainStore(store types.KVStore, domain string) types.KVStore {
+	// get account store
+	accountStore := accountStore(store)
+	// get accounts in domain store
+	return prefix.NewStore(accountStore, getDomainPrefixKey(domain))
+}
+
+// getDomainPrefixKey returns the domain prefix byte key
+func getDomainPrefixKey(domainName string) []byte {
+	if strings.ContainsRune(domainName, rune(index.ReservedSeparator)) {
+		panic(fmt.Sprintf("wrong configuration: domain name '%s' should not contain reserved separator 0xFF", domainName))
 	}
-	// get index store
-	indexPrefixedStore := indexStore(kvstore)
-	// get address to account index
-	return index.NewAddressIndex(indexPrefixedStore, ownerToAccountPrefix, addr)
+	return append([]byte(domainName), index.ReservedSeparator)
+}
+
+// getAccountKey returns the account byte key by its name
+func getAccountKey(accountName string) []byte {
+	return []byte(accountName)
+}
+
+// accountKeyToString converts account key bytes to string
+func accountKeyToString(accountKeyBytes []byte) string {
+	return string(accountKeyBytes)
 }
