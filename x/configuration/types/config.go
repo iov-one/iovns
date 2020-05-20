@@ -1,8 +1,9 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"time"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Config is the configuration of the network
@@ -21,5 +22,5 @@ type Config struct {
 	// DomainRenew defines the duration of the domain renewal period
 	DomainRenew time.Duration `json:"domain_renew"`
 	// DomainGracePeriod defines the grace period for a domain deletion in seconds
-	DomainGracePeriod int64 `json:"domain_grace_period"`
+	DomainGracePeriod time.Duration `json:"domain_grace_period"`
 }
