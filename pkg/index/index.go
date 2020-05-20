@@ -62,7 +62,7 @@ func index(i Indexer) ([]byte, error) {
 	}
 	if bytes.Contains(indexKey, []byte{ReservedSeparator}) {
 		// TODO print a warning, receiving an index with the separator inside should not happen, my dear.
-		log.Printf("key %T:%x, containing reserved separator was encoded.", i, indexKey)
+		log.Printf("WARNING: key %T:%x, containing reserved separator was encoded.", i, indexKey)
 		indexKey = encode(indexKey)
 	}
 	indexKey = append(indexKey, ReservedSeparator)

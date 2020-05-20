@@ -3,9 +3,12 @@
 ## HEAD
 
 - allow empty account name on msg.Validate()
+- enable fees for all domain module handlers
 - remove certificate indexing
 - fix account transfer
 - fix account renew timestamp
+- fix account store keys that end up reading contents of other accounts
+
 ## 0.2.3
 
 - fix add signers in msg renew account and renew domain
