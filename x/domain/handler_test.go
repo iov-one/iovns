@@ -1540,6 +1540,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail domain admin does not match msg owner": {
+			BeforeTestBlockTime: 0,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
@@ -1554,6 +1555,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Broker:       nil,
 				})
 			},
+			TestBlockTime: 1,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
