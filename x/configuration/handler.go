@@ -25,10 +25,9 @@ func NewHandler(k Keeper) sdk.Handler {
 }
 
 func handleUpdateConfig(ctx sdk.Context, msg types.MsgUpdateConfig, k Keeper) (*sdk.Result, error) {
-	// check if operation is allowed
-	allowed := k.OperationAllowed(ctx, msg)
-	if !allowed {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "quorum for configuration update not reached")
+	configurer := k.GetConfigurer(ctx)
+	if !configurer.Equals(msg.Configurer) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update configuration", msg.Configurer)
 	}
 	// if allowed update configuration
 	k.SetConfig(ctx, msg.NewConfiguration)
@@ -38,9 +37,9 @@ func handleUpdateConfig(ctx sdk.Context, msg types.MsgUpdateConfig, k Keeper) (*
 
 func handleDeleteLevelFee(ctx sdk.Context, msg types.MsgDeleteLevelFee, k Keeper) (*sdk.Result, error) {
 	// check if operation is allowed
-	allowed := k.OperationAllowed(ctx, msg)
-	if !allowed {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "quorum for fee deletion not reached")
+	configurer := k.GetConfigurer(ctx)
+	if !configurer.Equals(msg.Configurer) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update configuration", msg.Configurer)
 	}
 	fees := k.GetFees(ctx)
 	// not checking int overflow for 32bit machines because I suppose
@@ -54,9 +53,9 @@ func handleDeleteLevelFee(ctx sdk.Context, msg types.MsgDeleteLevelFee, k Keeper
 
 func handleUpsertDefaultFee(ctx sdk.Context, msg types.MsgUpsertDefaultFee, k Keeper) (*sdk.Result, error) {
 	// check if operation is allowed
-	allowed := k.OperationAllowed(ctx, msg)
-	if !allowed {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "quorum for fee default fee upsertion not reached")
+	configurer := k.GetConfigurer(ctx)
+	if !configurer.Equals(msg.Configurer) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update configuration", msg.Configurer)
 	}
 	// get current fees
 	fees := k.GetFees(ctx)
@@ -70,9 +69,9 @@ func handleUpsertDefaultFee(ctx sdk.Context, msg types.MsgUpsertDefaultFee, k Ke
 
 func handleUpsertLevelFee(ctx sdk.Context, msg types.MsgUpsertLevelFee, k Keeper) (*sdk.Result, error) {
 	// check if operation is allowed
-	allowed := k.OperationAllowed(ctx, msg)
-	if !allowed {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "quorum for fee level fee upsertion not reached")
+	configurer := k.GetConfigurer(ctx)
+	if !configurer.Equals(msg.Configurer) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update configuration", msg.Configurer)
 	}
 	// get current fees
 	fees := k.GetFees(ctx)

@@ -7,9 +7,9 @@ import (
 
 // Config is the configuration of the network
 type Config struct {
-	// Owners are the configuration owner, the addresses allowed to handle fees
+	// Configurer is the configuration owner, the addresses allowed to handle fees
 	// and register domains with no superuser
-	Owners []sdk.AccAddress `json:"owners"`
+	Configurer sdk.AccAddress `json:"configurer"`
 	// ValidDomain defines a regexp that determines if a domain name is valid or not
 	ValidDomain string `json:"valid_domain"`
 	// ValidName defines a regexp that determines if an account name is valid or not
