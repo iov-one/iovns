@@ -89,7 +89,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			domainRenew, err := cmd.Flags().GetUint64("domain-renew")
+			domainRenew, err := cmd.Flags().GetDuration("domain-renew")
 			if err != nil {
 				return err
 			}
@@ -105,7 +105,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 				ValidName:              validName,
 				ValidBlockchainID:      validBlockchainID,
 				ValidBlockchainAddress: validBlockchainAddress,
-				DomainRenew:            int64(domainRenew),
+				DomainRenew:            domainRenew,
 				DomainGracePeriod:      int64(domainGracePeriod),
 			}
 			// build msg
@@ -127,7 +127,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("valid-name", "", "regexp that determines if account name is valid or not")
 	cmd.Flags().String("valid-blockchain-id", "", "regexp that determines if blockchain id is valid or not")
 	cmd.Flags().String("valid-blockchain-address", "", "regexp that determines if blockchain address is valid or not")
-	cmd.Flags().Uint64("domain-renew", 10000000, "domain renewal duration in seconds before expiration")
+	cmd.Flags().Duration("domain-renew", 10000000, "domain renewal duration in seconds before expiration")
 	cmd.Flags().Uint64("domain-grace-period", 10000000, "domain grace period duration in seconds")
 	return cmd
 }
