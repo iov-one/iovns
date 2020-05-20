@@ -2,6 +2,8 @@
 
 ## HEAD
 
+## v0.2.4
+
 - domain grace period is time.duration now 
 - refactor configuration module to be used with multisig wallets
 - allow empty account name on msg.Validate()
