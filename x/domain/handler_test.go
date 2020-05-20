@@ -1621,6 +1621,57 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
+		"success owner can delete one of the domains after one expires and deleted": {
+			BeforeTestBlockTime: 1589826438,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					DomainGracePeriod: 1,
+				})
+				k.CreateDomain(ctx, types.Domain{
+					Name:         "test1",
+					Admin:        bobKey.GetAddress(),
+					ValidUntil:   1589826439,
+					HasSuperuser: true,
+					AccountRenew: 0,
+					Broker:       nil,
+				})
+				k.CreateDomain(ctx, types.Domain{
+					Name:         "test2",
+					Admin:        bobKey.GetAddress(),
+					ValidUntil:   1589828251,
+					HasSuperuser: true,
+					AccountRenew: 0,
+					Broker:       nil,
+				})
+			},
+			TestBlockTime: 1589826441,
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// another user can delete expired domain
+				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+					Domain: "test1",
+					Owner:  aliceKey.GetAddress(),
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+				}
+				_, err = handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+					Domain: "test2",
+					Owner:  aliceKey.GetAddress(),
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
+				}
+				_, err = handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
+					Domain: "test2",
+					Owner:  bobKey.GetAddress(),
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
+				}
+			},
+			AfterTest: nil,
+		},
 		"success owner can delete their domain before grace period": {
 			BeforeTestBlockTime: 0,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
