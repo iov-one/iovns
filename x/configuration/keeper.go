@@ -62,10 +62,7 @@ func (k Keeper) GetConfigurer(ctx sdk.Context) sdk.AccAddress {
 // IsOwner checks if the provided address is an owner or not
 func (k Keeper) IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool {
 	configurer := k.GetConfigurer(ctx)
-	if configurer.Equals(addr) {
-		return true
-	}
-	return false
+	return configurer.Equals(addr)
 }
 
 // GetDomainRenewDuration returns the duration of a domain renewal period
