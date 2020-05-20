@@ -440,19 +440,16 @@ func handlerMsgFlushDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgFlush
 func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
 	// check if domain exists
 	if _, ok := k.GetDomain(ctx, msg.Name); ok {
-		err = sdkerrors.Wrap(types.ErrDomainAlreadyExists, msg.Name)
-		return
+		return nil, sdkerrors.Wrap(types.ErrDomainAlreadyExists, msg.Name)
 	}
 	// if domain does not exist then check if we can register it
 	// check if name is valid based on the configuration saved in the state
 	if !regexp.MustCompile(k.ConfigurationKeeper.GetValidDomainRegexp(ctx)).MatchString(msg.Name) {
-		err = sdkerrors.Wrap(types.ErrInvalidDomainName, msg.Name)
-		return
+		return nil, sdkerrors.Wrap(types.ErrInvalidDomainName, msg.Name)
 	}
 	// if domain has not a super user then admin must be configuration owner
 	if !msg.HasSuperuser && !k.ConfigurationKeeper.IsOwner(ctx, msg.Admin) {
-		err = sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to register a domain without a superuser", msg.Admin)
-		return
+		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to register a domain without a superuser", msg.Admin)
 	}
 	// set new domain
 	domain := types.Domain{
@@ -487,11 +484,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	// save account
 	k.CreateAccount(ctx, acc)
 	// success TODO think here, can we emit any useful event
-	return &sdk.Result{
-		Data:   nil,
-		Log:    "",
-		Events: nil,
-	}, nil
+	return &sdk.Result{}, nil
 }
 
 // handlerMsgRenewDomain renews a domain
