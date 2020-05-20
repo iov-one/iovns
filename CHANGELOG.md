@@ -6,6 +6,7 @@
 - enable fees for all domain module handlers
 - remove certificate indexing
 - fix account transfer
+- fix account store keys that end up reading contents of other accounts
 
 ## 0.2.3
 

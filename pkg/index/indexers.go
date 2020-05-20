@@ -14,3 +14,14 @@ func (a addrIndexer) Index() ([]byte, error) {
 func NewAddressIndex(store sdk.KVStore, prefix []byte, address sdk.AccAddress) (Store, error) {
 	return NewIndexedStore(store, prefix, addrIndexer(address))
 }
+
+type stringIndexer string
+
+func (s stringIndexer) Index() ([]byte, error) {
+	return []byte(s), nil
+}
+
+// NewStringIndex builds a string indexer given a prefix and a string
+func NewStringIndex(store sdk.KVStore, prefix []byte, str string) (Store, error) {
+	return NewIndexedStore(store, prefix, stringIndexer(str))
+}
