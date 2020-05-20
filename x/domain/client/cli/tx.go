@@ -566,7 +566,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			accountRenew, err := cmd.Flags().GetInt64("account-renew")
+			accountRenew, err := cmd.Flags().GetDuration("account-renew")
 			if err != nil {
 				return err
 			}
@@ -585,10 +585,12 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
+
+	defaultDuration, _ := time.ParseDuration("1h")
 	// add flags
 	cmd.Flags().String("domain", "", "name of the domain you want to register")
 	cmd.Flags().Bool("has-superuser", true, "define if this domain has a superuser or not")
-	cmd.Flags().Duration("account-renew", 24*365*time.Hour, "account duration in seconds before expiration")
+	cmd.Flags().Duration("account-renew", defaultDuration, "account duration in seconds before expiration")
 	return cmd
 }
 

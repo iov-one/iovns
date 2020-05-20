@@ -460,7 +460,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		Admin:        msg.Admin,
 		ValidUntil:   ctx.BlockTime().Add(k.ConfigurationKeeper.GetDomainRenewDuration(ctx)).Unix(),
 		HasSuperuser: msg.HasSuperuser,
-		AccountRenew: time.Duration(msg.AccountRenew) * time.Second,
+		AccountRenew: msg.AccountRenew,
 		Broker:       msg.Broker,
 	}
 	// if domain has not a super user then set domain to 0 address
