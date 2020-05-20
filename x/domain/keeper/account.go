@@ -142,7 +142,7 @@ func (k Keeper) DeleteAccountCertificate(ctx sdk.Context, account types.Account,
 func (k Keeper) UpdateAccountValidity(ctx sdk.Context, account types.Account, accountRenew time.Duration) {
 	// update account time
 	account.ValidUntil = iovns.TimeToSeconds(
-		iovns.SecondsToTime(account.ValidUntil).Add(accountRenew * time.Second),
+		iovns.SecondsToTime(account.ValidUntil).Add(accountRenew),
 	)
 	// update account in kv store
 	k.SetAccount(ctx, account)

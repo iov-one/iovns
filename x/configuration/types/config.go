@@ -2,6 +2,7 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"time"
 )
 
 // Config is the configuration of the network
@@ -17,8 +18,8 @@ type Config struct {
 	ValidBlockchainID string `json:"valid_blockchain_id"`
 	// ValidBlockchainAddress determines a regexp for a valid blockchain address
 	ValidBlockchainAddress string `json:"valid_blockchain_address"`
-	// DomainRenew defines the duration of the domain renewal period in seconds
-	DomainRenew int64 `json:"domain_renew"`
+	// DomainRenew defines the duration of the domain renewal period
+	DomainRenew time.Duration `json:"domain_renew"`
 	// DomainGracePeriod defines the grace period for a domain deletion in seconds
 	DomainGracePeriod int64 `json:"domain_grace_period"`
 }
