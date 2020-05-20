@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -105,8 +106,8 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 				ValidName:              validName,
 				ValidBlockchainID:      validBlockchainID,
 				ValidBlockchainAddress: validBlockchainAddress,
-				DomainRenew:            domainRenew,
-				DomainGracePeriod:      domainGracePeriod,
+				DomainRenew:            domainRenew * time.Second,
+				DomainGracePeriod:      domainGracePeriod * time.Second,
 			}
 			// build msg
 			msg := &types.MsgUpdateConfig{

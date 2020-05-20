@@ -19,7 +19,7 @@ type Config struct {
 	ValidBlockchainID string `json:"valid_blockchain_id"`
 	// ValidBlockchainAddress determines a regexp for a valid blockchain address
 	ValidBlockchainAddress string `json:"valid_blockchain_address"`
-	// DomainRenew defines the duration of the domain renewal period
+	// DomainRenew defines the duration of the domain renewal period in seconds
 	DomainRenew time.Duration `json:"domain_renew"`
 	// DomainGracePeriod defines the grace period for a domain deletion in seconds
 	DomainGracePeriod time.Duration `json:"domain_grace_period"`
