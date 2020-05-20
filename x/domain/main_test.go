@@ -2,13 +2,15 @@ package domain
 
 import (
 	"fmt"
+	"os"
+	"testing"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
-	"os"
-	"testing"
 )
 
 var aliceKey keys.Info
@@ -45,12 +47,18 @@ func TestMain(t *testing.M) {
 
 // subTest defines a test runner
 type subTest struct {
+	// BeforeTestBlockTime is the block time during before test in unix seconds
+	BeforeTestBlockTime int64
 	// BeforeTest is the function run before doing the test,
 	// used for example to store state, like configurations etc.
 	// Ignored if nil
 	BeforeTest func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks)
+	// TestBlockTime is the block time during test in unix seconds
+	TestBlockTime int64
 	// Test is the function that runs the actual test
 	Test func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks)
+	// AfterTestBlockTime is the block time during after test in unix seconds
+	AfterTestBlockTime int64
 	// AfterTest performs actions after the test is run, it can
 	// be used to check if the state after Test is run matches
 	// the result we expect.
@@ -89,12 +97,26 @@ func runTests(t *testing.T, tests map[string]subTest) {
 		t.Run(name, func(t *testing.T) {
 			// run before subTest
 			if test.BeforeTest != nil {
+				if test.BeforeTestBlockTime != 0 {
+					t := time.Unix(test.BeforeTestBlockTime, 0)
+					ctx = ctx.WithBlockTime(t)
+				}
 				test.BeforeTest(t, domainKeeper, ctx, mocks)
+			}
+
+			if test.TestBlockTime != 0 {
+				t := time.Unix(test.TestBlockTime, 0)
+				ctx = ctx.WithBlockTime(t)
 			}
 			// run actual subTest
 			test.Test(t, domainKeeper, ctx, mocks)
+
 			// run after subTest
 			if test.AfterTest != nil {
+				if test.AfterTestBlockTime != 0 {
+					t := time.Unix(test.AfterTestBlockTime, 0)
+					ctx = ctx.WithBlockTime(t)
+				}
 				test.AfterTest(t, domainKeeper, ctx, mocks)
 			}
 		})
