@@ -3,6 +3,7 @@ package domain
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"regexp"
 	"time"
 
@@ -52,6 +53,20 @@ func NewHandler(k Keeper) sdk.Handler {
 	}
 
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+		/*
+			TODO
+			remove when cosmos sdk decides that you are allowed to panic on errors that should not happen
+			instead of returning random internal errors that mean actually nothing to a developer without
+			a stacktrace or at least the error string of the panic itself, and also substitute 'log' stdlib
+			with cosmos sdk logger when they make clear how you can use it and how to set up env to achieve so
+		*/
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("FATAL-PANIC while executing message: %#v\nReason: %v", msg, r)
+				// and lets panic again to throw it back to cosmos sdk yikes.
+				panic(r)
+			}
+		}()
 		resp, err := f(ctx, msg)
 		if err != nil {
 			msg := fmt.Sprintf("tx rejected %T: %s", msg, err)

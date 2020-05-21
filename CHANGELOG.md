@@ -14,6 +14,7 @@
 - fix account transfer
 - fix account renew timestamp
 - fix account store keys that end up reading contents of other accounts
+- add logging on panics
 
 ### Breaking changes
 
