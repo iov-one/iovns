@@ -34,7 +34,6 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	domainTxCmd.AddCommand(flags.PostCommands(
 		getCmdRegisterDomain(cdc),
 		getCmdAddAccountCerts(cdc),
-		getCmdFlushDomain(cdc),
 		getCmdTransferAccount(cdc),
 		getCmdTransferDomain(cdc),
 		getCmdReplaceAccountTargets(cdc),
@@ -194,38 +193,6 @@ func getCmdReplaceAccountTargets(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("name", "", "the name of the account whose targets you want to replace")
 	cmd.Flags().String("src", "targets.json", "the file containing the new targets in json format")
 	// return cmd
-	return cmd
-}
-
-func getCmdFlushDomain(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "flush-domain",
-		Short: "flush a domain",
-		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			// get flags
-			domain, err := cmd.Flags().GetString("domain")
-			if err != nil {
-				return
-			}
-			// build msg
-			msg := &types.MsgFlushDomain{
-				Domain: domain,
-				Owner:  cliCtx.GetFromAddress(),
-			}
-			// check if valid
-			if err = msg.ValidateBasic(); err != nil {
-				return err
-			}
-			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
-		},
-	}
-	// add flags
-	cmd.Flags().String("domain", "", "name of the domain you want to flush")
-	//
 	return cmd
 }
 

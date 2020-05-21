@@ -26,8 +26,6 @@ func NewHandler(k Keeper) sdk.Handler {
 			return handlerMsgRenewDomain(ctx, k, msg)
 		case *types.MsgDeleteDomain:
 			return handlerMsgDeleteDomain(ctx, k, msg)
-		case *types.MsgFlushDomain:
-			return handlerMsgFlushDomain(ctx, k, msg)
 		case *types.MsgTransferDomain:
 			return handlerMsgTransferDomain(ctx, k, msg)
 		// account handlers
@@ -430,31 +428,6 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 	// all checks passed delete domain
 	_ = k.DeleteDomain(ctx, msg.Domain)
 	// success TODO maybe emit event?
-	return &sdk.Result{}, nil
-}
-
-func handlerMsgFlushDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgFlushDomain) (*sdk.Result, error) {
-	// get domain
-	domain, exists := k.GetDomain(ctx, msg.Domain)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
-	}
-	// check if domain has superuser
-	if !domain.HasSuperuser {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "domains without a superuser cannot be flushed")
-	}
-	// check if signer is also domain owner
-	if !msg.Owner.Equals(domain.Admin) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to flush domain owned by %s", msg.Owner, domain.Admin)
-	}
-	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner)
-	if err != nil {
-		return nil, sdkerrors.Wrap(err, "unable to collect fees")
-	}
-	// now flush
-	_ = k.FlushDomain(ctx, msg.Domain)
-	// success; TODO maybe emit event?
 	return &sdk.Result{}, nil
 }
 

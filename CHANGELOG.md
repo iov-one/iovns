@@ -4,6 +4,7 @@
 
 - iovnscli: fix has-superuser bool flag bug
 - iovnsd: fix duplicate blockchain targets ID
+- remove flush domain feature
 
 ## v0.2.4
 
