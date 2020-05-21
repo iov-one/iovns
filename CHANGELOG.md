@@ -2,6 +2,8 @@
 
 ## HEAD
 
+- iovnscli: fix has-superuser bool flag bug
+
 ## v0.2.4
 
 - domain grace period is time.duration now 

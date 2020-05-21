@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -562,7 +563,11 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			hasSuperUser, err := cmd.Flags().GetBool("has-superuser")
+			hasSuperUserStr, err := cmd.Flags().GetString("has-superuser")
+			if err != nil {
+				return err
+			}
+			hasSuperUser, err := strconv.ParseBool(hasSuperUserStr)
 			if err != nil {
 				return err
 			}
@@ -589,7 +594,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 	defaultDuration, _ := time.ParseDuration("1h")
 	// add flags
 	cmd.Flags().String("domain", "", "name of the domain you want to register")
-	cmd.Flags().Bool("has-superuser", true, "define if this domain has a superuser or not")
+	cmd.Flags().String("has-superuser", "true", "define if this domain has a superuser or not")
 	cmd.Flags().Duration("account-renew", defaultDuration, "account duration in seconds before expiration")
 	return cmd
 }
