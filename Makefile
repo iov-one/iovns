@@ -3,10 +3,9 @@ PACKAGES=$(shell go list ./... | grep -v '/simulation')
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 
-# TODO: Update the ldflags with the app, client & server names
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=NewApp \
-	-X github.com/cosmos/cosmos-sdk/version.ServerName=appd \
-	-X github.com/cosmos/cosmos-sdk/version.ClientName=appcli \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=iovns \
+	-X github.com/cosmos/cosmos-sdk/version.ServerName=iovnsd \
+	-X github.com/cosmos/cosmos-sdk/version.ClientName=iovnscli \
 	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) 
 BUILD_FLAGS := -ldflags '$(ldflags)'
