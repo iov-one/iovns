@@ -3,7 +3,7 @@
    "version": "1.0.0",
    "description": "Club together various pieces of the genesis file from various sources",
    "scripts": {
-      "test": "node -r esm jestesm.js --coverage --testEnvironment node",
+      "test": "node -r esm jestesm.js --coverage --testEnvironment node --runInBand",
       "genesis": "docker-compose up",
       "clean": "yes | docker volume prune"
    },
