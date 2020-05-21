@@ -1866,6 +1866,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
+		/* TODO REMOVE THIS TEST CASE AS IT DOES NOT APPLY WITH NEW SPEC.
 		"fail domain with no super user must be registered by configuration owner": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// add config with owner
@@ -1895,6 +1896,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
+		*/
 	}
 	// run all test cases
 	runTests(t, testCases)
