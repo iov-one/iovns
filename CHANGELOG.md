@@ -3,6 +3,7 @@
 ## HEAD
 
 - iovnscli: fix has-superuser bool flag bug
+- iovnsd: fix duplicate blockchain targets ID
 
 ## v0.2.4
 
