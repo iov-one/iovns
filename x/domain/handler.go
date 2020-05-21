@@ -235,8 +235,15 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 func validateBlockchainTargets(targets []types.BlockchainAddress, conf configuration.Config) error {
 	validBlockchainID := regexp.MustCompile(conf.ValidBlockchainID)
 	validBlockchainAddress := regexp.MustCompile(conf.ValidBlockchainAddress)
+	// create blockchain targets set to identify duplicates
+	sets := make(map[string]struct{}, len(targets))
 	// iterate over targets to check their validity
 	for _, target := range targets {
+		// check if blockchain ID was already specified
+		if _, ok := sets[target.ID]; ok {
+			return fmt.Errorf("duplicate blockchain ID: %s", target)
+		}
+		sets[target.ID] = struct{}{}
 		// is blockchain id valid?
 		if !validBlockchainID.MatchString(target.ID) {
 			return fmt.Errorf("%s is not a valid blockchain ID", target.ID)
