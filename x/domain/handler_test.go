@@ -2107,3 +2107,43 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 
 	runTests(t, cases)
 }
+
+func Test_validateBlockchainTargets(t *testing.T) {
+	type args struct {
+		targets []types.BlockchainAddress
+		conf    configuration.Config
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "duplicate blockchain target",
+			args: args{
+				targets: []types.BlockchainAddress{
+					{
+						ID:      "duplicate",
+						Address: "does not matter",
+					},
+					{
+						ID:      "duplicate",
+						Address: "does not matter",
+					},
+				},
+				conf: configuration.Config{
+					ValidBlockchainID:      regexMatchAll,
+					ValidBlockchainAddress: regexMatchAll,
+				},
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateBlockchainTargets(tt.args.targets, tt.args.conf); (err != nil) != tt.wantErr {
+				t.Errorf("validateBlockchainTargets() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
