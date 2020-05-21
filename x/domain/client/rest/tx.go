@@ -1,12 +1,13 @@
 package rest
 
 import (
+	"net/http"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/iov-one/iovns/x/domain/types"
-	"net/http"
 )
 
 // handleTxRequest is a helper function that takes care of checking base requests, sdk messages, after verifying
@@ -103,23 +104,6 @@ type deleteDomain struct {
 func deleteDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		var req deleteDomain
-		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
-			return
-		}
-		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
-	}
-}
-
-// flushDomain is the request model for flushDomainHandler
-type flushDomain struct {
-	BaseReq rest.BaseReq          `json:"base_req"`
-	Message *types.MsgFlushDomain `json:"message"`
-}
-
-// flushDomainHandler builds the transaction to sign to flush a domain
-func flushDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		var req flushDomain
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}

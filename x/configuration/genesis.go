@@ -84,7 +84,6 @@ func DefaultGenesisState() GenesisState {
 	fees.UpsertDefaultFees(&domain_types.MsgDeleteAccountCertificate{}, defFee)
 	fees.UpsertDefaultFees(&domain_types.MsgDeleteDomain{}, defFee)
 	fees.UpsertDefaultFees(&domain_types.MsgDeleteAccount{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgFlushDomain{}, defFee)
 	fees.UpsertDefaultFees(&domain_types.MsgRegisterAccount{}, defFee)
 	fees.UpsertDefaultFees(&domain_types.MsgRenewAccount{}, defFee)
 	fees.UpsertDefaultFees(&domain_types.MsgRenewDomain{}, defFee)

@@ -2,13 +2,14 @@ package rest
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/tutils"
-	"io/ioutil"
-	"net/http"
 )
 
 // txRouteList clubs together all the transaction routes, which are the transactions
@@ -19,7 +20,6 @@ var txRoutesList = map[string]func(cliContext context.CLIContext) http.HandlerFu
 	"delAccountCertificates":    delAccountCertificateHandler,
 	"deleteAccount":             deleteAccountHandler,
 	"deleteDomain":              deleteDomainHandler,
-	"flushDomain":               flushDomainHandler,
 	"registerAccount":           registerAccountHandler,
 	"renewAccount":              renewAccountHandler,
 	"renewDomain":               renewDomainHandler,
