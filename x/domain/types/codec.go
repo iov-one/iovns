@@ -23,7 +23,6 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(&MsgDeleteAccountCertificate{}, fmt.Sprintf("%s/DeleteAccountCertificates", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgDeleteAccount{}, fmt.Sprintf("%s/DeleteAccount", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgDeleteDomain{}, fmt.Sprintf("%s/DeleteDomain", ModuleName), nil)
-	cdc.RegisterConcrete(&MsgFlushDomain{}, fmt.Sprintf("%s/FlusDomain", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgRegisterAccount{}, fmt.Sprintf("%s/RegisterAccount", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgRenewDomain{}, fmt.Sprintf("%s/RenewDomain", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgReplaceAccountTargets{}, fmt.Sprintf("%s/ReplaceAccountTargets", ModuleName), nil)

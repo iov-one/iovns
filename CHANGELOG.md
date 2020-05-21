@@ -3,6 +3,7 @@
 ## HEAD
 
 - iovnscli: fix has-superuser bool flag bug
+- remove flush domain feature
 
 ## v0.2.4
 

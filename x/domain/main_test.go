@@ -84,7 +84,6 @@ func runTests(t *testing.T, tests map[string]subTest) {
 		fees.UpsertDefaultFees(&types.MsgDeleteAccountCertificate{}, defFee)
 		fees.UpsertDefaultFees(&types.MsgDeleteDomain{}, defFee)
 		fees.UpsertDefaultFees(&types.MsgDeleteAccount{}, defFee)
-		fees.UpsertDefaultFees(&types.MsgFlushDomain{}, defFee)
 		fees.UpsertDefaultFees(&types.MsgRegisterAccount{}, defFee)
 		fees.UpsertDefaultFees(&types.MsgRenewAccount{}, defFee)
 		fees.UpsertDefaultFees(&types.MsgRenewDomain{}, defFee)
