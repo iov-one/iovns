@@ -2,6 +2,7 @@
 
 ## HEAD
 
+- upgrade cosmos-sdk to v0.38.4
 - iovnsd: fix fee colletor address
 
 ## v0.2.5
