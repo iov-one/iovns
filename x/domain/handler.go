@@ -3,10 +3,11 @@ package domain
 import (
 	"bytes"
 	"fmt"
-	"github.com/iov-one/iovns/x/domain/controllers"
 	"log"
 	"regexp"
 	"time"
+
+	ctrl "github.com/iov-one/iovns/x/domain/controllers"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -403,13 +404,13 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 }
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
-	ctrl := controllers.NewDomainController(ctx, k, msg.Domain)
-	err := ctrl.Validate(controllers.DomainMustExist, controllers.DomainSuperuser(true))
+	c := ctrl.NewDomainController(ctx, k, msg.Domain)
+	err := c.Validate(ctrl.DomainMustExist, ctrl.DomainSuperuser(true))
 	if err != nil {
 		return nil, err
 	}
 	// if domain is not over grace period and signer is not the owner of the domain then the operation is not allowed
-	if err := ctrl.Validate(controllers.DomainOwner(msg.Owner)); err != nil && !ctrl.Condition(controllers.DomainGracePeriodFinished) {
+	if err := c.Validate(ctrl.DomainOwner(msg.Owner)); err != nil && !c.Condition(ctrl.DomainGracePeriodFinished) {
 		return nil, sdkerrors.Wrap(types.ErrUnauthorized, "unable to delete domain not owned if grace period is not finished")
 	}
 	// operation is allowed
@@ -426,8 +427,8 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 
 // handleMsgRegisterDomain handles the domain registration process
 func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
-	ctrl := controllers.NewDomainController(ctx, k, msg.Name)
-	err = ctrl.Validate(controllers.DomainMustNotExist, controllers.DomainValidName)
+	c := ctrl.NewDomainController(ctx, k, msg.Name)
+	err = c.Validate(ctrl.DomainMustNotExist, ctrl.DomainValidName)
 	if err != nil {
 		return nil, err
 	}
@@ -469,12 +470,12 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 
 // handlerMsgRenewDomain renews a domain
 func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
-	ctrl := controllers.NewDomainController(ctx, k, msg.Domain)
-	err := ctrl.Validate(controllers.DomainMustExist)
+	c := ctrl.NewDomainController(ctx, k, msg.Domain)
+	err := c.Validate(ctrl.DomainMustExist)
 	if err != nil {
 		return nil, err
 	}
-	domain := ctrl.GetDomain()
+	domain := c.GetDomain()
 	// get configuration
 	renewDuration := k.ConfigurationKeeper.GetDomainRenewDuration(ctx)
 	// update domain valid until
@@ -493,18 +494,18 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 }
 
 func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
-	ctrl := controllers.NewDomainController(ctx, k, msg.Domain)
-	err := ctrl.Validate(
-		controllers.DomainMustExist,
-		controllers.DomainSuperuser(true),
-		controllers.DomainOwner(msg.Owner),
-		controllers.DomainNotExpired,
+	c := ctrl.NewDomainController(ctx, k, msg.Domain)
+	err := c.Validate(
+		ctrl.DomainMustExist,
+		ctrl.DomainSuperuser(true),
+		ctrl.DomainOwner(msg.Owner),
+		ctrl.DomainNotExpired,
 	)
 	if err != nil {
 		return nil, err
 	}
 	// get domain
-	domain := ctrl.GetDomain()
+	domain := c.GetDomain()
 	// collect fees
 	err = k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {
