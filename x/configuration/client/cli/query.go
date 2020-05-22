@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -35,11 +36,11 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 func getCmdQueryConfig(route string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "get-config",
-		Short: "gets the last configuration ",
+		Short: "gets the current configuration",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			path := fmt.Sprintf("custom/%s/%s", route, types.QuerierRoute)
+			path := fmt.Sprintf("custom/%s/%s", route, types.QueryConfig)
 			resp, _, err := cliCtx.Query(path)
 			if err != nil {
 				return err
@@ -54,17 +55,17 @@ func getCmdQueryConfig(route string, cdc *codec.Codec) *cobra.Command {
 func getCmdQueryFees(route string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "get-fees",
-		Short: "gets the fees",
+		Short: "gets the current fees",
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			path := fmt.Sprintf("custom/%s/%s", route, types.QueryConfig)
+			path := fmt.Sprintf("custom/%s/%s", route, types.QueryFees)
 			resp, _, err := cliCtx.Query(path)
 			if err != nil {
 				return err
 			}
-			var jsonResp types.QueryConfigResponse
-			cdc.MustUnmarshalJSON(resp, jsonResp)
+			var jsonResp types.QueryFeesResponse
+			cdc.MustUnmarshalJSON(resp, &jsonResp)
 			return cliCtx.PrintOutput(jsonResp)
 		},
 	}
