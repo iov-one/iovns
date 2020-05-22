@@ -2,6 +2,8 @@
 
 ## HEAD
 
+- iovnsd: fix fee colletor address
+
 ## v0.2.5
 
 - iovnscli: fix has-superuser bool flag bug

@@ -3,8 +3,9 @@ package keeper
 import (
 	"log"
 
+	"github.com/cosmos/cosmos-sdk/x/auth"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
@@ -44,5 +45,5 @@ func (k Keeper) CollectFees(ctx sdk.Context, msg sdk.Msg, addr sdk.AccAddress) e
 		return nil
 	}
 	// transfer fee to distribution
-	return k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, addr, distribution.ModuleName, sdk.NewCoins(fee))
+	return k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, addr, auth.FeeCollectorName, sdk.NewCoins(fee))
 }
