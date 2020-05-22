@@ -54,6 +54,7 @@ func (c *Domain) Condition(cond DomainControllerCond) bool {
 	return cond(c)
 }
 
+// DomainExpired checks if the provided domain has expired or not
 func DomainExpired(controller *Domain) bool {
 	return controller.domainExpired()
 }
@@ -97,7 +98,7 @@ func DomainOwner(addr sdk.AccAddress) DomainControllerFunc {
 func (c *Domain) ownedBy(addr sdk.AccAddress) error {
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
-		return err
+		panic("validation check is not allowed on a non existing domain")
 	}
 	// check if admin matches addr
 	if c.domain.Admin.Equals(addr) {
@@ -113,7 +114,7 @@ func DomainNotExpired(controller *Domain) error {
 func (c *Domain) notExpired() error {
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
-		return err
+		panic("validation check is not allowed on a non existing domain")
 	}
 	// check if domain has expired
 	expireTime := iovns.SecondsToTime(c.domain.ValidUntil)
@@ -135,7 +136,7 @@ func DomainSuperuser(condition bool) DomainControllerFunc {
 func (c *Domain) superuser(condition bool) error {
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
-		return err
+		panic("validation check is not allowed on a non existing domain")
 	}
 	// check if superuser matches condition
 	if c.domain.HasSuperuser == condition {
@@ -149,7 +150,7 @@ func (c *Domain) superuser(condition bool) error {
 	}
 }
 
-// DomainMustExist checks if the provided domain mustExist
+// DomainMustExist checks if the provided domain exists
 func DomainMustExist(controller *Domain) error {
 	return controller.mustExist()
 }

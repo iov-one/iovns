@@ -77,33 +77,15 @@ func NewHandler(k Keeper) sdk.Handler {
 }
 
 func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *types.MsgAddAccountCertificates) (*sdk.Result, error) {
-	// get domain
-	domain, exists := k.GetDomain(ctx, msg.Domain)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
+	// perform domain checks
+	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(ctrl.DomainMustExist, ctrl.DomainNotExpired); err != nil {
+		return nil, err
 	}
-	// check if current time is after domain validity time
-	if ctx.BlockTime().After(iovns.SecondsToTime(domain.ValidUntil)) {
-		return nil, sdkerrors.Wrapf(types.ErrDomainExpired, "domain %s has expired", msg.Domain)
-	}
-	// get account
-	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
-	}
-	// check if current time is after account validity time
-	if ctx.BlockTime().After(iovns.SecondsToTime(account.ValidUntil)) {
-		return nil, sdkerrors.Wrapf(types.ErrAccountExpired, "account %s has expired", msg.Name)
-	}
-	// check if signer is account owner
-	if !msg.Owner.Equals(account.Owner) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "%s cannot add certificates to account owned by %s", msg.Owner, account.Owner)
-	}
-	// check if certificate is already present in account
-	for _, cert := range account.Certificates {
-		if bytes.Equal(cert, msg.NewCertificate) {
-			return nil, sdkerrors.Wrapf(types.ErrCertificateExists, "certificate is already present")
-		}
+	// perform account checks
+	accountCtrl := ctrl.NewAccountController(ctx, k, msg.Domain, msg.Name)
+	if err := accountCtrl.Validate(ctrl.AccountMustExist, ctrl.AccountNotExpired, ctrl.AccountOwner(msg.Owner), ctrl.AccountCertificateNotExist(msg.NewCertificate)); err != nil {
+		return nil, err
 	}
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
@@ -111,22 +93,19 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *typ
 		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
 	// add certificate
-	k.AddAccountCertificate(ctx, account, msg.NewCertificate)
+	k.AddAccountCertificate(ctx, accountCtrl.GetAccount(), msg.NewCertificate)
 	// success; TODO emit event
 	return &sdk.Result{}, nil
 }
 
 func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
-	// get account
-	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
-	}
-	// check if signer is account owner
-	if !msg.Owner.Equals(account.Owner) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "%s cannot delete certificates from account owned by %s", msg.Owner, account.Owner)
+	// perform account checks
+	accountCtrl := ctrl.NewAccountController(ctx, k, msg.Domain, msg.Name)
+	if err := accountCtrl.Validate(ctrl.AccountMustExist, ctrl.AccountOwner(msg.Owner)); err != nil {
+		return nil, err
 	}
 	// check if certificate exists
+	account := accountCtrl.GetAccount()
 	var found bool
 	var certIndex int
 	// iterate over certs
@@ -155,19 +134,19 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *t
 
 // handlerMsgDelete account deletes the account from the system
 func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteAccount) (*sdk.Result, error) {
-	// check if domain exists
-	domain, exists := k.GetDomain(ctx, msg.Domain)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
+	// perform domain checks
+	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(ctrl.DomainMustExist); err != nil {
+		return nil, err
 	}
-	// check if account exists
-	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
+	// perform account checks
+	accountCtrl := ctrl.NewAccountController(ctx, k, msg.Domain, msg.Name)
+	if err := accountCtrl.Validate(ctrl.AccountMustExist); err != nil {
+		return nil, err
 	}
-	// check if msg.Owner is either domain owner or account owner
-	if !domain.Admin.Equals(msg.Owner) && !account.Owner.Equals(msg.Owner) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner: %s and domain admin %s can delete the account", account.Owner, domain.Admin)
+	// perform action authorization checks
+	if (domainCtrl.Validate(ctrl.DomainOwner(msg.Owner)) != nil) && (accountCtrl.Validate(ctrl.AccountOwner(msg.Owner)) != nil) {
+		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner: %s and domain admin %s can delete the account", accountCtrl.GetAccount().Owner, domainCtrl.GetDomain().Admin)
 	}
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
@@ -189,29 +168,22 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 	if err := validateBlockchainTargets(msg.Targets, conf); err != nil {
 		return nil, sdkerrors.Wrap(types.ErrInvalidBlockchainTarget, err.Error())
 	}
-	// validate account name
-	if !regexp.MustCompile(conf.ValidName).MatchString(msg.Name) {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidAccountName, "invalid name: %s", msg.Name)
+	// do validity checks on domain
+	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
+	err := domainCtrl.Validate(ctrl.DomainMustExist, ctrl.DomainSuperuser(true), ctrl.DomainNotExpired, ctrl.DomainOwner(msg.Owner))
+	if err != nil {
+		return nil, err
 	}
-	// check if domain name exists
-	domain, ok := k.GetDomain(ctx, msg.Domain)
-	if !ok {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
-	}
-	// check if domain has super user that owner equals to the domain admin
-	if domain.HasSuperuser && !domain.Admin.Equals(msg.Owner) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "address %s is not authorized to register an account in a domain with superuser", msg.Owner)
-	}
-	// check if domain is still valid
-	if ctx.BlockTime().After(iovns.SecondsToTime(domain.ValidUntil)) {
-		return nil, sdkerrors.Wrap(types.ErrDomainExpired, "account registration is not allowed")
-	}
-	// check account does not exist already
-	if _, ok := k.GetAccount(ctx, msg.Domain, msg.Name); ok {
-		return nil, sdkerrors.Wrapf(types.ErrAccountExists, "account: %s exists for domain %s", msg.Name, msg.Domain)
+	// get domain
+	domain := domainCtrl.GetDomain()
+	// accounts validity checks
+	accountCtrl := ctrl.NewAccountController(ctx, k, msg.Domain, msg.Name)
+	err = accountCtrl.Validate(ctrl.AccountValidName, ctrl.AccountMustNotExist)
+	if err != nil {
+		return nil, err
 	}
 	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner)
+	err = k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
@@ -258,15 +230,15 @@ func validateBlockchainTargets(targets []types.BlockchainAddress, conf configura
 }
 
 func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewAccount) (*sdk.Result, error) {
-	// get domain
-	domain, exists := k.GetDomain(ctx, msg.Domain)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
+	// validate domain
+	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(ctrl.DomainMustExist); err != nil {
+		return nil, err
 	}
-	// get account
-	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
+	// validate account
+	accountCtrl := ctrl.NewAccountController(ctx, k, msg.Domain, msg.Name)
+	if err := accountCtrl.Validate(ctrl.AccountMustExist); err != nil {
+		return nil, err
 	}
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Signer)
@@ -274,7 +246,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// renew account
-	k.UpdateAccountValidity(ctx, account, domain.AccountRenew)
+	k.UpdateAccountValidity(ctx, accountCtrl.GetAccount(), domainCtrl.GetDomain().AccountRenew)
 	// success; todo emit event??
 	return &sdk.Result{}, nil
 }
@@ -288,27 +260,15 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 	if err != nil {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidBlockchainTarget, err.Error())
 	}
-	// get domain
-	domain, exists := k.GetDomain(ctx, msg.Domain)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
+	// perform domain checks
+	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(ctrl.DomainMustExist, ctrl.DomainNotExpired); err != nil {
+		return nil, err
 	}
-	// see if domain still valid
-	if ctx.BlockTime().After(iovns.SecondsToTime(domain.ValidUntil)) {
-		return nil, sdkerrors.Wrapf(types.ErrDomainExpired, "domain %s has expired", msg.Domain)
-	}
-	// get account
-	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
-	}
-	// check if expired
-	if ctx.BlockTime().After(iovns.SecondsToTime(account.ValidUntil)) {
-		return nil, sdkerrors.Wrapf(types.ErrAccountExpired, "account %s has expired", msg.Name)
-	}
-	// check if account owner matches request signer
-	if !msg.Owner.Equals(account.Owner) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "account %s is not authorized to perform actions on account owned by %s", msg.Owner, account.Owner)
+	// perform account checks
+	accountCtrl := ctrl.NewAccountController(ctx, k, msg.Domain, msg.Name)
+	if err := accountCtrl.Validate(ctrl.AccountMustExist, ctrl.AccountNotExpired, ctrl.AccountOwner(msg.Owner)); err != nil {
+		return nil, err
 	}
 	// collect fees
 	err = k.CollectFees(ctx, msg, msg.Owner)
@@ -316,36 +276,25 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// replace targets replaces accounts targets
-	k.ReplaceAccountTargets(ctx, account, msg.NewTargets)
+	k.ReplaceAccountTargets(ctx, accountCtrl.GetAccount(), msg.NewTargets)
 	// success; TODO emit any useful event?
 	return &sdk.Result{}, nil
 }
 
 // handlerMsgSetAccountMetadata takes care of setting account metadata
 func handlerMsgSetAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.MsgSetAccountMetadata) (*sdk.Result, error) {
-	// get domain
-	domain, ok := k.GetDomain(ctx, msg.Domain)
-	if !ok {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
+	// perform domain checks
+	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(ctrl.DomainMustExist, ctrl.DomainNotExpired); err != nil {
+		return nil, err
 	}
-	// check if domain expired
-	if ctx.BlockTime().After(iovns.SecondsToTime(domain.ValidUntil)) {
-		return nil, sdkerrors.Wrapf(types.ErrDomainExpired, "domain %s has expired", domain.Name)
-	}
-	// get account
-	account, ok := k.GetAccount(ctx, msg.Domain, msg.Name)
-	if !ok {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
-	}
-	// check if account expired
-	if ctx.BlockTime().After(iovns.SecondsToTime(account.ValidUntil)) {
-		return nil, sdkerrors.Wrapf(types.ErrAccountExpired, "account %s has expired", msg.Name)
-	}
-	// check if signer is account owner
-	if !account.Owner.Equals(msg.Owner) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "not allowed to change account metadata uri, invalid owner: %s", msg.Owner)
+	// perform account checks
+	accountCtrl := ctrl.NewAccountController(ctx, k, msg.Domain, msg.Name)
+	if err := accountCtrl.Validate(ctrl.AccountMustExist, ctrl.AccountNotExpired, ctrl.AccountOwner(msg.Owner)); err != nil {
+		return nil, err
 	}
 	// update account
+	account := accountCtrl.GetAccount()
 	account.MetadataURI = msg.NewMetadataURI
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
@@ -361,35 +310,27 @@ func handlerMsgSetAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.M
 // handlerMsgTransferAccount transfers account to a new owner
 // after clearing targets and certificates
 func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferAccount) (*sdk.Result, error) {
-	// check if domain exists
-	domain, exists := k.GetDomain(ctx, msg.Domain)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
-	}
-	// check if domain has expired expired
-	if iovns.SecondsToTime(domain.ValidUntil).Before(ctx.BlockTime()) {
-		return nil, sdkerrors.Wrapf(types.ErrDomainExpired, "account transfer is not allowed for expired domains, expire date: %s", iovns.SecondsToTime(domain.ValidUntil))
+	// perform domain checks
+	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(ctrl.DomainMustExist, ctrl.DomainNotExpired); err != nil {
+		return nil, err
 	}
 	// check if account exists
-	account, exists := k.GetAccount(ctx, msg.Domain, msg.Name)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", msg.Domain, msg.Name)
-	}
-	// check if account has expired
-	if iovns.SecondsToTime(account.ValidUntil).Before(ctx.BlockTime()) {
-		return nil, sdkerrors.Wrapf(types.ErrAccountExpired, "account %s has expired", msg.Name)
+	accountCtrl := ctrl.NewAccountController(ctx, k, msg.Domain, msg.Name)
+	if err := accountCtrl.Validate(ctrl.AccountMustExist, ctrl.AccountNotExpired); err != nil {
+		return nil, err
 	}
 	// check if domain has super user
-	switch domain.HasSuperuser {
+	switch domainCtrl.GetDomain().HasSuperuser {
 	// if it has a super user then only domain admin can transfer accounts
 	case true:
-		if !msg.Owner.Equals(domain.Admin) {
-			return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", domain.Admin)
+		if domainCtrl.Validate(ctrl.DomainOwner(msg.Owner)) != nil {
+			return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", domainCtrl.GetDomain().Admin)
 		}
 	// if it has not a super user then only account owner can transfer the account
 	case false:
-		if !msg.Owner.Equals(account.Owner) {
-			return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to transfer the account", account.Owner)
+		if accountCtrl.Validate(ctrl.AccountOwner(msg.Owner)) != nil {
+			return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to transfer the account", accountCtrl.GetAccount().Owner)
 		}
 	}
 	// collect fees
@@ -398,7 +339,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// transfer account
-	k.TransferAccount(ctx, account, msg.NewOwner)
+	k.TransferAccount(ctx, accountCtrl.GetAccount(), msg.NewOwner)
 	// success, todo emit event?
 	return &sdk.Result{}, nil
 }

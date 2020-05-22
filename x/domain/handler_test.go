@@ -505,6 +505,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail invalid account name": {
+			TestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config
 				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
@@ -518,9 +519,9 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        bobKey.GetAddress(),
-					ValidUntil:   0,
-					HasSuperuser: false,
+					Admin:        aliceKey.GetAddress(),
+					ValidUntil:   2,
+					HasSuperuser: true,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -577,6 +578,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"fail only owner of domain with superuser can register accounts": {
+			TestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
@@ -592,7 +594,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        bobKey.GetAddress(),
-					ValidUntil:   0,
+					ValidUntil:   2,
 					HasSuperuser: true,
 					AccountRenew: 0,
 					Broker:       nil,
