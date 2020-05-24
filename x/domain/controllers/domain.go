@@ -11,9 +11,10 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-// DomainControllerFunc
+// DomainControllerFunc is the function signature for domain validation functions
 type DomainControllerFunc func(controller *Domain) error
 
+// DomainControllerCond is the function signature for domain condition functions
 type DomainControllerCond func(controller *Domain) bool
 
 // Domain is the domain controller
