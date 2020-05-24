@@ -8,6 +8,7 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestAccount_certNotExist(t *testing.T) {
@@ -106,36 +107,30 @@ func TestAccount_mustNotExist(t *testing.T) {
 }
 
 func TestAccount_notExpired(t *testing.T) {
-	type fields struct {
-		name    string
-		domain  string
-		account *types.Account
-		conf    *configuration.Config
-		ctx     sdk.Context
-		k       keeper.Keeper
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			a := &Account{
-				name:    tt.fields.name,
-				domain:  tt.fields.domain,
-				account: tt.fields.account,
-				conf:    tt.fields.conf,
-				ctx:     tt.fields.ctx,
-				k:       tt.fields.k,
-			}
-			if err := a.notExpired(); (err != nil) != tt.wantErr {
-				t.Errorf("notExpired() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
+	t.Run("success", func(t *testing.T) {
+		acc := &Account{
+			account: &types.Account{
+				ValidUntil: 10,
+			},
+			ctx: sdk.Context{}.WithBlockTime(time.Unix(0, 0)),
+		}
+		err := acc.notExpired()
+		if err != nil {
+			t.Fatalf("got error: %s", err)
+		}
+	})
+	t.Run("expired", func(t *testing.T) {
+		acc := &Account{
+			account: &types.Account{
+				ValidUntil: 10,
+			},
+			ctx: sdk.Context{}.WithBlockTime(time.Unix(11, 0)),
+		}
+		err := acc.notExpired()
+		if !errors.Is(err, types.ErrAccountExpired) {
+			t.Fatalf("want error: %s, got: %s", types.ErrAccountExpired, err)
+		}
+	})
 }
 
 func TestAccount_ownedBy(t *testing.T) {
