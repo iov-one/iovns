@@ -5,17 +5,35 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/mock"
 	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
 	"time"
 )
 
-func TestAccount_mustExist(t *testing.T) {
-
-}
-
 func TestAccount_requireAccount(t *testing.T) {
-
+	t.Run("success", func(t *testing.T) {
+		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		alice, _ := mock.Addresses()
+		k.SetAccount(ctx, types.Account{
+			Domain: "test",
+			Name:   "test",
+			Owner:  alice,
+		})
+		ctrl := NewAccountController(ctx, k, "test", "test")
+		err := ctrl.requireAccount()
+		if err != nil {
+			t.Fatalf("got error: %s", err)
+		}
+	})
+	t.Run("does not exist", func(t *testing.T) {
+		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		ctrl := NewAccountController(ctx, k, "test", "test")
+		err := ctrl.requireAccount()
+		if !errors.Is(err, types.ErrAccountDoesNotExist) {
+			t.Fatalf("want: %s, got: %s", types.ErrAccountDoesNotExist, err)
+		}
+	})
 }
 
 func TestAccount_certNotExist(t *testing.T) {
