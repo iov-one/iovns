@@ -3,6 +3,7 @@ package controllers
 import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/iovns/mock"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -134,40 +135,26 @@ func TestAccount_notExpired(t *testing.T) {
 }
 
 func TestAccount_ownedBy(t *testing.T) {
-	type fields struct {
-		name    string
-		domain  string
-		account *types.Account
-		conf    *configuration.Config
-		ctx     sdk.Context
-		k       keeper.Keeper
-	}
-	type args struct {
-		addr sdk.AccAddress
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			a := &Account{
-				name:    tt.fields.name,
-				domain:  tt.fields.domain,
-				account: tt.fields.account,
-				conf:    tt.fields.conf,
-				ctx:     tt.fields.ctx,
-				k:       tt.fields.k,
-			}
-			if err := a.ownedBy(tt.args.addr); (err != nil) != tt.wantErr {
-				t.Errorf("ownedBy() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
+	t.Run("success", func(t *testing.T) {
+		alice, _ := mock.Addresses()
+		acc := &Account{
+			account: &types.Account{Owner: alice},
+		}
+		err := acc.ownedBy(alice)
+		if err != nil {
+			t.Fatalf("got error: %s", err)
+		}
+	})
+	t.Run("bad owner", func(t *testing.T) {
+		alice, bob := mock.Addresses()
+		acc := &Account{
+			account: &types.Account{Owner: alice},
+		}
+		err := acc.ownedBy(bob)
+		if !errors.Is(err, types.ErrUnauthorized) {
+			t.Fatalf("unexpected error: %s, wanted: %s", err, types.ErrUnauthorized)
+		}
+	})
 }
 
 func TestAccount_requireAccount(t *testing.T) {
