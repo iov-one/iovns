@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"regexp"
@@ -93,41 +92,24 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *typ
 		return nil, sdkerrors.Wrapf(err, "unable to collect fees")
 	}
 	// add certificate
-	k.AddAccountCertificate(ctx, accountCtrl.GetAccount(), msg.NewCertificate)
+	k.AddAccountCertificate(ctx, accountCtrl.Account(), msg.NewCertificate)
 	// success; TODO emit event
 	return &sdk.Result{}, nil
 }
 
 func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
-	// perform account checks
+	// perform account checks, save certificate index
 	accountCtrl := ctrl.NewAccountController(ctx, k, msg.Domain, msg.Name)
-	if err := accountCtrl.Validate(ctrl.AccountMustExist, ctrl.AccountOwner(msg.Owner)); err != nil {
+	certIndex := new(int)
+	if err := accountCtrl.Validate(ctrl.AccountMustExist, ctrl.AccountOwner(msg.Owner), ctrl.AccountCertificateExists(msg.DeleteCertificate, certIndex)); err != nil {
 		return nil, err
 	}
-	// check if certificate exists
-	account := accountCtrl.GetAccount()
-	var found bool
-	var certIndex int
-	// iterate over certs
-	for i, cert := range account.Certificates {
-		// if found
-		if bytes.Equal(cert, msg.DeleteCertificate) {
-			found = true  // set found to true
-			certIndex = i // save index of cert for removal
-			break
-		}
-	}
-	// check if found
-	if !found {
-		return nil, sdkerrors.Wrapf(types.ErrCertificateDoesNotExist, "not found")
-	}
-	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// delete cert
-	k.DeleteAccountCertificate(ctx, account, certIndex)
+	k.DeleteAccountCertificate(ctx, accountCtrl.Account(), *certIndex)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
 }
@@ -146,7 +128,7 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 	}
 	// perform action authorization checks
 	if (domainCtrl.Validate(ctrl.DomainOwner(msg.Owner)) != nil) && (accountCtrl.Validate(ctrl.AccountOwner(msg.Owner)) != nil) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner: %s and domain admin %s can delete the account", accountCtrl.GetAccount().Owner, domainCtrl.GetDomain().Admin)
+		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner: %s and domain admin %s can delete the account", accountCtrl.Account().Owner, domainCtrl.Domain().Admin)
 	}
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
@@ -175,7 +157,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 		return nil, err
 	}
 	// get domain
-	domain := domainCtrl.GetDomain()
+	domain := domainCtrl.Domain()
 	// accounts validity checks
 	accountCtrl := ctrl.NewAccountController(ctx, k, msg.Domain, msg.Name)
 	err = accountCtrl.Validate(ctrl.AccountValidName, ctrl.AccountMustNotExist)
@@ -246,7 +228,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// renew account
-	k.UpdateAccountValidity(ctx, accountCtrl.GetAccount(), domainCtrl.GetDomain().AccountRenew)
+	k.UpdateAccountValidity(ctx, accountCtrl.Account(), domainCtrl.Domain().AccountRenew)
 	// success; todo emit event??
 	return &sdk.Result{}, nil
 }
@@ -276,7 +258,7 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// replace targets replaces accounts targets
-	k.ReplaceAccountTargets(ctx, accountCtrl.GetAccount(), msg.NewTargets)
+	k.ReplaceAccountTargets(ctx, accountCtrl.Account(), msg.NewTargets)
 	// success; TODO emit any useful event?
 	return &sdk.Result{}, nil
 }
@@ -294,7 +276,7 @@ func handlerMsgSetAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.M
 		return nil, err
 	}
 	// update account
-	account := accountCtrl.GetAccount()
+	account := accountCtrl.Account()
 	account.MetadataURI = msg.NewMetadataURI
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
@@ -321,16 +303,16 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 		return nil, err
 	}
 	// check if domain has super user
-	switch domainCtrl.GetDomain().HasSuperuser {
+	switch domainCtrl.Domain().HasSuperuser {
 	// if it has a super user then only domain admin can transfer accounts
 	case true:
 		if domainCtrl.Validate(ctrl.DomainOwner(msg.Owner)) != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", domainCtrl.GetDomain().Admin)
+			return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", domainCtrl.Domain().Admin)
 		}
 	// if it has not a super user then only account owner can transfer the account
 	case false:
 		if accountCtrl.Validate(ctrl.AccountOwner(msg.Owner)) != nil {
-			return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to transfer the account", accountCtrl.GetAccount().Owner)
+			return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to transfer the account", accountCtrl.Account().Owner)
 		}
 	}
 	// collect fees
@@ -339,7 +321,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// transfer account
-	k.TransferAccount(ctx, accountCtrl.GetAccount(), msg.NewOwner)
+	k.TransferAccount(ctx, accountCtrl.Account(), msg.NewOwner)
 	// success, todo emit event?
 	return &sdk.Result{}, nil
 }
@@ -416,7 +398,7 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 	if err != nil {
 		return nil, err
 	}
-	domain := c.GetDomain()
+	domain := c.Domain()
 	// get configuration
 	renewDuration := k.ConfigurationKeeper.GetDomainRenewDuration(ctx)
 	// update domain valid until
@@ -446,7 +428,7 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 		return nil, err
 	}
 	// get domain
-	domain := c.GetDomain()
+	domain := c.Domain()
 	// collect fees
 	err = k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {

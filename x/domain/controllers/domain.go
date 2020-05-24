@@ -79,7 +79,7 @@ func (c *Domain) gracePeriodFinished() bool {
 	c.requireConfiguration()
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
-		panic("conditions check not allowed on non existing domain")
+		panic("condition check not allowed on non existing domain")
 	}
 	// get grace period and expiration time
 	gracePeriod := c.conf.DomainGracePeriod
@@ -217,9 +217,9 @@ func (c *Domain) requireConfiguration() {
 	c.conf = &conf
 }
 
-// GetDomain returns the domain, panics if the operation is done without
+// Domain returns a copy the domain, panics if the operation is done without
 // doing validity checks on domain existence as it is not an allowed op
-func (c *Domain) GetDomain() types.Domain {
+func (c *Domain) Domain() types.Domain {
 	if c.domain == nil {
 		panic("get domain without running existence checks is not allowed")
 	}
