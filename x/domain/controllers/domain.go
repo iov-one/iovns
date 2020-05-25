@@ -120,7 +120,8 @@ func (c *Domain) notExpired() error {
 	}
 	// check if domain has expired
 	expireTime := iovns.SecondsToTime(c.domain.ValidUntil)
-	if !expireTime.Before(c.ctx.BlockTime()) {
+	// if block time is before expiration, return nil
+	if c.ctx.BlockTime().Before(expireTime) {
 		return nil
 	}
 	// if it has expired return error
