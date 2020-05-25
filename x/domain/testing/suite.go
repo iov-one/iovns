@@ -2,48 +2,24 @@ package testing
 
 import (
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/keys"
+	"github.com/iov-one/iovns/tutils"
+
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	types2 "github.com/iov-one/iovns/x/domain/types"
 )
 
-var AliceKey keys.Info
-var BobKey keys.Info
-var CharlieKey keys.Info
+var ks, addrs = tutils.GeneratePrivKeyAddressPairs(3)
+var AliceKey types.AccAddress = addrs[0]
+var BobKey types.AccAddress = addrs[1]
+var CharlieKey types.AccAddress = addrs[2]
 
 const RegexMatchAll = "^(.*?)?"
 const RegexMatchNothing = "$^"
-
-// TestMain is going to init test addresses
-func TestMain(t *testing.M) {
-	keyBase := keys.NewInMemory()
-	addr1, _, err := keyBase.CreateMnemonic("alice", keys.English, "", keys.Secp256k1)
-	if err != nil {
-		fmt.Println("unable to generate mock addresses " + err.Error())
-		os.Exit(1)
-	}
-	AliceKey = addr1
-	addr2, _, err := keyBase.CreateMnemonic("bob", keys.English, "", keys.Secp256k1)
-	if err != nil {
-		fmt.Println("unable to generate mock addresses " + err.Error())
-		os.Exit(1)
-	}
-	BobKey = addr2
-	addr3, _, err := keyBase.CreateMnemonic("charli", keys.English, "", keys.Secp256k1)
-	if err != nil {
-		fmt.Println("unable to generate mock addresses " + err.Error())
-		os.Exit(1)
-	}
-	CharlieKey = addr3
-	// run and exit
-	os.Exit(t.Run())
-}
 
 // subTest defines a test runner
 type SubTest struct {

@@ -9,8 +9,6 @@ import (
 
 	dt "github.com/iov-one/iovns/x/domain/testing"
 
-	"github.com/iov-one/iovns/dt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/configuration"
@@ -26,7 +24,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "does not exist",
 					Name:           "",
-					Owner:          dt.BobKey.GetAddress(),
+					Owner:          dt.BobKey,
 					NewCertificate: nil,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
@@ -41,7 +39,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: 0,
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 				//
 			},
@@ -49,7 +47,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "test",
 					Name:           "",
-					Owner:          dt.BobKey.GetAddress(),
+					Owner:          dt.BobKey,
 					NewCertificate: nil,
 				})
 				if !errors.Is(err, types.ErrDomainExpired) {
@@ -63,7 +61,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 				//
 			},
@@ -85,14 +83,14 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 				// add mock account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: 0,
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -113,21 +111,21 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Admin:      dt.AliceKey.GetAddress(),
+					Admin:      dt.AliceKey,
 				})
 				// add mock account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          dt.BobKey.GetAddress(),
+					Owner:          dt.BobKey,
 					NewCertificate: nil,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
@@ -141,14 +139,14 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 				// add mock account
 				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Owner:        dt.AliceKey.GetAddress(),
+					Owner:        dt.AliceKey,
 					Certificates: []types.Certificate{[]byte("test")},
 				})
 			},
@@ -156,7 +154,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          dt.AliceKey.GetAddress(),
+					Owner:          dt.AliceKey,
 					NewCertificate: []byte("test"),
 				})
 				if !errors.Is(err, types.ErrCertificateExists) {
@@ -170,21 +168,21 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Admin:      dt.AliceKey.GetAddress(),
+					Admin:      dt.AliceKey,
 				})
 				// add mock account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgAddAccountCertificates(ctx, k, &types.MsgAddAccountCertificates{
 					Domain:         "test",
 					Name:           "test",
-					Owner:          dt.AliceKey.GetAddress(),
+					Owner:          dt.AliceKey,
 					NewCertificate: []byte("test"),
 				})
 				if err != nil {
@@ -212,7 +210,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 					Domain:            "test",
 					Name:              "does not exist",
 					DeleteCertificate: nil,
-					Owner:             dt.BobKey.GetAddress(),
+					Owner:             dt.BobKey,
 				})
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("handlerMsgDeleteAccountCertificate() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
@@ -225,7 +223,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -233,7 +231,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: nil,
-					Owner:             dt.BobKey.GetAddress(),
+					Owner:             dt.BobKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerMsgDeleteAccountCertificate() expected error: %s, got: %s", types.ErrUnauthorized, err)
@@ -246,7 +244,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
-					Owner:        dt.AliceKey.GetAddress(),
+					Owner:        dt.AliceKey,
 					Certificates: nil,
 				})
 			},
@@ -255,7 +253,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("does not exist"),
-					Owner:             dt.AliceKey.GetAddress(),
+					Owner:             dt.AliceKey,
 				})
 				if !errors.Is(err, types.ErrCertificateDoesNotExist) {
 					t.Fatalf("handlerMsgDeleteAccountCertificate() expected error: %s, got: %s", types.ErrCertificateDoesNotExist, err)
@@ -268,7 +266,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
-					Owner:        dt.AliceKey.GetAddress(),
+					Owner:        dt.AliceKey,
 					Certificates: []types.Certificate{[]byte("test")},
 				})
 			},
@@ -277,7 +275,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 					Domain:            "test",
 					Name:              "test",
 					DeleteCertificate: []byte("test"),
-					Owner:             dt.AliceKey.GetAddress(),
+					Owner:             dt.AliceKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgDeleteAccountCertificates() got error: %s", err)
@@ -309,7 +307,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "does not exist",
 					Name:   "does not exist",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("handlerMsgDeleteAccount() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
@@ -321,7 +319,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
-					Admin: dt.BobKey.GetAddress(),
+					Admin: dt.BobKey,
 				})
 
 			},
@@ -341,19 +339,19 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
-					Admin: dt.AliceKey.GetAddress(),
+					Admin: dt.AliceKey,
 				})
 				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerMsgDeleteAccount() expected error: %s, got: %s", types.ErrUnauthorized, err)
@@ -365,19 +363,19 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
-					Admin: dt.AliceKey.GetAddress(),
+					Admin: dt.AliceKey,
 				})
 				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
@@ -394,19 +392,19 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
-					Admin: dt.AliceKey.GetAddress(),
+					Admin: dt.AliceKey,
 				})
 				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
@@ -441,7 +439,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   0,
 					HasSuperuser: false,
 					AccountRenew: 0,
@@ -452,7 +450,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 					Targets: []types.BlockchainAddress{
 						{
 							ID:      "works",
@@ -482,7 +480,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   0,
 					HasSuperuser: false,
 					AccountRenew: 0,
@@ -493,7 +491,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 					Targets: []types.BlockchainAddress{
 						{
 							ID:      "invalid blockchain id",
@@ -523,7 +521,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.AliceKey.GetAddress(),
+					Admin:        dt.AliceKey,
 					ValidUntil:   2,
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -534,7 +532,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "this won't match",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 					Targets: []types.BlockchainAddress{
 						{
 							ID:      "works",
@@ -566,7 +564,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "this does not exist",
 					Name:   "works",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 					Targets: []types.BlockchainAddress{
 						{
 							ID:      "works",
@@ -597,7 +595,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   2,
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -608,7 +606,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.AliceKey.GetAddress(), // invalid owner
+					Owner:  dt.AliceKey, // invalid owner
 					Targets: []types.BlockchainAddress{
 						{
 							ID:      "works",
@@ -638,7 +636,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   0, // domain is expired
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -649,7 +647,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 					Targets: []types.BlockchainAddress{
 						{
 							ID:      "works",
@@ -679,7 +677,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   time.Now().Add(100000 * time.Hour).Unix(),
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -689,7 +687,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "exists",
-					Owner:        dt.AliceKey.GetAddress(),
+					Owner:        dt.AliceKey,
 					ValidUntil:   0,
 					Targets:      nil,
 					Certificates: nil,
@@ -700,7 +698,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "exists",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 					Targets: []types.BlockchainAddress{
 						{
 							ID:      "works",
@@ -730,7 +728,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   time.Now().Add(100000 * time.Hour).Unix(),
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -741,7 +739,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 					Targets: []types.BlockchainAddress{
 						{
 							ID:      "works",
@@ -784,7 +782,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					AccountRenew: 100,
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -804,14 +802,14 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					AccountRenew: 1000 * time.Second,
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 				})
 				// set mock account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Unix(1000, 0)),
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -903,7 +901,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
-					Admin: dt.BobKey.GetAddress(),
+					Admin: dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -935,7 +933,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -968,14 +966,14 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 				// create account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: 0,
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1008,14 +1006,14 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 				// create account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1028,7 +1026,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 							Address: "valid",
 						},
 					},
-					Owner: dt.BobKey.GetAddress(),
+					Owner: dt.BobKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrUnauthorized, err)
@@ -1048,14 +1046,14 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 				// create account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1068,7 +1066,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 							Address: "valid",
 						},
 					},
-					Owner: dt.AliceKey.GetAddress(),
+					Owner: dt.AliceKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgReplaceAccountTargets() got error: %s", err)
@@ -1099,7 +1097,7 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
 					Domain: "does not exist",
 					Name:   "",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("handlerMsgSetAccountMetadata() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
@@ -1112,7 +1110,7 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
-					Admin: dt.BobKey.GetAddress(),
+					Admin: dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1134,7 +1132,7 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1155,14 +1153,14 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 				// create account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: 0,
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1183,21 +1181,21 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 				// create account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerMsgSetAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
@@ -1211,14 +1209,14 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 				// create account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1226,7 +1224,7 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "https://test.com",
-					Owner:          dt.AliceKey.GetAddress(),
+					Owner:          dt.AliceKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgSetAccountMetadata() got error: %s", err)
@@ -1268,7 +1266,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "expired domain",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   0,
 					HasSuperuser: false,
 					AccountRenew: 0,
@@ -1325,7 +1323,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
-					Owner:        dt.BobKey.GetAddress(),
+					Owner:        dt.BobKey,
 					ValidUntil:   0,
 					Targets:      nil,
 					Certificates: nil,
@@ -1349,7 +1347,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.AliceKey.GetAddress(),
+					Admin:        dt.AliceKey,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -1358,7 +1356,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
-					Owner:        dt.BobKey.GetAddress(),
+					Owner:        dt.BobKey,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Targets:      nil,
 					Certificates: nil,
@@ -1369,7 +1367,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    dt.BobKey.GetAddress(),
+					Owner:    dt.BobKey,
 					NewOwner: nil,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
@@ -1391,7 +1389,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:       "test",
 					Name:         "test",
-					Owner:        dt.AliceKey.GetAddress(),
+					Owner:        dt.AliceKey,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Targets:      nil,
 					Certificates: nil,
@@ -1402,7 +1400,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    dt.BobKey.GetAddress(),
+					Owner:    dt.BobKey,
 					NewOwner: nil,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
@@ -1424,7 +1422,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				})
 			},
@@ -1432,8 +1430,8 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    dt.AliceKey.GetAddress(),
-					NewOwner: dt.BobKey.GetAddress(),
+					Owner:    dt.AliceKey,
+					NewOwner: dt.BobKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
@@ -1450,8 +1448,8 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				if account.Certificates != nil {
 					t.Fatalf("handlerAccountTransfer() account certificates were not deleted")
 				}
-				if !account.Owner.Equals(dt.BobKey.GetAddress()) {
-					t.Fatalf("handlerAccounTransfer() expected new owner: %s, got: %s", dt.BobKey.GetAddress(), account.Owner)
+				if !account.Owner.Equals(dt.BobKey) {
+					t.Fatalf("handlerAccounTransfer() expected new owner: %s, got: %s", dt.BobKey, account.Owner)
 				}
 			},
 		},
@@ -1460,7 +1458,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				// domain owned by alice
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.AliceKey.GetAddress(),
+					Admin:        dt.AliceKey,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -1470,7 +1468,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
-					Owner:      dt.BobKey.GetAddress(),
+					Owner:      dt.BobKey,
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				})
 			},
@@ -1479,8 +1477,8 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
 					Domain:   "test",
 					Name:     "test",
-					Owner:    dt.AliceKey.GetAddress(),
-					NewOwner: dt.CharlieKey.GetAddress(),
+					Owner:    dt.AliceKey,
+					NewOwner: dt.CharlieKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
@@ -1497,8 +1495,8 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				if account.Certificates != nil {
 					t.Fatalf("handlerAccountTransfer() account certificates were not deleted")
 				}
-				if !account.Owner.Equals(dt.CharlieKey.GetAddress()) {
-					t.Fatalf("handlerAccounTransfer() expected new owner: %s, got: %s", dt.CharlieKey.GetAddress(), account.Owner)
+				if !account.Owner.Equals(dt.CharlieKey) {
+					t.Fatalf("handlerAccounTransfer() expected new owner: %s, got: %s", dt.CharlieKey, account.Owner)
 				}
 			},
 		},
@@ -1515,7 +1513,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "this does not exist",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
@@ -1537,7 +1535,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
@@ -1554,7 +1552,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   0,
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -1565,7 +1563,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
@@ -1582,7 +1580,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   3,
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -1593,7 +1591,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
@@ -1610,7 +1608,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   4,
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -1621,7 +1619,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
@@ -1638,7 +1636,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test1",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   1589826439,
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -1646,7 +1644,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test2",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   1589828251,
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -1658,21 +1656,21 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				// another user can delete expired domain
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test1",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
 				}
 				_, err = handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test2",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 				_, err = handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test2",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
@@ -1690,7 +1688,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				// set domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.AliceKey.GetAddress(),
+					Admin:        dt.AliceKey,
 					ValidUntil:   0,
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -1701,7 +1699,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
@@ -1731,7 +1729,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				// set domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        dt.AliceKey.GetAddress(),
+					Admin:        dt.AliceKey,
 					ValidUntil:   0,
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -1741,19 +1739,19 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "1",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 				// add two accounts
 				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "2",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgDeleteDomain(ctx, k, &types.MsgDeleteDomain{
 					Domain: "test",
-					Owner:  dt.BobKey.GetAddress(),
+					Owner:  dt.BobKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
@@ -1785,7 +1783,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				configSetter := dt.GetConfigSetter(k.ConfigurationKeeper)
 				// set config
 				configSetter.SetConfig(ctx, configuration.Config{
-					Configurer:  dt.AliceKey.GetAddress(),
+					Configurer:  dt.AliceKey,
 					ValidDomain: "^(.*?)?",
 				})
 			},
@@ -1795,7 +1793,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					Name:         "domain",
 					HasSuperuser: true,
 					AccountRenew: 10,
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 				})
 				if err != nil {
 					t.Fatalf("handleMsgRegisterDomain() with superuser, got error: %s", err)
@@ -1803,7 +1801,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				// register domain without super user
 				_, err = handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "domain-without-superuser",
-					Admin:        dt.AliceKey.GetAddress(),
+					Admin:        dt.AliceKey,
 					HasSuperuser: false,
 					Broker:       nil,
 					AccountRenew: 20,
@@ -1828,7 +1826,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "exists",
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 					ValidUntil:   0,
 					HasSuperuser: true,
 					AccountRenew: 0,
@@ -1838,7 +1836,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "exists",
-					Admin:        dt.AliceKey.GetAddress(),
+					Admin:        dt.AliceKey,
 					HasSuperuser: true,
 					AccountRenew: 0,
 				})
@@ -1877,7 +1875,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// add config with owner
 				config := configuration.Config{
-					Configurer:             aliceKey.GetAddress(),
+					Configurer:             aliceKey,
 					ValidDomain:            "^(.*?)?",
 					ValidName:              "",
 					ValidBlockchainID:      "",
@@ -1891,7 +1889,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				// try to register domain with no super user
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "some-domain",
-					Admin:        bobKey.GetAddress(),
+					Admin:        bobKey,
 					HasSuperuser: false,
 					Broker:       nil,
 					AccountRenew: 10,
@@ -1933,7 +1931,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: 1000,
-					Admin:      dt.BobKey.GetAddress(),
+					Admin:      dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1998,13 +1996,13 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					HasSuperuser: true,
-					Admin:        dt.BobKey.GetAddress(),
+					Admin:        dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
 					Domain:   "test",
-					Owner:    dt.BobKey.GetAddress(),
+					Owner:    dt.BobKey,
 					NewAdmin: nil,
 				})
 				if !errors.Is(err, types.ErrDomainExpired) {
@@ -2019,13 +2017,13 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Name:         "test",
 					HasSuperuser: true,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Admin:        dt.AliceKey.GetAddress(),
+					Admin:        dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
 					Domain:   "test",
-					Owner:    dt.BobKey.GetAddress(),
+					Owner:    dt.BobKey,
 					NewAdmin: nil,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
@@ -2041,19 +2039,19 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Name:         "test",
 					HasSuperuser: true,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Admin:        dt.AliceKey.GetAddress(),
+					Admin:        dt.AliceKey,
 				})
 				// add empty account
 				k.CreateAccount(ctx, types.Account{
 					Domain: "test",
 					Name:   "",
-					Owner:  dt.AliceKey.GetAddress(),
+					Owner:  dt.AliceKey,
 				})
 				// add account 1
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "1",
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 					ValidUntil: 0,
 					Targets: []types.BlockchainAddress{{
 						ID:      "test",
@@ -2066,7 +2064,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "2",
-					Owner:      dt.AliceKey.GetAddress(),
+					Owner:      dt.AliceKey,
 					ValidUntil: 0,
 					Targets: []types.BlockchainAddress{{
 						ID:      "test",
@@ -2079,8 +2077,8 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
 					Domain:   "test",
-					Owner:    dt.AliceKey.GetAddress(),
-					NewAdmin: dt.BobKey.GetAddress(),
+					Owner:    dt.AliceKey,
+					NewAdmin: dt.BobKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgTransferDomain() got error: %s", err)
@@ -2089,13 +2087,13 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// check domain new owner
 				domain, _ := k.GetDomain(ctx, "test")
-				if !dt.BobKey.GetAddress().Equals(domain.Admin) {
-					t.Fatalf("handlerMsgTransferDomain() expected domain owner: %s, got: %s", dt.BobKey.GetAddress(), domain.Admin)
+				if !dt.BobKey.Equals(domain.Admin) {
+					t.Fatalf("handlerMsgTransferDomain() expected domain owner: %s, got: %s", dt.BobKey, domain.Admin)
 				}
 				// check if account new owner has changed
 				account, _ := k.GetAccount(ctx, "test", "1")
-				if !account.Owner.Equals(dt.BobKey.GetAddress()) {
-					t.Fatalf("handlerMsgTransferDomain() expected account owner: %s, got: %s", dt.BobKey.GetAddress(), account.Owner)
+				if !account.Owner.Equals(dt.BobKey) {
+					t.Fatalf("handlerMsgTransferDomain() expected account owner: %s, got: %s", dt.BobKey, account.Owner)
 				}
 				// check if targets deleted
 				if account.Targets != nil {
@@ -2106,7 +2104,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					t.Fatalf("handlerMsgTransferDomain expected account certificates: <nil>, got: %#v", account.Certificates)
 				}
 				// check no changes in empty account
-				if emptyAcc, _ := k.GetAccount(ctx, "test", ""); !reflect.DeepEqual(emptyAcc, types.Account{Domain: "test", Name: "", Owner: dt.AliceKey.GetAddress()}) {
+				if emptyAcc, _ := k.GetAccount(ctx, "test", ""); !reflect.DeepEqual(emptyAcc, types.Account{Domain: "test", Name: "", Owner: dt.AliceKey}) {
 					t.Fatalf("handlerMsgTransferdomain() empty account mismatch, expected: %+v, got: %+v", types.Account{Domain: "test", Name: ""}, emptyAcc)
 				}
 			},
