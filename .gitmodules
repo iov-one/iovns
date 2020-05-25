@@ -1,0 +1,3 @@
+[submodule "scripts/genesis/data/dump"]
+	path = scripts/genesis/data/dump
+	url = https://gist.github.com/davepuchyr/bf9ab1d2d9ca70326cf58c7c70376554.git
