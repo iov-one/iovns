@@ -67,7 +67,8 @@ func (c *Domain) domainExpired() bool {
 		panic("conditions check not allowed on non existing domain")
 	}
 	expireTime := iovns.SecondsToTime(c.domain.ValidUntil)
-	return expireTime.After(c.ctx.BlockTime())
+	// if expire time is before block time means domain expired
+	return expireTime.Before(c.ctx.BlockTime())
 }
 
 func DomainGracePeriodFinished(controller *Domain) bool {
