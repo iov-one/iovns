@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/iov-one/iovns/tutils"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
@@ -45,29 +47,8 @@ func TestMain(t *testing.M) {
 	os.Exit(t.Run())
 }
 
-// subTest defines a test runner
-type subTest struct {
-	// BeforeTestBlockTime is the block time during before test in unix seconds
-	BeforeTestBlockTime int64
-	// BeforeTest is the function run before doing the test,
-	// used for example to store state, like configurations etc.
-	// Ignored if nil
-	BeforeTest func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks)
-	// TestBlockTime is the block time during test in unix seconds
-	TestBlockTime int64
-	// Test is the function that runs the actual test
-	Test func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks)
-	// AfterTestBlockTime is the block time during after test in unix seconds
-	AfterTestBlockTime int64
-	// AfterTest performs actions after the test is run, it can
-	// be used to check if the state after Test is run matches
-	// the result we expect.
-	// Ignored if nil
-	AfterTest func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks)
-}
-
 // runTests run tests cases after generating a new keeper and context for each test case
-func runTests(t *testing.T, tests map[string]subTest) {
+func runTests(t *testing.T, tests map[string]tutils.SubTest) {
 	for name, test := range tests {
 		domainKeeper, ctx, mocks := keeper.NewTestKeeper(t, true)
 		// set default mock.Supply not to fail
@@ -92,9 +73,9 @@ func runTests(t *testing.T, tests map[string]subTest) {
 		fees.UpsertDefaultFees(&types.MsgTransferDomain{}, defFee)
 
 		setFees(ctx, fees)
-		// run sub subTest
+		// run sub SubTest
 		t.Run(name, func(t *testing.T) {
-			// run before subTest
+			// run before SubTest
 			if test.BeforeTest != nil {
 				if test.BeforeTestBlockTime != 0 {
 					t := time.Unix(test.BeforeTestBlockTime, 0)
@@ -107,10 +88,10 @@ func runTests(t *testing.T, tests map[string]subTest) {
 				t := time.Unix(test.TestBlockTime, 0)
 				ctx = ctx.WithBlockTime(t)
 			}
-			// run actual subTest
+			// run actual SubTest
 			test.Test(t, domainKeeper, ctx, mocks)
 
-			// run after subTest
+			// run after SubTest
 			if test.AfterTest != nil {
 				if test.AfterTestBlockTime != 0 {
 					t := time.Unix(test.AfterTestBlockTime, 0)

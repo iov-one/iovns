@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/iov-one/iovns/tutils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/configuration"
@@ -15,7 +17,7 @@ import (
 )
 
 func Test_handlerMsgAddAccountCertificates(t *testing.T) {
-	cases := map[string]subTest{
+	cases := map[string]tutils.SubTest{
 		"domain does not exist": {
 			BeforeTest: nil,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -200,7 +202,7 @@ func Test_handlerMsgAddAccountCertificates(t *testing.T) {
 }
 
 func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
-	cases := map[string]subTest{
+	cases := map[string]tutils.SubTest{
 		"account does not exist": {
 			BeforeTest: nil,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -296,7 +298,7 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 }
 
 func Test_handlerMsgDeleteAccount(t *testing.T) {
-	cases := map[string]subTest{
+	cases := map[string]tutils.SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 
@@ -422,7 +424,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 }
 
 func Test_handleMsgRegisterAccount(t *testing.T) {
-	testCases := map[string]subTest{
+	testCases := map[string]tutils.SubTest{
 		"fail invalid blockchain targets address": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
@@ -758,7 +760,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 }
 
 func Test_handlerMsgRenewAccount(t *testing.T) {
-	cases := map[string]subTest{
+	cases := map[string]tutils.SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 
@@ -833,7 +835,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 }
 
 func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
-	cases := map[string]subTest{
+	cases := map[string]tutils.SubTest{
 		"invalid blockchain target": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match nothing
@@ -1087,7 +1089,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 }
 
 func Test_handlerMsgSetAccountMetadata(t *testing.T) {
-	cases := map[string]subTest{
+	cases := map[string]tutils.SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 			},
@@ -1242,7 +1244,7 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 }
 
 func Test_handlerAccountTransfer(t *testing.T) {
-	testCases := map[string]subTest{
+	testCases := map[string]tutils.SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// do nothing
@@ -1503,7 +1505,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 }
 
 func Test_handleMsgDomainDelete(t *testing.T) {
-	cases := map[string]subTest{
+	cases := map[string]tutils.SubTest{
 		"fail domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// don't do anything
@@ -1775,7 +1777,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 }
 
 func TestHandleMsgRegisterDomain(t *testing.T) {
-	testCases := map[string]subTest{
+	testCases := map[string]tutils.SubTest{
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				configSetter := getConfigSetter(k.ConfigurationKeeper)
@@ -1905,7 +1907,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 }
 
 func Test_handlerDomainRenew(t *testing.T) {
-	cases := map[string]subTest{
+	cases := map[string]tutils.SubTest{
 		"domain not found": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 
@@ -1952,7 +1954,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 }
 
 func Test_handlerMsgTransferDomain(t *testing.T) {
-	cases := map[string]subTest{
+	cases := map[string]tutils.SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 
