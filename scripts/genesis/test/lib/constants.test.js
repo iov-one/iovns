@@ -1,4 +1,4 @@
-import { conds, multisigs, names } from "../../lib/constants";
+import { chainIds, conds, multisigs, names } from "../../lib/constants";
 
 "use strict";
 
@@ -94,5 +94,11 @@ describe( "Tests ../../lib/constants.js.", () => {
       expect( names[pending   ].star1 ).toEqual( "TBD" ); // TODO
       expect( names[bounty    ].star1 ).toEqual( "TBD" ); // TODO
       expect( names[cofounders].star1 ).toEqual( "TBD" ); // TODO
+   } );
+
+   it( `Should validate CAIP-based chain ids.`, () => {
+      Object.values( chainIds ).forEach( id => {
+         expect( id.indexOf( ":" ) ).not.toEqual( -1 );
+      } );
    } );
 } );
