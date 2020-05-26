@@ -1,4 +1,4 @@
-package controllers
+package domain
 
 import (
 	"regexp"
@@ -11,11 +11,11 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-// DomainControllerFunc is the function signature for domain validation functions
-type DomainControllerFunc func(controller *Domain) error
+// ControllerFunc is the function signature for domain validation functions
+type ControllerFunc func(controller *Domain) error
 
-// DomainControllerCond is the function signature for domain condition functions
-type DomainControllerCond func(controller *Domain) bool
+// ControllerCond is the function signature for domain condition functions
+type ControllerCond func(controller *Domain) bool
 
 // Domain is the domain controller
 type Domain struct {
@@ -26,11 +26,11 @@ type Domain struct {
 	k          keeper.Keeper
 }
 
-// NewDomainController is the constructor for Domain
+// NewController is the constructor for Domain
 // everything is processed sequentially, a wrong order of the sequence
 // is forbidden, example: asserting domain expiration on a non existing
 // domain causes a panic as it violates the condition scope of action.
-func NewDomainController(ctx sdk.Context, k keeper.Keeper, domain string) *Domain {
+func NewController(ctx sdk.Context, k keeper.Keeper, domain string) *Domain {
 	return &Domain{
 		domainName: domain,
 		ctx:        ctx,
@@ -41,7 +41,7 @@ func NewDomainController(ctx sdk.Context, k keeper.Keeper, domain string) *Domai
 // ---------------------- VALIDATION -----------------------------
 
 // Validate validates a domain based on the provided checks
-func (c *Domain) Validate(checks ...DomainControllerFunc) error {
+func (c *Domain) Validate(checks ...ControllerFunc) error {
 	for _, check := range checks {
 		if err := check(c); err != nil {
 			return err
@@ -51,17 +51,17 @@ func (c *Domain) Validate(checks ...DomainControllerFunc) error {
 }
 
 // Condition asserts if the given condition is true
-func (c *Domain) Condition(cond DomainControllerCond) bool {
+func (c *Domain) Condition(cond ControllerCond) bool {
 	return cond(c)
 }
 
-// DomainExpired checks if the provided domain has expired or not
-func DomainExpired(controller *Domain) bool {
-	return controller.domainExpired()
+// Expired checks if the provided domain has expired or not
+func Expired(controller *Domain) bool {
+	return controller.expired()
 }
 
-// domainExpired is the condition that checks if a domain has expired or not
-func (c *Domain) domainExpired() bool {
+// expired is the condition that checks if a domain has expired or not
+func (c *Domain) expired() bool {
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
 		panic("conditions check not allowed on non existing domain")
@@ -71,7 +71,7 @@ func (c *Domain) domainExpired() bool {
 	return expireTime.Before(c.ctx.BlockTime())
 }
 
-func DomainGracePeriodFinished(controller *Domain) bool {
+func GracePeriodFinished(controller *Domain) bool {
 	return controller.gracePeriodFinished()
 }
 
@@ -90,7 +90,7 @@ func (c *Domain) gracePeriodFinished() bool {
 	return expireTime.Add(gracePeriod).Before(c.ctx.BlockTime())
 }
 
-func DomainOwner(addr sdk.AccAddress) DomainControllerFunc {
+func Owner(addr sdk.AccAddress) ControllerFunc {
 	return func(controller *Domain) error {
 		return controller.ownedBy(addr)
 	}
@@ -109,7 +109,7 @@ func (c *Domain) ownedBy(addr sdk.AccAddress) error {
 	return sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to perform an operation in a domain owned by %s", addr, c.domain.Admin)
 }
 
-func DomainNotExpired(controller *Domain) error {
+func NotExpired(controller *Domain) error {
 	return controller.notExpired()
 }
 
@@ -128,8 +128,8 @@ func (c *Domain) notExpired() error {
 	return sdkerrors.Wrapf(types.ErrDomainExpired, "%s has expired", c.domainName)
 }
 
-// DomainSuperuser makes sure the domain superuser is set to the provided condition
-func DomainSuperuser(condition bool) DomainControllerFunc {
+// Superuser makes sure the domain superuser is set to the provided condition
+func Superuser(condition bool) ControllerFunc {
 	return func(controller *Domain) error {
 		return controller.superuser(condition)
 	}
@@ -153,8 +153,8 @@ func (c *Domain) superuser(condition bool) error {
 	}
 }
 
-// DomainMustExist checks if the provided domain exists
-func DomainMustExist(controller *Domain) error {
+// MustExist checks if the provided domain exists
+func MustExist(controller *Domain) error {
 	return controller.mustExist()
 }
 
@@ -177,8 +177,8 @@ func (c *Domain) mustExist() error {
 	return c.requireDomain()
 }
 
-// DomainMustNotExist checks if the provided domain does not exist
-func DomainMustNotExist(controller *Domain) error {
+// MustNotExist checks if the provided domain does not exist
+func MustNotExist(controller *Domain) error {
 	return controller.mustNotExist()
 }
 
@@ -191,8 +191,8 @@ func (c *Domain) mustNotExist() error {
 	return nil
 }
 
-// DomainValidName checks if the name of the domain is valid
-func DomainValidName(controller *Domain) error {
+// ValidName checks if the name of the domain is valid
+func ValidName(controller *Domain) error {
 	return controller.validName()
 }
 
@@ -228,5 +228,3 @@ func (c *Domain) Domain() types.Domain {
 	}
 	return *c.domain
 }
-
-// ---------------------- MUTATION -----------------------------

@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/iov-one/iovns/x/domain/controllers/account"
+	"github.com/iov-one/iovns/x/domain/controllers/domain"
 
-	ctrl "github.com/iov-one/iovns/x/domain/controllers"
+	"github.com/iov-one/iovns/x/domain/controllers/account"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -79,8 +79,8 @@ func NewHandler(k Keeper) sdk.Handler {
 
 func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *types.MsgAddAccountCertificates) (*sdk.Result, error) {
 	// perform domain checks
-	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
-	if err := domainCtrl.Validate(ctrl.DomainMustExist, ctrl.DomainNotExpired); err != nil {
+	domainCtrl := domain.NewController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(domain.MustExist, domain.NotExpired); err != nil {
 		return nil, err
 	}
 	// perform account checks
@@ -119,8 +119,8 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *t
 // handlerMsgDelete account deletes the account from the system
 func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteAccount) (*sdk.Result, error) {
 	// perform domain checks
-	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
-	if err := domainCtrl.Validate(ctrl.DomainMustExist); err != nil {
+	domainCtrl := domain.NewController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(domain.MustExist); err != nil {
 		return nil, err
 	}
 	// perform account checks
@@ -129,7 +129,7 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 		return nil, err
 	}
 	// perform action authorization checks
-	if (domainCtrl.Validate(ctrl.DomainOwner(msg.Owner)) != nil) && (accountCtrl.Validate(account.Owner(msg.Owner)) != nil) {
+	if (domainCtrl.Validate(domain.Owner(msg.Owner)) != nil) && (accountCtrl.Validate(account.Owner(msg.Owner)) != nil) {
 		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner: %s and domain admin %s can delete the account", accountCtrl.Account().Owner, domainCtrl.Domain().Admin)
 	}
 	// collect fees
@@ -153,8 +153,8 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 		return nil, sdkerrors.Wrap(types.ErrInvalidBlockchainTarget, err.Error())
 	}
 	// do validity checks on domain
-	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
-	err := domainCtrl.Validate(ctrl.DomainMustExist, ctrl.DomainSuperuser(true), ctrl.DomainNotExpired, ctrl.DomainOwner(msg.Owner))
+	domainCtrl := domain.NewController(ctx, k, msg.Domain)
+	err := domainCtrl.Validate(domain.MustExist, domain.Superuser(true), domain.NotExpired, domain.Owner(msg.Owner))
 	if err != nil {
 		return nil, err
 	}
@@ -215,8 +215,8 @@ func validateBlockchainTargets(targets []types.BlockchainAddress, conf configura
 
 func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewAccount) (*sdk.Result, error) {
 	// validate domain
-	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
-	if err := domainCtrl.Validate(ctrl.DomainMustExist); err != nil {
+	domainCtrl := domain.NewController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(domain.MustExist); err != nil {
 		return nil, err
 	}
 	// validate account
@@ -245,8 +245,8 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 		return nil, sdkerrors.Wrapf(types.ErrInvalidBlockchainTarget, err.Error())
 	}
 	// perform domain checks
-	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
-	if err := domainCtrl.Validate(ctrl.DomainMustExist, ctrl.DomainNotExpired); err != nil {
+	domainCtrl := domain.NewController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(domain.MustExist, domain.NotExpired); err != nil {
 		return nil, err
 	}
 	// perform account checks
@@ -268,8 +268,8 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 // handlerMsgSetAccountMetadata takes care of setting account metadata
 func handlerMsgSetAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.MsgSetAccountMetadata) (*sdk.Result, error) {
 	// perform domain checks
-	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
-	if err := domainCtrl.Validate(ctrl.DomainMustExist, ctrl.DomainNotExpired); err != nil {
+	domainCtrl := domain.NewController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(domain.MustExist, domain.NotExpired); err != nil {
 		return nil, err
 	}
 	// perform account checks
@@ -295,8 +295,8 @@ func handlerMsgSetAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.M
 // after clearing targets and certificates
 func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferAccount) (*sdk.Result, error) {
 	// perform domain checks
-	domainCtrl := ctrl.NewDomainController(ctx, k, msg.Domain)
-	if err := domainCtrl.Validate(ctrl.DomainMustExist, ctrl.DomainNotExpired); err != nil {
+	domainCtrl := domain.NewController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(domain.MustExist, domain.NotExpired); err != nil {
 		return nil, err
 	}
 	// check if account exists
@@ -308,7 +308,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 	switch domainCtrl.Domain().HasSuperuser {
 	// if it has a super user then only domain admin can transfer accounts
 	case true:
-		if domainCtrl.Validate(ctrl.DomainOwner(msg.Owner)) != nil {
+		if domainCtrl.Validate(domain.Owner(msg.Owner)) != nil {
 			return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", domainCtrl.Domain().Admin)
 		}
 	// if it has not a super user then only account owner can transfer the account
@@ -329,13 +329,13 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 }
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
-	c := ctrl.NewDomainController(ctx, k, msg.Domain)
-	err := c.Validate(ctrl.DomainMustExist, ctrl.DomainSuperuser(true))
+	c := domain.NewController(ctx, k, msg.Domain)
+	err := c.Validate(domain.MustExist, domain.Superuser(true))
 	if err != nil {
 		return nil, err
 	}
 	// if domain is not over grace period and signer is not the owner of the domain then the operation is not allowed
-	if err := c.Validate(ctrl.DomainOwner(msg.Owner)); err != nil && !c.Condition(ctrl.DomainGracePeriodFinished) {
+	if err := c.Validate(domain.Owner(msg.Owner)); err != nil && !c.Condition(domain.GracePeriodFinished) {
 		return nil, sdkerrors.Wrap(types.ErrUnauthorized, "unable to delete domain not owned if grace period is not finished")
 	}
 	// operation is allowed
@@ -352,8 +352,8 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 
 // handleMsgRegisterDomain handles the domain registration process
 func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
-	c := ctrl.NewDomainController(ctx, k, msg.Name)
-	err = c.Validate(ctrl.DomainMustNotExist, ctrl.DomainValidName)
+	c := domain.NewController(ctx, k, msg.Name)
+	err = c.Validate(domain.MustNotExist, domain.ValidName)
 	if err != nil {
 		return nil, err
 	}
@@ -395,8 +395,8 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 
 // handlerMsgRenewDomain renews a domain
 func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
-	c := ctrl.NewDomainController(ctx, k, msg.Domain)
-	err := c.Validate(ctrl.DomainMustExist)
+	c := domain.NewController(ctx, k, msg.Domain)
+	err := c.Validate(domain.MustExist)
 	if err != nil {
 		return nil, err
 	}
@@ -419,12 +419,12 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 }
 
 func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
-	c := ctrl.NewDomainController(ctx, k, msg.Domain)
+	c := domain.NewController(ctx, k, msg.Domain)
 	err := c.Validate(
-		ctrl.DomainMustExist,
-		ctrl.DomainSuperuser(true),
-		ctrl.DomainOwner(msg.Owner),
-		ctrl.DomainNotExpired,
+		domain.MustExist,
+		domain.Superuser(true),
+		domain.Owner(msg.Owner),
+		domain.NotExpired,
 	)
 	if err != nil {
 		return nil, err

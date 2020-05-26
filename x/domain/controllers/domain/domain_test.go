@@ -1,4 +1,4 @@
-package controllers
+package domain
 
 import (
 	"errors"
@@ -22,7 +22,7 @@ func TestDomain_requireDomain(t *testing.T) {
 			Admin:        dt.AliceKey,
 			HasSuperuser: false,
 		})
-		ctrl := NewDomainController(ctx, k, "test")
+		ctrl := NewController(ctx, k, "test")
 		err := ctrl.requireDomain()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
@@ -30,7 +30,7 @@ func TestDomain_requireDomain(t *testing.T) {
 	})
 	t.Run("does not exist", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
-		ctrl := NewDomainController(ctx, k, "test")
+		ctrl := NewController(ctx, k, "test")
 		err := ctrl.requireDomain()
 		if !errors.Is(err, types.ErrDomainDoesNotExist) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountDoesNotExist, err)
@@ -47,8 +47,8 @@ func TestDomain_domainExpired(t *testing.T) {
 			HasSuperuser: false,
 			ValidUntil:   0,
 		})
-		ctrl := NewDomainController(ctx, k, "test")
-		expired := ctrl.domainExpired()
+		ctrl := NewController(ctx, k, "test")
+		expired := ctrl.expired()
 		if !expired {
 			t.Fatal("validation failed: domain has not expired")
 		}
@@ -61,16 +61,16 @@ func TestDomain_domainExpired(t *testing.T) {
 			Admin:      dt.AliceKey,
 			ValidUntil: now.Unix() + 10000,
 		})
-		ctrl := NewDomainController(ctx, k, "test")
-		expired := ctrl.domainExpired()
+		ctrl := NewController(ctx, k, "test")
+		expired := ctrl.expired()
 		if expired {
 			t.Fatal("validation failed domain has expired")
 		}
 	})
 	t.Run("domain does not exist", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
-		ctrl := NewDomainController(ctx, k, "test")
-		assert.Panics(t, func() { _ = ctrl.domainExpired() }, "domain does not exists")
+		ctrl := NewController(ctx, k, "test")
+		assert.Panics(t, func() { _ = ctrl.expired() }, "domain does not exists")
 	})
 }
 
@@ -90,7 +90,7 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 			},
 			TestBlockTime: 2,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				gpf := ctrl.gracePeriodFinished()
 				if gpf != true {
 					t.Fatal("validation failed: grace period has not expired")
@@ -112,7 +112,7 @@ func TestDomain_ownedBy(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				err := ctrl.ownedBy(dt.AliceKey)
 				if err != nil {
 					t.Fatalf("got error: %s", err)
@@ -128,7 +128,7 @@ func TestDomain_ownedBy(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				err := ctrl.ownedBy(dt.BobKey)
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("want err: %s, got: %s", types.ErrUnauthorized, err)
@@ -151,7 +151,7 @@ func TestDomain_notExpired(t *testing.T) {
 			},
 			TestBlockTime: 1,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				err := ctrl.notExpired()
 				if err != nil {
 					t.Fatalf("got error: %s", err)
@@ -168,7 +168,7 @@ func TestDomain_notExpired(t *testing.T) {
 			},
 			TestBlockTime: 2,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				err := ctrl.notExpired()
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("want err: %s, got: %s", types.ErrDomainExpired, err)
@@ -190,7 +190,7 @@ func TestDomain_superuser(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				err := ctrl.superuser(true)
 				if err != nil {
 					t.Fatalf("got error: %s", err)
@@ -206,7 +206,7 @@ func TestDomain_superuser(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				err := ctrl.superuser(false)
 				if err != nil {
 					t.Fatalf("got error: %s", err)
@@ -222,7 +222,7 @@ func TestDomain_superuser(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				err := ctrl.superuser(false)
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("want err: %s, got: %s", types.ErrUnauthorized, err)
@@ -238,7 +238,7 @@ func TestDomain_superuser(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				err := ctrl.superuser(true)
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("want err: %s, got: %s", types.ErrUnauthorized, err)
@@ -264,7 +264,7 @@ func TestDomain_validName(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				err := ctrl.validName()
 				if err != nil {
 					t.Fatalf("got error: %s", err)
@@ -284,7 +284,7 @@ func TestDomain_validName(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewDomainController(ctx, k, "test")
+				ctrl := NewController(ctx, k, "test")
 				err := ctrl.validName()
 				if !errors.Is(err, types.ErrInvalidDomainName) {
 					t.Fatalf("want err: %s, got: %s", types.ErrInvalidDomainName, err)
