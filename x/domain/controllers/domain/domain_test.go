@@ -48,9 +48,9 @@ func TestDomain_domainExpired(t *testing.T) {
 			ValidUntil:   0,
 		})
 		ctrl := NewController(ctx, k, "test")
-		expired := ctrl.expired()
-		if !expired {
-			t.Fatal("validation failed: domain has not expired")
+		err := ctrl.expired()
+		if err != nil {
+			t.Fatalf("unexpected err: %s", err)
 		}
 	})
 	t.Run("domain not expired", func(t *testing.T) {
@@ -62,9 +62,9 @@ func TestDomain_domainExpired(t *testing.T) {
 			ValidUntil: now.Unix() + 10000,
 		})
 		ctrl := NewController(ctx, k, "test")
-		expired := ctrl.expired()
-		if expired {
-			t.Fatal("validation failed domain has expired")
+		err := ctrl.expired()
+		if !errors.Is(err, types.ErrDomainNotExpired) {
+			t.Fatalf("expected error: %s, got: %s", types.ErrDomainNotExpired, err)
 		}
 	})
 	t.Run("domain does not exist", func(t *testing.T) {
@@ -77,10 +77,11 @@ func TestDomain_domainExpired(t *testing.T) {
 func TestDomain_gracePeriodFinished(t *testing.T) {
 	cases := map[string]dt.SubTest{
 		"grace period finished": {
+			BeforeTestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					DomainGracePeriod: 1,
+					DomainGracePeriod: 1 * time.Second,
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
@@ -88,12 +89,34 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 					ValidUntil: 0,
 				})
 			},
-			TestBlockTime: 2,
+			TestBlockTime: 10,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
-				gpf := ctrl.gracePeriodFinished()
-				if gpf != true {
+				err := ctrl.gracePeriodFinished()
+				if err != nil {
 					t.Fatal("validation failed: grace period has not expired")
+				}
+			},
+		},
+		"grace period not finished": {
+			BeforeTestBlockTime: 1,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					DomainGracePeriod: 15 * time.Second,
+				})
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					Admin:      dt.AliceKey,
+					ValidUntil: 1,
+				})
+			},
+			TestBlockTime: 3,
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				ctrl := NewController(ctx, k, "test")
+				err := ctrl.gracePeriodFinished()
+				if !errors.Is(err, types.ErrGracePeriodNotFinished) {
+					t.Fatalf("expected error: %s, got: %s", types.ErrGracePeriodNotFinished, err)
 				}
 			},
 		},

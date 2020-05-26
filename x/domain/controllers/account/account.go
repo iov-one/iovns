@@ -15,9 +15,6 @@ import (
 // ControllerFunc is the function signature used by account controllers
 type ControllerFunc func(ctrl *Account) error
 
-// ControllerCond is the function signature used by account condition controllers
-type ControllerCond func(ctrl *Account) bool
-
 // Account is an account controller, it caches information
 // in order to avoid useless query to state to get the same
 // information. Order of execution of controllers matters
@@ -82,7 +79,7 @@ func (a *Account) mustNotExist() error {
 	return sdkerrors.Wrapf(types.ErrAccountExists, "account %s already exists in domain %s", a.name, a.domain)
 }
 
-// ValidName asserts that an account has a vaid name based
+// ValidName asserts that an account has a valid name based
 // on the account regexp  saved on the configuration module
 func ValidName(ctrl *Account) error {
 	return ctrl.validName()

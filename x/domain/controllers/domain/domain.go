@@ -51,32 +51,36 @@ func (c *Domain) Validate(checks ...ControllerFunc) error {
 }
 
 // Condition asserts if the given condition is true
-func (c *Domain) Condition(cond ControllerCond) bool {
-	return cond(c)
+func (c *Domain) Condition(cond ControllerFunc) bool {
+	return cond(c) == nil
 }
 
 // Expired checks if the provided domain has expired or not
-func Expired(controller *Domain) bool {
+func Expired(controller *Domain) error {
 	return controller.expired()
 }
 
-// expired is the condition that checks if a domain has expired or not
-func (c *Domain) expired() bool {
+// expired returns nil if domain expired, otherwise ErrDomainNotExpired
+func (c *Domain) expired() error {
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
 		panic("conditions check not allowed on non existing domain")
 	}
 	expireTime := iovns.SecondsToTime(c.domain.ValidUntil)
 	// if expire time is before block time means domain expired
-	return expireTime.Before(c.ctx.BlockTime())
+	if expireTime.Before(c.ctx.BlockTime()) {
+		return nil
+	}
+
+	return sdkerrors.Wrapf(types.ErrDomainNotExpired, "domain %s has not expired", c.domain.Name)
 }
 
-func GracePeriodFinished(controller *Domain) bool {
+func GracePeriodFinished(controller *Domain) error {
 	return controller.gracePeriodFinished()
 }
 
-// gracePeriodFinished is the condition that checks if given domain is above grace period or not
-func (c *Domain) gracePeriodFinished() bool {
+// gracePeriodFinished is the condition that checks if given domain's grace period has finished
+func (c *Domain) gracePeriodFinished() error {
 	// require configuration
 	c.requireConfiguration()
 	// assert domain exists
@@ -86,8 +90,10 @@ func (c *Domain) gracePeriodFinished() bool {
 	// get grace period and expiration time
 	gracePeriod := c.conf.DomainGracePeriod
 	expireTime := iovns.SecondsToTime(c.domain.ValidUntil)
-	// check if expiration time + grace period duration is before current block time
-	return expireTime.Add(gracePeriod).Before(c.ctx.BlockTime())
+	if c.ctx.BlockTime().After(expireTime.Add(gracePeriod)) {
+		return nil
+	}
+	return sdkerrors.Wrapf(types.ErrGracePeriodNotFinished, "domain %s grace period has not finished", c.domain.Name)
 }
 
 func Owner(addr sdk.AccAddress) ControllerFunc {
