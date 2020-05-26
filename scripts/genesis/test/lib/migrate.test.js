@@ -14,6 +14,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "address": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",
             "coins": [ { "fractional": 510000000, "ticker": "IOV", "whole": 416 } ]
          },
+         {
+            "address": "iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n",
+            "coins": [ { "ticker": "IOV", "whole": 37 } ]
+         },
+         {
+            "address": "iov1zd573wa38pxfvn9mxvpkjm6a8vteqvar2dwzs0",
+            "coins": [ { "ticker": "IOV", "whole": 3570582 } ]
+         },
       ],
    };
    const genesis = {
@@ -30,12 +38,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
    };
 
    it( `Should burn tokens.`, async () => {
-      burnTokens( dumped );
+      const copied = JSON.parse( JSON.stringify( dumped ) );
 
-      const hex0x0 = dumped.cash.findIndex( wallet => wallet.address == "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" );
+      burnTokens( copied );
+
+      const hex0x0 = copied.cash.findIndex( wallet => wallet.address == "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" );
 
       expect( hex0x0 ).toEqual( -1 );
-      expect( dumped.cash.length ).toEqual( 1 );
+      expect( copied.cash.length ).toEqual( dumped.cash.length - 1 );
    } );
 
    it( `Should migrate.`, async () => {

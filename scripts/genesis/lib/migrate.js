@@ -5,9 +5,12 @@
  * @param {Object} dumped - the state of the weave-based chain
  */
 export const burnTokens = dumped => {
-   const hex0x0 = dumped.cash.findIndex( wallet => wallet.address == "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" );
+   const hex0x0 = "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u";
+   const index = dumped.cash.findIndex( wallet => wallet.address == hex0x0 );
 
-   dumped.cash.splice( hex0x0, 1 );
+   if ( index == -1 ) throw new Error( `Couldn't find ${hex0x0} in dumped.cash.` );
+
+   dumped.cash.splice( index, 1 );
 };
 
 /**
