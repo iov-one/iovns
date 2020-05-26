@@ -1,4 +1,4 @@
-import { burnTokens, labelMultisigs, migrate } from "../../lib/migrate";
+import { burnTokens, labelAccounts, labelMultisigs, migrate } from "../../lib/migrate";
 
 "use strict";
 
@@ -21,6 +21,15 @@ describe( "Tests ../../lib/migrate.js.", () => {
          {
             "address": "iov1zd573wa38pxfvn9mxvpkjm6a8vteqvar2dwzs0",
             "coins": [ { "ticker": "IOV", "whole": 3570582 } ]
+         },
+         {
+            "address": "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph",
+            "coins": [ { "ticker": "IOV", "whole": 1628971 }
+            ]
+         },
+         {
+            "address": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98",
+            "coins": [ { "ticker": "IOV", "whole": 3234710 } ]
          },
       ],
    };
@@ -48,6 +57,62 @@ describe( "Tests ../../lib/migrate.js.", () => {
          star1: "star1bonuses",
       },
    };
+   const osaka = {
+      app_hash: "",
+      app_state: {
+         cash: [
+            {
+               address: "bech32:iov15xzzgu5jkltm24hg9r2ykm6gm2d09tzrcqgrr9",
+               "//id": 1957,
+               coins: [ "126455 IOV" ]
+            },
+            {
+               address: "bech32:iov1tc4vr2756lcme6hqq2xgdn4dycny32cdev9a8g",
+               "//id": 1970,
+               coins: [ "62500 IOV" ]
+            },
+            {
+               address: "bech32:iov1s3e835efuht3qulf3lrv02dypn036lnpedq275",
+               "//id": 1976,
+               coins: [ "626325 IOV" ]
+            },
+            {
+               address: "bech32:iov13adwzjxhqhd79l3y5v58vjugtfszv57tthmv0q",
+               "//id": 1978,
+               coins: [ "470651 IOV" ]
+            },
+            {
+               address: "bech32:iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph",
+               "//id": 2096,
+               coins: [ "1000000 IOV" ]
+            },
+            {
+               address: "bech32:iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98",
+               "//id": 2101,
+               coins: [ "3234708 IOV" ]
+            },
+            {
+               address: "bech32:iov14favyxdrkkdk39kl4qsexc99vgscw8dw22g5d3",
+               "//id": 2243,
+               coins: [ "555555 IOV" ]
+            },
+            {
+               address: "bech32:iov1wvxg0qw8pg9vnkja9mvvdzk74g6lrms7uh7tn8",
+               "//id": 2244,
+               coins: [ "107824 IOV" ]
+            },
+            {
+               address: "bech32:iov1jukhxtnh58mmag5y65d8xj2e36wq6083w0t69e",
+               "//id": 2246,
+               coins: [ "77777 IOV" ]
+            },
+         ],
+      },
+      chain_id: "iov-mainnet",
+      consensus_params: {},
+      genesis_time: new Date( "2019-10-10T10:00:00Z" ).toISOString(),
+      validators: [],
+   };
 
    it( `Should burn tokens.`, async () => {
       const copied = JSON.parse( JSON.stringify( dumped ) );
@@ -70,7 +135,17 @@ describe( "Tests ../../lib/migrate.js.", () => {
       } );
    } );
 
+   it( `Should label accounts.`, async () => {
+      labelAccounts( dumped, osaka );
+
+      const id2096 = dumped.cash.find( account => account.address == "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph" );
+      const id2101 = dumped.cash.find( account => account.address == "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98" );
+
+      expect( id2096["//id"] ).toEqual( 2096 );
+      expect( id2101["//id"] ).toEqual( 2101 );
+   } );
+
    it( `Should migrate.`, async () => {
-      migrate( { dumped, genesis, multisigs } );
+      migrate( { dumped, genesis, multisigs, osaka } );
    } );
 } );

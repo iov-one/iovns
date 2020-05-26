@@ -16,7 +16,7 @@ export const burnTokens = dumped => {
 /**
  * Adds an "//id" property to multisig accounts
  * @param {Object} dumped - the state of the weave-based chain
- * @param {Object} multisigs - the state of the weave-based chain
+ * @param {Object} multisigs - a map of iov1 addresses to multisig account data
  */
 export const labelMultisigs = ( dumped, multisigs ) => {
    Object.keys( multisigs ).forEach( iov1 => {
@@ -25,6 +25,19 @@ export const labelMultisigs = ( dumped, multisigs ) => {
       if ( index == -1 ) throw new Error( `Couldn't find ${iov1} in dumped.cash.` );
 
       dumped.cash[index]["//id"] = multisigs[iov1]["//name"];
+   } );
+}
+
+/**
+ * Adds an "//id" property to ordinary accounts
+ * @param {Object} dumped - the state of the weave-based chain
+ * @param {Object} osaka - the original genesis data
+ */
+export const labelAccounts = ( dumped, osaka ) => {
+   osaka.app_state.cash.forEach( wallet => {
+      const account = dumped.cash.find( account => wallet.address.indexOf( account.address ) != -1 );
+
+      if ( account ) account["//id"] = wallet["//id"];
    } );
 }
 
@@ -39,5 +52,6 @@ export const migrate = args => {
    const osaka = args.osaka;
 
    burnTokens( dumped );
+   labelAccounts( dumped, osaka );
    labelMultisigs( dumped, multisigs );
 };
