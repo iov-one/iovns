@@ -1,5 +1,5 @@
-import { burnTokens, fixChainIds, labelAccounts, labelMultisigs, migrate } from "../../lib/migrate";
-import { chainIds } from "../../lib/constants";
+import { burnTokens, consolidateEscrows, fixChainIds, labelAccounts, labelMultisigs, migrate } from "../../lib/migrate";
+import { chainIds, source2multisig } from "../../lib/constants";
 
 "use strict";
 
@@ -31,6 +31,92 @@ describe( "Tests ../../lib/migrate.js.", () => {
          {
             "address": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98",
             "coins": [ { "ticker": "IOV", "whole": 3234710 } ]
+         },
+         {
+            "address": "iov170qvwm0tscn5mza3vmaerkzqllvwc3kykkt7kj",
+            "coins": [ { "ticker": "IOV", "whole": 2347987 } ]
+         },
+         {
+            "address": "iov105465l8l3yn06a56h7tqwwvnqq22e8j4nvgf02",
+            "coins": [ { "ticker": "IOV", "whole": 269559 } ]
+         },
+         {
+            "address": "iov17gdpegksje9dlh8h0g6ehgk6d4anz9pkfskunr",
+            "coins": [ { "ticker": "IOV", "whole": 269559 } ]
+         },
+         {
+            "address": "iov1ppxx0vwx42p47p4pkztzl4d57zh2ctnwsz4fdu",
+            "coins": [ { "ticker": "IOV", "whole": 269559 } ]
+         },
+         {
+            "address": "iov1k4dpknrrf4dfm07avau0mmjkrsm6pu863d30us",
+            "coins": [ { "ticker": "IOV", "whole": 89853 } ]
+         },
+         {
+            "address": "iov1dfurgye70k7f2gxptztfym697g5t832pp9m94g",
+            "coins": [ { "ticker": "IOV", "whole": 89853 } ]
+         },
+         {
+            "address": "iov1497txu54lnwujzl8xhc59y6cmuw82d68udn4l3",
+            "coins": [ { "ticker": "IOV", "whole": 89853 } ]
+         },
+      ],
+      "escrow": [
+         {
+            "address": "iov170qvwm0tscn5mza3vmaerkzqllvwc3kykkt7kj",
+            "amount": [ { "ticker": "IOV", "whole": 2347987 } ],
+            "arbiter": "iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n",
+            "destination": "iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n",
+            "source": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "timeout": 1888963200
+         },
+         {
+            "address": "iov105465l8l3yn06a56h7tqwwvnqq22e8j4nvgf02",
+            "amount": [ { "ticker": "IOV", "whole": 269559 } ],
+            "arbiter": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "destination": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "source": "iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x",
+            "timeout": 1575979200
+         },
+         {
+            "address": "iov17gdpegksje9dlh8h0g6ehgk6d4anz9pkfskunr",
+            "amount": [ { "ticker": "IOV", "whole": 269559 } ],
+            "arbiter": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "destination": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "source": "iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x",
+            "timeout": 1578657600
+         },
+         {
+            "address": "iov1ppxx0vwx42p47p4pkztzl4d57zh2ctnwsz4fdu",
+            "amount": [ { "ticker": "IOV", "whole": 269559 } ],
+            "arbiter": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "destination": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "source": "iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x",
+            "timeout": 1581336000
+         },
+         {
+            "address": "iov1k4dpknrrf4dfm07avau0mmjkrsm6pu863d30us",
+            "amount": [ { "ticker": "IOV", "whole": 89853 } ],
+            "arbiter": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "destination": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "source": "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph",
+            "timeout": 1591790400
+         },
+         {
+            "address": "iov1dfurgye70k7f2gxptztfym697g5t832pp9m94g",
+            "amount": [ { "ticker": "IOV", "whole": 89853 } ],
+            "arbiter": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "destination": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "source": "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph",
+            "timeout": 1594382400
+         },
+         {
+            "address": "iov1497txu54lnwujzl8xhc59y6cmuw82d68udn4l3",
+            "amount": [ { "ticker": "IOV", "whole": 89853 } ],
+            "arbiter": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "destination": "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+            "source": "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph",
+            "timeout": 1597060800
          },
       ],
       "username": [
@@ -258,7 +344,28 @@ describe( "Tests ../../lib/migrate.js.", () => {
       } );
    } );
 
+   it( `Should consolidate escrows.`, async () => {
+      const dumpedCopy = JSON.parse( JSON.stringify( dumped ) );
+      const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
+
+      consolidateEscrows( dumpedCopy, source2multisig, genesisCopy );
+
+      expect( genesisCopy.accounts.length ).toEqual( 3 );
+
+      const guaranteed = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u.multisig );
+      const isabella   = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x.multisig );
+      const kadima     = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph.multisig );
+
+      expect( guaranteed ).toBeTruthy();
+      expect( isabella ).toBeTruthy();
+      expect( kadima ).toBeTruthy();
+
+      expect( guaranteed.value.coins[0].amount ).toEqual( "2347987" );
+      expect( isabella.value.coins[0].amount ).toEqual( "808677" );
+      expect( kadima.value.coins[0].amount ).toEqual( "269559" );
+   } );
+
    it( `Should migrate.`, async () => {
-      migrate( { chainIds, dumped, flammable, genesis, multisigs, osaka } );
+      migrate( { chainIds, dumped, flammable, genesis, multisigs, osaka, source2multisig } );
    } );
 } );

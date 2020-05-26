@@ -74,3 +74,18 @@ export const chainIds = {
    "starname-migration":          "cosmos:iov-mainnet-2",
    "tezos-tmp-mainnet":           "tezos:NetXdQprcVkpaWU",
 };
+
+export const source2multisig = {
+   iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x: {
+      "//id": "isabella*iov",
+      multisig: "IOV SAS multisig star1_TBD_isabella*iov", // TODO
+   },
+   iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph: {
+      "//id": "kadima*iov",
+      multisig: "IOV SAS multisig star1_TBD_kadima*iov", // TODO
+   },
+   iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u: {
+      "//id": "vaildator guaranteed reward fund",
+      multisig: "IOV SAS multisig star1_TBD_guaranteed", // TODO
+   },
+};
