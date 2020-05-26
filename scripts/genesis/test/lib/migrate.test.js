@@ -127,6 +127,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       genutil: {},
       gov: {},
    };
+   const flammable = [ "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" ];
    const multisigs = {
       iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n: {
          "//name": "reward fund",
@@ -199,12 +200,15 @@ describe( "Tests ../../lib/migrate.js.", () => {
    it( `Should burn tokens.`, async () => {
       const copied = JSON.parse( JSON.stringify( dumped ) );
 
-      burnTokens( copied );
+      burnTokens( copied, flammable );
 
-      const hex0x0 = copied.cash.findIndex( wallet => wallet.address == "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" );
+      flammable.forEach( iov1 => {
+         const index = copied.cash.findIndex( wallet => wallet.address == iov1 );
 
-      expect( hex0x0 ).toEqual( -1 );
-      expect( copied.cash.length ).toEqual( dumped.cash.length - 1 );
+         expect( index ).toEqual( -1 );
+      } );
+
+      expect( copied.cash.length ).toEqual( dumped.cash.length - flammable.length );
    } );
 
    it( `Should label multisig accounts.`, async () => {
@@ -255,6 +259,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
    } );
 
    it( `Should migrate.`, async () => {
-      migrate( { chainIds, dumped, genesis, multisigs, osaka } );
+      migrate( { chainIds, dumped, flammable, genesis, multisigs, osaka } );
    } );
 } );

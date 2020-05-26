@@ -3,14 +3,16 @@
 /**
  * Burns tokens from the dumped state by deleting their entry in dumped.cash.
  * @param {Object} dumped - the state of the weave-based chain
+ * @param {Array} iov1s - addresses to burn
  */
-export const burnTokens = dumped => {
-   const hex0x0 = "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u";
-   const index = dumped.cash.findIndex( wallet => wallet.address == hex0x0 );
+export const burnTokens = ( dumped, iov1s ) => {
+   iov1s.forEach( iov1 => {
+      const index = dumped.cash.findIndex( wallet => wallet.address == iov1 );
 
-   if ( index == -1 ) throw new Error( `Couldn't find ${hex0x0} in dumped.cash.` );
+      if ( index == -1 ) throw new Error( `Couldn't find ${iov1} in dumped.cash.` );
 
-   dumped.cash.splice( index, 1 );
+      dumped.cash.splice( index, 1 );
+   } );
 };
 
 /**
@@ -61,11 +63,12 @@ export const fixChainIds = ( dumped, ids ) => {
 export const migrate = args => {
    const chainIds = args.chainIds;
    const dumped = args.dumped;
+   const flammable = args.flammable;
    const genesis = args.genesis;
    const multisigs = args.multisigs;
    const osaka = args.osaka;
 
-   burnTokens( dumped );
+   burnTokens( dumped, flammable );
    labelAccounts( dumped, osaka );
    labelMultisigs( dumped, multisigs );
    fixChainIds( dumped, chainIds );
