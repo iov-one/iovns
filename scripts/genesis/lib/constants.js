@@ -59,17 +59,17 @@ export const names = Object.keys( multisigs ).reduce( ( accumulator, key ) => {
 }, {} );
 
 export const chainIds = {
+   "bip122-tmp-bcash":            "bip122:000000000000000000651ef99cb9fcbe",
+   "bip122-tmp-bitcoin":          "bip122:000000000019d6689c085ae165831e93",
+   "bip122-tmp-litecoin":         "bip122:12a765e31ffd4059bada1e25190f6e98",
+   "cosmos-binance-chain-tigris": "cosmos:Binance-Chain-Tigris",
+   "cosmos-columbus-3":           "cosmos:columbus-3",
+   "cosmos-cosmoshub-3":          "cosmos:cosmoshub-3",
+   "cosmos-emoney-1":             "cosmos:emoney-1",
+   "cosmos-irishub":              "cosmos:irishub",
+   "cosmos-kava-2":               "cosmos:kava-2",
    "ethereum-eip155-1":           "eip155:1",
    "iov-mainnet":                 "cosmos:iov-mainnet",
    "lisk-ed14889723":             "lip9:9ee11e9df416b18b",
-   "cosmos-binance-chain-tigris": "cosmos:Binance-Chain-Tigris",
-   "bip122-tmp-bitcoin":          "bip122:000000000019d6689c085ae165831e93",
-   "bip122-tmp-bcash":            "bip122:000000000000000000651ef99cb9fcbe",
-   "cosmos-cosmoshub-3":          "cosmos:cosmoshub-3",
-   "cosmos-irishub":              "cosmos:irishub",
-   "cosmos-kava-2":               "cosmos:kava-2",
-   "bip122-tmp-litecoin":         "bip122:12a765e31ffd4059bada1e25190f6e98",
-   "cosmos-columbus-3":           "cosmos:columbus-3",
    "tezos-tmp-mainnet":           "tezos:NetXdQprcVkpaWU",
-   "cosmos-emoney-1":             "cosmos:emoney-1",
 };
