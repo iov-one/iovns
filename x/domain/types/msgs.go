@@ -238,8 +238,8 @@ type MsgRegisterDomain struct {
 	// Admin is the address of the newly registered domain
 	Admin    sdk.AccAddress `json:"admin"`
 	FeePayer sdk.AccAddress
-	// HasSuperuser defines if the domain registered has an owner or not
-	HasSuperuser bool `json:"has_superuser"`
+	// DomainType defines the type of the domain
+	DomainType DomainType `json:"type"`
 	// Broker TODO document
 	Broker sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
 	// AccountRenew defines the expiration time in seconds of each newly registered account.
@@ -257,6 +257,15 @@ func (m *MsgRegisterDomain) Type() string {
 	return "register_domain"
 }
 
+func ValidateDomainType(Type DomainType) error {
+	switch Type {
+	case OpenDomain, CloseDomain:
+		return nil
+	default:
+		return errors.Wrapf(ErrInvalidDomainType, "invalid domain type: %s", Type)
+	}
+}
+
 // ValidateBasic implements sdk.Msg
 func (m *MsgRegisterDomain) ValidateBasic() error {
 	if m.Admin == nil {
@@ -264,6 +273,9 @@ func (m *MsgRegisterDomain) ValidateBasic() error {
 	}
 	if m.AccountRenew == 0 {
 		return errors.Wrap(ErrInvalidRequest, "account renew value can not be zero")
+	}
+	if err := ValidateDomainType(m.DomainType); err != nil {
+		return err
 	}
 	// success
 	return nil

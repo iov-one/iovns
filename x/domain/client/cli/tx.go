@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -530,12 +529,11 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			hasSuperUserStr, err := cmd.Flags().GetString("has-superuser")
+			dType, err := cmd.Flags().GetString("type")
 			if err != nil {
 				return err
 			}
-			hasSuperUser, err := strconv.ParseBool(hasSuperUserStr)
-			if err != nil {
+			if err := types.ValidateDomainType(types.DomainType(dType)); err != nil {
 				return err
 			}
 			accountRenew, err := cmd.Flags().GetDuration("account-renew")
@@ -545,7 +543,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			msg := &types.MsgRegisterDomain{
 				Name:         domain,
 				Admin:        cliCtx.GetFromAddress(),
-				HasSuperuser: hasSuperUser,
+				DomainType:   types.DomainType(dType),
 				Broker:       nil,
 				AccountRenew: accountRenew,
 			}
@@ -561,7 +559,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 	defaultDuration, _ := time.ParseDuration("1h")
 	// add flags
 	cmd.Flags().String("domain", "", "name of the domain you want to register")
-	cmd.Flags().String("has-superuser", "true", "define if this domain has a superuser or not")
+	cmd.Flags().String("type", "close", "type of the domain")
 	cmd.Flags().Duration("account-renew", defaultDuration, "account duration in seconds before expiration")
 	return cmd
 }

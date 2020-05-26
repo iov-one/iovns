@@ -57,3 +57,6 @@ var ErrCertificateDoesNotExist = sdkerrors.Register(ModuleName, 16, "certificate
 
 // ErrGracePeriodNotFinished is returned when actions are performed on expired domains
 var ErrGracePeriodNotFinished = sdkerrors.Register(ModuleName, 17, "domain grace period has not finished")
+
+// ErrInvalidDomainType is returned when domain type is invalid
+var ErrInvalidDomainType = sdkerrors.Register(ModuleName, 18, "invalid domain type")

@@ -135,28 +135,21 @@ func (c *Domain) notExpired() error {
 }
 
 // Superuser makes sure the domain superuser is set to the provided condition
-func Superuser(condition bool) ControllerFunc {
+func Type(Type types.DomainType) ControllerFunc {
 	return func(controller *Domain) error {
-		return controller.superuser(condition)
+		return controller.dType(Type)
 	}
 }
 
-// superuser checks if the domain matches the superuser condition
-func (c *Domain) superuser(condition bool) error {
+func (c *Domain) dType(Type types.DomainType) error {
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
 		panic("validation check is not allowed on a non existing domain")
 	}
-	// check if superuser matches condition
-	if c.domain.HasSuperuser == condition {
-		return nil
+	if c.domain.Type != Type {
+		return sdkerrors.Wrapf(types.ErrInvalidDomainType, "invalid domain type %s, expected %s", c.domain.Type, Type)
 	}
-	switch condition {
-	case true:
-		return sdkerrors.Wrap(types.ErrUnauthorized, "operation is not allowed in domains with a superuser")
-	default:
-		return sdkerrors.Wrap(types.ErrUnauthorized, "operation is not allowed in domains without a superuser")
-	}
+	return nil
 }
 
 // MustExist checks if the provided domain exists

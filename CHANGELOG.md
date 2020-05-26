@@ -6,6 +6,10 @@
 - upgrade cosmos-sdk to v0.38.4
 - iovnsd: fix fee colletor address
 
+### Breaking changes
+
+- change hasSuperUser to DomainType
+
 ## v0.2.5
 
 - iovnscli: fix has-superuser bool flag bug

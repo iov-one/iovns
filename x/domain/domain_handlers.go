@@ -11,7 +11,10 @@ import (
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
 	c := domain.NewController(ctx, k, msg.Domain)
-	err := c.Validate(domain.MustExist, domain.Superuser(true))
+	err := c.Validate(domain.MustExist, domain.Type(types.CloseDomain))
+	if types.ErrInvalidDomainType.Is(err) {
+		return nil, types.ErrUnauthorized
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -39,26 +42,26 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		return nil, err
 	}
 	// set new domain
-	domain := types.Domain{
+	d := types.Domain{
 		Name:         msg.Name,
 		Admin:        msg.Admin,
 		ValidUntil:   ctx.BlockTime().Add(k.ConfigurationKeeper.GetDomainRenewDuration(ctx)).Unix(),
-		HasSuperuser: msg.HasSuperuser,
+		Type:         msg.DomainType,
 		AccountRenew: msg.AccountRenew,
 		Broker:       msg.Broker,
 	}
 	// if domain has not a super user then set domain to 0 address
-	if !domain.HasSuperuser {
-		domain.Admin = iovns.ZeroAddress // TODO change with module address
+	if d.Type == types.OpenDomain {
+		d.Admin = iovns.ZeroAddress // TODO change with module address
 	}
 	// save domain
-	k.CreateDomain(ctx, domain)
+	k.CreateDomain(ctx, d)
 	// generate empty name account
 	acc := types.Account{
 		Domain:       msg.Name,
 		Name:         "",
 		Owner:        msg.Admin, // TODO this is not clear, why the domain admin is zero address while this is msg.Admin
-		ValidUntil:   ctx.BlockTime().Add(domain.AccountRenew).Unix(),
+		ValidUntil:   ctx.BlockTime().Add(d.AccountRenew).Unix(),
 		Targets:      nil,
 		Certificates: nil,
 		Broker:       nil, // TODO ??
@@ -103,22 +106,25 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 	c := domain.NewController(ctx, k, msg.Domain)
 	err := c.Validate(
 		domain.MustExist,
-		domain.Superuser(true),
+		domain.Type(types.CloseDomain),
 		domain.Owner(msg.Owner),
 		domain.NotExpired,
 	)
+	if types.ErrInvalidDomainType.Is(err) {
+		return nil, types.ErrUnauthorized
+	}
 	if err != nil {
 		return nil, err
 	}
 	// get domain
-	domain := c.Domain()
+	d := c.Domain()
 	// collect fees
 	err = k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// transfer domain and accounts ownership
-	k.TransferDomain(ctx, msg.NewAdmin, domain)
+	k.TransferDomain(ctx, msg.NewAdmin, d)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
 }
