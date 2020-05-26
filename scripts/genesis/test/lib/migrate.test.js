@@ -1,4 +1,5 @@
-import { burnTokens, labelAccounts, labelMultisigs, migrate } from "../../lib/migrate";
+import { burnTokens, fixChainIds, labelAccounts, labelMultisigs, migrate } from "../../lib/migrate";
+import { chainIds } from "../../lib/constants";
 
 "use strict";
 
@@ -30,6 +31,87 @@ describe( "Tests ../../lib/migrate.js.", () => {
          {
             "address": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98",
             "coins": [ { "ticker": "IOV", "whole": 3234710 } ]
+         },
+      ],
+      "username": [
+         {
+            "Owner": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d",
+            "Targets": [
+               { "address": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d",    "blockchain_id": "iov-mainnet" },
+               { "address": "0x52dBf411B22Af67f33425bf3fbb6B8CF8FB302cd",    "blockchain_id": "ethereum-eip155-1" },
+               { "address": "cosmos15dafemy5pkaru4kf23s3e6mnugfv6et9kg2uz7", "blockchain_id": "cosmos-cosmoshub-3" },
+               { "address": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd",   "blockchain_id": "starname-migration" }
+            ],
+            "Username": "alpha*iov"
+         },
+         {
+            "Owner": "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6",
+            "Targets": [
+               { "address": "star1gfdmksf725qpdgl06e98ks4usg9nmkcwc5qzcg", "blockchain_id": "starname-migration" },
+               { "address": "0xa223f22664Ee8bfB41FAD93C388826E7aF24060c",  "blockchain_id": "ethereum-eip155-1" },
+               { "address": "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6",  "blockchain_id": "iov-mainnet" },
+               { "address": "4341330819731245941L",                        "blockchain_id": "lisk-ed14889723" }
+            ],
+            "Username": "blini44*iov"
+         },
+         {
+            "Owner": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",
+            "Targets": [
+               { "address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "blockchain_id": "starname-migration" },
+               { "address": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",  "blockchain_id": "iov-mainnet" }
+            ],
+            "Username": "dave*iov"
+         },
+         {
+            "Owner": "iov1ejk0g6p2xk90lamuvtd3r0kf6jcva09hf4xy74",
+            "Targets": [
+               { "address": "star1yxxmpqca3l7xzhy4783vkpfx843x4zk749h8fs", "blockchain_id": "starname-migration" },
+               { "address": "iov1ejk0g6p2xk90lamuvtd3r0kf6jcva09hf4xy74", "blockchain_id": "iov-mainnet" }
+            ],
+            "Username": "fish_and_chips*iov"
+         },
+         {
+            "Owner": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn",
+            "Targets": [
+               { "address": "0x00C60938d954FEC83E70eE98243B24F7E6EabaC8",  "blockchain_id": "ethereum-eip155-1" },
+               { "address": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn",  "blockchain_id": "iov-mainnet" },
+               { "address": "13483265462465913551L",                       "blockchain_id": "lisk-ed14889723" },
+               { "address": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y", "blockchain_id": "starname-migration" }
+            ],
+            "Username": "huobi*iov"
+         },
+         {
+            "Owner": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d",
+            "Targets": [
+               { "address": "0x52dBf411B22Af67f33425bf3fbb6B8CF8FB302cd",  "blockchain_id": "ethereum-eip155-1" },
+               { "address": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d",  "blockchain_id": "iov-mainnet" },
+               { "address": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd", "blockchain_id": "starname-migration" }
+            ],
+            "Username": "letsdoit*iov"
+         },
+         {
+            "Owner": "iov1eh6yeyel3zsc8vqnh79fqjtfkcxmj5d8nt49gq",
+            "Targets": [
+               { "address": "0x2cE327b4EB237313F37a72195d64Cb80F7aeAa15",  "blockchain_id": "ethereum-eip155-1" },
+               { "address": "iov1eh6yeyel3zsc8vqnh79fqjtfkcxmj5d8nt49gq",  "blockchain_id": "iov-mainnet" },
+               { "address": "16192453558792957658L", "blockchain_id":      "lisk-ed14889723" },
+               { "address": "star1y86zdqsegxm7uj9qf7l400y29nc6x9ypqxpdcg", "blockchain_id": "starname-migration" }
+            ],
+            "Username": "nash.io*iov"
+         },
+         {
+            "Owner": "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph",
+            "Targets": [
+               { "address": "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph", "blockchain_id": "iov-mainnet" }
+            ],
+            "Username": "kadima*iov"
+         },
+         {
+            "Owner": "iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl",
+            "Targets": [
+               { "address": "iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl",  "blockchain_id": "alpe-net" }
+            ],
+            "Username": "alex*iov"
          },
       ],
    };
@@ -145,7 +227,34 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( id2101["//id"] ).toEqual( 2101 );
    } );
 
+   it( `Should fix chain ids.`, async () => {
+      const invalids = Object.keys( chainIds );
+      const valids = Object.values( chainIds );
+      const unknowns = dumped.username.reduce( ( accumulator, username ) => {
+         username.Targets.forEach( target => {
+            const id = target.blockchain_id;
+
+            if ( !valids.includes( id ) && !invalids.includes( id ) ) accumulator.push( id );
+         } );
+
+         return accumulator;
+      }, [] );
+
+      fixChainIds( dumped, chainIds );
+
+      dumped.username.forEach( username => {
+         username.Targets.forEach( target => {
+            const id = target.blockchain_id;
+
+            if ( !unknowns.includes( id ) ) {
+               expect( valids.includes( id ) ).toEqual( true );
+               expect( invalids.includes( id ) ).toEqual( false );
+            }
+         } );
+      } );
+   } );
+
    it( `Should migrate.`, async () => {
-      migrate( { dumped, genesis, multisigs, osaka } );
+      migrate( { chainIds, dumped, genesis, multisigs, osaka } );
    } );
 } );

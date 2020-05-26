@@ -42,10 +42,24 @@ export const labelAccounts = ( dumped, osaka ) => {
 }
 
 /**
+ * Fixes chain ids.
+ * @param {Object} dumped - the state of the weave-based chain
+ * @param {Object} ids - a map of old chain ids to new chain ids
+ */
+export const fixChainIds = ( dumped, ids ) => {
+   dumped.username.forEach( username => {
+      username.Targets.forEach( target => {
+         if ( ids[target.blockchain_id] ) target.blockchain_id = ids[target.blockchain_id];
+      } );
+   } );
+}
+
+/**
  * Performs all the necessary transformations to migrate from the weave-based chain to a cosmos-sdk-based chain.
  * @param {Object} args - various objects required for the transformation
  */
 export const migrate = args => {
+   const chainIds = args.chainIds;
    const dumped = args.dumped;
    const genesis = args.genesis;
    const multisigs = args.multisigs;
@@ -54,4 +68,5 @@ export const migrate = args => {
    burnTokens( dumped );
    labelAccounts( dumped, osaka );
    labelMultisigs( dumped, multisigs );
+   fixChainIds( dumped, chainIds );
 };
