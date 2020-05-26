@@ -1,21 +1,22 @@
-package controllers
+package account
 
 import (
 	"bytes"
+	"regexp"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
-	"regexp"
 )
 
-// AccountControllerFunc is the function signature used by account controllers
-type AccountControllerFunc func(ctrl *Account) error
+// ControllerFunc is the function signature used by account controllers
+type ControllerFunc func(ctrl *Account) error
 
-// AccountControllerCond is the function signature used by account condition controllers
-type AccountControllerCond func(ctrl *Account) bool
+// ControllerCond is the function signature used by account condition controllers
+type ControllerCond func(ctrl *Account) bool
 
 // Account is an account controller, it caches information
 // in order to avoid useless query to state to get the same
@@ -32,8 +33,8 @@ type Account struct {
 	k   keeper.Keeper
 }
 
-// NewAccountController is Account constructor
-func NewAccountController(ctx sdk.Context, k keeper.Keeper, domain, name string) *Account {
+// NewController is Account constructor
+func NewController(ctx sdk.Context, k keeper.Keeper, domain, name string) *Account {
 	return &Account{
 		name:   name,
 		domain: domain,
@@ -42,9 +43,9 @@ func NewAccountController(ctx sdk.Context, k keeper.Keeper, domain, name string)
 	}
 }
 
-// AccountMustExist asserts if an account exists in the state,
+// MustExist asserts if an account exists in the state,
 // returns an error if it does not.
-func AccountMustExist(ctrl *Account) error {
+func MustExist(ctrl *Account) error {
 	return ctrl.mustExist()
 }
 
@@ -67,12 +68,12 @@ func (a *Account) mustExist() error {
 	return a.requireAccount()
 }
 
-// AccountMustNotExist asserts that an account does not exist
-func AccountMustNotExist(ctrl *Account) error {
+// MustNotExist asserts that an account does not exist
+func MustNotExist(ctrl *Account) error {
 	return ctrl.mustNotExist()
 }
 
-// mustNotExist is the unexported function executed by AccountMustNotExist
+// mustNotExist is the unexported function executed by MustNotExist
 func (a *Account) mustNotExist() error {
 	err := a.requireAccount()
 	if err != nil {
@@ -81,9 +82,9 @@ func (a *Account) mustNotExist() error {
 	return sdkerrors.Wrapf(types.ErrAccountExists, "account %s already exists in domain %s", a.name, a.domain)
 }
 
-// AccountValidName asserts that an account has a vaid name based
+// ValidName asserts that an account has a vaid name based
 // on the account regexp  saved on the configuration module
-func AccountValidName(ctrl *Account) error {
+func ValidName(ctrl *Account) error {
 	return ctrl.validName()
 }
 
@@ -97,7 +98,7 @@ func (a *Account) requireConfiguration() {
 	a.conf = &conf
 }
 
-// validName is the unexported function used by AccountValidName
+// validName is the unexported function used by ValidName
 func (a *Account) validName() error {
 	a.requireConfiguration()
 	if !regexp.MustCompile(a.conf.ValidName).MatchString(a.name) {
@@ -106,13 +107,13 @@ func (a *Account) validName() error {
 	return nil
 }
 
-// AccountNotExpired asserts that the account has
+// NotExpired asserts that the account has
 // not expired compared to the current block time
-func AccountNotExpired(ctrl *Account) error {
+func NotExpired(ctrl *Account) error {
 	return ctrl.notExpired()
 }
 
-// notExpired is the unexported function used by AccountNotExpired
+// notExpired is the unexported function used by NotExpired
 func (a *Account) notExpired() error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check is not allowed on a non existing account")
@@ -126,14 +127,14 @@ func (a *Account) notExpired() error {
 	return sdkerrors.Wrapf(types.ErrAccountExpired, "account %s in domain %s has expired", a.name, a.domain)
 }
 
-// AccountOwner asserts the account is owned by the provided address
-func AccountOwner(addr sdk.AccAddress) AccountControllerFunc {
+// Owner asserts the account is owned by the provided address
+func Owner(addr sdk.AccAddress) ControllerFunc {
 	return func(ctrl *Account) error {
 		return ctrl.ownedBy(addr)
 	}
 }
 
-// ownedBy is the unexported function used by AccountOwner
+// ownedBy is the unexported function used by Owner
 func (a *Account) ownedBy(addr sdk.AccAddress) error {
 	// assert domain exists
 	if err := a.requireAccount(); err != nil {
@@ -147,10 +148,10 @@ func (a *Account) ownedBy(addr sdk.AccAddress) error {
 	return sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to perform operation in the account owned by %s", addr, a.account.Owner)
 }
 
-// AccountCertificateExists asserts that the provided certificate
+// CertificateExists asserts that the provided certificate
 // exists and if it does the index is saved in the provided pointer
 // if certIndex pointer is nil the certificate index will not be saved
-func AccountCertificateExists(cert []byte, certIndex *int) AccountControllerFunc {
+func CertificateExists(cert []byte, certIndex *int) ControllerFunc {
 	return func(ctrl *Account) error {
 		err := ctrl.certNotExist(cert, certIndex)
 		if err == nil {
@@ -160,16 +161,16 @@ func AccountCertificateExists(cert []byte, certIndex *int) AccountControllerFunc
 	}
 }
 
-// AccountCertificateNotExist asserts the provided certificate
+// CertificateNotExist asserts the provided certificate
 // does not exist in the account already
-func AccountCertificateNotExist(cert []byte) AccountControllerFunc {
+func CertificateNotExist(cert []byte) ControllerFunc {
 	return func(ctrl *Account) error {
 		return ctrl.certNotExist(cert, nil)
 	}
 }
 
-// certNotExist is the unexported function used by AccountCertificateNotExist
-// and AccountCertificateExists, it saves the index of the found certificate
+// certNotExist is the unexported function used by CertificateNotExist
+// and CertificateExists, it saves the index of the found certificate
 // in indexPointer if it is not nil
 func (a *Account) certNotExist(newCert []byte, indexPointer *int) error {
 	// assert domain exists
@@ -189,7 +190,7 @@ func (a *Account) certNotExist(newCert []byte, indexPointer *int) error {
 }
 
 // Validate verifies the account against the order of provided controllers
-func (a *Account) Validate(checks ...AccountControllerFunc) error {
+func (a *Account) Validate(checks ...ControllerFunc) error {
 	for _, check := range checks {
 		if err := check(a); err != nil {
 			return err

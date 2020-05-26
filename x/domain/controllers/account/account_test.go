@@ -1,14 +1,15 @@
-package controllers
+package account
 
 import (
 	"errors"
+	"testing"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/mock"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
-	"testing"
-	"time"
 )
 
 func TestAccount_requireAccount(t *testing.T) {
@@ -20,7 +21,7 @@ func TestAccount_requireAccount(t *testing.T) {
 			Name:   "test",
 			Owner:  alice,
 		})
-		ctrl := NewAccountController(ctx, k, "test", "test")
+		ctrl := NewController(ctx, k, "test", "test")
 		err := ctrl.requireAccount()
 		if err != nil {
 			t.Fatalf("got error: %s", err)
@@ -28,7 +29,7 @@ func TestAccount_requireAccount(t *testing.T) {
 	})
 	t.Run("does not exist", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
-		ctrl := NewAccountController(ctx, k, "test", "test")
+		ctrl := NewController(ctx, k, "test", "test")
 		err := ctrl.requireAccount()
 		if !errors.Is(err, types.ErrAccountDoesNotExist) {
 			t.Fatalf("want: %s, got: %s", types.ErrAccountDoesNotExist, err)
