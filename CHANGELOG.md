@@ -2,6 +2,7 @@
 
 ## HEAD
 
+- introduce domain and account controllers
 - upgrade cosmos-sdk to v0.38.4
 - iovnsd: fix fee colletor address
 
