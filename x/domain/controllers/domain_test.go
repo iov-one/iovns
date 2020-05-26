@@ -189,7 +189,6 @@ func TestDomain_superuser(t *testing.T) {
 					HasSuperuser: true,
 				})
 			},
-			TestBlockTime: 1,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewDomainController(ctx, k, "test")
 				err := ctrl.superuser(true)

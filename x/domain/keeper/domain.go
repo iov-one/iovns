@@ -10,7 +10,7 @@ import (
 
 // contains all the functions to interact with the domain store
 
-// Domain returns the domain based on its name, if domain is not found ok will be false
+// GetDomain returns the domain based on its name, if domain is not found ok will be false
 func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Domain, ok bool) {
 	store := domainStore(ctx.KVStore(k.storeKey))
 	// get domain in form of bytes

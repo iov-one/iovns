@@ -10,7 +10,7 @@ import (
 
 // contains all the functions to interact with the account store
 
-// Account finds an account based on its key name, if not found it will return
+// GetAccount finds an account based on its key name, if not found it will return
 // a zeroed account and false.
 func (k Keeper) GetAccount(ctx sdk.Context, domainName, accountName string) (account types.Account, exists bool) {
 	// get domain prefix key
