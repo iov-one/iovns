@@ -71,5 +71,6 @@ export const chainIds = {
    "ethereum-eip155-1":           "eip155:1",
    "iov-mainnet":                 "cosmos:iov-mainnet",
    "lisk-ed14889723":             "lip9:9ee11e9df416b18b",
+   "starname-migration":          "cosmos:iov-mainnet-2",
    "tezos-tmp-mainnet":           "tezos:NetXdQprcVkpaWU",
 };
