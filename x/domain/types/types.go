@@ -35,7 +35,7 @@ type DomainType string
 
 const (
 	OpenDomain   DomainType = "open"
-	ClosedDomain            = "closed"
+	ClosedDomain DomainType = "closed"
 )
 
 func ValidateDomainType(typ DomainType) error {

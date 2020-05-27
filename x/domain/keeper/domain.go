@@ -34,6 +34,19 @@ func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
 	}
 	// set domain
 	k.SetDomain(ctx, domain)
+	// generate empty name account
+	acc := types.Account{
+		Domain:     domain.Name,
+		Name:       "",
+		Owner:      domain.Admin,
+		ValidUntil: types.MaxValidUntil,
+	}
+	// apply changes in case domain is open
+	if domain.Type == types.OpenDomain {
+		// empty account expiration becomes domain expiration
+		acc.ValidUntil = domain.ValidUntil
+	}
+	k.CreateAccount(ctx, acc)
 }
 
 // SetDomain updates or creates a new domain in the store
@@ -88,7 +101,7 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 }
 
 // TransferDomain transfers aliceAddr domain
-func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain types.Domain) {
+func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain types.Domain, reset types.DomainResetFlag) {
 	// unmap domain owner
 	err := k.unmapDomainToOwner(ctx, domain)
 	if err != nil {
@@ -98,9 +111,19 @@ func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain 
 	domain.Admin = newOwner
 	// update domain in kvstore
 	k.SetDomain(ctx, domain)
-	// get account keys related to the domain
+	// transfer empty account
+	emptyAcc, ok := k.GetAccount(ctx, domain.Name, iovns.EmptyAccountName)
+	if !ok {
+		panic("empty account missing")
+	}
+	k.TransferAccount(ctx, emptyAcc, newOwner)
+	// operate based on reset flag
 
-	// delete accounts
+	// if the flag is reset none, then just skip everything
+	if reset == types.ResetNone {
+		return
+	}
+	// get account keys related to the domain; TODO an multikey index owner:domain might make the iteration less expensive
 	var accountKeys [][]byte
 	k.GetAccountsInDomain(ctx, domain.Name, func(key []byte) bool {
 		accountKeys = append(accountKeys, key)
@@ -108,13 +131,14 @@ func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain 
 	})
 	// iterate over accounts
 	for _, accountKey := range accountKeys {
-		// skip if account key is empty account name
-		if string(accountKey) == iovns.EmptyAccountName {
-			continue
-		}
+		// empty account key was already transferred so we are not expecting it here
 		// get account
 		account, _ := k.GetAccount(ctx, domain.Name, accountKeyToString(accountKey))
-		// transfer it
+		// if reset flag is owned only and current owner is not domain (old) owner then skip
+		if reset == types.ResetOwned && !account.Owner.Equals(domain.Admin) {
+			continue
+		}
+		// transfer account
 		k.TransferAccount(ctx, account, newOwner)
 	}
 	// map domain to new owner

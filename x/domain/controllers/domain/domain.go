@@ -55,6 +55,23 @@ func (c *Domain) Condition(cond ControllerFunc) bool {
 	return cond(c) == nil
 }
 
+func ResetAllowed(flag types.DomainResetFlag) ControllerFunc {
+	return func(controller *Domain) error {
+		return controller.resetAllowed(flag)
+	}
+}
+
+func (c *Domain) resetAllowed(flag types.DomainResetFlag) error {
+	if err := c.requireDomain(); err != nil {
+		panic("validation check is not allowed on a non existing domain")
+	}
+	// check if flag is allowed for domain type
+	if c.domain.Type == types.OpenDomain && flag != types.ResetNone {
+		return sdkerrors.Wrapf(types.ErrUnauthorized, "reset flag not allowed for open domain %s", c.domain.Name)
+	}
+	return nil
+}
+
 // Expired checks if the provided domain has expired or not
 func Expired(controller *Domain) error {
 	return controller.expired()
@@ -135,19 +152,19 @@ func (c *Domain) notExpired() error {
 }
 
 // Superuser makes sure the domain superuser is set to the provided condition
-func Type(Type types.DomainType) ControllerFunc {
+func Type(typ types.DomainType) ControllerFunc {
 	return func(controller *Domain) error {
-		return controller.dType(Type)
+		return controller.dType(typ)
 	}
 }
 
-func (c *Domain) dType(Type types.DomainType) error {
+func (c *Domain) dType(typ types.DomainType) error {
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
 		panic("validation check is not allowed on a non existing domain")
 	}
-	if c.domain.Type != Type {
-		return sdkerrors.Wrapf(types.ErrInvalidDomainType, "invalid domain type %s, expected %s", c.domain.Type, Type)
+	if c.domain.Type != typ {
+		return sdkerrors.Wrapf(types.ErrInvalidDomainType, "invalid domain type %s, expected %s", c.domain.Type, typ)
 	}
 	return nil
 }

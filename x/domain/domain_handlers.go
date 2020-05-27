@@ -52,22 +52,6 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		AccountRenew: msg.AccountRenew,
 		Broker:       msg.Broker,
 	}
-
-	// generate empty name account
-	acc := types.Account{
-		Domain:       msg.Name,
-		Name:         "",
-		Owner:        msg.Admin,
-		ValidUntil:   types.MaxValidUntil,
-		Targets:      nil,
-		Certificates: nil,
-		Broker:       nil, // TODO ??
-	}
-	// apply changes in case domain is open
-	if d.Type == types.OpenDomain {
-		// empty account expiration becomes domain expiration
-		acc.ValidUntil = d.ValidUntil
-	}
 	// collect fees
 	err = k.CollectFees(ctx, msg, msg.Admin)
 	if err != nil {
@@ -75,8 +59,6 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	}
 	// save domain
 	k.CreateDomain(ctx, d)
-	// save account
-	k.CreateAccount(ctx, acc)
 	// success TODO think here, can we emit any useful event
 	return &sdk.Result{}, nil
 }
@@ -110,8 +92,8 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 	c := domain.NewController(ctx, k, msg.Domain)
 	err := c.Validate(
 		domain.MustExist,
-		domain.Type(types.ClosedDomain),
 		domain.Owner(msg.Owner),
+		domain.ResetAllowed(msg.Reset),
 		domain.NotExpired,
 	)
 	if types.ErrInvalidDomainType.Is(err) {
@@ -128,7 +110,7 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// transfer domain and accounts ownership
-	k.TransferDomain(ctx, msg.NewAdmin, d)
+	k.TransferDomain(ctx, msg.NewAdmin, d, msg.Reset)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
 }

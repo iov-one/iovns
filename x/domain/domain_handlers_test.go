@@ -431,103 +431,6 @@ func Test_handlerDomainRenew(t *testing.T) {
 
 func Test_handlerMsgTransferDomain(t *testing.T) {
 	cases := map[string]dt.SubTest{
-		"domain does not exist": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-
-			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
-					Domain:   "does not exist",
-					Owner:    nil,
-					NewAdmin: nil,
-				})
-				if !errors.Is(err, types.ErrDomainDoesNotExist) {
-					t.Fatalf("handlerMsgTransferDomain() expected error: %s, got error: %s", types.ErrDomainDoesNotExist, err)
-				}
-			},
-			AfterTest: nil,
-		},
-		"domain type open": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
-					Name:  "test",
-					Type:  types.OpenDomain,
-					Admin: dt.AliceKey,
-				})
-			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
-					Domain:   "test",
-					Owner:    nil,
-					NewAdmin: nil,
-				})
-				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgTransferDomain() expected error: %s, got error: %s", types.ErrUnauthorized, err)
-				}
-			},
-			AfterTest: nil,
-		},
-		"domain type closed": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
-					Name:  "test",
-					Type:  types.ClosedDomain,
-					Admin: dt.AliceKey,
-				})
-			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
-					Domain:   "test",
-					Owner:    nil,
-					NewAdmin: nil,
-				})
-				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgTransferDomain() expected error: %s, got error: %s", types.ErrUnauthorized, err)
-				}
-			},
-			AfterTest: nil,
-		},
-		"domain has expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
-					Name:  "test",
-					Type:  types.ClosedDomain,
-					Admin: dt.BobKey,
-				})
-			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
-					Domain:   "test",
-					Owner:    dt.BobKey,
-					NewAdmin: nil,
-				})
-				if !errors.Is(err, types.ErrDomainExpired) {
-					t.Fatalf("handlerMsgTransferDomain() expected error: %s, got error: %s", types.ErrDomainExpired, err)
-				}
-			},
-			AfterTest: nil,
-		},
-		"msg signer is not domain admin": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
-					Name:       "test",
-					Type:       types.ClosedDomain,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Admin:      dt.AliceKey,
-				})
-			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
-					Domain:   "test",
-					Owner:    dt.BobKey,
-					NewAdmin: nil,
-				})
-				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgTransferDomain() expected error: %s, got error: %s", types.ErrUnauthorized, err)
-				}
-			},
-			AfterTest: nil,
-		},
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// create domain
@@ -599,7 +502,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 				if account.Certificates != nil {
 					t.Fatalf("handlerMsgTransferDomain expected account certificates: <nil>, got: %#v", account.Certificates)
 				}
-				// check no changes in empty account
+				// check changes in empty account
 				if emptyAcc, _ := k.GetAccount(ctx, "test", ""); !reflect.DeepEqual(emptyAcc, types.Account{Domain: "test", Name: "", Owner: dt.AliceKey}) {
 					t.Fatalf("handlerMsgTransferdomain() empty account mismatch, expected: %+v, got: %+v", types.Account{Domain: "test", Name: ""}, emptyAcc)
 				}

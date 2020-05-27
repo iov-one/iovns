@@ -502,12 +502,25 @@ func (m *MsgTransferAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }
 
+// DomainResetFlag is the type used to define what kind of reset a domain should do in case of transfer
+type DomainResetFlag int
+
+const (
+	// ResetAll is the flag used to delete everything but the empty account name
+	ResetAll DomainResetFlag = iota
+	// ResetOwned will only move accounts owned by old owner to new owner
+	ResetOwned
+	// ResetNone will keep everything as it is
+	ResetNone
+)
+
 // MsgTransferDomain is the request model
 // used to transfer a domain
 type MsgTransferDomain struct {
 	Domain   string
 	Owner    sdk.AccAddress
 	NewAdmin sdk.AccAddress
+	Reset    DomainResetFlag
 }
 
 // Route implements sdk.Msg
@@ -530,6 +543,17 @@ func (m *MsgTransferDomain) ValidateBasic() error {
 	}
 	if m.NewAdmin == nil {
 		return errors.Wrap(ErrInvalidRequest, "new admin is empty")
+	}
+	if m.Owner.Equals(m.NewAdmin) {
+		return errors.Wrapf(ErrInvalidRequest, "new admin matches actual owner")
+	}
+	// check if Reset flag is valid
+	switch m.Reset {
+	case ResetAll:
+	case ResetNone:
+	case ResetOwned:
+	default:
+		return errors.Wrapf(ErrInvalidRequest, "invalid reset flag: %d", m.Reset)
 	}
 	return nil
 }
