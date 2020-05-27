@@ -433,14 +433,16 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchNothing, // don't match anything
 					ValidBlockchainID:      dt.RegexMatchAll,     // match all
-					DomainRenewalPeriod:            10,
+					DomainRenewalPeriod:    10,
+					AccountRenewalPeriod:   10,
 				})
 				// add a closed domain
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        dt.BobKey,
-					ValidUntil:   time.Now().Add(100000 * time.Hour).Unix(),
-					Type:         types.ClosedDomain,
+					Name:       "test",
+					Admin:      dt.BobKey,
+					ValidUntil: time.Now().Add(100000 * time.Hour).Unix(),
+					Type:       types.ClosedDomain,
+					// TODO will be deleted
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -466,7 +468,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				}
 			},
 		},
-		"account valid until is set to unlimited": {
+		"account valid until is set to max": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
@@ -475,7 +477,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchNothing, // don't match anything
 					ValidBlockchainID:      dt.RegexMatchAll,     // match all
-					DomainRenew:            10,
+					DomainRenewalPeriod:    10,
 				})
 				// add a closed domain
 				k.CreateDomain(ctx, types.Domain{
@@ -503,7 +505,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				if !ok {
 					t.Fatal("account test not found")
 				}
-				if acc.ValidUntil != MaxAccDuration {
+				if acc.ValidUntil != types.MaxValidUntil {
 					t.Fatalf("unexpected account valid until %d", acc.ValidUntil)
 				}
 			},
@@ -517,7 +519,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchNothing, // don't match anything
 					ValidBlockchainID:      dt.RegexMatchAll,     // match all
-					DomainRenew:            10,
+					DomainRenewalPeriod:    10,
 				})
 				// add a closed domain
 				k.CreateDomain(ctx, types.Domain{
@@ -557,7 +559,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 
 func Test_OpenDomain_handleMsgRegisterAccount(t *testing.T) {
 	testCases := map[string]dt.SubTest{
-		"account valid is account renew": {
+		"account valid until is now plus config account renew": {
 			BeforeTestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
@@ -567,16 +569,16 @@ func Test_OpenDomain_handleMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchNothing, // don't match anything
 					ValidBlockchainID:      dt.RegexMatchAll,     // match all
-					DomainRenew:            10,
+					DomainRenewalPeriod:    10 * time.Second,
+					AccountRenewalPeriod:   10 * time.Second,
 				})
 				// add a closed domain
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        dt.BobKey,
-					ValidUntil:   time.Now().Add(100000 * time.Hour).Unix(),
-					Type:         types.OpenDomain,
-					AccountRenew: 5,
-					Broker:       nil,
+					Name:       "test",
+					Admin:      dt.BobKey,
+					ValidUntil: time.Now().Add(100000 * time.Hour).Unix(),
+					Type:       types.OpenDomain,
+					Broker:     nil,
 				})
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
@@ -588,14 +590,14 @@ func Test_OpenDomain_handleMsgRegisterAccount(t *testing.T) {
 					t.Fatalf("handlerRegisterAccount() got error: %s", err)
 				}
 			},
-			TestBlockTime: 2,
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				acc, ok := k.GetAccount(ctx, "test", "test")
 				if !ok {
 					t.Fatal("account test not found")
 				}
-				if acc.ValidUntil != 1+5 {
-					t.Fatalf("unexpected account valid until %d", acc.ValidUntil)
+				expected := iovns.TimeToSeconds(time.Unix(11, 0))
+				if acc.ValidUntil != expected {
+					t.Fatalf("unexpected account valid until %d, expected %d", acc.ValidUntil, expected)
 				}
 			},
 		},
@@ -655,7 +657,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainID:      dt.RegexMatchNothing,
 					ValidBlockchainAddress: dt.RegexMatchAll,
-					DomainRenewalPeriod:            10,
+					DomainRenewalPeriod:    10,
 				})
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{

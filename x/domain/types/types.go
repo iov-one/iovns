@@ -16,6 +16,7 @@ const emptyAccountNameIndexIdentifier = "*"
 
 // Domain defines a domain
 type Domain struct {
+	a time.Time
 	// Name is the name of the domain
 	Name string `json:"name"`
 	// Admin is the owner of the domain

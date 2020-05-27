@@ -2,9 +2,7 @@ package domain
 
 import (
 	"fmt"
-	"math"
 	"regexp"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerr "github.com/cosmos/cosmos-sdk/types/errors"
@@ -81,8 +79,6 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 	return &sdk.Result{}, nil
 }
 
-const MaxAccDuration int64 = math.MaxInt64
-
 // handleMsgRegisterAccount registers the domain
 func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRegisterAccount) (*sdk.Result, error) {
 	// get config
@@ -113,7 +109,6 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 		Domain:       msg.Domain,
 		Name:         msg.Name,
 		Owner:        msg.Owner,
-		ValidUntil:   ctx.BlockTime().Add(d.AccountRenew * time.Second).Unix(), // add curr block time + domain account renew and convert to unix seconds
 		Targets:      msg.Targets,
 		Certificates: nil,
 		Broker:       msg.Broker,
@@ -125,9 +120,9 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 		if err := domainCtrl.Validate(domain.Admin(msg.Signer)); err != nil {
 			return nil, err
 		}
-		// Closed domain account valid until is unlimited
-		account.ValidUntil = MaxAccDuration
+		account.ValidUntil = types.MaxValidUntil
 	case types.OpenDomain:
+		account.ValidUntil = ctx.BlockTime().Add(conf.AccountRenewalPeriod).Unix()
 	}
 
 	// collect fees
