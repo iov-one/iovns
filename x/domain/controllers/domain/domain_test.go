@@ -262,7 +262,7 @@ func TestDomain_validName(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidDomain: dt.RegexMatchAll,
+					ValidDomainName: dt.RegexMatchAll,
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
@@ -282,7 +282,7 @@ func TestDomain_validName(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidDomain: dt.RegexMatchNothing,
+					ValidDomainName: dt.RegexMatchNothing,
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",

@@ -292,8 +292,8 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				configSetter := dt.GetConfigSetter(k.ConfigurationKeeper)
 				// set config
 				configSetter.SetConfig(ctx, configuration.Config{
-					Configurer:  dt.AliceKey,
-					ValidDomain: "^(.*?)?",
+					Configurer:      dt.AliceKey,
+					ValidDomainName: "^(.*?)?",
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -359,8 +359,8 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
-					ValidDomain: "$^",
-					DomainRenew: 0,
+					ValidDomainName:     "$^",
+					DomainRenewalPeriod: 0,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -401,7 +401,7 @@ func Test_handlerDomainRenew(t *testing.T) {
 				// add config
 				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					DomainRenew: 1 * time.Second,
+					DomainRenewalPeriod: 1 * time.Second,
 				})
 				// add domain
 				k.CreateDomain(ctx, types.Domain{

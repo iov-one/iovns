@@ -79,7 +79,7 @@ func (a *Account) mustNotExist() error {
 	return sdkerrors.Wrapf(types.ErrAccountExists, "account %s already exists in domain %s", a.name, a.domain)
 }
 
-// ValidName asserts that an account has a valid name based
+// ValidAccountName asserts that an account has a valid name based
 // on the account regexp  saved on the configuration module
 func ValidName(ctrl *Account) error {
 	return ctrl.validName()
@@ -95,10 +95,10 @@ func (a *Account) requireConfiguration() {
 	a.conf = &conf
 }
 
-// validName is the unexported function used by ValidName
+// validName is the unexported function used by ValidAccountName
 func (a *Account) validName() error {
 	a.requireConfiguration()
-	if !regexp.MustCompile(a.conf.ValidName).MatchString(a.name) {
+	if !regexp.MustCompile(a.conf.ValidAccountName).MatchString(a.name) {
 		return sdkerrors.Wrapf(types.ErrInvalidAccountName, "invalid name: %s", a.name)
 	}
 	return nil

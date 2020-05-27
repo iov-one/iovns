@@ -2,12 +2,13 @@ package keeper
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/domain/types"
 	"github.com/tendermint/tendermint/libs/log"
-	"time"
 )
 
 // ParamSubspace is a placeholder
@@ -31,9 +32,9 @@ type ConfigurationKeeper interface {
 	GetConfiguration(ctx sdk.Context) configuration.Config
 	// IsOwner returns if the provided address is an owner or not
 	IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool
-	// GetValidDomainRegexp returns the regular expression that aliceAddr domain name must match
+	// GetValidDomainNameRegexp returns the regular expression that aliceAddr domain name must match
 	// in order to be valid
-	GetValidDomainRegexp(ctx sdk.Context) string
+	GetValidDomainNameRegexp(ctx sdk.Context) string
 	// GetDomainRenewDuration returns the default duration of aliceAddr domain renewal
 	GetDomainRenewDuration(ctx sdk.Context) time.Duration
 	// GetDomainGracePeriod returns the grace period duration
