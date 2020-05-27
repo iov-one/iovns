@@ -52,139 +52,120 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var currentCfg types.Config
-			cdc.MustUnmarshalBinaryBare(rawCfg, &currentCfg)
+			var config types.Config
+			cdc.MustUnmarshalBinaryBare(rawCfg, &config)
 
 			// get flags
 			configurerStr, err := cmd.Flags().GetString("configurer")
 			if err != nil {
 				return
 			}
-			var configurer sdk.AccAddress
-			if configurerStr == "" {
-				configurer = currentCfg.Configurer
-			} else {
-				configurer, err = sdk.AccAddressFromBech32(configurerStr)
+			if configurerStr != "" {
+				configurer, err := sdk.AccAddressFromBech32(configurerStr)
 				if err != nil {
 					return err
 				}
+				config.Configurer = configurer
 			}
 			validDomainName, err := cmd.Flags().GetString("valid-domain-name")
 			if err != nil {
 				return err
 			}
-			if validDomainName == defaultRegex {
-				validDomainName = currentCfg.ValidDomainName
+			if validDomainName != defaultRegex {
+				config.ValidDomainName = validDomainName
 			}
 			validAccountName, err := cmd.Flags().GetString("valid-account-name")
 			if err != nil {
 				return err
 			}
-			if validAccountName == defaultRegex {
-				validAccountName = currentCfg.ValidAccountName
+			if validAccountName != defaultRegex {
+				config.ValidAccountName = validAccountName
 			}
 			validBlockchainID, err := cmd.Flags().GetString("valid-blockchain-id")
 			if err != nil {
 				return err
 			}
-			if validBlockchainID == defaultRegex {
-				validBlockchainID = currentCfg.ValidBlockchainID
+			if validBlockchainID != defaultRegex {
+				config.ValidBlockchainID = validBlockchainID
 			}
 			validBlockchainAddress, err := cmd.Flags().GetString("valid-blockchain-address")
 			if err != nil {
 				return err
 			}
-			if validBlockchainAddress == defaultRegex {
-				validBlockchainAddress = currentCfg.ValidBlockchainAddress
+			if validBlockchainAddress != defaultRegex {
+				config.ValidBlockchainAddress = validBlockchainAddress
 			}
 			domainRenew, err := cmd.Flags().GetDuration("domain-renew-period")
 			if err != nil {
 				return err
 			}
-			if domainRenew == defaultDuration {
-				domainRenew = currentCfg.DomainRenewalPeriod
+			if domainRenew != defaultDuration {
+				config.DomainRenewalPeriod = domainRenew
 			}
 			domainRenewCountMax, err := cmd.Flags().GetUint32("domain-renew-count-max")
 			if err != nil {
 				return err
 			}
-			if domainRenewCountMax == defaultNumber {
-				domainRenewCountMax = currentCfg.DomainRenewalCountMax
+			if domainRenewCountMax != defaultNumber {
+				config.DomainRenewalCountMax = domainRenewCountMax
 			}
 			domainGracePeriod, err := cmd.Flags().GetDuration("domain-grace-period")
 			if err != nil {
 				return err
 			}
-			if domainGracePeriod == defaultNumber {
-				domainGracePeriod = currentCfg.DomainGracePeriod
+			if domainGracePeriod != defaultNumber {
+				config.DomainGracePeriod = domainGracePeriod
 			}
 			accountRenewPeriod, err := cmd.Flags().GetDuration("account-renew-period")
 			if err != nil {
 				return err
 			}
-			if accountRenewPeriod == defaultNumber {
-				accountRenewPeriod = currentCfg.AccountRenewalPeriod
+			if accountRenewPeriod != defaultNumber {
+				config.AccountRenewalPeriod = accountRenewPeriod
 			}
 			accountRenewCountMax, err := cmd.Flags().GetUint32("account-renew-count-max")
 			if err != nil {
 				return err
 			}
-			if accountRenewCountMax == defaultNumber {
-				accountRenewCountMax = currentCfg.AccountRenewalCountMax
+			if accountRenewCountMax != defaultNumber {
+				config.AccountRenewalCountMax = accountRenewCountMax
 			}
 			accountGracePeriod, err := cmd.Flags().GetDuration("account-grace-period")
 			if err != nil {
 				return err
 			}
-			if accountGracePeriod == defaultDuration {
-				accountGracePeriod = currentCfg.AccountGracePeriod
+			if accountGracePeriod != defaultDuration {
+				config.AccountGracePeriod = accountGracePeriod
 			}
 			blockchainTargetMax, err := cmd.Flags().GetUint32("blockchain-target-max")
 			if err != nil {
 				return err
 			}
-			if blockchainTargetMax == defaultNumber {
-				blockchainTargetMax = currentCfg.BlockchainTargetMax
+			if blockchainTargetMax != defaultNumber {
+				config.BlockchainTargetMax = blockchainTargetMax
 			}
 			certificateSizeMax, err := cmd.Flags().GetUint64("certificate-size-max")
 			if err != nil {
 				return err
 			}
-			if certificateSizeMax == defaultNumber {
-				certificateSizeMax = currentCfg.CertificateSizeMax
+			if certificateSizeMax != defaultNumber {
+				config.CertificateSizeMax = certificateSizeMax
 			}
 			certificateCountMax, err := cmd.Flags().GetUint32("certificate-count-max")
 			if err != nil {
 				return err
 			}
-			if certificateCountMax == defaultNumber {
-				certificateCountMax = currentCfg.CertificateCountMax
+			if certificateCountMax != defaultNumber {
+				config.CertificateCountMax = certificateCountMax
 			}
 			metadataSizeMax, err := cmd.Flags().GetUint64("metadata-size-max")
 			if err != nil {
 				return err
 			}
-			if certificateCountMax == defaultNumber {
-				metadataSizeMax = currentCfg.MetadataSizeMax
+			if metadataSizeMax != defaultNumber {
+				config.MetadataSizeMax = metadataSizeMax
 			}
 
-			config := types.Config{
-				Configurer:             configurer,
-				ValidDomainName:        validDomainName,
-				ValidAccountName:       validAccountName,
-				ValidBlockchainID:      validBlockchainID,
-				ValidBlockchainAddress: validBlockchainAddress,
-				DomainRenewalPeriod:    domainRenew,
-				DomainRenewalCountMax:  domainRenewCountMax,
-				DomainGracePeriod:      domainGracePeriod,
-				AccountRenewalPeriod:   accountRenewPeriod,
-				AccountRenewalCountMax: accountRenewCountMax,
-				AccountGracePeriod:     accountGracePeriod,
-				BlockchainTargetMax:    blockchainTargetMax,
-				CertificateSizeMax:     certificateSizeMax,
-				CertificateCountMax:    certificateCountMax,
-				MetadataSizeMax:        metadataSizeMax,
-			}
 			if err := config.Validate(); err != nil {
 				return err
 			}
