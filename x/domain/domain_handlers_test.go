@@ -30,12 +30,11 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				}
 			},
 		},
-		"fail domain has no superuser": {
+		"fail domain open": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// set domain with no superuser
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
-					Admin:        iovns.ZeroAddress,
+					Admin:        dt.AliceKey,
 					ValidUntil:   0,
 					Type:         types.OpenDomain,
 					AccountRenew: 0,
@@ -298,37 +297,35 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// register domain with superuser
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
-					Name:         "domain",
+					Name:         "domain-closed",
 					DomainType:   types.ClosedDomain,
 					AccountRenew: 10,
 					Admin:        dt.BobKey,
 				})
 				if err != nil {
-					t.Fatalf("handleMsgRegisterDomain() with superuser, got error: %s", err)
+					t.Fatalf("handleMsgRegisterDomain() with close domain, got error: %s", err)
 				}
-				// register domain without super user
 				_, err = handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
-					Name:         "domain-without-superuser",
+					Name:         "domain-open",
 					Admin:        dt.AliceKey,
 					DomainType:   types.OpenDomain,
 					Broker:       nil,
 					AccountRenew: 20,
 				})
 				if err != nil {
-					t.Fatalf("handleMsgRegisterDomain() without superuser, got error: %s", err)
+					t.Fatalf("handleMsgRegisterDomain() with open domain, got error: %s", err)
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// TODO do reflect.DeepEqual checks on expected results vs results returned
-				_, ok := k.GetDomain(ctx, "domain")
+				_, ok := k.GetDomain(ctx, "domain-closed")
 				if !ok {
-					t.Fatalf("handleMsgRegisterDomain() could not find 'domain'")
+					t.Fatalf("handleMsgRegisterDomain() could not find 'domain-closed'")
 				}
-				_, ok = k.GetDomain(ctx, "domain-without-superuser")
+				_, ok = k.GetDomain(ctx, "domain-open")
 				if !ok {
-					t.Fatalf("handleMsgRegisterDomain() could not find 'domain-without-superuser'")
+					t.Fatalf("handleMsgRegisterDomain() could not find 'domain-open'")
 				}
 			},
 		},
@@ -380,37 +377,6 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
-		/* TODO REMOVE THIS TEST CASE AS IT DOES NOT APPLY WITH NEW SPEC.
-		"fail domain with no super user must be registered by configuration owner": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// add config with owner
-				config := configuration.Config{
-					Configurer:             aliceKey,
-					ValidDomain:            "^(.*?)?",
-					ValidName:              "",
-					ValidBlockchainID:      "",
-					ValidBlockchainAddress: "",
-					DomainRenew:            0,
-				}
-				setConfig := getConfigSetter(k.ConfigurationKeeper).SetConfig
-				setConfig(ctx, config)
-			},
-			Test: func(t *testing.T, k Keeper, ctx sdk.Context, mock *keeper.Mocks) {
-				// try to register domain with no super user
-				_, err := handleMsgRegisterDomain(ctx, k, &sdk.MsgRegisterDomain{
-					Name:         "some-domain",
-					Admin:        bobKey,
-					Type: types.OpenDomain,
-					Broker:       nil,
-					AccountRenew: 10,
-				})
-				if !errors.Is(err, sdk.ErrUnauthorized) {
-					t.Fatalf("handleMsgRegisterDomain() expecter error: %s, got: %s", sdk.ErrUnauthorized, err)
-				}
-			},
-			AfterTest: nil,
-		},
-		*/
 	}
 	// run all test cases
 	dt.RunTests(t, testCases)
@@ -481,12 +447,32 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
-		"domain has no superuser": {
+		"domain type open": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
 					Type:  types.OpenDomain,
-					Admin: iovns.ZeroAddress,
+					Admin: dt.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
+					Domain:   "test",
+					Owner:    nil,
+					NewAdmin: nil,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("handlerMsgTransferDomain() expected error: %s, got error: %s", types.ErrUnauthorized, err)
+				}
+			},
+			AfterTest: nil,
+		},
+		"domain type closed": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				k.CreateDomain(ctx, types.Domain{
+					Name:  "test",
+					Type:  types.ClosedDomain,
+					Admin: dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
