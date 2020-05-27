@@ -2,16 +2,18 @@ package types
 
 // Module names
 const (
-	ModuleName      = "domain"
-	DomainStoreKey  = "domain"
+	// ModuleName is the name of the module
+	ModuleName = "domain"
+	// DomainStore key defines the store key used to store domains information
+	DomainStoreKey = "domain"
+	// AccountStoreKey defines the store key used to store account information
 	AccountStoreKey = "account"
-	IndexStoreKey   = ModuleName + "index"
-	RouterKey       = ModuleName
-	QuerierRoute    = ModuleName
-)
-
-// Module Queries
-const (
-	// QueryDomain is the query route used to get a domain by its name
-	QueryDomain = "get"
+	// IndexStoreKey defines the store key used to store indexing information
+	IndexStoreKey = ModuleName + "index"
+	// RouterKey defines the path used to interact with the domain module
+	RouterKey = ModuleName
+	// QuerierRoute defines the query path used to interact with the domain module
+	QuerierRoute = ModuleName
+	// DefaultParamSpace defines the key for the default param space
+	DefaultParamSpace = ModuleName
 )

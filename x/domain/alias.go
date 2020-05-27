@@ -7,12 +7,20 @@ import (
 
 // aliasing for naming constants
 const (
-	ModuleName      = types.ModuleName
-	DomainStoreKey  = types.DomainStoreKey
+	// ModuleNames aliases types.ModuleName
+	ModuleName = types.ModuleName
+	// DomainStoreKey aliases types.DomainStoreKey
+	DomainStoreKey = types.DomainStoreKey
+	// AccountStoreKey aliases types.AccountStoreKey
 	AccountStoreKey = types.AccountStoreKey
-	IndexStoreKey   = types.IndexStoreKey
-	QuerierRoute    = types.QuerierRoute
-	RouterKey       = types.RouterKey
+	// IndexStoreKey aliases types.IndexStoreKey
+	IndexStoreKey = types.IndexStoreKey
+	// QuerierRoute aliases types.QuerierRoute
+	QuerierRoute = types.QuerierRoute
+	// RouterKey aliases types.RouterKey
+	RouterKey = types.RouterKey
+	// DefaultParamSpace defines domain module default param space key
+	DefaultParamSpace = types.DefaultParamSpace
 )
 
 // aliasing for types

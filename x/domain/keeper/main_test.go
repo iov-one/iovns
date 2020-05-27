@@ -51,7 +51,7 @@ type subTest struct {
 func runQueryTests(t *testing.T, cases map[string]subTest) {
 	for name, test := range cases {
 		t.Run(name, func(t *testing.T) {
-			k, ctx := NewTestKeeper(t, true)
+			k, ctx, _ := NewTestKeeper(t, true)
 			if test.BeforeTest != nil {
 				test.BeforeTest(t, ctx, k)
 			}

@@ -176,6 +176,9 @@ func NewNameService(
 	app.subspaces[gov.ModuleName] = app.paramsKeeper.Subspace(gov.DefaultParamspace).WithKeyTable(gov.ParamKeyTable())
 	app.subspaces[crisis.ModuleName] = app.paramsKeeper.Subspace(crisis.DefaultParamspace)
 	app.subspaces[evidence.ModuleName] = app.paramsKeeper.Subspace(evidence.DefaultParamspace)
+	// iovns subspaces
+	app.subspaces[configuration.ModuleName] = app.paramsKeeper.Subspace(configuration.DefaultParamSpace)
+	app.subspaces[domain.ModuleName] = app.paramsKeeper.Subspace(domain.DefaultParamSpace)
 
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
@@ -272,19 +275,23 @@ func NewNameService(
 		),
 	)
 	// iovns keepers
+
+	// configuration keeper
 	app.configurationKeeper = configuration.NewKeeper(
 		app.cdc,
 		keys[configuration.StoreKey],
-		nil,
+		app.subspaces[configuration.ModuleName],
 	)
+
+	// domain keeper
 	app.domainKeeper = domain.NewKeeper(
 		app.cdc,
 		keys[domain.DomainStoreKey],
-		keys[domain.AccountStoreKey],
-		keys[domain.IndexStoreKey],
 		app.configurationKeeper,
-		nil,
+		app.supplyKeeper,
+		app.subspaces[domain.ModuleName],
 	)
+	// iovns keepers - end
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.

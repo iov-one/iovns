@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// GetTxCmd builds all the transaction commands for the configuration module
 func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	domainTxCmd := &cobra.Command{
 		Use:                        types.ModuleName,
