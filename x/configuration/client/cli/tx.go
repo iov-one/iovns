@@ -12,7 +12,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/spf13/cobra"
 )
@@ -49,7 +48,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			rawCfg, _, err := cliCtx.QueryStore([]byte(configuration.ConfigKey), configuration.StoreKey)
+			rawCfg, _, err := cliCtx.QueryStore([]byte(types.ConfigKey), types.StoreKey)
 			if err != nil {
 				return err
 			}
