@@ -112,10 +112,7 @@ func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain 
 	// update domain in kvstore
 	k.SetDomain(ctx, domain)
 	// transfer empty account
-	emptyAcc, ok := k.GetAccount(ctx, domain.Name, iovns.EmptyAccountName)
-	if !ok {
-		panic("empty account missing")
-	}
+	emptyAcc, _ := k.GetAccount(ctx, domain.Name, iovns.EmptyAccountName)
 	k.TransferAccount(ctx, emptyAcc, newOwner)
 	// operate based on reset flag
 
