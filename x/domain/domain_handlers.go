@@ -58,10 +58,15 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		Domain:       msg.Name,
 		Name:         "",
 		Owner:        msg.Admin,
-		ValidUntil:   ctx.BlockTime().Add(d.AccountRenew).Unix(),
+		ValidUntil:   types.MaxValidUntil,
 		Targets:      nil,
 		Certificates: nil,
 		Broker:       nil, // TODO ??
+	}
+	// apply changes in case domain is open
+	if d.Type == types.OpenDomain {
+		// empty account expiration becomes domain expiration
+		acc.ValidUntil = d.ValidUntil
 	}
 	// collect fees
 	err = k.CollectFees(ctx, msg, msg.Admin)
