@@ -52,10 +52,6 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		AccountRenew: msg.AccountRenew,
 		Broker:       msg.Broker,
 	}
-	// if domain has not a super user then set domain to 0 address
-	if d.Type == types.OpenDomain {
-		d.Admin = iovns.ZeroAddress // TODO change with module address
-	}
 	// save domain
 	k.CreateDomain(ctx, d)
 	// generate empty name account
