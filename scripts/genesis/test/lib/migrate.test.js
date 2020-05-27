@@ -315,6 +315,8 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       expect( id2096["//id"] ).toEqual( 2096 );
       expect( id2101["//id"] ).toEqual( 2101 );
+      expect( id2096["//iov1"] ).toEqual( "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph" );
+      expect( id2101["//iov1"] ).toEqual( "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98" );
    } );
 
    it( `Should fix chain ids.`, async () => {

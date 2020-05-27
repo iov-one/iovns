@@ -31,7 +31,7 @@ export const labelMultisigs = ( dumped, multisigs ) => {
 }
 
 /**
- * Adds an "//id" property to ordinary accounts
+ * Adds an "//id" property to ordinary accounts and "//iov1" property to all accounts.
  * @param {Object} dumped - the state of the weave-based chain
  * @param {Object} osaka - the original genesis data
  */
@@ -41,6 +41,8 @@ export const labelAccounts = ( dumped, osaka ) => {
 
       if ( account ) account["//id"] = wallet["//id"];
    } );
+
+   dumped.cash.forEach( account => account["//iov1"] = account.address );
 }
 
 /**
