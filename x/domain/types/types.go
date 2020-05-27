@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/types/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/pkg/index"
 )
@@ -35,6 +37,15 @@ const (
 	OpenDomain  DomainType = "open"
 	CloseDomain            = "close"
 )
+
+func ValidateDomainType(typ DomainType) error {
+	switch typ {
+	case OpenDomain, CloseDomain:
+		return nil
+	default:
+		return errors.Wrapf(ErrInvalidDomainType, "invalid domain type: %s", typ)
+	}
+}
 
 // Index implements Indexer and packs the
 // domain into an index key using its name

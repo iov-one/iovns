@@ -257,15 +257,6 @@ func (m *MsgRegisterDomain) Type() string {
 	return "register_domain"
 }
 
-func ValidateDomainType(Type DomainType) error {
-	switch Type {
-	case OpenDomain, CloseDomain:
-		return nil
-	default:
-		return errors.Wrapf(ErrInvalidDomainType, "invalid domain type: %s", Type)
-	}
-}
-
 // ValidateBasic implements sdk.Msg
 func (m *MsgRegisterDomain) ValidateBasic() error {
 	if m.Admin == nil {
