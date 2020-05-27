@@ -34,13 +34,13 @@ type Domain struct {
 type DomainType string
 
 const (
-	OpenDomain  DomainType = "open"
-	CloseDomain            = "close"
+	OpenDomain   DomainType = "open"
+	ClosedDomain            = "closed"
 )
 
 func ValidateDomainType(typ DomainType) error {
 	switch typ {
-	case OpenDomain, CloseDomain:
+	case OpenDomain, ClosedDomain:
 		return nil
 	default:
 		return errors.Wrapf(ErrInvalidDomainType, "invalid domain type: %s", typ)

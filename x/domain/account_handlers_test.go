@@ -522,7 +522,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.AliceKey,
 					ValidUntil:   2,
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -596,7 +596,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   2,
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -637,7 +637,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   0, // domain is expired
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -678,7 +678,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   time.Now().Add(100000 * time.Hour).Unix(),
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -729,7 +729,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   time.Now().Add(100000 * time.Hour).Unix(),
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -1348,7 +1348,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.AliceKey,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -1459,7 +1459,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.AliceKey,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})

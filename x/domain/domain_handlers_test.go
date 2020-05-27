@@ -64,7 +64,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   0,
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -92,7 +92,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   3,
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -120,7 +120,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   4,
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -148,7 +148,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test1",
 					Admin:        dt.BobKey,
 					ValidUntil:   1589826439,
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -156,7 +156,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test2",
 					Admin:        dt.BobKey,
 					ValidUntil:   1589828251,
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -200,7 +200,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.AliceKey,
 					ValidUntil:   0,
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -241,7 +241,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.AliceKey,
 					ValidUntil:   0,
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -301,7 +301,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				// register domain with superuser
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "domain",
-					DomainType:   types.CloseDomain,
+					DomainType:   types.ClosedDomain,
 					AccountRenew: 10,
 					Admin:        dt.BobKey,
 				})
@@ -338,7 +338,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					Name:         "exists",
 					Admin:        dt.BobKey,
 					ValidUntil:   0,
-					Type:         types.CloseDomain,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -347,7 +347,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "exists",
 					Admin:        dt.AliceKey,
-					DomainType:   types.CloseDomain,
+					DomainType:   types.ClosedDomain,
 					AccountRenew: 0,
 				})
 				if !errors.Is(err, types.ErrDomainAlreadyExists) {
@@ -505,7 +505,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
-					Type:  types.CloseDomain,
+					Type:  types.ClosedDomain,
 					Admin: dt.BobKey,
 				})
 			},
@@ -525,7 +525,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
-					Type:       types.CloseDomain,
+					Type:       types.ClosedDomain,
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      dt.AliceKey,
 				})
@@ -547,7 +547,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
-					Type:       types.CloseDomain,
+					Type:       types.ClosedDomain,
 					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      dt.AliceKey,
 				})

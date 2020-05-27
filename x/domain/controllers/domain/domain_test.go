@@ -209,12 +209,12 @@ func TestDomain_type(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
 					Admin: dt.AliceKey,
-					Type:  types.CloseDomain,
+					Type:  types.ClosedDomain,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
-				err := ctrl.dType(types.CloseDomain)
+				err := ctrl.dType(types.ClosedDomain)
 				if err != nil {
 					t.Fatalf("got error: %s", err)
 				}
@@ -225,7 +225,7 @@ func TestDomain_type(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
 					Admin: dt.AliceKey,
-					Type:  types.CloseDomain,
+					Type:  types.ClosedDomain,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -246,7 +246,7 @@ func TestDomain_type(t *testing.T) {
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
-				err := ctrl.dType(types.CloseDomain)
+				err := ctrl.dType(types.ClosedDomain)
 				if !errors.Is(err, types.ErrInvalidDomainType) {
 					t.Fatalf("want err: %s, got: %s", types.ErrInvalidDomainType, err)
 				}

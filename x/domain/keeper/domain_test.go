@@ -16,7 +16,7 @@ func TestKeeper_IterateAllDomains(t *testing.T) {
 			Name:         fmt.Sprintf("%d", i),
 			Admin:        nil,
 			ValidUntil:   1000,
-			Type:         types.CloseDomain,
+			Type:         types.ClosedDomain,
 			AccountRenew: 1000000,
 			Broker:       nil,
 		})

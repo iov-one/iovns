@@ -16,7 +16,7 @@ func TestValidateDomainType(t *testing.T) {
 			wantErr: nil,
 		},
 		"success close": {
-			dType:   "close",
+			dType:   "closed",
 			wantErr: nil,
 		},
 		"fail one": {

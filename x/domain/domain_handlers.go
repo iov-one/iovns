@@ -13,9 +13,9 @@ import (
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
 	c := domain.NewController(ctx, k, msg.Domain)
-	err := c.Validate(domain.MustExist, domain.Type(types.CloseDomain))
+	err := c.Validate(domain.MustExist, domain.Type(types.ClosedDomain))
 	if errors.Is(err, types.ErrInvalidDomainType) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "user is unauthorized to delete domain %s with domain type: %s", msg.Domain, types.CloseDomain)
+		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "user is unauthorized to delete domain %s with domain type: %s", msg.Domain, types.ClosedDomain)
 	}
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 	c := domain.NewController(ctx, k, msg.Domain)
 	err := c.Validate(
 		domain.MustExist,
-		domain.Type(types.CloseDomain),
+		domain.Type(types.ClosedDomain),
 		domain.Owner(msg.Owner),
 		domain.NotExpired,
 	)
