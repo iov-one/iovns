@@ -11,6 +11,7 @@
 - change hasSuperUser to DomainType
 - Open domain's admin is changed from zero address to normal address
 - Recon configuration
+- recon: RegisterAccount
 
 ## v0.2.5
 

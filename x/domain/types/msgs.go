@@ -194,6 +194,8 @@ type MsgRegisterAccount struct {
 	Name string
 	// Owner is the owner of the account
 	Owner sdk.AccAddress
+	// Signer is how signs this message
+	Signer sdk.AccAddress
 	// Targets are the blockchain addresses of the account
 	Targets []BlockchainAddress
 	// Broker is the account that facilitated the transaction
@@ -218,6 +220,9 @@ func (m *MsgRegisterAccount) ValidateBasic() error {
 	if m.Owner.Empty() {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
+	if m.Signer.Empty() {
+		return errors.Wrap(ErrInvalidOwner, "empty")
+	}
 	return nil
 }
 
@@ -228,7 +233,7 @@ func (m *MsgRegisterAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	return []sdk.AccAddress{m.Signer}
 }
 
 // MsgRegisterDomain is the request used to register new domains

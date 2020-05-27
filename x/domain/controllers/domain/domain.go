@@ -96,6 +96,7 @@ func (c *Domain) gracePeriodFinished() error {
 	return sdkerrors.Wrapf(types.ErrGracePeriodNotFinished, "domain %s grace period has not finished", c.domain.Name)
 }
 
+// TODO delete this replaced with admin
 func Owner(addr sdk.AccAddress) ControllerFunc {
 	return func(controller *Domain) error {
 		return controller.ownedBy(addr)
@@ -104,6 +105,25 @@ func Owner(addr sdk.AccAddress) ControllerFunc {
 
 // ownedBy makes sure the domain is owned by the provided address
 func (c *Domain) ownedBy(addr sdk.AccAddress) error {
+	// assert domain exists
+	if err := c.requireDomain(); err != nil {
+		panic("validation check is not allowed on a non existing domain")
+	}
+	// check if admin matches addr
+	if c.domain.Admin.Equals(addr) {
+		return nil
+	}
+	return sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to perform an operation in a domain owned by %s", addr, c.domain.Admin)
+}
+
+func Admin(addr sdk.AccAddress) ControllerFunc {
+	return func(controller *Domain) error {
+		return controller.ownedBy(addr)
+	}
+}
+
+// ownedBy makes sure the domain is owned by the provided address
+func (c *Domain) admin(addr sdk.AccAddress) error {
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
 		panic("validation check is not allowed on a non existing domain")
