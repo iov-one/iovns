@@ -11,14 +11,14 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 )
 
-// configKey defines the key used for the configuration
+// ConfigKey defines the key used for the configuration
 // since the configuration is only one the key will always be one
-const configKey = "config"
+const ConfigKey = "config"
 
-// feeKey defines the key used for fees
+// FeeKey defines the key used for fees
 // since the fee params are only one
 // this is the only key we will need
-const feeKey = "fee"
+const FeeKey = "fee"
 
 // Keeper is the key value store handler for the configuration module
 type Keeper struct {
@@ -44,7 +44,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // GetConfiguration returns the configuration of the blockchain
 func (k Keeper) GetConfiguration(ctx sdk.Context) types.Config {
 	store := ctx.KVStore(k.storeKey)
-	confBytes := store.Get([]byte(configKey))
+	confBytes := store.Get([]byte(ConfigKey))
 	if confBytes == nil {
 		panic("no configuration available")
 	}
@@ -78,7 +78,7 @@ func (k Keeper) GetValidDomainNameRegexp(ctx sdk.Context) string {
 // SetConfig updates or saves a new config in the store
 func (k Keeper) SetConfig(ctx sdk.Context, conf types.Config) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(configKey), k.cdc.MustMarshalBinaryBare(conf))
+	store.Set([]byte(ConfigKey), k.cdc.MustMarshalBinaryBare(conf))
 }
 
 // GetDomainGracePeriod returns the default grace period before domains

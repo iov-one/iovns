@@ -12,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/spf13/cobra"
 )
@@ -35,89 +36,143 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	return configTxCmd
 }
 
+var defaultDuration, _ = time.ParseDuration("1h")
+var defaultRegex = "^(.*?)?"
+
+const defaultNumber = 1
+
 func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-config",
-		Short: "update domain configuration",
+		Short: "update domain configuration, provide the values you want to override in current configuraion",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			rawCfg, _, err := cliCtx.QueryStore([]byte(configuration.ConfigKey), configuration.StoreKey)
+			if err != nil {
+				return err
+			}
+			var currentCfg types.Config
+			cdc.MustUnmarshalBinaryBare(rawCfg, &currentCfg)
+
 			// get flags
 			configurerStr, err := cmd.Flags().GetString("configurer")
 			if err != nil {
 				return
 			}
-			configurer, err := sdk.AccAddressFromBech32(configurerStr)
-			if err != nil {
-				return
+			var configurer sdk.AccAddress
+			if configurerStr == "" {
+				configurer = currentCfg.Configurer
+			} else {
+				configurer, err = sdk.AccAddressFromBech32(configurerStr)
+				if err != nil {
+					return err
+				}
 			}
-
 			validDomainName, err := cmd.Flags().GetString("valid-domain-name")
 			if err != nil {
 				return err
 			}
-
-			validName, err := cmd.Flags().GetString("valid-account-name")
+			if validDomainName == defaultRegex {
+				validDomainName = currentCfg.ValidDomainName
+			}
+			validAccountName, err := cmd.Flags().GetString("valid-account-name")
 			if err != nil {
 				return err
 			}
-
+			if validAccountName == defaultRegex {
+				validAccountName = currentCfg.ValidAccountName
+			}
 			validBlockchainID, err := cmd.Flags().GetString("valid-blockchain-id")
 			if err != nil {
 				return err
 			}
-
+			if validBlockchainID == defaultRegex {
+				validBlockchainID = currentCfg.ValidBlockchainID
+			}
 			validBlockchainAddress, err := cmd.Flags().GetString("valid-blockchain-address")
 			if err != nil {
 				return err
 			}
-
+			if validBlockchainAddress == defaultRegex {
+				validBlockchainAddress = currentCfg.ValidBlockchainAddress
+			}
 			domainRenew, err := cmd.Flags().GetDuration("domain-renew")
 			if err != nil {
 				return err
+			}
+			if domainRenew == defaultDuration {
+				domainRenew = currentCfg.DomainRenewalPeriod
 			}
 			domainRenewCountMax, err := cmd.Flags().GetUint32("domain-renew-count-max")
 			if err != nil {
 				return err
 			}
+			if domainRenewCountMax == defaultNumber {
+				domainRenewCountMax = currentCfg.DomainRenewalCountMax
+			}
 			domainGracePeriod, err := cmd.Flags().GetDuration("domain-grace-period")
 			if err != nil {
 				return err
+			}
+			if domainGracePeriod == defaultNumber {
+				domainGracePeriod = currentCfg.DomainGracePeriod
 			}
 			accountRenewPeriod, err := cmd.Flags().GetDuration("account-renew-period")
 			if err != nil {
 				return err
 			}
+			if accountRenewPeriod == defaultNumber {
+				accountRenewPeriod = currentCfg.AccountRenewalPeriod
+			}
 			accountRenewCountMax, err := cmd.Flags().GetUint32("account-renew-count-max")
 			if err != nil {
 				return err
+			}
+			if accountRenewCountMax == defaultNumber {
+				accountRenewCountMax = currentCfg.AccountRenewalCountMax
 			}
 			accountGracePeriod, err := cmd.Flags().GetDuration("account-grace-period")
 			if err != nil {
 				return err
 			}
+			if accountGracePeriod == defaultDuration {
+				accountGracePeriod = currentCfg.AccountGracePeriod
+			}
 			blockchainTargetMax, err := cmd.Flags().GetUint32("blockchain-target-max")
 			if err != nil {
 				return err
+			}
+			if blockchainTargetMax == defaultNumber {
+				blockchainTargetMax = currentCfg.BlockchainTargetMax
 			}
 			certificateSizeMax, err := cmd.Flags().GetUint64("certificate-size-max")
 			if err != nil {
 				return err
 			}
+			if certificateSizeMax == defaultNumber {
+				certificateSizeMax = currentCfg.CertificateSizeMax
+			}
 			certificateCountMax, err := cmd.Flags().GetUint32("certificate-count-max")
 			if err != nil {
 				return err
+			}
+			if certificateCountMax == defaultNumber {
+				certificateCountMax = currentCfg.CertificateCountMax
 			}
 			metadataSizeMax, err := cmd.Flags().GetUint64("metadata-size-max")
 			if err != nil {
 				return err
 			}
+			if certificateCountMax == defaultNumber {
+				metadataSizeMax = currentCfg.MetadataSizeMax
+			}
 
 			config := types.Config{
 				Configurer:             configurer,
 				ValidDomainName:        validDomainName,
-				ValidAccountName:       validName,
+				ValidAccountName:       validAccountName,
 				ValidBlockchainID:      validBlockchainID,
 				ValidBlockchainAddress: validBlockchainAddress,
 				DomainRenewalPeriod:    domainRenew,
@@ -147,26 +202,25 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
-	defaultDuration, _ := time.ParseDuration("1h")
 	// add flags
 	cmd.Flags().String("configurer", "", "configurer in bech32 format")
-	cmd.Flags().String("valid-domain-name", "", "regexp that determines if domain name is valid or not")
-	cmd.Flags().String("valid-account-name", "", "regexp that determines if account name is valid or not")
-	cmd.Flags().String("valid-blockchain-id", "", "regexp that determines if blockchain id is valid or not")
-	cmd.Flags().String("valid-blockchain-address", "", "regexp that determines if blockchain address is valid or not")
+	cmd.Flags().String("valid-domain-name", defaultRegex, "regexp that determines if domain name is valid or not")
+	cmd.Flags().String("valid-account-name", defaultRegex, "regexp that determines if account name is valid or not")
+	cmd.Flags().String("valid-blockchain-id", defaultRegex, "regexp that determines if blockchain id is valid or not")
+	cmd.Flags().String("valid-blockchain-address", defaultRegex, "regexp that determines if blockchain address is valid or not")
 
 	cmd.Flags().Duration("domain-renew-period", defaultDuration, "domain renewal duration in seconds before expiration")
-	cmd.Flags().Uint32("domain-renew-count-max", 10, "maximum number of applicable domain renewals")
+	cmd.Flags().Uint32("domain-renew-count-max", uint32(defaultNumber), "maximum number of applicable domain renewals")
 	cmd.Flags().Duration("domain-grace-period", defaultDuration, "domain grace period duration in seconds")
 
 	cmd.Flags().Duration("account-renew-period", defaultDuration, "domain renewal duration in seconds before expiration")
-	cmd.Flags().Uint32("account-renew-count-max", 10, "maximum number of applicable account renewals")
+	cmd.Flags().Uint32("account-renew-count-max", uint32(defaultNumber), "maximum number of applicable account renewals")
 	cmd.Flags().Duration("account-grace-period", defaultDuration, "account grace period duration in seconds")
 
-	cmd.Flags().Uint32("blockchain-target-max", 15, "maximum number of blockchain targets could be saved under an account")
-	cmd.Flags().Uint64("certificate-size-max", 10, "maximum size of a certificate that could be saved under an account")
-	cmd.Flags().Uint32("certificate-count-max", 15, "maximum number of certificates that could be saved under an account")
-	cmd.Flags().Uint64("metadata-size-max", 10, "maximum size of metadata that could be saved under an account")
+	cmd.Flags().Uint32("blockchain-target-max", uint32(defaultNumber), "maximum number of blockchain targets could be saved under an account")
+	cmd.Flags().Uint64("certificate-size-max", uint64(defaultNumber), "maximum size of a certificate that could be saved under an account")
+	cmd.Flags().Uint32("certificate-count-max", uint32(defaultNumber), "maximum number of certificates that could be saved under an account")
+	cmd.Flags().Uint64("metadata-size-max", uint64(defaultNumber), "maximum size of metadata that could be saved under an account")
 	return cmd
 }
 
