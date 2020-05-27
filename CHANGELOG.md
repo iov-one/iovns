@@ -2,10 +2,30 @@
 
 ## HEAD
 
+- upgrade cosmos-sdk to v0.38.4
+- iovnsd: fix fee colletor address
+
+## v0.2.5
+
+- iovnscli: fix has-superuser bool flag bug
+- iovnsd: fix duplicate blockchain targets ID
+- remove flush domain feature
+
+## v0.2.4
+
+- domain grace period is time.duration now 
+- refactor configuration module to be used with multisig wallets
 - allow empty account name on msg.Validate()
 - enable fees for all domain module handlers
 - remove certificate indexing
 - fix account transfer
+- fix account renew timestamp
+- fix account store keys that end up reading contents of other accounts
+- add logging on panics
+
+### Breaking changes
+
+- configuration struct signature in genesis file changed 
 
 ## 0.2.3
 

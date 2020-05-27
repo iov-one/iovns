@@ -1,0 +1,20 @@
+FROM golang:1.14.1-alpine3.11
+RUN apk add build-base
+
+ENV HOME=/iovns
+ENV MONIKER=idk
+ENV PATH=/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+WORKDIR /build
+COPY .. .
+
+RUN go build -o iovnscli ./cmd/iovnscli
+RUN go build -o iovnsd ./cmd/iovnsd
+
+WORKDIR /iovns
+RUN mv /build/iovnscli iovnscli
+RUN mv /build/iovnsd iovnsd
+COPY ../scripts .
+RUN chmod +x init.sh
+RUN sh ./init.sh
+CMD iovnsd start

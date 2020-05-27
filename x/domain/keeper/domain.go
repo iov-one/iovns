@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -84,35 +85,6 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 	}
 	// done
 	return true
-}
-
-// FlushDomain removes all accounts, except the empty one, from the domain.
-// returns true in case the domain exists and the operation has been done.
-// returns false only in case the domain does not exist.
-func (k Keeper) FlushDomain(ctx sdk.Context, domainName string) (exists bool) {
-	_, exists = k.GetDomain(ctx, domainName)
-	if !exists {
-		return
-	}
-	// iterate accounts
-
-	// delete accounts
-	var domainAccountKeys [][]byte
-	k.GetAccountsInDomain(ctx, domainName, func(key []byte) bool {
-		domainAccountKeys = append(domainAccountKeys, key)
-		return true
-	})
-	// now delete accounts
-	for _, accountKey := range domainAccountKeys {
-		// account key is empty then skip
-		if string(accountKey) == "" {
-			continue
-		}
-		// otherwise delete
-		k.DeleteAccount(ctx, domainName, accountKeyToString(accountKey))
-	}
-	// success
-	return
 }
 
 // TransferDomain transfers aliceAddr domain

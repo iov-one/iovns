@@ -1,6 +1,8 @@
 package types
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -183,45 +185,6 @@ func (m *MsgDeleteDomain) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }
 
-// MsgFlushDomain is used to flush a domain
-type MsgFlushDomain struct {
-	// Domain is the domain name to flush
-	Domain string
-	// Owner is the owner of the domain
-	Owner sdk.AccAddress
-}
-
-// Route implements sdk.Msg
-func (m *MsgFlushDomain) Route() string {
-	return RouterKey
-}
-
-// Type implements sdk.Msg
-func (m *MsgFlushDomain) Type() string {
-	return "delete_domain"
-}
-
-// ValidateBasic implements sdk.Msg
-func (m *MsgFlushDomain) ValidateBasic() error {
-	if m.Domain == "" {
-		return errors.Wrap(ErrInvalidDomainName, "empty")
-	}
-	if m.Owner == nil {
-		return errors.Wrap(ErrInvalidOwner, "empty")
-	}
-	return nil
-}
-
-// GetSignBytes implements sdk.Msg
-func (m *MsgFlushDomain) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
-}
-
-// GetSigners implements sdk.Msg
-func (m *MsgFlushDomain) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
-}
-
 // MsgRegisterAccount is the request
 // model used to register new accounts
 type MsgRegisterAccount struct {
@@ -280,7 +243,7 @@ type MsgRegisterDomain struct {
 	// Broker TODO document
 	Broker sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
 	// AccountRenew defines the expiration time in seconds of each newly registered account.
-	AccountRenew int64 `json:"account_renew" arg:"--account-renew" helper:"account's renewal time in seconds"`
+	AccountRenew time.Duration `json:"account_renew" arg:"--account-renew" helper:"account's renewal time in seconds"`
 	// TODO MSGFEEs
 }
 

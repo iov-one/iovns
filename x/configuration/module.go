@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"encoding/json"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -40,7 +41,9 @@ func (AppModuleBasic) ValidateGenesis(b json.RawMessage) (err error) {
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router) {
 	// TODO fill
 }
-func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command { return cli.GetTxCmd(cdc) }
+func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
+	return cli.GetTxCmd(types.StoreKey, cdc)
+}
 func (AppModuleBasic) GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	return cli.GetQueryCmd(types.StoreKey, cdc)
 }

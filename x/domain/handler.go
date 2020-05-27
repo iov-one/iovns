@@ -3,6 +3,7 @@ package domain
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"regexp"
 	"time"
 
@@ -25,8 +26,6 @@ func NewHandler(k Keeper) sdk.Handler {
 			return handlerMsgRenewDomain(ctx, k, msg)
 		case *types.MsgDeleteDomain:
 			return handlerMsgDeleteDomain(ctx, k, msg)
-		case *types.MsgFlushDomain:
-			return handlerMsgFlushDomain(ctx, k, msg)
 		case *types.MsgTransferDomain:
 			return handlerMsgTransferDomain(ctx, k, msg)
 		// account handlers
@@ -52,6 +51,20 @@ func NewHandler(k Keeper) sdk.Handler {
 	}
 
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+		/*
+			TODO
+			remove when cosmos sdk decides that you are allowed to panic on errors that should not happen
+			instead of returning random internal errors that mean actually nothing to a developer without
+			a stacktrace or at least the error string of the panic itself, and also substitute 'log' stdlib
+			with cosmos sdk logger when they make clear how you can use it and how to set up env to achieve so
+		*/
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("FATAL-PANIC while executing message: %#v\nReason: %v", msg, r)
+				// and lets panic again to throw it back to cosmos sdk yikes.
+				panic(r)
+			}
+		}()
 		resp, err := f(ctx, msg)
 		if err != nil {
 			msg := fmt.Sprintf("tx rejected %T: %s", msg, err)
@@ -220,8 +233,15 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 func validateBlockchainTargets(targets []types.BlockchainAddress, conf configuration.Config) error {
 	validBlockchainID := regexp.MustCompile(conf.ValidBlockchainID)
 	validBlockchainAddress := regexp.MustCompile(conf.ValidBlockchainAddress)
+	// create blockchain targets set to identify duplicates
+	sets := make(map[string]struct{}, len(targets))
 	// iterate over targets to check their validity
 	for _, target := range targets {
+		// check if blockchain ID was already specified
+		if _, ok := sets[target.ID]; ok {
+			return fmt.Errorf("duplicate blockchain ID: %s", target)
+		}
+		sets[target.ID] = struct{}{}
 		// is blockchain id valid?
 		if !validBlockchainID.MatchString(target.ID) {
 			return fmt.Errorf("%s is not a valid blockchain ID", target.ID)
@@ -411,48 +431,20 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 	return &sdk.Result{}, nil
 }
 
-func handlerMsgFlushDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgFlushDomain) (*sdk.Result, error) {
-	// get domain
-	domain, exists := k.GetDomain(ctx, msg.Domain)
-	if !exists {
-		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", msg.Domain)
-	}
-	// check if domain has superuser
-	if !domain.HasSuperuser {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "domains without a superuser cannot be flushed")
-	}
-	// check if signer is also domain owner
-	if !msg.Owner.Equals(domain.Admin) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to flush domain owned by %s", msg.Owner, domain.Admin)
-	}
-	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner)
-	if err != nil {
-		return nil, sdkerrors.Wrap(err, "unable to collect fees")
-	}
-	// now flush
-	_ = k.FlushDomain(ctx, msg.Domain)
-	// success; TODO maybe emit event?
-	return &sdk.Result{}, nil
-}
-
 // handleMsgRegisterDomain handles the domain registration process
 func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
 	// check if domain exists
 	if _, ok := k.GetDomain(ctx, msg.Name); ok {
-		err = sdkerrors.Wrap(types.ErrDomainAlreadyExists, msg.Name)
-		return
+		return nil, sdkerrors.Wrap(types.ErrDomainAlreadyExists, msg.Name)
 	}
 	// if domain does not exist then check if we can register it
 	// check if name is valid based on the configuration saved in the state
 	if !regexp.MustCompile(k.ConfigurationKeeper.GetValidDomainRegexp(ctx)).MatchString(msg.Name) {
-		err = sdkerrors.Wrap(types.ErrInvalidDomainName, msg.Name)
-		return
+		return nil, sdkerrors.Wrap(types.ErrInvalidDomainName, msg.Name)
 	}
 	// if domain has not a super user then admin must be configuration owner
 	if !msg.HasSuperuser && !k.ConfigurationKeeper.IsOwner(ctx, msg.Admin) {
-		err = sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to register a domain without a superuser", msg.Admin)
-		return
+		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to register a domain without a superuser", msg.Admin)
 	}
 	// set new domain
 	domain := types.Domain{
@@ -460,7 +452,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		Admin:        msg.Admin,
 		ValidUntil:   ctx.BlockTime().Add(k.ConfigurationKeeper.GetDomainRenewDuration(ctx)).Unix(),
 		HasSuperuser: msg.HasSuperuser,
-		AccountRenew: time.Duration(msg.AccountRenew) * time.Second,
+		AccountRenew: msg.AccountRenew,
 		Broker:       msg.Broker,
 	}
 	// if domain has not a super user then set domain to 0 address
@@ -487,11 +479,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	// save account
 	k.CreateAccount(ctx, acc)
 	// success TODO think here, can we emit any useful event
-	return &sdk.Result{
-		Data:   nil,
-		Log:    "",
-		Events: nil,
-	}, nil
+	return &sdk.Result{}, nil
 }
 
 // handlerMsgRenewDomain renews a domain

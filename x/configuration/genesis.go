@@ -2,9 +2,11 @@ package configuration
 
 import (
 	"fmt"
+	"regexp"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration/types"
-	"regexp"
+	domain_types "github.com/iov-one/iovns/x/domain/types"
 )
 
 // GenesisState is used to unmarshal the genesis state
@@ -29,7 +31,7 @@ func ValidateGenesis(data GenesisState) error {
 	if conf.DomainRenew < 0 {
 		return fmt.Errorf("empty domain renew")
 	}
-	if conf.Owners == nil {
+	if conf.Configurer == nil {
 		return fmt.Errorf("empty owner")
 	}
 	if _, err := regexp.Compile(conf.ValidBlockchainAddress); err != nil {
@@ -59,23 +61,47 @@ func ValidateGenesis(data GenesisState) error {
 // DefaultGenesisState returns the default genesis state
 // TODO this needs to be updated, although it will be imported from iovns chain
 func DefaultGenesisState() GenesisState {
+	// get owner
+	owner, err := sdk.AccAddressFromBech32("star1kxqay5tndu3w08ps5c27pkrksnqqts0zxeprzx")
+	if err != nil {
+		panic("invalid default owner provided")
+	}
+	// set default configs
+	config := types.Config{
+		Configurer:             owner,
+		ValidDomain:            "^(.*?)?",
+		ValidName:              "^(.*?)?",
+		ValidBlockchainID:      "^(.*?)?",
+		ValidBlockchainAddress: "^(.*?)?",
+		DomainRenew:            86400,
+	}
+	// set fees
+	fees := types.NewFees()
+	defFee := sdk.NewCoin("iov", sdk.NewInt(10))
+	// add domain fees
+	fees.UpsertDefaultFees(&domain_types.MsgRegisterDomain{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgAddAccountCertificates{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgDeleteAccountCertificate{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgDeleteDomain{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgDeleteAccount{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgRegisterAccount{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgRenewAccount{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgRenewDomain{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgReplaceAccountTargets{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgTransferAccount{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgTransferDomain{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgSetAccountMetadata{}, defFee)
+	// return genesis
 	return GenesisState{
-		Config: types.Config{
-			Owners:                 []sdk.AccAddress{},
-			ValidDomain:            "^(.*?)?",
-			ValidName:              "^(.*?)?",
-			ValidBlockchainID:      "^(.*?)?",
-			ValidBlockchainAddress: "^(.*?)?",
-			DomainRenew:            86400,
-		},
-
-		Fees: types.NewFees(),
+		Config: config,
+		Fees:   fees,
 	}
 }
 
 // InitGenesis sets the initial state of the configuration module
 func InitGenesis(ctx sdk.Context, k Keeper, data GenesisState) {
 	k.SetConfig(ctx, data.Config)
+	k.SetFees(ctx, data.Fees)
 }
 
 // ExportGenesis saves the state of the configuration module
