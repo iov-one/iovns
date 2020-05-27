@@ -440,7 +440,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   0,
-					HasSuperuser: false,
+					Type:         types.OpenDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -481,7 +481,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   0,
-					HasSuperuser: false,
+					Type:         types.OpenDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -522,7 +522,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.AliceKey,
 					ValidUntil:   2,
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -596,7 +596,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   2,
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -637,7 +637,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   0, // domain is expired
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -678,7 +678,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   time.Now().Add(100000 * time.Hour).Unix(),
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -729,7 +729,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   time.Now().Add(100000 * time.Hour).Unix(),
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -1267,7 +1267,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Name:         "expired domain",
 					Admin:        dt.BobKey,
 					ValidUntil:   0,
-					HasSuperuser: false,
+					Type:         types.OpenDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -1291,7 +1291,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Name:         "test",
 					Admin:        iovns.ZeroAddress,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					HasSuperuser: false,
+					Type:         types.OpenDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -1315,7 +1315,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Name:         "test",
 					Admin:        iovns.ZeroAddress,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					HasSuperuser: false,
+					Type:         types.OpenDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -1348,7 +1348,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.AliceKey,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -1381,7 +1381,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Name:         "test",
 					Admin:        iovns.ZeroAddress,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					HasSuperuser: false,
+					Type:         types.OpenDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -1414,7 +1414,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Name:         "test",
 					Admin:        iovns.ZeroAddress,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					HasSuperuser: false,
+					Type:         types.OpenDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -1459,7 +1459,7 @@ func Test_handlerAccountTransfer(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.AliceKey,
 					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})

@@ -91,7 +91,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 	}
 	// do validity checks on domain
 	domainCtrl := domain.NewController(ctx, k, msg.Domain)
-	err := domainCtrl.Validate(domain.MustExist, domain.Superuser(true), domain.NotExpired, domain.Owner(msg.Owner))
+	err := domainCtrl.Validate(domain.MustExist, domain.Type(types.ClosedDomain), domain.NotExpired, domain.Owner(msg.Owner))
 	if err != nil {
 		return nil, err
 	}
@@ -242,14 +242,14 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 		return nil, err
 	}
 	// check if domain has super user
-	switch domainCtrl.Domain().HasSuperuser {
+	switch domainCtrl.Domain().Type {
 	// if it has a super user then only domain admin can transfer accounts
-	case true:
+	case types.ClosedDomain:
 		if domainCtrl.Validate(domain.Owner(msg.Owner)) != nil {
 			return nil, errors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", domainCtrl.Domain().Admin)
 		}
 	// if it has not a super user then only account owner can transfer the account
-	case false:
+	case types.OpenDomain:
 		if accountCtrl.Validate(account.Owner(msg.Owner)) != nil {
 			return nil, errors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to transfer the account", accountCtrl.Account().Owner)
 		}

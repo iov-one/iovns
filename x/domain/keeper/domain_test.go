@@ -2,8 +2,9 @@ package keeper
 
 import (
 	"fmt"
-	"github.com/iov-one/iovns/x/domain/types"
 	"testing"
+
+	"github.com/iov-one/iovns/x/domain/types"
 )
 
 func TestKeeper_IterateAllDomains(t *testing.T) {
@@ -15,7 +16,7 @@ func TestKeeper_IterateAllDomains(t *testing.T) {
 			Name:         fmt.Sprintf("%d", i),
 			Admin:        nil,
 			ValidUntil:   1000,
-			HasSuperuser: true,
+			Type:         types.ClosedDomain,
 			AccountRenew: 1000000,
 			Broker:       nil,
 		})

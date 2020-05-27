@@ -37,7 +37,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        iovns.ZeroAddress,
 					ValidUntil:   0,
-					HasSuperuser: false,
+					Type:         types.OpenDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -64,7 +64,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   0,
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -92,7 +92,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   3,
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -120,7 +120,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.BobKey,
 					ValidUntil:   4,
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -148,7 +148,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test1",
 					Admin:        dt.BobKey,
 					ValidUntil:   1589826439,
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -156,7 +156,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test2",
 					Admin:        dt.BobKey,
 					ValidUntil:   1589828251,
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -200,7 +200,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.AliceKey,
 					ValidUntil:   0,
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -241,7 +241,7 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Name:         "test",
 					Admin:        dt.AliceKey,
 					ValidUntil:   0,
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -301,7 +301,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				// register domain with superuser
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "domain",
-					HasSuperuser: true,
+					DomainType:   types.ClosedDomain,
 					AccountRenew: 10,
 					Admin:        dt.BobKey,
 				})
@@ -312,7 +312,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				_, err = handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "domain-without-superuser",
 					Admin:        dt.AliceKey,
-					HasSuperuser: false,
+					DomainType:   types.OpenDomain,
 					Broker:       nil,
 					AccountRenew: 20,
 				})
@@ -338,7 +338,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					Name:         "exists",
 					Admin:        dt.BobKey,
 					ValidUntil:   0,
-					HasSuperuser: true,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -347,7 +347,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "exists",
 					Admin:        dt.AliceKey,
-					HasSuperuser: true,
+					DomainType:   types.ClosedDomain,
 					AccountRenew: 0,
 				})
 				if !errors.Is(err, types.ErrDomainAlreadyExists) {
@@ -370,7 +370,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
 					Name:         "invalid-name",
 					Admin:        nil,
-					HasSuperuser: false,
+					DomainType:   types.OpenDomain,
 					Broker:       nil,
 					AccountRenew: 0,
 				})
@@ -400,7 +400,7 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 				_, err := handleMsgRegisterDomain(ctx, k, &sdk.MsgRegisterDomain{
 					Name:         "some-domain",
 					Admin:        bobKey,
-					HasSuperuser: false,
+					Type: types.OpenDomain,
 					Broker:       nil,
 					AccountRenew: 10,
 				})
@@ -484,9 +484,9 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		"domain has no superuser": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					HasSuperuser: false,
-					Admin:        iovns.ZeroAddress,
+					Name:  "test",
+					Type:  types.OpenDomain,
+					Admin: iovns.ZeroAddress,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -504,9 +504,9 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		"domain has expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					HasSuperuser: true,
-					Admin:        dt.BobKey,
+					Name:  "test",
+					Type:  types.ClosedDomain,
+					Admin: dt.BobKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -524,10 +524,10 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 		"msg signer is not domain admin": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					HasSuperuser: true,
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Admin:        dt.AliceKey,
+					Name:       "test",
+					Type:       types.ClosedDomain,
+					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					Admin:      dt.AliceKey,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -546,10 +546,10 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					HasSuperuser: true,
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Admin:        dt.AliceKey,
+					Name:       "test",
+					Type:       types.ClosedDomain,
+					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					Admin:      dt.AliceKey,
 				})
 				// add empty account
 				k.CreateAccount(ctx, types.Account{

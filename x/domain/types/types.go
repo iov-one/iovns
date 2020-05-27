@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/types/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/pkg/index"
 )
@@ -20,13 +22,29 @@ type Domain struct {
 	Admin sdk.AccAddress `json:"admin"`
 	// ValidUntil is a unix timestamp defines the time when the domain will become invalid
 	ValidUntil int64 `json:"valid_until"`
-	// HasSuperuser checks if the domain is owned by a super user or not
-	HasSuperuser bool `json:"has_super_user"`
+	// Type defines the type of the domain
+	Type DomainType `json:"type"`
 	// AccountRenew defines the duration of each created or renewed account
 	// under the domain
 	AccountRenew time.Duration `json:"account_renew"`
 	// Broker TODO needs comment
 	Broker sdk.AccAddress `json:"broker"`
+}
+
+type DomainType string
+
+const (
+	OpenDomain   DomainType = "open"
+	ClosedDomain            = "closed"
+)
+
+func ValidateDomainType(typ DomainType) error {
+	switch typ {
+	case OpenDomain, ClosedDomain:
+		return nil
+	default:
+		return errors.Wrapf(ErrInvalidDomainType, "invalid domain type: %s", typ)
+	}
 }
 
 // Index implements Indexer and packs the

@@ -18,9 +18,9 @@ func TestDomain_requireDomain(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
 		k.CreateDomain(ctx, types.Domain{
-			Name:         "test",
-			Admin:        dt.AliceKey,
-			HasSuperuser: false,
+			Name:  "test",
+			Admin: dt.AliceKey,
+			Type:  types.OpenDomain,
 		})
 		ctrl := NewController(ctx, k, "test")
 		err := ctrl.requireDomain()
@@ -42,10 +42,10 @@ func TestDomain_domainExpired(t *testing.T) {
 	t.Run("domain expired", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
 		k.CreateDomain(ctx, types.Domain{
-			Name:         "test",
-			Admin:        dt.AliceKey,
-			HasSuperuser: false,
-			ValidUntil:   0,
+			Name:       "test",
+			Admin:      dt.AliceKey,
+			Type:       types.OpenDomain,
+			ValidUntil: 0,
 		})
 		ctrl := NewController(ctx, k, "test")
 		err := ctrl.expired()
@@ -202,69 +202,53 @@ func TestDomain_notExpired(t *testing.T) {
 	dt.RunTests(t, cases)
 }
 
-func TestDomain_superuser(t *testing.T) {
+func TestDomain_type(t *testing.T) {
 	cases := map[string]dt.SubTest{
-		"success true": {
+		"saved": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        dt.AliceKey,
-					HasSuperuser: true,
+					Name:  "test",
+					Admin: dt.AliceKey,
+					Type:  types.ClosedDomain,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
-				err := ctrl.superuser(true)
+				err := ctrl.dType(types.ClosedDomain)
 				if err != nil {
 					t.Fatalf("got error: %s", err)
 				}
 			},
 		},
-		"success false": {
+		"fail want type close domain": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        dt.AliceKey,
-					HasSuperuser: false,
+					Name:  "test",
+					Admin: dt.AliceKey,
+					Type:  types.ClosedDomain,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
-				err := ctrl.superuser(false)
-				if err != nil {
-					t.Fatalf("got error: %s", err)
+				err := ctrl.dType(types.OpenDomain)
+				if !errors.Is(err, types.ErrInvalidDomainType) {
+					t.Fatalf("want err: %s, got: %s", types.ErrInvalidDomainType, err)
 				}
 			},
 		},
-		"fail superuser want true": {
+		"fail want open domain": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        dt.AliceKey,
-					HasSuperuser: true,
+					Name:  "test",
+					Admin: dt.AliceKey,
+					Type:  types.OpenDomain,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
-				err := ctrl.superuser(false)
-				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("want err: %s, got: %s", types.ErrUnauthorized, err)
-				}
-			},
-		},
-		"fail superuser want false": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        dt.AliceKey,
-					HasSuperuser: false,
-				})
-			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				ctrl := NewController(ctx, k, "test")
-				err := ctrl.superuser(true)
-				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("want err: %s, got: %s", types.ErrUnauthorized, err)
+				err := ctrl.dType(types.ClosedDomain)
+				if !errors.Is(err, types.ErrInvalidDomainType) {
+					t.Fatalf("want err: %s, got: %s", types.ErrInvalidDomainType, err)
 				}
 			},
 		},
