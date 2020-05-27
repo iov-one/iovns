@@ -52,13 +52,12 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		AccountRenew: msg.AccountRenew,
 		Broker:       msg.Broker,
 	}
-	// save domain
-	k.CreateDomain(ctx, d)
+
 	// generate empty name account
 	acc := types.Account{
 		Domain:       msg.Name,
 		Name:         "",
-		Owner:        msg.Admin, // TODO this is not clear, why the domain admin is zero address while this is msg.Admin
+		Owner:        msg.Admin,
 		ValidUntil:   ctx.BlockTime().Add(d.AccountRenew).Unix(),
 		Targets:      nil,
 		Certificates: nil,
@@ -69,6 +68,8 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
+	// save domain
+	k.CreateDomain(ctx, d)
 	// save account
 	k.CreateAccount(ctx, acc)
 	// success TODO think here, can we emit any useful event
