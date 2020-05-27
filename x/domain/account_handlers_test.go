@@ -433,7 +433,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchNothing, // don't match anything
 					ValidBlockchainID:      dt.RegexMatchAll,     // match all
-					DomainRenew:            10,
+					DomainRenewalPeriod:    10,
 				})
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
@@ -474,7 +474,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainID:      dt.RegexMatchNothing, // don't match anything
 					ValidBlockchainAddress: dt.RegexMatchAll,     // match all
-					DomainRenew:            10,
+					DomainRenewalPeriod:    10,
 				})
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
@@ -514,8 +514,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchAll,     // match all
 					ValidBlockchainID:      dt.RegexMatchAll,     // match all
-					ValidName:              dt.RegexMatchNothing, // match nothing
-					DomainRenew:            10,
+					ValidAccountName:       dt.RegexMatchNothing, // match nothing
+					DomainRenewalPeriod:    10,
 				})
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
@@ -555,8 +555,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchAll, // match all
 					ValidBlockchainID:      dt.RegexMatchAll, // match all
-					ValidName:              dt.RegexMatchAll, // match nothing
-					DomainRenew:            10,
+					ValidAccountName:       dt.RegexMatchAll, // match nothing
+					DomainRenewalPeriod:    10,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -588,8 +588,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchAll, // match all
 					ValidBlockchainID:      dt.RegexMatchAll, // match all
-					ValidName:              dt.RegexMatchAll, // match nothing
-					DomainRenew:            10,
+					ValidAccountName:       dt.RegexMatchAll, // match nothing
+					DomainRenewalPeriod:    10,
 				})
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
@@ -629,8 +629,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchAll, // match all
 					ValidBlockchainID:      dt.RegexMatchAll, // match all
-					ValidName:              dt.RegexMatchAll, // match nothing
-					DomainRenew:            10,
+					ValidAccountName:       dt.RegexMatchAll, // match nothing
+					DomainRenewalPeriod:    10,
 				})
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
@@ -670,8 +670,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchAll, // match all
 					ValidBlockchainID:      dt.RegexMatchAll, // match all
-					ValidName:              dt.RegexMatchAll, // match nothing
-					DomainRenew:            10,
+					ValidAccountName:       dt.RegexMatchAll, // match nothing
+					DomainRenewalPeriod:    10,
 				})
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{
@@ -721,8 +721,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainAddress: dt.RegexMatchAll, // match all
 					ValidBlockchainID:      dt.RegexMatchAll, // match all
-					ValidName:              dt.RegexMatchAll, // match nothing
-					DomainRenew:            10,
+					ValidAccountName:       dt.RegexMatchAll, // match nothing
+					DomainRenewalPeriod:    10,
 				})
 				// add a domain
 				k.CreateDomain(ctx, types.Domain{

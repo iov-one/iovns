@@ -190,7 +190,7 @@ func (c *Domain) mustNotExist() error {
 	return nil
 }
 
-// ValidName checks if the name of the domain is valid
+// ValidAccountName checks if the name of the domain is valid
 func ValidName(controller *Domain) error {
 	return controller.validName()
 }
@@ -200,7 +200,7 @@ func (c *Domain) validName() error {
 	// require configuration
 	c.requireConfiguration()
 	// get valid domain regexp
-	validator := regexp.MustCompile(c.conf.ValidDomain)
+	validator := regexp.MustCompile(c.conf.ValidDomainName)
 	// assert domain name validity
 	if !validator.MatchString(c.domainName) {
 		return sdkerrors.Wrap(types.ErrInvalidDomainName, c.domainName)

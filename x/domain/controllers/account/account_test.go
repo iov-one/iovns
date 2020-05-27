@@ -120,7 +120,7 @@ func TestAccount_validName(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		acc := &Account{
 			account: &types.Account{Name: "valid"},
-			conf:    &configuration.Config{ValidName: "^(.*?)?"},
+			conf:    &configuration.Config{ValidAccountName: "^(.*?)?"},
 		}
 		err := acc.validName()
 		if err != nil {
@@ -130,7 +130,7 @@ func TestAccount_validName(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		acc := &Account{
 			name: "not valid",
-			conf: &configuration.Config{ValidName: "$^"},
+			conf: &configuration.Config{ValidAccountName: "$^"},
 		}
 		err := acc.validName()
 		if !errors.Is(err, types.ErrInvalidAccountName) {

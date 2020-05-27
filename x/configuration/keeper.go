@@ -67,12 +67,12 @@ func (k Keeper) IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool {
 
 // GetDomainRenewDuration returns the duration of a domain renewal period
 func (k Keeper) GetDomainRenewDuration(ctx sdk.Context) time.Duration {
-	return k.GetConfiguration(ctx).DomainRenew
+	return k.GetConfiguration(ctx).DomainRenewalPeriod
 }
 
-// GetValidDomainRegexp returns the regular expression used to match valid domain names
-func (k Keeper) GetValidDomainRegexp(ctx sdk.Context) string {
-	return k.GetConfiguration(ctx).ValidDomain
+// GetValidDomainNameRegexp returns the regular expression used to match valid domain names
+func (k Keeper) GetValidDomainNameRegexp(ctx sdk.Context) string {
+	return k.GetConfiguration(ctx).ValidDomainName
 }
 
 // SetConfig updates or saves a new config in the store
