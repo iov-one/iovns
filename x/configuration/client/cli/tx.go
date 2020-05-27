@@ -36,16 +36,16 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 }
 
 var defaultDuration, _ = time.ParseDuration("1h")
-var defaultRegex = "^(.*?)?"
 
+const defaultRegex = "^(.*?)?"
 const defaultNumber = 1
 
 func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-config",
-		Short: "update domain configuration, provide the values you want to override in current configuraion",
+		Short: "update domain configuration, provide the values you want to override in current configuration",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
 			rawCfg, _, err := cliCtx.QueryStore([]byte(types.ConfigKey), types.StoreKey)
@@ -97,7 +97,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			if validBlockchainAddress == defaultRegex {
 				validBlockchainAddress = currentCfg.ValidBlockchainAddress
 			}
-			domainRenew, err := cmd.Flags().GetDuration("domain-renew")
+			domainRenew, err := cmd.Flags().GetDuration("domain-renew-period")
 			if err != nil {
 				return err
 			}
