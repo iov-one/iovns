@@ -147,7 +147,7 @@ func (c *Domain) dType(Type types.DomainType) error {
 		panic("validation check is not allowed on a non existing domain")
 	}
 	if c.domain.Type != Type {
-		return sdkerrors.Wrapf(types.ErrInvalidDomainType, "invalid domain type %s, expected %s", c.domain.Type, Type)
+		return sdkerrors.Wrapf(types.ErrInvalidDomainType, "operation not allowed on invalid domain type %s, expected %s", c.domain.Type, Type)
 	}
 	return nil
 }
@@ -217,6 +217,22 @@ func (c *Domain) requireConfiguration() {
 	}
 	conf := c.k.ConfigurationKeeper.GetConfiguration(c.ctx)
 	c.conf = &conf
+}
+
+// Deletable checks if the domain can be deleted by the provided address
+func DeletableBy(addr sdk.AccAddress) ControllerFunc {
+	return func(controller *Domain) error {
+		return controller.deletableBy(addr)
+	}
+}
+
+// deletableBy is the underlying operation used by DeletableBy controller
+func (c *Domain) deletableBy(addr sdk.AccAddress) error {
+	// check if either domain is owned by provided address or if grace period is finished
+	if err := c.Validate(Owner(addr)); err != nil && !c.Condition(GracePeriodFinished) {
+		return sdkerrors.Wrap(types.ErrUnauthorized, "unable to delete domain not owned if grace period is not finished")
+	}
+	return nil
 }
 
 // Domain returns a copy the domain, panics if the operation is done without

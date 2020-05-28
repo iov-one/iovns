@@ -123,3 +123,15 @@ func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain 
 		panic(fmt.Errorf("indexing error: (%#v): %w", domain, err))
 	}
 }
+
+// RenewDomain takes care of renewing the domain expiration time based on the configuration
+func (k *Keeper) RenewDomain(ctx sdk.Context, domain types.Domain) {
+	// get configuration
+	renewDuration := k.ConfigurationKeeper.GetDomainRenewDuration(ctx)
+	// update domain valid until
+	domain.ValidUntil = iovns.TimeToSeconds(
+		iovns.SecondsToTime(domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
+	)
+	// set domain
+	k.SetDomain(ctx, domain)
+}

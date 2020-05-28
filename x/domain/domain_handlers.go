@@ -1,11 +1,9 @@
 package domain
 
 import (
-	"errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -13,20 +11,17 @@ import (
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
 	c := domain.NewController(ctx, k, msg.Domain)
-	err := c.Validate(domain.MustExist, domain.Type(types.ClosedDomain))
-	if errors.Is(err, types.ErrInvalidDomainType) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "user is unauthorized to delete domain %s with domain type: %s", msg.Domain, types.ClosedDomain)
-	}
-	if err != nil {
+	// do precondition checks
+	if err := c.Validate(domain.MustExist, domain.Type(types.ClosedDomain)); err != nil {
 		return nil, err
 	}
-	// if domain is not over grace period and signer is not the owner of the domain then the operation is not allowed
-	if err := c.Validate(domain.Owner(msg.Owner)); err != nil && !c.Condition(domain.GracePeriodFinished) {
-		return nil, sdkerrors.Wrap(types.ErrUnauthorized, "unable to delete domain not owned if grace period is not finished")
+	// check if signer is authorized to delete
+	if err := c.Validate(domain.DeletableBy(msg.Owner)); err != nil {
+		return nil, err
 	}
 	// operation is allowed
 	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Owner)
+	err := k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
@@ -82,20 +77,13 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 	if err != nil {
 		return nil, err
 	}
-	domain := c.Domain()
-	// get configuration
-	renewDuration := k.ConfigurationKeeper.GetDomainRenewDuration(ctx)
-	// update domain valid until
-	domain.ValidUntil = iovns.TimeToSeconds(
-		iovns.SecondsToTime(domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
-	)
 	// collect fees
 	err = k.CollectFees(ctx, msg, msg.Signer)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// update domain
-	k.SetDomain(ctx, domain)
+	k.RenewDomain(ctx, c.Domain())
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
@@ -108,9 +96,6 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 		domain.Owner(msg.Owner),
 		domain.NotExpired,
 	)
-	if types.ErrInvalidDomainType.Is(err) {
-		return nil, types.ErrUnauthorized
-	}
 	if err != nil {
 		return nil, err
 	}

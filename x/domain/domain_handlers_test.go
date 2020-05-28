@@ -46,8 +46,8 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					Domain: "test",
 					Owner:  dt.BobKey,
 				})
-				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrUnauthorized, err)
+				if !errors.Is(err, types.ErrInvalidDomainType) {
+					t.Fatalf("handlerMsgDeleteDomain() expected error: %s, got: %s", types.ErrInvalidDomainType, err)
 				}
 			},
 			AfterTest: nil,
@@ -461,8 +461,8 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Owner:    nil,
 					NewAdmin: nil,
 				})
-				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgTransferDomain() expected error: %s, got error: %s", types.ErrUnauthorized, err)
+				if !errors.Is(err, types.ErrInvalidDomainType) {
+					t.Fatalf("handlerMsgTransferDomain() expected error: %s, got error: %s", types.ErrInvalidDomainType, err)
 				}
 			},
 			AfterTest: nil,
