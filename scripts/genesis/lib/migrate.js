@@ -115,7 +115,7 @@ export const consolidateEscrows = ( dumped, source2multisig, genesis ) => {
 
          account["//id"] = `consolidated escrows with source ${source} (${source2multisig[source]["//id"]})`;
          account[`//timeout ${new Date( escrow.timeout * 1000 ).toISOString()}`] = `${escrow.address} yields ${escrow.amount[0].whole} ${value.coins[0].denom}`;
-         value.address = source2multisig[source].multisig;
+         value.address = source2multisig[source].star1;
          value.coins[0].amount = `${parseInt( value.coins[0].amount ) + escrow.amount[0].whole}`; // no fractionals; must be a string
 
          accumulator[source] = account;

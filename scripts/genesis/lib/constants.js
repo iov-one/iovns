@@ -5,32 +5,32 @@ export const multisigs = {
    iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n: {
       "//name": "reward fund",
       address: "cond:gov/rule/0000000000000002",
-      star1: "TBD", // TODO
+      star1: "reward fund star1", // TODO
    },
    iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq: {
       "//name": "IOV SAS",
       address: "cond:multisig/usage/0000000000000001",
-      star1: "TBD", // TODO
+      star1: "IOV SAS star1", // TODO
    },
    iov1zd573wa38pxfvn9mxvpkjm6a8vteqvar2dwzs0: {
       "//name": "IOV SAS employee bonus pool/colloboration appropriation pool",
       address: "cond:multisig/usage/0000000000000002",
-      star1: "TBD", // TODO
+      star1: "IOV SAS employee bonus pool/colloboration appropriation pool star1", // TODO
    },
    iov1ppzrq5gwqlcsnwdvlz7x9mu98fntmp65m9a3mz: {
       "//name": "IOV SAS pending deals pocket; close deal or burn",
       address: "cond:multisig/usage/0000000000000003",
-      star1: "TBD", // TODO
+      star1: "IOV SAS pending deals pocket; close deal or burn star1", // TODO
    },
    iov1ym3uxcfv9zar2md0xd3hq2vah02u3fm6zn8mnu: {
       "//name": "IOV SAS bounty fund",
       address: "cond:multisig/usage/0000000000000004",
-      star1: "TBD", // TODO
+      star1: "IOV SAS bounty fund star1", // TODO
    },
    iov1myq53ry9pa6awl88m0xgp224q0dgwjdvz2dcsw: {
       "//name": "Unconfirmed contributors/co-founders",
       address: "cond:multisig/usage/0000000000000005",
-      star1: "TBD", // TODO
+      star1: "Unconfirmed contributors/co-founders star1", // TODO
    },
 };
 
@@ -78,14 +78,14 @@ export const chainIds = {
 export const source2multisig = {
    iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x: {
       "//id": "isabella*iov",
-      multisig: "IOV SAS multisig star1_TBD_isabella*iov", // TODO
+      star1: "IOV SAS multisig star1_TBD_isabella*iov", // TODO
    },
    iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph: {
       "//id": "kadima*iov",
-      multisig: "IOV SAS multisig star1_TBD_kadima*iov", // TODO
+      star1: "IOV SAS multisig star1_TBD_kadima*iov", // TODO
    },
    iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u: {
       "//id": "vaildator guaranteed reward fund",
-      multisig: "IOV SAS multisig star1_TBD_guaranteed", // TODO
+      star1: "IOV SAS multisig star1_TBD_guaranteed", // TODO
    },
 };

@@ -355,9 +355,9 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       expect( genesisCopy.accounts.length ).toEqual( 3 );
 
-      const guaranteed = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u.multisig );
-      const isabella   = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x.multisig );
-      const kadima     = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph.multisig );
+      const guaranteed = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u.star1 );
+      const isabella   = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x.star1 );
+      const kadima     = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph.star1 );
 
       expect( guaranteed ).toBeTruthy();
       expect( isabella ).toBeTruthy();
