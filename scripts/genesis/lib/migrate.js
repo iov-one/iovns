@@ -27,6 +27,7 @@ export const labelMultisigs = ( dumped, multisigs ) => {
       if ( index == -1 ) throw new Error( `Couldn't find ${iov1} in dumped.cash.` );
 
       dumped.cash[index]["//id"] = multisigs[iov1]["//name"];
+      dumped.cash[index]["//iov1"] = iov1;
    } );
 }
 

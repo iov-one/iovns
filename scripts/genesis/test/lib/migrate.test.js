@@ -304,6 +304,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
          const multisig = dumped.cash.find( wallet => wallet.address == iov1 );
 
          expect( multisig["//id"] ).toEqual( multisigs[iov1]["//name"] );
+         expect( multisig["//iov1"] ).toEqual( iov1 );
       } );
    } );
 
