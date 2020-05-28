@@ -11,12 +11,8 @@ import (
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
 	c := domain.NewController(ctx, k, msg.Domain)
-	// do precondition checks
-	if err := c.Validate(domain.MustExist, domain.Type(types.ClosedDomain)); err != nil {
-		return nil, err
-	}
-	// check if signer is authorized to delete
-	if err := c.Validate(domain.DeletableBy(msg.Owner)); err != nil {
+	// do precondition and authorization checks
+	if err := c.Validate(domain.MustExist, domain.Type(types.ClosedDomain), domain.DeletableBy(msg.Owner)); err != nil {
 		return nil, err
 	}
 	// operation is allowed
