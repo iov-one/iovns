@@ -414,7 +414,8 @@ type MsgSetAccountMetadata struct {
 	// we want to update or insert
 	NewMetadataURI string
 	// Owner is the owner of the account
-	Owner sdk.AccAddress
+	Owner    sdk.AccAddress
+	FeePayer sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -448,7 +449,11 @@ func (m *MsgSetAccountMetadata) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgSetAccountMetadata) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	if m.FeePayer == nil {
+		return []sdk.AccAddress{m.Owner}
+	} else {
+		return []sdk.AccAddress{m.FeePayer, m.Owner}
+	}
 }
 
 // MsgTransferAccount is the request
