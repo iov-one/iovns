@@ -1,4 +1,4 @@
-import { burnTokens, consolidateEscrows, fixChainIds, labelAccounts, labelMultisigs, migrate } from "../../lib/migrate";
+import { burnTokens, consolidateEscrows, fixChainIds, labelAccounts, labelMultisigs, mapIovToStar, migrate } from "../../lib/migrate";
 import { chainIds, source2multisig } from "../../lib/constants";
 
 "use strict";
@@ -59,6 +59,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
          {
             "address": "iov1497txu54lnwujzl8xhc59y6cmuw82d68udn4l3",
             "coins": [ { "ticker": "IOV", "whole": 89853 } ]
+         },
+         {
+            "address": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98",
+            "coins": [ { "ticker": "IOV", "whole": 3234710 } ]
+         },
+         {
+            "address": "iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9",
+            "coins": [ { "fractional": 500000000, "ticker": "IOV", "whole": 26 } ]
          },
       ],
       "escrow": [
@@ -198,6 +206,20 @@ describe( "Tests ../../lib/migrate.js.", () => {
                { "address": "iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl",  "blockchain_id": "alpe-net" }
             ],
             "Username": "alex*iov"
+         },
+         {
+            "Owner": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98",
+            "Targets": [
+               { "address": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98", "blockchain_id": "iov-mainnet" }
+            ],
+            "Username": "confio*iov"
+         },
+         {
+            "Owner": "iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9",
+            "Targets": [
+               { "address": "0x5e415520beb66aa39e00d43cae889f2c5cba7017", "blockchain_id": "ethereum-eip155-1" }
+            ],
+            "Username": "corentin*iov"
          },
       ],
    };
@@ -366,6 +388,17 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( guaranteed.value.coins[0].amount ).toEqual( "2347987" );
       expect( isabella.value.coins[0].amount ).toEqual( "808677" );
       expect( kadima.value.coins[0].amount ).toEqual( "269559" );
+   } );
+
+   it( `Should map iov1 addresses to star1 addresses.`, async () => {
+      const iov2star = mapIovToStar( dumped, multisigs, source2multisig );
+
+      expect( iov2star.iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl ).toEqual( false ); // alex
+      expect( iov2star.iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98 ).toEqual( false ); // ethan
+      expect( iov2star.iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9 ).toEqual( false );
+      expect( iov2star.iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
+      expect( iov2star.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n ).toEqual( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 );
+      expect( iov2star.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph ).toEqual( source2multisig.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph.star1 );
    } );
 
    it( `Should migrate.`, async () => {

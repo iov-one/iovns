@@ -129,6 +129,26 @@ export const consolidateEscrows = ( dumped, source2multisig, genesis ) => {
 }
 
 /**
+ * Maps iov1 addresses to star1 addresses.
+ * @param {Object} dumped - the state of the weave-based chain
+ * @param {Object} multisigs - the genesis object
+ * @param {Object} source2multisig - a map of escrow sources to multisig accounts
+ */
+export const mapIovToStar = ( dumped, multisigs, source2multisig ) => {
+   const iov2star = {};
+
+   dumped.username.forEach( username => {
+      const target = username.Targets.find( target => target.address.indexOf( "star1" ) == 0 );
+
+      iov2star[username.Owner] = target ? target.address : false;
+   } );
+   Object.keys( multisigs ).forEach( iov1 => iov2star[iov1] = multisigs[iov1].star1 );
+   Object.keys( source2multisig ).forEach( iov1 => iov2star[iov1] = source2multisig[iov1].star1 );
+
+   return iov2star;
+}
+
+/**
  * Performs all the necessary transformations to migrate from the weave-based chain to a cosmos-sdk-based chain.
  * @param {Object} args - various objects required for the transformation
  */
@@ -146,4 +166,6 @@ export const migrate = args => {
    labelMultisigs( dumped, multisigs );
    fixChainIds( dumped, chainIds );
    consolidateEscrows( dumped, source2multisig, genesis );
+
+   const iov2star = mapIovToStar( dumped, multisigs, source2multisig );
 };
