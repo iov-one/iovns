@@ -194,7 +194,7 @@ type MsgRegisterAccount struct {
 	Name string
 	// Owner is the owner of the account
 	Owner sdk.AccAddress
-	// Signer is how signs this message
+	// Signer is who signs this message
 	Signer sdk.AccAddress
 	// Targets are the blockchain addresses of the account
 	Targets []BlockchainAddress
