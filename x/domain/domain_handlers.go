@@ -38,7 +38,12 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	if err != nil {
 		return nil, err
 	}
-	// set new domain
+	// collect fees
+	err = k.CollectFees(ctx, msg, msg.Admin)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "unable to collect fees")
+	}
+	// create new domain
 	d := types.Domain{
 		Name:         msg.Name,
 		Admin:        msg.Admin,
@@ -49,23 +54,6 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	}
 	// save domain
 	k.CreateDomain(ctx, d)
-	// generate empty name account
-	acc := types.Account{
-		Domain:       msg.Name,
-		Name:         "",
-		Owner:        msg.Admin, // TODO this is not clear, why the domain admin is zero address while this is msg.Admin
-		ValidUntil:   ctx.BlockTime().Add(d.AccountRenew).Unix(),
-		Targets:      nil,
-		Certificates: nil,
-		Broker:       nil, // TODO ??
-	}
-	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Admin)
-	if err != nil {
-		return nil, sdkerrors.Wrap(err, "unable to collect fees")
-	}
-	// save account
-	k.CreateAccount(ctx, acc)
 	// success TODO think here, can we emit any useful event
 	return &sdk.Result{}, nil
 }
@@ -99,15 +87,13 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 	if err != nil {
 		return nil, err
 	}
-	// get domain
-	d := c.Domain()
 	// collect fees
 	err = k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// transfer domain and accounts ownership
-	k.TransferDomain(ctx, msg.NewAdmin, d)
+	k.TransferDomain(ctx, msg.NewAdmin, c.Domain())
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
 }

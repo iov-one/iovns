@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -11,6 +12,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 	testCases := map[string]subTest{
 		"success default": {
 			BeforeTest: func(t *testing.T, ctx sdk.Context, k Keeper) {
+				ctx = ctx.WithBlockTime(time.Unix(0, 0))
 				k.CreateDomain(ctx, types.Domain{Name: "test", Admin: aliceAddr})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "1", Owner: aliceAddr})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "2", Owner: aliceAddr})
@@ -23,7 +25,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 			Handler: queryAccountsInDomainHandler,
 			WantErr: nil,
 			PtrExpectedResponse: QueryAccountsInDomainResponse{
-				Accounts: []types.Account{{Domain: "test", Name: "1", Owner: aliceAddr}, {Domain: "test", Name: "2", Owner: aliceAddr}},
+				Accounts: []types.Account{{Domain: "test", Name: "", Owner: aliceAddr}, {Domain: "test", Name: "1", Owner: aliceAddr}, {Domain: "test", Name: "2", Owner: aliceAddr}},
 			},
 		},
 		"success with paging": {
@@ -41,7 +43,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 			Handler: queryAccountsInDomainHandler,
 			WantErr: nil,
 			PtrExpectedResponse: QueryAccountsInDomainResponse{
-				Accounts: []types.Account{{Domain: "test", Name: "2", Owner: bobAddr}},
+				Accounts: []types.Account{{Domain: "test", Name: "1", Owner: aliceAddr}},
 			},
 		},
 	}

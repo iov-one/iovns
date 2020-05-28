@@ -34,6 +34,18 @@ func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
 	}
 	// set domain
 	k.SetDomain(ctx, domain)
+	// generate empty name account
+	acc := types.Account{
+		Domain:       domain.Name,
+		Name:         "",
+		Owner:        domain.Admin, // TODO this is not clear, why the domain admin is zero address while this is msg.Admin
+		ValidUntil:   ctx.BlockTime().Add(domain.AccountRenew).Unix(),
+		Targets:      nil,
+		Certificates: nil,
+		Broker:       nil, // TODO ??
+	}
+	// save account
+	k.CreateAccount(ctx, acc)
 }
 
 // SetDomain updates or creates a new domain in the store
