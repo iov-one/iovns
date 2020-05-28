@@ -27,6 +27,7 @@ mkdir -pv $DIR_HOME
 
 for i in "$@"; do
    echo y | iovnscli keys add "$i" --home $DIR_HOME 2> /dev/null | egrep '(name)|(pubkey):'
+   echo
 done
 
 rm -rfv $DIR_HOME
