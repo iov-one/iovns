@@ -89,9 +89,8 @@ export const createAccount = ( args = {} ) => {
  * Consolidates a given sources' escrows into an IOV SAS controlled multisig account.
  * @param {Object} dumped - the state of the weave-based chain
  * @param {Object} source2multisig - a map of escrow sources to multisig accounts
- * @param {Object} genesis - the genesis object
  */
-export const consolidateEscrows = ( dumped, source2multisig, genesis ) => {
+export const consolidateEscrows = ( dumped, source2multisig ) => {
    const sources = Object.keys( source2multisig );
    const escrows = dumped.escrow.reduce( ( accumulator, escrow ) => {
       if ( !sources.includes( escrow.source ) ) throw new Error( `Unknown escrow source ${escrow.source} in escrow ${JSON.stringify( escrow )}` );
@@ -124,14 +123,13 @@ export const consolidateEscrows = ( dumped, source2multisig, genesis ) => {
       return accumulator;
    }, {} );
 
-   // ...and then add multisigs to genesis.accounts
-   genesis.accounts.push( ...Object.values( multisigs ) );
+   return multisigs;
 }
 
 /**
  * Maps iov1 addresses to star1 addresses.
  * @param {Object} dumped - the state of the weave-based chain
- * @param {Object} multisigs - the genesis object
+ * @param {Object} multisigs - a map of iov1 addresses to multisig account data
  * @param {Object} source2multisig - a map of escrow sources to multisig accounts
  */
 export const mapIovToStar = ( dumped, multisigs, source2multisig ) => {
@@ -161,11 +159,16 @@ export const migrate = args => {
    const osaka = args.osaka;
    const source2multisig = args.source2multisig;
 
+   // massage inputs...
    burnTokens( dumped, flammable );
    labelAccounts( dumped, osaka );
    labelMultisigs( dumped, multisigs );
    fixChainIds( dumped, chainIds );
-   consolidateEscrows( dumped, source2multisig, genesis );
 
+   // ...extract info...
    const iov2star = mapIovToStar( dumped, multisigs, source2multisig );
+   const escrows = consolidateEscrows( dumped, source2multisig );
+
+   // ...mutate genesis
+   genesis.accounts.push( ...Object.values( escrows ) );
 };

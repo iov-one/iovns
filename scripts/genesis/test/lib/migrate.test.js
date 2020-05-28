@@ -373,13 +373,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const dumpedCopy = JSON.parse( JSON.stringify( dumped ) );
       const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
 
-      consolidateEscrows( dumpedCopy, source2multisig, genesisCopy );
+      const iov2escrow = consolidateEscrows( dumpedCopy, source2multisig, genesisCopy );
+      const escrows = Object.values( iov2escrow );
 
-      expect( genesisCopy.accounts.length ).toEqual( 3 );
+      expect( escrows.length ).toEqual( 3 );
 
-      const guaranteed = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u.star1 );
-      const isabella   = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x.star1 );
-      const kadima     = genesisCopy.accounts.find( account => account.value.address == source2multisig.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph.star1 );
+      const guaranteed = escrows.find( account => account.value.address == source2multisig.iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u.star1 );
+      const isabella   = escrows.find( account => account.value.address == source2multisig.iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x.star1 );
+      const kadima     = escrows.find( account => account.value.address == source2multisig.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph.star1 );
 
       expect( guaranteed ).toBeTruthy();
       expect( isabella ).toBeTruthy();
