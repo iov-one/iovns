@@ -425,6 +425,7 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 func Test_handleMsgRegisterAccount(t *testing.T) {
 	testCases := map[string]dt.SubTest{
 		"fail invalid blockchain targets address": {
+			TestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
@@ -439,8 +440,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        dt.BobKey,
-					ValidUntil:   0,
-					Type:         types.OpenDomain,
+					ValidUntil:   2,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -449,7 +450,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.AliceKey,
+					Owner:  dt.BobKey,
 					Targets: []types.BlockchainAddress{
 						{
 							ID:      "works",
@@ -466,6 +467,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 		},
 		// TODO cleanup comments
 		"fail invalid blockchain targets id": {
+			TestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set regexp match nothing in blockchain targets
 				// get set config function
@@ -480,8 +482,8 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					Admin:        dt.BobKey,
-					ValidUntil:   0,
-					Type:         types.OpenDomain,
+					ValidUntil:   2,
+					Type:         types.ClosedDomain,
 					AccountRenew: 0,
 					Broker:       nil,
 				})
@@ -490,7 +492,7 @@ func Test_handleMsgRegisterAccount(t *testing.T) {
 				_, err := handleMsgRegisterAccount(ctx, k, &types.MsgRegisterAccount{
 					Domain: "test",
 					Name:   "test",
-					Owner:  dt.AliceKey,
+					Owner:  dt.BobKey,
 					Targets: []types.BlockchainAddress{
 						{
 							ID:      "invalid blockchain id",
@@ -1501,44 +1503,4 @@ func Test_handlerAccountTransfer(t *testing.T) {
 		},
 	}
 	dt.RunTests(t, testCases)
-}
-
-func Test_validateBlockchainTargets(t *testing.T) {
-	type args struct {
-		targets []types.BlockchainAddress
-		conf    configuration.Config
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name: "duplicate blockchain target",
-			args: args{
-				targets: []types.BlockchainAddress{
-					{
-						ID:      "duplicate",
-						Address: "does not matter",
-					},
-					{
-						ID:      "duplicate",
-						Address: "does not matter",
-					},
-				},
-				conf: configuration.Config{
-					ValidBlockchainID:      dt.RegexMatchAll,
-					ValidBlockchainAddress: dt.RegexMatchAll,
-				},
-			},
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := validateBlockchainTargets(tt.args.targets, tt.args.conf); (err != nil) != tt.wantErr {
-				t.Errorf("validateBlockchainTargets() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
 }

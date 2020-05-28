@@ -138,8 +138,8 @@ func (k Keeper) DeleteAccountCertificate(ctx sdk.Context, account types.Account,
 	k.SetAccount(ctx, account)
 }
 
-// UpdateAccountValidity updates an account expiration time
-func (k Keeper) UpdateAccountValidity(ctx sdk.Context, account types.Account, accountRenew time.Duration) {
+// RenewAccount updates an account expiration time
+func (k Keeper) RenewAccount(ctx sdk.Context, account types.Account, accountRenew time.Duration) {
 	// update account time
 	account.ValidUntil = iovns.TimeToSeconds(
 		iovns.SecondsToTime(account.ValidUntil).Add(accountRenew),
