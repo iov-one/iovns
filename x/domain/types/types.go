@@ -84,7 +84,7 @@ type Account struct {
 	Domain string `json:"domain"`
 	// Name is the name of the account
 	Name string `json:"name"`
-	// Owner is the address that owns the account
+	// Signer is the address that owns the account
 	Owner sdk.AccAddress `json:"owner"`
 	// ValidUntil defines a unix timestamp of the expiration of the account
 	ValidUntil int64 `json:"valid_until"`

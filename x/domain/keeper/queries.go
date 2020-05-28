@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/iovns"
@@ -169,7 +170,7 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 // QueryAccountsFromOwner queries all the accounts
 // owned by a certain sdk.AccAddress
 type QueryAccountsFromOwner struct {
-	// Owner is the owner of the accounts
+	// Signer is the owner of the accounts
 	Owner sdk.AccAddress `json:"owner"`
 	// ResultsPerPage is the number of results returned in each page
 	ResultsPerPage int `json:"results_per_page"`
@@ -284,7 +285,7 @@ func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 // QueryDomainsFromOwner is the request model used
 // to query domains owned by a sdk.AccAddress
 type QueryDomainsFromOwner struct {
-	// Owner is the address of the owner of the domains
+	// Signer is the address of the owner of the domains
 	Owner sdk.AccAddress `json:"owner"`
 	// ResultsPerPage is the number of results displayed in a page
 	ResultsPerPage int `json:"results_per_page"`

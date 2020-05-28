@@ -124,14 +124,14 @@ func (a *Account) notExpired() error {
 	return sdkerrors.Wrapf(types.ErrAccountExpired, "account %s in domain %s has expired", a.name, a.domain)
 }
 
-// Owner asserts the account is owned by the provided address
+// Signer asserts the account is owned by the provided address
 func Owner(addr sdk.AccAddress) ControllerFunc {
 	return func(ctrl *Account) error {
 		return ctrl.ownedBy(addr)
 	}
 }
 
-// ownedBy is the unexported function used by Owner
+// ownedBy is the unexported function used by Signer
 func (a *Account) ownedBy(addr sdk.AccAddress) error {
 	// assert domain exists
 	if err := a.requireAccount(); err != nil {

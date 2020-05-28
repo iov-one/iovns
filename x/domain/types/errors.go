@@ -60,3 +60,6 @@ var ErrGracePeriodNotFinished = sdkerrors.Register(ModuleName, 17, "domain grace
 
 // ErrInvalidDomainType is returned when domain type is invalid
 var ErrInvalidDomainType = sdkerrors.Register(ModuleName, 18, "invalid domain type")
+
+// ErrMetadataMaxSizeExceeded is returned when max metadata size is exceeded
+var ErrMetadataMaxSizeExceeded = sdkerrors.Register(ModuleName, 19, "metadata max size exceeded")

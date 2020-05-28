@@ -204,21 +204,38 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 
 // handlerMsgSetAccountMetadata takes care of setting account metadata
 func handlerMsgSetAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.MsgSetAccountMetadata) (*sdk.Result, error) {
-	// perform domain checks
+	// perform common checks
 	domainCtrl := domain.NewController(ctx, k, msg.Domain)
 	if err := domainCtrl.Validate(domain.MustExist, domain.NotExpired); err != nil {
 		return nil, err
 	}
 	// perform account checks
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
-	if err := accountCtrl.Validate(account.MustExist, account.NotExpired, account.Owner(msg.Owner)); err != nil {
+	if err := accountCtrl.Validate(account.MustExist, account.Owner(msg.Signer)); err != nil {
 		return nil, err
+	}
+	// metadata size check
+	mLen := uint64(len(msg.NewMetadataURI))
+	maxSize := k.ConfigurationKeeper.GetConfiguration(ctx).MetadataSizeMax
+	if mLen > maxSize {
+		return nil, errors.Wrapf(types.ErrMetadataMaxSizeExceeded, "got %d, max %d", mLen, maxSize)
+	}
+	d := domainCtrl.Domain()
+	// perform domain specific checks
+	switch d.Type {
+	case types.ClosedDomain:
+	case types.OpenDomain:
+		if err := accountCtrl.Validate(account.NotExpired); err != nil {
+			return nil, err
+		}
+	default:
+		panic("unknown domain type")
 	}
 	// update account
 	account := accountCtrl.Account()
 	account.MetadataURI = msg.NewMetadataURI
 	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner)
+	err := k.CollectFees(ctx, msg, msg.Signer)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}

@@ -1086,8 +1086,208 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 	// run tests
 	dt.RunTests(t, cases)
 }
+func Test_OpenDomain_handlerMsgSetAccountMetadata(t *testing.T) {
+	cases := map[string]dt.SubTest{
+		"success": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				// set configs with a domain regexp that matches nothing
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainAddress: dt.RegexMatchAll,     // match all
+					ValidBlockchainID:      dt.RegexMatchAll,     // match all
+					ValidAccountName:       dt.RegexMatchNothing, // match nothing
+					DomainRenewalPeriod:    10,
+					MetadataSizeMax:        1000,
+				})
+				// create domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Admin:      dt.BobKey,
+					Type:       types.OpenDomain,
+				})
+				// create account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Owner:      dt.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
+					Domain:         "test",
+					Name:           "test",
+					NewMetadataURI: "https://test.com",
+					Signer:         dt.AliceKey,
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgSetAccountMetadata() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				expected := "https://test.com"
+				account, _ := k.GetAccount(ctx, "test", "test")
+				if !reflect.DeepEqual(expected, account.MetadataURI) {
+					t.Fatalf("handlerMsgSetMetadataURI expected: %+v, got %+v", expected, account.MetadataURI)
+				}
+			},
+		},
+		"account valid until expired": {
+			BeforeTestBlockTime: 1,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				// set configs with a domain regexp that matches nothing
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainAddress: dt.RegexMatchAll,     // match all
+					ValidBlockchainID:      dt.RegexMatchAll,     // match all
+					ValidAccountName:       dt.RegexMatchNothing, // match nothing
+					DomainRenewalPeriod:    10,
+					MetadataSizeMax:        1000,
+				})
+				// create domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Admin:      dt.BobKey,
+					Type:       types.OpenDomain,
+				})
+				// create account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: 1,
+					Owner:      dt.AliceKey,
+				})
+			},
+			TestBlockTime: 1000,
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
+					Domain:         "test",
+					Name:           "test",
+					NewMetadataURI: "https://test.com",
+					Signer:         dt.AliceKey,
+				})
+				if !errors.Is(err, types.ErrAccountExpired) {
+					t.Fatalf("handlerMsgSetAccountMetadata() got error: %s", err)
+				}
+			},
+		},
+		"signer is not owner of account": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// create domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Type:       types.OpenDomain,
+					Admin:      dt.BobKey,
+				})
+				// create account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Owner:      dt.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
+					Domain: "test",
+					Name:   "test",
+					Signer: dt.BobKey,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("handlerMsgSetAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
+				}
+			},
+			AfterTest: nil,
+		},
+	}
+	// run tests
+	dt.RunTests(t, cases)
+}
+func Test_ClosedDomain_handlerMsgSetAccountMetadata(t *testing.T) {
+	cases := map[string]dt.SubTest{
+		"signer is not owner of account": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// create domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Type:       types.ClosedDomain,
+					Admin:      dt.BobKey,
+				})
+				// create account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Owner:      dt.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
+					Domain: "test",
+					Name:   "test",
+					Signer: dt.BobKey,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("handlerMsgSetAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
+				}
+			},
+			AfterTest: nil,
+		},
+		"success": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				// set configs with a domain regexp that matches nothing
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainAddress: dt.RegexMatchAll,     // match all
+					ValidBlockchainID:      dt.RegexMatchAll,     // match all
+					ValidAccountName:       dt.RegexMatchNothing, // match nothing
+					DomainRenewalPeriod:    10,
+					MetadataSizeMax:        10000,
+				})
+				// create domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Type:       types.ClosedDomain,
+					Admin:      dt.BobKey,
+				})
+				// create account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Owner:      dt.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
+					Domain:         "test",
+					Name:           "test",
+					NewMetadataURI: "https://test.com",
+					Signer:         dt.AliceKey,
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgSetAccountMetadata() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				expected := "https://test.com"
+				account, _ := k.GetAccount(ctx, "test", "test")
+				if !reflect.DeepEqual(expected, account.MetadataURI) {
+					t.Fatalf("handlerMsgSetMetadataURI expected: %+v, got %+v", expected, account.MetadataURI)
+				}
+			},
+		},
+	}
+	// run tests
+	dt.RunTests(t, cases)
+}
 
-func Test_handlerMsgSetAccountMetadata(t *testing.T) {
+func Test_Common_handlerMsgSetAccountMetadata(t *testing.T) {
 	cases := map[string]dt.SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1096,7 +1296,7 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
 					Domain: "does not exist",
 					Name:   "",
-					Owner:  dt.AliceKey,
+					Signer: dt.AliceKey,
 				})
 				if !errors.Is(err, types.ErrDomainDoesNotExist) {
 					t.Fatalf("handlerMsgSetAccountMetadata() expected error: %s, got: %s", types.ErrDomainDoesNotExist, err)
@@ -1117,7 +1317,7 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 					Domain:         "test",
 					Name:           "",
 					NewMetadataURI: "",
-					Owner:          nil,
+					Signer:         nil,
 				})
 				if !errors.Is(err, types.ErrDomainExpired) {
 					t.Fatalf("handlerMsgSetAccountMetadata() expected error: %s, got: %s", types.ErrDomainExpired, err)
@@ -1138,7 +1338,7 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
 					Domain: "test",
 					Name:   "does not exist",
-					Owner:  nil,
+					Signer: nil,
 				})
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("handlerMsgSetAccountMetadata() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
@@ -1146,43 +1346,21 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
-		"account expired": {
+		"metadata size exceeded": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// create domain
+				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainAddress: dt.RegexMatchAll,     // match all
+					ValidBlockchainID:      dt.RegexMatchAll,     // match all
+					ValidAccountName:       dt.RegexMatchNothing, // match nothing
+					DomainRenewalPeriod:    10,
+					MetadataSizeMax:        2,
+				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      dt.BobKey,
 				})
-				// create account
-				k.CreateAccount(ctx, types.Account{
-					Domain:     "test",
-					Name:       "test",
-					ValidUntil: 0,
-					Owner:      dt.AliceKey,
-				})
-			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
-					Domain: "test",
-					Name:   "test",
-					Owner:  nil,
-				})
-				if !errors.Is(err, types.ErrAccountExpired) {
-					t.Fatalf("handlerMsgSetAccountMetadata() expected error: %s, got: %s", types.ErrAccountExpired, err)
-				}
-			},
-			AfterTest: nil,
-		},
-		"signer is not owner of account": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// create domain
-				k.CreateDomain(ctx, types.Domain{
-					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Admin:      dt.BobKey,
-				})
-				// create account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
@@ -1192,22 +1370,33 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgSetAccountMetadata(ctx, k, &types.MsgSetAccountMetadata{
-					Domain: "test",
-					Name:   "test",
-					Owner:  dt.BobKey,
+					Domain:         "test",
+					Name:           "test",
+					Signer:         dt.AliceKey,
+					NewMetadataURI: "https://incisozluk.com",
 				})
-				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgSetAccountMetadata() expected error: %s, got: %s", types.ErrUnauthorized, err)
+				if !errors.Is(err, types.ErrMetadataMaxSizeExceeded) {
+					t.Fatalf("handlerMsgSetAccountMetadata() expected error: %s, got: %s", types.ErrMetadataMaxSizeExceeded, err)
 				}
 			},
 			AfterTest: nil,
 		},
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				// set configs with a domain regexp that matches nothing
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainAddress: dt.RegexMatchAll,     // match all
+					ValidBlockchainID:      dt.RegexMatchAll,     // match all
+					ValidAccountName:       dt.RegexMatchNothing, // match nothing
+					DomainRenewalPeriod:    10,
+					MetadataSizeMax:        10000,
+				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Type:       types.OpenDomain,
 					Admin:      dt.BobKey,
 				})
 				// create account
@@ -1223,7 +1412,7 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 					Domain:         "test",
 					Name:           "test",
 					NewMetadataURI: "https://test.com",
-					Owner:          dt.AliceKey,
+					Signer:         dt.AliceKey,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgSetAccountMetadata() got error: %s", err)

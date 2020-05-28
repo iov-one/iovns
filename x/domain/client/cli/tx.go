@@ -588,7 +588,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 			msg := &types.MsgSetAccountMetadata{
 				Domain:         domain,
 				Name:           name,
-				Owner:          cliCtx.GetFromAddress(),
+				Signer:         cliCtx.GetFromAddress(),
 				NewMetadataURI: metadata,
 			}
 			// check if valid

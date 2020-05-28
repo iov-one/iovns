@@ -15,7 +15,7 @@ type MsgAddAccountCertificates struct {
 	Domain string
 	// Name is the name of the account
 	Name string
-	// Owner is the owner of the account
+	// Signer is the owner of the account
 	Owner sdk.AccAddress
 	// NewCertificate is the new certificate to add
 	NewCertificate []byte
@@ -65,7 +65,7 @@ type MsgDeleteAccountCertificate struct {
 	Name string
 	// DeleteCertificate is the certificate to delete
 	DeleteCertificate []byte
-	// Owner is the owner of the account
+	// Signer is the owner of the account
 	Owner sdk.AccAddress
 }
 
@@ -110,7 +110,7 @@ type MsgDeleteAccount struct {
 	Domain string
 	// Name is the name of the account
 	Name string
-	// Owner is the owner of the account
+	// Signer is the owner of the account
 	Owner sdk.AccAddress
 }
 
@@ -192,7 +192,7 @@ type MsgRegisterAccount struct {
 	Domain string
 	// Name is the name of the account
 	Name string
-	// Owner is the owner of the account
+	// Signer is the owner of the account
 	Owner sdk.AccAddress
 	// Targets are the blockchain addresses of the account
 	Targets []BlockchainAddress
@@ -368,7 +368,7 @@ type MsgReplaceAccountTargets struct {
 	Name string
 	// NewTargets are the new blockchain addresses
 	NewTargets []BlockchainAddress
-	// Owner is the owner of the account
+	// Signer is the owner of the account
 	Owner sdk.AccAddress
 }
 
@@ -416,8 +416,8 @@ type MsgSetAccountMetadata struct {
 	// NewMetadataURI is the metadata URI of the account
 	// we want to update or insert
 	NewMetadataURI string
-	// Owner is the owner of the account
-	Owner sdk.AccAddress
+	// Signer is the signer of the message
+	Signer sdk.AccAddress
 }
 
 // Route implements sdk.Msg
@@ -438,7 +438,7 @@ func (m *MsgSetAccountMetadata) ValidateBasic() error {
 	if m.NewMetadataURI == "" {
 		return errors.Wrapf(ErrInvalidRequest, "metadata uri is empty")
 	}
-	if m.Owner.Empty() {
+	if m.Signer.Empty() {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
 	return nil
@@ -451,7 +451,7 @@ func (m *MsgSetAccountMetadata) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgSetAccountMetadata) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	return []sdk.AccAddress{m.Signer}
 }
 
 // MsgTransferAccount is the request
@@ -461,7 +461,7 @@ type MsgTransferAccount struct {
 	Domain string
 	// Account is the account name
 	Name string
-	// Owner is the actual owner of the account
+	// Signer is the actual owner of the account
 	Owner sdk.AccAddress
 	// NewOwner is the new owner of the account
 	NewOwner sdk.AccAddress
