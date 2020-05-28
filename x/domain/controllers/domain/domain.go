@@ -238,7 +238,7 @@ func (c *Domain) deletableBy(addr sdk.AccAddress) error {
 // Domain returns a copy the domain, panics if the operation is done without
 // doing validity checks on domain existence as it is not an allowed op
 func (c *Domain) Domain() types.Domain {
-	if c.domain == nil {
+	if err := c.requireDomain(); err != nil {
 		panic("get domain without running existence checks is not allowed")
 	}
 	return *c.domain

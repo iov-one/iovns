@@ -3,6 +3,7 @@ package account
 import (
 	"bytes"
 	"fmt"
+	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"regexp"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -249,6 +250,31 @@ func (a *Account) validTargets(targets []types.BlockchainAddress) error {
 		}
 	}
 	// success
+	return nil
+}
+
+// TransferableBy checks if the account can be transferred by the provided address
+func TransferableBy(addr sdk.AccAddress) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.transferableBy(addr)
+	}
+}
+
+func (a *Account) transferableBy(addr sdk.AccAddress) error {
+	dom := domain.NewController(a.ctx, a.k, a.domain)
+	// check if domain has super user
+	switch dom.Domain().Type {
+	// if it has a super user then only domain admin can transfer accounts
+	case types.ClosedDomain:
+		if dom.Validate(domain.Owner(addr)) != nil {
+			return sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", dom.Domain().Admin)
+		}
+	// if it has not a super user then only account owner can transfer the account
+	case types.OpenDomain:
+		if a.ownedBy(addr) != nil {
+			return sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to transfer the account", a.account.Owner)
+		}
+	}
 	return nil
 }
 

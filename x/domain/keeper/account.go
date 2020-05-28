@@ -180,3 +180,9 @@ func (k Keeper) IterateAllAccounts(ctx sdk.Context) []types.Account {
 	}
 	return accounts
 }
+
+// UpdateMetadataAccount updates accounts metadata
+func (k Keeper) UpdateMetadataAccount(ctx sdk.Context, account types.Account, newMetadata string) {
+	account.MetadataURI = newMetadata
+	k.SetAccount(ctx, account)
+}

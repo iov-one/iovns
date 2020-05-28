@@ -839,30 +839,42 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 	cases := map[string]dt.SubTest{
 		"invalid blockchain target": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// set config to match nothing
+				// set config to match all
 				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainID:      dt.RegexMatchNothing,
 					ValidBlockchainAddress: dt.RegexMatchNothing,
 				})
+				// create domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Admin:      dt.BobKey,
+				})
+				// create account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Owner:      dt.AliceKey,
+				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
-					Domain: "",
-					Name:   "",
+					Domain: "test",
+					Name:   "test",
 					NewTargets: []types.BlockchainAddress{
 						{
 							ID:      "invalid",
 							Address: "invalid",
 						},
 					},
-					Owner: nil,
+					Owner: dt.AliceKey,
 				})
 				if !errors.Is(err, types.ErrInvalidBlockchainTarget) {
 					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrInvalidBlockchainTarget, err)
 				}
 			},
-			AfterTest: nil,
 		},
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {

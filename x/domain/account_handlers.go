@@ -167,16 +167,13 @@ func handlerMsgSetAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.M
 	if err := accountCtrl.Validate(account.MustExist, account.NotExpired, account.Owner(msg.Owner)); err != nil {
 		return nil, err
 	}
-	// update account
-	a := accountCtrl.Account()
-	a.MetadataURI = msg.NewMetadataURI
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// save to store
-	k.SetAccount(ctx, a)
+	k.UpdateMetadataAccount(ctx, accountCtrl.Account(), msg.NewMetadataURI)
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
@@ -191,21 +188,8 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 	}
 	// check if account exists
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
-	if err := accountCtrl.Validate(account.MustExist, account.NotExpired); err != nil {
+	if err := accountCtrl.Validate(account.MustExist, account.NotExpired, account.TransferableBy(msg.Owner)); err != nil {
 		return nil, err
-	}
-	// check if domain has super user
-	switch domainCtrl.Domain().Type {
-	// if it has a super user then only domain admin can transfer accounts
-	case types.ClosedDomain:
-		if domainCtrl.Validate(domain.Owner(msg.Owner)) != nil {
-			return nil, errors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", domainCtrl.Domain().Admin)
-		}
-	// if it has not a super user then only account owner can transfer the account
-	case types.OpenDomain:
-		if accountCtrl.Validate(account.Owner(msg.Owner)) != nil {
-			return nil, errors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to transfer the account", accountCtrl.Account().Owner)
-		}
 	}
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
