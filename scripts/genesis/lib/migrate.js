@@ -87,6 +87,21 @@ export const createAccount = ( args = {} ) => {
 };
 
 /**
+ * Creates starname object.
+ * @param {Object} args - optional address, name
+ */
+export const createStarname = ( args = {} ) => {
+   const template = { // TODO: FIXME
+      "address": args.address || "",
+      "starname": args.starname,
+   };
+
+   if ( args.iov1 ) template["//iov1"] = args.iov1;
+
+   return template;
+};
+
+/**
  * Consolidates a given sources' escrows into an IOV SAS controlled multisig account.
  * @param {Object} dumped - the state of the weave-based chain
  * @param {Object} source2multisig - a map of escrow sources to multisig accounts
@@ -146,12 +161,12 @@ export const mapIovToStar = ( dumped, multisigs ) => {
 }
 
 /**
- * Converts weave wallets into cosmos-sdk accounts.
+ * Converts weave wallets and usernames into cosmos-sdk accounts and accounts (starnames).
  * @param {Object} dumped - the state of the weave-based chain
- * @param {Object} multisigs - a map of iov1 addresses to multisig account data
  * @param {Object} iov2star - a map of iov1 address to star1 addresses
+ * @param {Object} multisigs - a map of iov1 addresses to multisig account data
  */
-export const convertAccounts = ( dumped, iov2star, multisigs ) => {
+export const convertToCosmosSdk = ( dumped, iov2star, multisigs ) => {
    const accounts = [];
    const getAmount = wallet => {
       const coins0 = wallet.coins[0];
@@ -184,9 +199,8 @@ export const convertAccounts = ( dumped, iov2star, multisigs ) => {
       const address = iov2star[iov1];
       const amount = getAmount( wallet );
       const id = wallet["//id"];
-      const star1 = iov2star[iov1];
 
-      if ( star1 ) {
+      if ( address ) {
          const account = createAccount( { amount, address, id, iov1 } );
 
          accounts.push( account );
@@ -199,7 +213,22 @@ export const convertAccounts = ( dumped, iov2star, multisigs ) => {
       }
    } );
 
-   return accounts;
+   const starnames = dumped.username.sort( ( a, b ) => a.Username - b.Username ).map( username => {
+      const iov1 = username.Owner;
+      const address = iov2star[iov1] || custodian.value.address; // add to the custodial account if needed
+      const starname = username.Username;
+
+      if ( address == custodian.value.address ) {
+         const previous = custodian[`//no star1 ${iov1}`];
+         const current = !previous ? starname : ( typeof previous == "object" ? previous.concat( starname ) : [ previous, starname ] );
+
+         custodian[`//no star1 ${iov1}`] = current;
+      }
+
+      return createStarname( { address, iov1, starname } );
+   } );
+
+   return { accounts, starnames };
 }
 
 /**
@@ -224,9 +253,10 @@ export const migrate = args => {
    // ...transform (order matters)...
    const iov2star = mapIovToStar( dumped, multisigs, source2multisig );
    const escrows = consolidateEscrows( dumped, source2multisig );
-   const accounts = convertAccounts( dumped, iov2star, multisigs );
+   const { accounts, starnames } = convertToCosmosSdk( dumped, iov2star, multisigs );
 
    // ...mutate genesis
    genesis.accounts.push( ...Object.values( accounts ) );
    genesis.accounts.push( ...Object.values( escrows ) );
+   genesis.app_state.domain.accounts.push( ...starnames );
 };
