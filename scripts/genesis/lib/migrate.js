@@ -146,7 +146,7 @@ export const mapIovToStar = ( dumped, multisigs ) => {
 }
 
 /**
- * Maps iov1 addresses to star1 addresses.
+ * Converts weave wallets into cosmos-sdk accounts.
  * @param {Object} dumped - the state of the weave-based chain
  * @param {Object} multisigs - a map of iov1 addresses to multisig account data
  * @param {Object} iov2star - a map of iov1 address to star1 addresses
@@ -201,6 +201,7 @@ export const convertAccounts = ( dumped, iov2star, multisigs ) => {
 
    return accounts;
 }
+
 /**
  * Performs all the necessary transformations to migrate from the weave-based chain to a cosmos-sdk-based chain.
  * @param {Object} args - various objects required for the transformation
