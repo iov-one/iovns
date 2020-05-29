@@ -87,13 +87,32 @@ export const createAccount = ( args = {} ) => {
 };
 
 /**
- * Creates starname object.
+ * Creates a starname object.
  * @param {Object} args - optional address, name
  */
 export const createStarname = ( args = {} ) => {
    const template = { // TODO: FIXME
       "address": args.address || "",
       "starname": args.starname,
+   };
+
+   if ( args.iov1 ) template["//iov1"] = args.iov1;
+
+   return template;
+};
+
+/**
+ * Creates a domain object.
+ * @param {Object} args - optional address, name
+ */
+export const createDomain = ( args = {} ) => {
+   const template = {
+      "name": args.domain,
+      "admin": args.address,
+      "valid_until": Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60, // 1 year from now
+      "has_super_user": true, // TODO: FIXME
+      "account_renew": 10 * 365.25 * 24 * 60 * 60, // 10 years in seconds
+      "broker": null,
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -165,8 +184,9 @@ export const mapIovToStar = ( dumped, multisigs ) => {
  * @param {Object} dumped - the state of the weave-based chain
  * @param {Object} iov2star - a map of iov1 address to star1 addresses
  * @param {Object} multisigs - a map of iov1 addresses to multisig account data
+ * @param {Object} premiums - a map of iov1 addresses to arrays of domains
  */
-export const convertToCosmosSdk = ( dumped, iov2star, multisigs ) => {
+export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums ) => {
    const accounts = [];
    const getAmount = wallet => {
       const coins0 = wallet.coins[0];
@@ -213,7 +233,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs ) => {
       }
    } );
 
-   const starnames = dumped.username.sort( ( a, b ) => a.Username - b.Username ).map( username => {
+   const starnames = dumped.username.sort( ( a, b ) => a.Username.localeCompare( b.Username ) ).map( username => {
       const iov1 = username.Owner;
       const address = iov2star[iov1] || custodian.value.address; // add to the custodial account if needed
       const starname = username.Username;
@@ -228,7 +248,26 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs ) => {
       return createStarname( { address, iov1, starname } );
    } );
 
-   return { accounts, starnames };
+   const domains = [];
+
+   Object.keys( premiums ).forEach( iov1 => {
+      const address = iov2star[iov1] || custodian.value.address; // add to the custodial account if needed
+
+      premiums[iov1].forEach( domain => {
+         if ( address == custodian.value.address ) {
+            const previous = custodian[`//no star1 ${iov1}`];
+            const current = !previous ? domain : ( typeof previous == "object" ? previous.concat( domain ) : [ previous, domain ] );
+
+            custodian[`//no star1 ${iov1}`] = current;
+         }
+
+         domains.push( createDomain( { address, iov1, domain } ) );
+      } );
+   } );
+
+   domains.sort( ( a, b ) => a.name.localeCompare( b.name ) );
+
+   return { accounts, starnames, domains };
 }
 
 /**
@@ -242,6 +281,7 @@ export const migrate = args => {
    const genesis = args.genesis;
    const multisigs = args.multisigs;
    const osaka = args.osaka;
+   const premiums = args.premiums;
    const source2multisig = args.source2multisig;
 
    // massage inputs...
@@ -253,10 +293,11 @@ export const migrate = args => {
    // ...transform (order matters)...
    const iov2star = mapIovToStar( dumped, multisigs, source2multisig );
    const escrows = consolidateEscrows( dumped, source2multisig );
-   const { accounts, starnames } = convertToCosmosSdk( dumped, iov2star, multisigs );
+   const { accounts, starnames, domains } = convertToCosmosSdk( dumped, iov2star, multisigs, premiums );
 
    // ...mutate genesis
    genesis.app_state.auth.accounts.push( ...Object.values( accounts ) );
    genesis.app_state.auth.accounts.push( ...Object.values( escrows ) );
    genesis.app_state.domain.accounts.push( ...starnames );
+   genesis.app_state.domain.domains.push( ...domains );
 };

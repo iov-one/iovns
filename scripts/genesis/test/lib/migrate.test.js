@@ -248,10 +248,10 @@ describe( "Tests ../../lib/migrate.js.", () => {
                   valid_until: "1689380911",
                   has_super_user: false,
                   account_renew: "3000",
-                  broker: null
+                  broker: null,
                }
             ],
-            accounts: []
+            accounts: [],
          },
       },
       consensus_params: {},
@@ -332,6 +332,13 @@ describe( "Tests ../../lib/migrate.js.", () => {
       consensus_params: {},
       genesis_time: new Date( "2019-10-10T10:00:00Z" ).toISOString(),
       validators: [],
+   };
+   const premiums = {
+      iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un: [ "in3s", "huth", "tachyon", "sentient" ],
+      iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn: [ "hell", "hash", "hold" ],
+      iov1y63fp8pncpuke7mrc2huqefud59t3munnh0k32: [ "multiverse" ],
+      iov1ylw3cnluf3zayfths0ezgjp5cwf6ddvsvwa7l4: [ "lovely" ],
+      iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx: [ "gianna", "nodeateam", "tyler", "michael" ],
    };
 
    it( `Should burn tokens.`, async () => {
@@ -428,7 +435,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( iov2star.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n ).toEqual( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 );
    } );
 
-   it( `Should convert accounts from weave to cosmos-sdk and usernames to starnames.`, async () => {
+   it( `Should convert genesis objects from weave to cosmos-sdk.`, async () => {
       const dumpedCopy = JSON.parse( JSON.stringify( dumped ) );
 
       burnTokens( dumpedCopy, flammable );
@@ -437,7 +444,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       fixChainIds( dumpedCopy, chainIds );
 
       const iov2star = mapIovToStar( dumpedCopy, multisigs, source2multisig );
-      const { accounts, starnames } = convertToCosmosSdk( dumpedCopy, iov2star, multisigs );
+      const { accounts, starnames, domains } = convertToCosmosSdk( dumpedCopy, iov2star, multisigs, premiums );
       const custodian = accounts.find( account => account["//iov1"] == "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc" );
       const rewards = accounts.find( account => account["//iov1"] == "iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n" );
       const bonus = accounts.find( account => account["//iov1"] == "iov1zd573wa38pxfvn9mxvpkjm6a8vteqvar2dwzs0" );
@@ -452,6 +459,12 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( custodian["//no star1 iov1q8zjkzk3f2yzfrkh9wswlf9qtmdgel84nnlgs9"] ).toEqual( 8920.657145 );
       expect( custodian["//no star1 iov1q40tvnph5xy7cjyj3tmqzghukeheykudq246d6"] ).toEqual( 22171 );
       expect( custodian["//no star1 iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl"] ).toEqual( "alex*iov" );
+      expect( custodian["//no star1 iov1ylw3cnluf3zayfths0ezgjp5cwf6ddvsvwa7l4"] ).toEqual( "lovely" );
+      expect( custodian["//no star1 iov1y63fp8pncpuke7mrc2huqefud59t3munnh0k32"] ).toEqual( "multiverse" );
+      expect( custodian["//no star1 iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"][0] ).toEqual( "gianna" );
+      expect( custodian["//no star1 iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"][1] ).toEqual( "nodeateam" );
+      expect( custodian["//no star1 iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"][2] ).toEqual( "tyler" );
+      expect( custodian["//no star1 iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"][3] ).toEqual( "michael" );
 
       expect( rewards.value.address ).toEqual( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 );
       expect( rewards.value.coins[0].amount ).toEqual( "37" );
@@ -487,9 +500,25 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       expect( kadimaiov.address ).toEqual( custodian.value.address );
       expect( kadimaiov.starname ).toEqual( "kadima*iov" );
+
+      const gianna = domains.find( domain => domain.name == "gianna" );
+      const lovely = domains.find( domain => domain.name == "lovely" );
+      const michael = domains.find( domain => domain.name == "michael" );
+      const multiverse = domains.find( domain => domain.name == "multiverse" );
+
+      expect( gianna.admin ).toEqual( custodian.value.address );
+      expect( lovely.admin ).toEqual( custodian.value.address );
+      expect( michael.admin ).toEqual( custodian.value.address );
+      expect( multiverse.admin ).toEqual( custodian.value.address );
+
+      const hash = domains.find( domain => domain.name == "hash" );
+      const huth = domains.find( domain => domain.name == "huth" );
+
+      expect( hash.admin ).toEqual( "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y" );
+      expect( huth.admin ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
    } );
 
    it( `Should migrate.`, async () => {
-      migrate( { chainIds, dumped, flammable, genesis, multisigs, osaka, source2multisig } );
+      migrate( { chainIds, dumped, flammable, genesis, multisigs, osaka, premiums, source2multisig } );
    } );
 } );
