@@ -32,6 +32,11 @@ export const multisigs = {
       address: "cond:multisig/usage/0000000000000005",
       star1: "Unconfirmed contributors/co-founders star1", // TODO
    },
+   iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc: {
+      "//name": "Custodian of missing star1 accounts",
+      address: "cond:multisig/usage/0000000000000006",
+      star1: "custodial star1", // TODO
+   },
 };
 
 export const conds = Object.keys( multisigs ).reduce( ( accumulator, key ) => {
