@@ -234,9 +234,11 @@ describe( "Tests ../../lib/migrate.js.", () => {
    const genesis = {
       chain_id: __filename,
       genesis_time: new Date( "2020-04-15T10:00:00Z" ).toISOString(),
-      accounts: [],
       app_hash: "",
       app_state: {
+         auth: {
+            accounts: [],
+         },
          domain: {
             domains: [
                {
@@ -252,7 +254,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
             accounts: []
          },
       },
-      auth: {},
       consensus_params: {},
       crisis: {},
       genutil: {},

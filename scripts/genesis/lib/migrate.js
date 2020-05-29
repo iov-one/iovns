@@ -256,7 +256,7 @@ export const migrate = args => {
    const { accounts, starnames } = convertToCosmosSdk( dumped, iov2star, multisigs );
 
    // ...mutate genesis
-   genesis.accounts.push( ...Object.values( accounts ) );
-   genesis.accounts.push( ...Object.values( escrows ) );
+   genesis.app_state.auth.accounts.push( ...Object.values( accounts ) );
+   genesis.app_state.auth.accounts.push( ...Object.values( escrows ) );
    genesis.app_state.domain.accounts.push( ...starnames );
 };
