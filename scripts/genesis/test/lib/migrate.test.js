@@ -237,19 +237,19 @@ describe( "Tests ../../lib/migrate.js.", () => {
       accounts: [],
       app_hash: "",
       app_state: {
-         "domain": {
-            "domains": [
+         domain: {
+            domains: [
                {
-                  "name": "iov",
+                  name: "iov",
                   "//note": "msig1",
-                  "admin": "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg",
-                  "valid_until": "1689380911",
-                  "has_super_user": false,
-                  "account_renew": "3000",
-                  "broker": null
+                  admin: "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg",
+                  valid_until: "1689380911",
+                  has_super_user: false,
+                  account_renew: "3000",
+                  broker: null
                }
             ],
-            "accounts": []
+            accounts: []
          },
       },
       auth: {},
