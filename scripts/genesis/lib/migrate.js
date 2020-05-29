@@ -16,7 +16,7 @@ export const burnTokens = ( dumped, iov1s ) => {
 };
 
 /**
- * Adds an "//id" property to multisig accounts
+ * Adds "//id" and "//iov1" properties to multisig accounts.
  * @param {Object} dumped - the state of the weave-based chain
  * @param {Object} multisigs - a map of iov1 addresses to multisig account data
  */
@@ -80,7 +80,8 @@ export const createAccount = ( args = {} ) => {
       }
    };
 
-   if ( args["//id"] ) template["//id"] = args["//id"];
+   if ( args.id ) template["//id"] = args.id;
+   if ( args.iov1 ) template["//iov1"] = args.iov1;
 
    return template;
 };
@@ -107,7 +108,7 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
       // burn the tokens before...
       burnTokens( dumped, flammable );
 
-      // ...adding them to the multisig...
+      // ...adding them to multisigs
       escrows[source].forEach( escrow => {
          const account = accumulator[source] || createAccount();
          const value = account.value;
@@ -147,6 +148,60 @@ export const mapIovToStar = ( dumped, multisigs, source2multisig ) => {
 }
 
 /**
+ * Maps iov1 addresses to star1 addresses.
+ * @param {Object} dumped - the state of the weave-based chain
+ * @param {Object} multisigs - a map of iov1 addresses to multisig account data
+ * @param {Object} iov2star - a map of iov1 address to star1 addresses
+ */
+export const convertAccounts = ( dumped, iov2star, multisigs ) => {
+   const accounts = [];
+   const getAmount = coins => {
+      const amount = ( coins[0].whole || 0 ) + ( coins[0].fractional / 1e9 || 0 );
+
+      return amount;
+   };
+
+   Object.keys( multisigs ).forEach( iov1 => {
+      const index = dumped.cash.findIndex( wallet => wallet.address == iov1 );
+      const wallet = dumped.cash[index];
+      const address = multisigs[iov1].star1;
+      const amount = getAmount( wallet.coins );
+      const id = multisigs[iov1]["//name"];
+      const account = createAccount( { address, amount, id, iov1 } );
+
+      account["//alias"] = multisigs[iov1].address;
+
+      // remove multisig account from dumped.cash before...
+      burnTokens( dumped, [ iov1 ] );
+      // ...adding it to accounts since we're soon to loop on dumped.cash
+      accounts.push( account );
+   } );
+
+   const custodian = accounts.find( account => account["//iov1"] == "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc" );
+
+   dumped.cash.forEach( wallet => {
+      const iov1 = wallet.address;
+      const address = iov2star[iov1];
+      const amount = getAmount( wallet.coins );
+      const id = wallet["//id"];
+      const star1 = iov2star[iov1];
+
+      if ( star1 ) {
+         const account = createAccount( { amount, address, id, iov1 } );
+
+         accounts.push( account );
+      } else {
+         // burn before...
+         burnTokens( dumped, [ iov1 ] );
+         // ...adding to the custodial account
+         custodian[`//no star1 ${iov1}`] = amount;
+         custodian.value.coins[0].amount = String( +custodian.value.coins[0].amount + +amount )
+      }
+   } );
+
+   return accounts;
+}
+/**
  * Performs all the necessary transformations to migrate from the weave-based chain to a cosmos-sdk-based chain.
  * @param {Object} args - various objects required for the transformation
  */
@@ -165,10 +220,12 @@ export const migrate = args => {
    labelMultisigs( dumped, multisigs );
    fixChainIds( dumped, chainIds );
 
-   // ...extract info...
+   // ...transform (order matters)...
    const iov2star = mapIovToStar( dumped, multisigs, source2multisig );
    const escrows = consolidateEscrows( dumped, source2multisig );
+   const accounts = convertAccounts( dumped, iov2star, multisigs );
 
    // ...mutate genesis
+   genesis.accounts.push( ...Object.values( accounts ) );
    genesis.accounts.push( ...Object.values( escrows ) );
 };

@@ -1,4 +1,4 @@
-import { burnTokens, consolidateEscrows, fixChainIds, labelAccounts, labelMultisigs, mapIovToStar, migrate } from "../../lib/migrate";
+import { burnTokens, consolidateEscrows, convertAccounts, fixChainIds, labelAccounts, labelMultisigs, mapIovToStar, migrate } from "../../lib/migrate";
 import { chainIds, source2multisig } from "../../lib/constants";
 
 "use strict";
@@ -61,12 +61,12 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "coins": [ { "ticker": "IOV", "whole": 89853 } ]
          },
          {
-            "address": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98",
-            "coins": [ { "ticker": "IOV", "whole": 3234710 } ]
-         },
-         {
             "address": "iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9",
             "coins": [ { "fractional": 500000000, "ticker": "IOV", "whole": 26 } ]
+         },
+         {
+            "address": "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc",
+            "coins": [ { "fractional": 123000, "ticker": "IOV", "whole": 1 } ]
          },
       ],
       "escrow": [
@@ -247,6 +247,11 @@ describe( "Tests ../../lib/migrate.js.", () => {
          address: "cond:multisig/usage/0000000000000002",
          star1: "star1bonuses",
       },
+      iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc: {
+         "//name": "Custodian of missing star1 accounts",
+         address: "cond:multisig/usage/0000000000000006",
+         star1: "star1 custodian", // TODO
+      },
    };
    const osaka = {
       app_hash: "",
@@ -371,9 +376,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
    it( `Should consolidate escrows.`, async () => {
       const dumpedCopy = JSON.parse( JSON.stringify( dumped ) );
-      const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
-
-      const iov2escrow = consolidateEscrows( dumpedCopy, source2multisig, genesisCopy );
+      const iov2escrow = consolidateEscrows( dumpedCopy, source2multisig );
       const escrows = Object.values( iov2escrow );
 
       expect( escrows.length ).toEqual( 3 );
@@ -400,6 +403,32 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( iov2star.iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
       expect( iov2star.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n ).toEqual( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 );
       expect( iov2star.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph ).toEqual( source2multisig.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph.star1 );
+   } );
+
+   it( `Should convert accounts from weave to cosmos-sdk.`, async () => {
+      const dumpedCopy = JSON.parse( JSON.stringify( dumped ) );
+
+      burnTokens( dumpedCopy, flammable );
+      labelAccounts( dumpedCopy, osaka );
+      labelMultisigs( dumpedCopy, multisigs );
+      fixChainIds( dumpedCopy, chainIds );
+
+      const iov2star = mapIovToStar( dumpedCopy, multisigs, source2multisig );
+      const accounts = convertAccounts( dumpedCopy, iov2star, multisigs );
+      const custodian = accounts.find( account => account["//iov1"] == "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc" );
+      const rewards = accounts.find( account => account["//iov1"] == "iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n" );
+      const dave = accounts.find( account => account["//iov1"] == "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
+
+      expect( custodian.value.address ).toEqual( multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1 );
+      expect( custodian.value.coins[0].amount ).toEqual( "3863708.500123" );
+      expect( custodian["//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"] ).toEqual( 3234710 );
+      expect( custodian["//no star1 iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9"] ).toEqual( 26.5 );
+
+      expect( rewards.value.address ).toEqual( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 );
+      expect( rewards.value.coins[0].amount ).toEqual( "37" );
+
+      expect( dave.value.address ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
+      expect( dave.value.coins[0].amount ).toEqual( "416.51" );
    } );
 
    it( `Should migrate.`, async () => {
