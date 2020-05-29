@@ -395,14 +395,13 @@ describe( "Tests ../../lib/migrate.js.", () => {
    } );
 
    it( `Should map iov1 addresses to star1 addresses.`, async () => {
-      const iov2star = mapIovToStar( dumped, multisigs, source2multisig );
+      const iov2star = mapIovToStar( dumped, multisigs );
 
       expect( iov2star.iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl ).toEqual( false ); // alex
       expect( iov2star.iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98 ).toEqual( false ); // ethan
       expect( iov2star.iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9 ).toEqual( false );
       expect( iov2star.iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
       expect( iov2star.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n ).toEqual( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 );
-      expect( iov2star.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph ).toEqual( source2multisig.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph.star1 );
    } );
 
    it( `Should convert accounts from weave to cosmos-sdk.`, async () => {
@@ -417,15 +416,19 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const accounts = convertAccounts( dumpedCopy, iov2star, multisigs );
       const custodian = accounts.find( account => account["//iov1"] == "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc" );
       const rewards = accounts.find( account => account["//iov1"] == "iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n" );
+      const bonus = accounts.find( account => account["//iov1"] == "iov1zd573wa38pxfvn9mxvpkjm6a8vteqvar2dwzs0" );
       const dave = accounts.find( account => account["//iov1"] == "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
 
       expect( custodian.value.address ).toEqual( multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1 );
-      expect( custodian.value.coins[0].amount ).toEqual( "3863708.500123" );
+      expect( custodian.value.coins[0].amount ).toEqual( "8289931.500123" );
       expect( custodian["//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"] ).toEqual( 3234710 );
       expect( custodian["//no star1 iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9"] ).toEqual( 26.5 );
 
       expect( rewards.value.address ).toEqual( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 );
       expect( rewards.value.coins[0].amount ).toEqual( "37" );
+
+      expect( bonus.value.address ).toEqual( multisigs.iov1zd573wa38pxfvn9mxvpkjm6a8vteqvar2dwzs0.star1 );
+      expect( bonus.value.coins[0].amount ).toEqual( "3570582" );
 
       expect( dave.value.address ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
       expect( dave.value.coins[0].amount ).toEqual( "416.51" );

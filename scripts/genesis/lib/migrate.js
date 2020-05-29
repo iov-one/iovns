@@ -131,9 +131,8 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
  * Maps iov1 addresses to star1 addresses.
  * @param {Object} dumped - the state of the weave-based chain
  * @param {Object} multisigs - a map of iov1 addresses to multisig account data
- * @param {Object} source2multisig - a map of escrow sources to multisig accounts
  */
-export const mapIovToStar = ( dumped, multisigs, source2multisig ) => {
+export const mapIovToStar = ( dumped, multisigs ) => {
    const iov2star = {};
 
    dumped.username.forEach( username => {
@@ -142,7 +141,6 @@ export const mapIovToStar = ( dumped, multisigs, source2multisig ) => {
       iov2star[username.Owner] = target ? target.address : false;
    } );
    Object.keys( multisigs ).forEach( iov1 => iov2star[iov1] = multisigs[iov1].star1 );
-   Object.keys( source2multisig ).forEach( iov1 => iov2star[iov1] = source2multisig[iov1].star1 );
 
    return iov2star;
 }
@@ -155,8 +153,9 @@ export const mapIovToStar = ( dumped, multisigs, source2multisig ) => {
  */
 export const convertAccounts = ( dumped, iov2star, multisigs ) => {
    const accounts = [];
-   const getAmount = coins => {
-      const amount = ( coins[0].whole || 0 ) + ( coins[0].fractional / 1e9 || 0 );
+   const getAmount = wallet => {
+      const coins0 = wallet.coins[0];
+      const amount = ( coins0.whole || 0 ) + ( coins0.fractional / 1e9 || 0 );
 
       return amount;
    };
@@ -165,7 +164,7 @@ export const convertAccounts = ( dumped, iov2star, multisigs ) => {
       const index = dumped.cash.findIndex( wallet => wallet.address == iov1 );
       const wallet = dumped.cash[index];
       const address = multisigs[iov1].star1;
-      const amount = getAmount( wallet.coins );
+      const amount = getAmount( wallet );
       const id = multisigs[iov1]["//name"];
       const account = createAccount( { address, amount, id, iov1 } );
 
@@ -178,11 +177,12 @@ export const convertAccounts = ( dumped, iov2star, multisigs ) => {
    } );
 
    const custodian = accounts.find( account => account["//iov1"] == "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc" );
+   const copied = [].concat( dumped.cash ); // copy because the burnTokens() below splices dumped.cash
 
-   dumped.cash.forEach( wallet => {
+   copied.sort( ( a, b ) => getAmount( b ) - getAmount( a ) ).forEach( wallet => {
       const iov1 = wallet.address;
       const address = iov2star[iov1];
-      const amount = getAmount( wallet.coins );
+      const amount = getAmount( wallet );
       const id = wallet["//id"];
       const star1 = iov2star[iov1];
 
