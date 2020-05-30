@@ -13,6 +13,64 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
+func TestAccount_transferable(t *testing.T) {
+	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	// create mock domains and accounts
+	// create open domain
+	k.CreateDomain(ctx, types.Domain{
+		Name:       "open",
+		Admin:      dt.AliceKey,
+		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
+		Type:       types.OpenDomain,
+	})
+	// creat open domain account
+	k.CreateAccount(ctx, types.Account{
+		Domain: "open",
+		Name:   "test",
+		Owner:  dt.BobKey,
+	})
+	// create closed domain
+	k.CreateDomain(ctx, types.Domain{
+		Name:       "closed",
+		Admin:      dt.AliceKey,
+		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
+		Type:       types.ClosedDomain,
+	})
+	// create closed domain account
+	k.CreateAccount(ctx, types.Account{
+		Domain: "closed",
+		Name:   "test",
+		Owner:  dt.BobKey,
+	})
+	// run tests
+	t.Run("closed domain", func(t *testing.T) {
+		acc := NewController(ctx, k, "closed", "test")
+		// test success
+		err := acc.Validate(TransferableBy(dt.AliceKey))
+		if err != nil {
+			t.Fatalf("got error: %s", err)
+		}
+		// test failure
+		err = acc.Validate(TransferableBy(dt.BobKey))
+		if !errors.Is(err, types.ErrUnauthorized) {
+			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
+		}
+	})
+	t.Run("open domain", func(t *testing.T) {
+		acc := NewController(ctx, k, "open", "test")
+		err := acc.Validate(TransferableBy(dt.BobKey))
+		// test success
+		if err != nil {
+			t.Fatalf("got error: %s", err)
+		}
+		// test failure
+		err = acc.Validate(TransferableBy(dt.AliceKey))
+		if !errors.Is(err, types.ErrUnauthorized) {
+			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
+		}
+	})
+}
+
 func TestAccount_existence(t *testing.T) {
 	k, ctx, _ := keeper.NewTestKeeper(t, true)
 	// insert mock account

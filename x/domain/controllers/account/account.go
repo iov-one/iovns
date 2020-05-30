@@ -2,7 +2,6 @@ package account
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"regexp"
 
@@ -255,7 +254,7 @@ func (a *Account) validTargets(targets []types.BlockchainAddress) error {
 	for _, target := range targets {
 		// check if blockchain ID was already specified
 		if _, ok := sets[target.ID]; ok {
-			return fmt.Errorf("duplicate blockchain ID: %s", target)
+			return sdkerrors.Wrapf(types.ErrInvalidBlockchainTarget, "duplicate blockchain ID %s", target.ID)
 		}
 		sets[target.ID] = struct{}{}
 		// is blockchain id valid?
