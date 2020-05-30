@@ -1,7 +1,9 @@
 # Changelog 
 
 ## HEAD
-
+- treat handler as orchestrator
+- extend keeper functionality
+- move all errors/authorization checks to handlers
 - introduce domain and account controllers
 - upgrade cosmos-sdk to v0.38.4
 - iovnsd: fix fee colletor address
