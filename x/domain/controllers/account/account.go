@@ -30,6 +30,8 @@ type Account struct {
 
 	ctx sdk.Context
 	k   keeper.Keeper
+
+	domainCtrl *domain.Domain
 }
 
 // NewController is Account constructor
@@ -40,6 +42,21 @@ func NewController(ctx sdk.Context, k keeper.Keeper, domain, name string) *Accou
 		ctx:    ctx,
 		k:      k,
 	}
+}
+
+// WithDomainController allows to specify a cached domain controller
+func (a *Account) WithDomainController(dom *domain.Domain) *Account {
+	a.domainCtrl = dom
+	return a
+}
+
+// requireDomain builds the domain controller after asserting domain existence
+func (a *Account) requireDomain() error {
+	if a.domainCtrl != nil {
+		return nil
+	}
+	a.domainCtrl = domain.NewController(a.ctx, a.k, a.domain)
+	return a.domainCtrl.Validate(domain.MustExist)
 }
 
 // MustExist asserts if an account exists in the state,
@@ -206,15 +223,16 @@ func DeletableBy(addr sdk.AccAddress) ControllerFunc {
 }
 
 func (a *Account) deletableBy(addr sdk.AccAddress) error {
-	domain, ok := a.k.GetDomain(a.ctx, a.domain) // TODO maybe add caching possibility
-	if !ok {
+	if err := a.requireDomain(); err != nil {
 		panic("validation check on a non existing domain is not allowed")
 	}
+	// get cached domain
+	d := a.domainCtrl.Domain()
 	if err := a.requireAccount(); err != nil {
 		panic("validation check on a non existing account is not allowed")
 	}
-	if !domain.Admin.Equals(addr) && !a.account.Owner.Equals(addr) {
-		return sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s and domain admin %s can delete the account", a.account.Owner, domain.Admin)
+	if !d.Admin.Equals(addr) && !a.account.Owner.Equals(addr) {
+		return sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s and domain admin %s can delete the account", a.account.Owner, d.Admin)
 	}
 	return nil
 }
@@ -261,13 +279,15 @@ func TransferableBy(addr sdk.AccAddress) ControllerFunc {
 }
 
 func (a *Account) transferableBy(addr sdk.AccAddress) error {
-	dom := domain.NewController(a.ctx, a.k, a.domain)
+	if err := a.requireDomain(); err != nil {
+		panic("validation check not allowed on a non existing domain")
+	}
 	// check if domain has super user
-	switch dom.Domain().Type {
+	switch a.domainCtrl.Domain().Type {
 	// if it has a super user then only domain admin can transfer accounts
 	case types.ClosedDomain:
-		if dom.Validate(domain.Owner(addr)) != nil {
-			return sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", dom.Domain().Admin)
+		if a.domainCtrl.Validate(domain.Owner(addr)) != nil {
+			return sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", a.domainCtrl.Domain().Admin)
 		}
 	// if it has not a super user then only account owner can transfer the account
 	case types.OpenDomain:
@@ -281,7 +301,7 @@ func (a *Account) transferableBy(addr sdk.AccAddress) error {
 // Account returns the cached account, if the account existence
 // was not asserted before, it panics.
 func (a *Account) Account() types.Account {
-	if a.account == nil {
+	if err := a.requireAccount(); err != nil {
 		panic("getting an account is not allowed before existence checks")
 	}
 	return *a.account

@@ -58,7 +58,8 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 		return nil, err
 	}
 	// perform account checks
-	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
+	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name).
+		WithDomainController(domainCtrl)
 	if err := accountCtrl.Validate(account.MustExist, account.DeletableBy(msg.Owner)); err != nil {
 		return nil, err
 	}
@@ -187,7 +188,8 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 		return nil, err
 	}
 	// check if account exists
-	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
+	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name).
+		WithDomainController(domainCtrl)
 	if err := accountCtrl.Validate(account.MustExist, account.NotExpired, account.TransferableBy(msg.Owner)); err != nil {
 		return nil, err
 	}
