@@ -10,6 +10,50 @@ import (
 // MsgAddAccountCertificates is the message used
 // when a user wants to add new certificates
 // to his account
+type MsgWithFeePayer struct {
+	// Owner is the owner of the account
+	FeePayer sdk.AccAddress
+	// underlying msg
+	Msg sdk.Msg
+}
+
+// Route implements sdk.Msg
+func (m *MsgWithFeePayer) Route() string {
+	return RouterKey
+}
+
+// Type implements sdk.Msg
+func (m *MsgWithFeePayer) Type() string {
+	return "add_certificates_account"
+}
+
+// ValidateBasic implements sdk.Msg
+func (m *MsgWithFeePayer) ValidateBasic() error {
+	if err := m.Msg.ValidateBasic(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetSignBytes implements sdk.Msg
+func (m *MsgWithFeePayer) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+}
+
+// GetSigners implements sdk.Msg
+func (m *MsgWithFeePayer) GetSigners() []sdk.AccAddress {
+	if m.FeePayer.Empty() {
+		return m.Msg.GetSigners()
+	}
+	var s []sdk.AccAddress
+	s = append(s, m.FeePayer)
+	s = append(s, m.Msg.GetSigners()...)
+	return s
+}
+
+// MsgAddAccountCertificates is the message used
+// when a user wants to add new certificates
+// to his account
 type MsgAddAccountCertificates struct {
 	// Domain is the domain of the account
 	Domain string

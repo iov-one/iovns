@@ -15,38 +15,59 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
+func handlerFn(ctx sdk.Context, k Keeper, msg sdk.Msg) (*sdk.Result, error) {
+	switch msg := msg.(type) {
+	// domain handlers
+	case *types.MsgRegisterDomain:
+		return handleMsgRegisterDomain(ctx, k, msg)
+	case *types.MsgRenewDomain:
+		return handlerMsgRenewDomain(ctx, k, msg)
+	case *types.MsgDeleteDomain:
+		return handlerMsgDeleteDomain(ctx, k, msg)
+	case *types.MsgTransferDomain:
+		return handlerMsgTransferDomain(ctx, k, msg)
+	// account handlers
+	case *types.MsgRegisterAccount:
+		return handleMsgRegisterAccount(ctx, k, msg)
+	case *types.MsgRenewAccount:
+		return handlerMsgRenewAccount(ctx, k, msg)
+	case *types.MsgAddAccountCertificates:
+		return handlerMsgAddAccountCertificates(ctx, k, msg)
+	case *types.MsgDeleteAccountCertificate:
+		return handlerMsgDeleteAccountCertificate(ctx, k, msg)
+	case *types.MsgDeleteAccount:
+		return handlerMsgDeleteAccount(ctx, k, msg)
+	case *types.MsgReplaceAccountTargets:
+		return handlerMsgReplaceAccountTargets(ctx, k, msg)
+	case *types.MsgTransferAccount:
+		return handlerMsgTransferAccount(ctx, k, msg)
+	case *types.MsgSetAccountMetadata:
+		return handlerMsgSetAccountMetadata(ctx, k, msg)
+	default:
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("unregonized request: %T", msg))
+	}
+}
+
 // NewHandler builds the tx requests handler for the domain module
 func NewHandler(k Keeper) sdk.Handler {
 	f := func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
-		// domain handlers
-		case *types.MsgRegisterDomain:
-			return handleMsgRegisterDomain(ctx, k, msg)
-		case *types.MsgRenewDomain:
-			return handlerMsgRenewDomain(ctx, k, msg)
-		case *types.MsgDeleteDomain:
-			return handlerMsgDeleteDomain(ctx, k, msg)
-		case *types.MsgTransferDomain:
-			return handlerMsgTransferDomain(ctx, k, msg)
-		// account handlers
-		case *types.MsgRegisterAccount:
-			return handleMsgRegisterAccount(ctx, k, msg)
-		case *types.MsgRenewAccount:
-			return handlerMsgRenewAccount(ctx, k, msg)
-		case *types.MsgAddAccountCertificates:
-			return handlerMsgAddAccountCertificates(ctx, k, msg)
-		case *types.MsgDeleteAccountCertificate:
-			return handlerMsgDeleteAccountCertificate(ctx, k, msg)
-		case *types.MsgDeleteAccount:
-			return handlerMsgDeleteAccount(ctx, k, msg)
-		case *types.MsgReplaceAccountTargets:
-			return handlerMsgReplaceAccountTargets(ctx, k, msg)
-		case *types.MsgTransferAccount:
-			return handlerMsgTransferAccount(ctx, k, msg)
-		case *types.MsgSetAccountMetadata:
-			return handlerMsgSetAccountMetadata(ctx, k, msg)
+		case *types.MsgWithFeePayer:
+			res, err := handlerFn(ctx, k, msg)
+			if err != nil {
+				if err := k.CollectFees(ctx, msg.Msg, msg.FeePayer); err != nil {
+					return res, err
+				}
+			}
+			return res, err
 		default:
-			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("unregonized request: %T", msg))
+			res, err := handlerFn(ctx, k, msg)
+			if err != nil {
+				if err := k.CollectFees(ctx, msg, sdk.AccAddress{}); err != nil {
+					return res, err
+				}
+			}
+			return res, err
 		}
 	}
 
