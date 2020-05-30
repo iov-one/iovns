@@ -39,10 +39,14 @@ func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
 		Domain:       domain.Name,
 		Name:         "",
 		Owner:        domain.Admin, // TODO this is not clear, why the domain admin is zero address while this is msg.Admin
-		ValidUntil:   ctx.BlockTime().Add(domain.AccountRenew).Unix(),
+		ValidUntil:   types.MaxValidUntil,
 		Targets:      nil,
 		Certificates: nil,
 		Broker:       nil, // TODO ??
+	}
+	// if domain type is open then account valid until needs to be updated
+	if domain.Type == types.OpenDomain {
+		acc.ValidUntil = domain.ValidUntil
 	}
 	// save account
 	k.CreateAccount(ctx, acc)

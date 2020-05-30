@@ -2,7 +2,6 @@ package account
 
 import (
 	"errors"
-	dt "github.com/iov-one/iovns/x/domain/testing"
 	"testing"
 	"time"
 
@@ -19,7 +18,7 @@ func TestAccount_transferable(t *testing.T) {
 	// create open domain
 	k.CreateDomain(ctx, types.Domain{
 		Name:       "open",
-		Admin:      dt.AliceKey,
+		Admin:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
 	})
@@ -27,12 +26,12 @@ func TestAccount_transferable(t *testing.T) {
 	k.CreateAccount(ctx, types.Account{
 		Domain: "open",
 		Name:   "test",
-		Owner:  dt.BobKey,
+		Owner:  keeper.BobKey,
 	})
 	// create closed domain
 	k.CreateDomain(ctx, types.Domain{
 		Name:       "closed",
-		Admin:      dt.AliceKey,
+		Admin:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.ClosedDomain,
 	})
@@ -40,31 +39,31 @@ func TestAccount_transferable(t *testing.T) {
 	k.CreateAccount(ctx, types.Account{
 		Domain: "closed",
 		Name:   "test",
-		Owner:  dt.BobKey,
+		Owner:  keeper.BobKey,
 	})
 	// run tests
 	t.Run("closed domain", func(t *testing.T) {
 		acc := NewController(ctx, k, "closed", "test")
 		// test success
-		err := acc.Validate(TransferableBy(dt.AliceKey))
+		err := acc.Validate(TransferableBy(keeper.AliceKey))
 		if err != nil {
 			t.Fatalf("got error: %s", err)
 		}
 		// test failure
-		err = acc.Validate(TransferableBy(dt.BobKey))
+		err = acc.Validate(TransferableBy(keeper.BobKey))
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
 	})
 	t.Run("open domain", func(t *testing.T) {
 		acc := NewController(ctx, k, "open", "test")
-		err := acc.Validate(TransferableBy(dt.BobKey))
+		err := acc.Validate(TransferableBy(keeper.BobKey))
 		// test success
 		if err != nil {
 			t.Fatalf("got error: %s", err)
 		}
 		// test failure
-		err = acc.Validate(TransferableBy(dt.AliceKey))
+		err = acc.Validate(TransferableBy(keeper.AliceKey))
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
@@ -77,7 +76,7 @@ func TestAccount_existence(t *testing.T) {
 	k.SetAccount(ctx, types.Account{
 		Domain:     "test",
 		Name:       "test",
-		Owner:      dt.AliceKey,
+		Owner:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 	})
 	// run MustExist test

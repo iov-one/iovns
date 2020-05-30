@@ -1,4 +1,4 @@
-package testing
+package keeper
 
 import (
 	"fmt"
@@ -9,7 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
-	"github.com/iov-one/iovns/x/domain/keeper"
 	types2 "github.com/iov-one/iovns/x/domain/types"
 )
 
@@ -29,12 +28,12 @@ type SubTest struct {
 	// BeforeTest is the function run before doing the test,
 	// used for example to store state, like configurations etc.
 	// Ignored if nil
-	BeforeTest func(t *testing.T, k keeper.Keeper, ctx types.Context, mocks *keeper.Mocks)
+	BeforeTest func(t *testing.T, k Keeper, ctx types.Context, mocks *Mocks)
 	// TestBlockTime is the block time during test in unix seconds
 	// WARNING: if block time is given 0, it will be accepted as time.Now()
 	TestBlockTime int64
 	// Test is the function that runs the actual test
-	Test func(t *testing.T, k keeper.Keeper, ctx types.Context, mocks *keeper.Mocks)
+	Test func(t *testing.T, k Keeper, ctx types.Context, mocks *Mocks)
 	// AfterTestBlockTime is the block time during after test in unix seconds
 	// WARNING: if block time is given 0, it will be accepted as time.Now()
 	AfterTestBlockTime int64
@@ -42,13 +41,13 @@ type SubTest struct {
 	// be used to check if the state after Test is run matches
 	// the result we expect.
 	// Ignored if nil
-	AfterTest func(t *testing.T, k keeper.Keeper, ctx types.Context, mocks *keeper.Mocks)
+	AfterTest func(t *testing.T, k Keeper, ctx types.Context, mocks *Mocks)
 }
 
 // runTests run tests cases after generating a new keeper and context for each test case
 func RunTests(t *testing.T, tests map[string]SubTest) {
 	for name, test := range tests {
-		domainKeeper, ctx, mocks := keeper.NewTestKeeper(t, true)
+		domainKeeper, ctx, mocks := NewTestKeeper(t, true)
 		// set default mock.Supply not to fail
 		mocks.Supply.SetSendCoinsFromAccountToModule(func(ctx types.Context, addr types.AccAddress, moduleName string, coins types.Coins) error {
 			return nil
@@ -114,7 +113,7 @@ type ConfigurationSetter interface {
 // allowing the module to set configuration state, this should only
 // be used for tests and will panic if the keeper provided can not
 // be cast to configurationSetter
-func GetConfigSetter(keeper keeper.ConfigurationKeeper) ConfigurationSetter {
+func GetConfigSetter(keeper ConfigurationKeeper) ConfigurationSetter {
 	// check if the configuration keeper is also a config setter
 	configSetter, ok := keeper.(ConfigurationSetter)
 	if !ok {
