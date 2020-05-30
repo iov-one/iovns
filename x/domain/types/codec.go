@@ -27,5 +27,5 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(&MsgRenewDomain{}, fmt.Sprintf("%s/RenewDomain", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgReplaceAccountTargets{}, fmt.Sprintf("%s/ReplaceAccountTargets", ModuleName), nil)
 	cdc.RegisterConcrete(&MsgSetAccountMetadata{}, fmt.Sprintf("%s/SetAccountMetadata", ModuleName), nil)
-	cdc.RegisterConcrete(&MsgWithFeePayer{}, fmt.Sprintf("%s/FeePaidMsg", ModuleName), nil)
+	cdc.RegisterConcrete(&MsgWithExternalFeePayer{}, fmt.Sprintf("%s/FeePaidMsg", ModuleName), nil)
 }

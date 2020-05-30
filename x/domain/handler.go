@@ -52,7 +52,7 @@ func handlerFn(ctx sdk.Context, k Keeper, msg sdk.Msg) (*sdk.Result, error) {
 func NewHandler(k Keeper) sdk.Handler {
 	f := func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
-		case *types.MsgWithFeePayer:
+		case *types.MsgWithExternalFeePayer:
 			res, err := handlerFn(ctx, k, msg)
 			if err != nil {
 				if err := k.CollectFees(ctx, msg.Msg, msg.FeePayer); err != nil {

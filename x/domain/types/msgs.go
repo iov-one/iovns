@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,25 +11,25 @@ import (
 // MsgAddAccountCertificates is the message used
 // when a user wants to add new certificates
 // to his account
-type MsgWithFeePayer struct {
+type MsgWithExternalFeePayer struct {
 	// Owner is the owner of the account
-	FeePayer sdk.AccAddress
+	FP sdk.AccAddress
 	// underlying msg
 	Msg sdk.Msg
 }
 
 // Route implements sdk.Msg
-func (m *MsgWithFeePayer) Route() string {
+func (m *MsgWithExternalFeePayer) Route() string {
 	return RouterKey
 }
 
 // Type implements sdk.Msg
-func (m *MsgWithFeePayer) Type() string {
+func (m *MsgWithExternalFeePayer) Type() string {
 	return "add_certificates_account"
 }
 
 // ValidateBasic implements sdk.Msg
-func (m *MsgWithFeePayer) ValidateBasic() error {
+func (m *MsgWithExternalFeePayer) ValidateBasic() error {
 	if err := m.Msg.ValidateBasic(); err != nil {
 		return err
 	}
@@ -36,20 +37,36 @@ func (m *MsgWithFeePayer) ValidateBasic() error {
 }
 
 // GetSignBytes implements sdk.Msg
-func (m *MsgWithFeePayer) GetSignBytes() []byte {
+func (m *MsgWithExternalFeePayer) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgWithFeePayer) GetSigners() []sdk.AccAddress {
-	if m.FeePayer.Empty() {
+func (m *MsgWithExternalFeePayer) GetSigners() []sdk.AccAddress {
+	if m.FP.Empty() {
 		return m.Msg.GetSigners()
 	}
 	var s []sdk.AccAddress
-	s = append(s, m.FeePayer)
+	s = append(s, m.FP)
 	s = append(s, m.Msg.GetSigners()...)
 	return s
 }
+
+func (m *MsgWithExternalFeePayer) FeePayer() sdk.AccAddress {
+	return m.FeePayer()
+}
+
+func (m *MsgWithExternalFeePayer) ID() MsgUniqueID {
+	return MsgUniqueID(fmt.Sprintf("%s/%s", m.Route(), m.Type()))
+}
+
+type Feeable interface {
+	FeePayer() sdk.AccAddress
+	CalculatedFee() int
+	ID() MsgUniqueID
+}
+
+type MsgUniqueID string
 
 // MsgAddAccountCertificates is the message used
 // when a user wants to add new certificates
@@ -63,6 +80,18 @@ type MsgAddAccountCertificates struct {
 	Owner sdk.AccAddress
 	// NewCertificate is the new certificate to add
 	NewCertificate []byte
+}
+
+func (m *MsgAddAccountCertificates) FeePayer() sdk.AccAddress {
+	return m.Owner
+}
+
+func (m *MsgAddAccountCertificates) ID() MsgUniqueID {
+	return MsgUniqueID(fmt.Sprintf("%s/%s", m.Route(), m.Type()))
+}
+
+func (m *MsgAddAccountCertificates) CalculatedFee() int {
+	return len
 }
 
 // Route implements sdk.Msg

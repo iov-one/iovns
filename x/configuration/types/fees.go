@@ -3,12 +3,10 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
 
-// msgUniqueID exists to make sure
-// that sdk.Msg are parsed into unique IDs
-type msgUniqueID string
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	dt "github.com/iov-one/iovns/x/domain/types"
+)
 
 // LevelFeeMapper maps fees based on level
 type LevelFeeMapper map[string]sdk.Coin
@@ -78,9 +76,9 @@ func (m *LevelFeeMapper) UnmarshalJSON(b []byte) error {
 // processing different messages
 type Fees struct {
 	// LevelFees maps msg fees to their level
-	LevelFees map[msgUniqueID]LevelFeeMapper
+	LevelFees map[dt.MsgUniqueID]LevelFeeMapper
 	// DefaultFees maps the default fees for a msg
-	DefaultFees map[msgUniqueID]sdk.Coin
+	DefaultFees map[dt.MsgUniqueID]sdk.Coin
 }
 
 // MarshalJSON makes sure the map is ordered deterministically
@@ -93,12 +91,12 @@ func (f *Fees) MarshalJSON() ([]byte, error) {
 		Amount string `json:"amount"`
 	}
 	type fee struct {
-		LevelFees   map[msgUniqueID]LevelFeeMapper `json:"level_fees"`
-		DefaultFees map[msgUniqueID]coin           `json:"default_fees"`
+		LevelFees   map[dt.MsgUniqueID]LevelFeeMapper `json:"level_fees"`
+		DefaultFees map[dt.MsgUniqueID]coin           `json:"default_fees"`
 	}
 	var x = fee{
 		LevelFees:   f.LevelFees,
-		DefaultFees: make(map[msgUniqueID]coin, len(f.DefaultFees)),
+		DefaultFees: make(map[dt.MsgUniqueID]coin, len(f.DefaultFees)),
 	}
 	for k, v := range f.DefaultFees {
 		x.DefaultFees[k] = coin{
@@ -116,10 +114,10 @@ func (f *Fees) UnmarshalJSON(b []byte) error {
 	}
 	// init maps if nil
 	if f.DefaultFees == nil {
-		f.DefaultFees = make(map[msgUniqueID]sdk.Coin)
+		f.DefaultFees = make(map[dt.MsgUniqueID]sdk.Coin)
 	}
 	if f.LevelFees == nil {
-		f.LevelFees = make(map[msgUniqueID]LevelFeeMapper)
+		f.LevelFees = make(map[dt.MsgUniqueID]LevelFeeMapper)
 	}
 	// re-use types used for marshalling
 	type coin struct {
@@ -143,11 +141,11 @@ func (f *Fees) UnmarshalJSON(b []byte) error {
 		if !ok {
 			return fmt.Errorf("invalid sdk.Int: %s", v.Amount)
 		}
-		f.DefaultFees[msgUniqueID(k)] = sdk.NewCoin(v.Denom, sdkInt)
+		f.DefaultFees[dt.MsgUniqueID(k)] = sdk.NewCoin(v.Denom, sdkInt)
 	}
 	for k, v := range x.LevelFees {
 
-		f.LevelFees[msgUniqueID(k)] = v
+		f.LevelFees[dt.MsgUniqueID(k)] = v
 	}
 	return nil
 }
@@ -155,17 +153,17 @@ func (f *Fees) UnmarshalJSON(b []byte) error {
 // NewFees is Fees constructor
 func NewFees() *Fees {
 	return &Fees{
-		LevelFees:   make(map[msgUniqueID]LevelFeeMapper),
-		DefaultFees: make(map[msgUniqueID]sdk.Coin),
+		LevelFees:   make(map[dt.MsgUniqueID]LevelFeeMapper),
+		DefaultFees: make(map[dt.MsgUniqueID]sdk.Coin),
 	}
 }
 
 // CalculateLevelFees calculates fees based on message type and level
 // if there is no level fee then it retreats to the default fees for msg
 // false is returned only in the case in which no fee was found or can be applied.
-func (f *Fees) CalculateLevelFees(msg sdk.Msg, level int) (sdk.Coin, bool) {
+func (f *Fees) CalculateLevelFees(msg dt.Feeable, level int) (sdk.Coin, bool) {
 	sdkIntLevel := sdk.NewInt(int64(level))
-	msgID := f.getMsgID(msg)
+	msgID := msg.ID()
 	// get fees per message type
 	msgFees, ok := f.LevelFees[msgID]
 	// if fees based on sdkIntLevel are not found
@@ -197,15 +195,10 @@ func (f *Fees) CalculateLevelFees(msg sdk.Msg, level int) (sdk.Coin, bool) {
 	return fee, true
 }
 
-// getMsgID returns the unique id for the message to apply fees on
-func (f *Fees) getMsgID(msg sdk.Msg) msgUniqueID {
-	return msgUniqueID(fmt.Sprintf("%s/%s", msg.Route(), msg.Type()))
-}
-
 // UpsertLevelFees updates or sets the level fees for the message
-func (f *Fees) UpsertLevelFees(msg sdk.Msg, level int, coin sdk.Coin) {
+func (f *Fees) UpsertLevelFees(msg dt.Feeable, level int, coin sdk.Coin) {
 	sdkIntLevel := sdk.NewInt(int64(level))
-	msgID := f.getMsgID(msg)
+	msgID := msg.ID()
 	feesMap, ok := f.LevelFees[msgID]
 	// if fee map for that msg type does not exist create it
 	if !ok {
@@ -217,19 +210,19 @@ func (f *Fees) UpsertLevelFees(msg sdk.Msg, level int, coin sdk.Coin) {
 }
 
 // UpsertDefaultFees updates or sets the default fees for sdk.Msg
-func (f *Fees) UpsertDefaultFees(msg sdk.Msg, coin sdk.Coin) {
-	f.DefaultFees[f.getMsgID(msg)] = coin
+func (f *Fees) UpsertDefaultFees(msg dt.Feeable, coin sdk.Coin) {
+	f.DefaultFees[msg.ID()] = coin
 }
 
-func (f *Fees) DeleteLevelFee(msg sdk.Msg, level int) {
+func (f *Fees) DeleteLevelFee(msg dt.Feeable, level int) {
 	sdkIntLevel := sdk.NewInt(int64(level))
-	feeMap, ok := f.LevelFees[f.getMsgID(msg)]
+	feeMap, ok := f.LevelFees[msg.ID()]
 	if !ok {
 		return
 	}
 	delete(feeMap, sdkIntLevel.String())
 }
 
-func (f *Fees) DeleteDefaultFee(msg sdk.Msg) {
-	delete(f.DefaultFees, f.getMsgID(msg))
+func (f *Fees) DeleteDefaultFee(msg dt.Feeable) {
+	delete(f.DefaultFees, msg.ID())
 }
