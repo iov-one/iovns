@@ -4,6 +4,7 @@
 
 - upgrade cosmos-sdk to v0.38.4
 - iovnsd: fix fee colletor address
+- iovnscli: certificates accepted in base64 json
 
 ## v0.2.5
 
