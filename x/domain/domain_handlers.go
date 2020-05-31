@@ -79,6 +79,7 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 		domain.Type(types.ClosedDomain),
 		domain.Owner(msg.Owner),
 		domain.NotExpired,
+		domain.Transferable(msg.TransferFlag),
 	)
 	if err != nil {
 		return nil, err
@@ -88,8 +89,19 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
-	// transfer domain and accounts ownership
-	k.TransferDomain(ctx, msg.NewAdmin, c.Domain())
+	// transfer domain
+	k.TransferDomainOwnership(ctx, c.Domain(), msg.NewAdmin)
+	// transfer accounts of the domain based on the transfer flag
+	switch msg.TransferFlag {
+	// reset none is simply skipped as empty account is already transferred during domain transfer
+	case types.ResetNone:
+	// transfer flush, deletes all domain accounts except the empty one
+	case types.TransferFlush:
+		k.FlushDomain(ctx, c.Domain())
+	// transfer owned transfers only accounts owned by the old owner
+	case types.TransferOwned:
+		k.TransferDomainAccountsOwnedByAddr(ctx, c.Domain(), msg.Owner, msg.NewAdmin)
+	}
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
 }

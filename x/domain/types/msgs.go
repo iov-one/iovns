@@ -502,12 +502,27 @@ func (m *MsgTransferAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }
 
+// TransferFlag defines the type of domain transfer
+type TransferFlag int
+
+const (
+	// TransferFlush clears all domain account data, except empty account)
+	TransferFlush = iota
+	// TransferOwned transfers only accounts owned by the current owner
+	TransferOwned
+	// ResetNone leaves things as they are except for empty account
+	ResetNone
+	// TransferAll is not available is here only for tests backwards compatibility and will be removed. TODO deprecate
+	TransferAll
+)
+
 // MsgTransferDomain is the request model
 // used to transfer a domain
 type MsgTransferDomain struct {
-	Domain   string
-	Owner    sdk.AccAddress
-	NewAdmin sdk.AccAddress
+	Domain       string
+	Owner        sdk.AccAddress
+	NewAdmin     sdk.AccAddress
+	TransferFlag TransferFlag
 }
 
 // Route implements sdk.Msg
@@ -530,6 +545,13 @@ func (m *MsgTransferDomain) ValidateBasic() error {
 	}
 	if m.NewAdmin == nil {
 		return errors.Wrap(ErrInvalidRequest, "new admin is empty")
+	}
+	switch m.TransferFlag {
+	case TransferOwned:
+	case ResetNone:
+	case TransferFlush:
+	default:
+		return errors.Wrapf(ErrInvalidRequest, "unknown reset flag: %d", m.TransferFlag)
 	}
 	return nil
 }

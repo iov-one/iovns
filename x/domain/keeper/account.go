@@ -119,7 +119,6 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
-
 }
 
 // AddAccountCertificate adds aliceAddr new certificate to the account

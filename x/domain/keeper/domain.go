@@ -103,8 +103,65 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 	return true
 }
 
-// TransferDomain transfers aliceAddr domain
-func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain types.Domain) {
+// TransferDomainOwnership transfers the domain owner to newOwner
+func (k Keeper) TransferDomainOwnership(ctx sdk.Context, domain types.Domain, newOwner sdk.AccAddress) {
+	// unmap domain owner
+	err := k.unmapDomainToOwner(ctx, domain)
+	if err != nil {
+		panic(fmt.Errorf("indexing error: (%#v): %w", domain, err))
+	}
+	// update domain owner
+	domain.Admin = newOwner
+	// update domain in kvstore
+	k.SetDomain(ctx, domain)
+	// transfer empty domain account
+	acc, _ := k.GetAccount(ctx, domain.Name, "")
+	k.TransferAccount(ctx, acc, newOwner)
+	// map domain to new owner
+	err = k.mapDomainToOwner(ctx, domain)
+	if err != nil {
+		panic(fmt.Errorf("indexing error: (%#v): %w", domain, err))
+	}
+}
+
+// FlushDomain clears all the accounts in a domain, empty account excluded
+func (k Keeper) FlushDomain(ctx sdk.Context, domain types.Domain) {
+	// iterate accounts
+	var accountKeys [][]byte
+	k.GetAccountsInDomain(ctx, domain.Name, func(key []byte) bool {
+		accountKeys = append(accountKeys, key)
+		return true
+	})
+	// delete each account
+	for _, accountKey := range accountKeys {
+		accountName := accountKeyToString(accountKey)
+		if accountName == types.EmptyAccountName {
+			continue
+		}
+		k.DeleteAccount(ctx, domain.Name, accountName)
+	}
+}
+
+// TransferDomainAccountsOwnedByAddr transfers all the accounts in the domain owned by an address to a new address
+func (k Keeper) TransferDomainAccountsOwnedByAddr(ctx sdk.Context, domain types.Domain, currentOwner, newOwner sdk.AccAddress) {
+	var accountKeys [][]byte
+	k.GetAccountsInDomain(ctx, domain.Name, func(key []byte) bool {
+		accountKeys = append(accountKeys, key)
+		return true
+	})
+	for _, accountKey := range accountKeys {
+		accountName := accountKeyToString(accountKey)
+		acc, _ := k.GetAccount(ctx, domain.Name, accountName)
+		// skip accounts not owned by the provided address
+		if !acc.Owner.Equals(currentOwner) {
+			continue
+		}
+		k.TransferAccount(ctx, acc, newOwner)
+	}
+}
+
+// TransferDomainAll transfers the domain and the related accounts TODO deprecate
+func (k Keeper) TransferDomainAll(ctx sdk.Context, newOwner sdk.AccAddress, domain types.Domain) {
 	// unmap domain owner
 	err := k.unmapDomainToOwner(ctx, domain)
 	if err != nil {
@@ -125,7 +182,7 @@ func (k Keeper) TransferDomain(ctx sdk.Context, newOwner sdk.AccAddress, domain 
 	// iterate over accounts
 	for _, accountKey := range accountKeys {
 		// skip if account key is empty account name
-		if string(accountKey) == iovns.EmptyAccountName {
+		if string(accountKey) == types.EmptyAccountName {
 			continue
 		}
 		// get account

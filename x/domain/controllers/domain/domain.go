@@ -235,6 +235,27 @@ func (c *Domain) deletableBy(addr sdk.AccAddress) error {
 	return nil
 }
 
+func Transferable(flag types.TransferFlag) ControllerFunc {
+	return func(controller *Domain) error {
+		return controller.transferable(flag)
+	}
+}
+
+func (c *Domain) transferable(flag types.TransferFlag) error {
+	if err := c.requireDomain(); err != nil {
+		panic("validation check not allowed on a non existing domain")
+	}
+	switch c.domain.Type {
+	case types.OpenDomain:
+		if flag != types.ResetNone {
+			return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to transfer open domain %s with flag %d", c.domainName, flag)
+		}
+		return nil
+	default:
+		return nil
+	}
+}
+
 // Domain returns a copy the domain, panics if the operation is done without
 // doing validity checks on domain existence as it is not an allowed op
 func (c *Domain) Domain() types.Domain {

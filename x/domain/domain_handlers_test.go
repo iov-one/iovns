@@ -2,7 +2,6 @@ package domain
 
 import (
 	"errors"
-	"reflect"
 	"testing"
 	"time"
 
@@ -571,36 +570,13 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
-					Domain:   "test",
-					Owner:    keeper.AliceKey,
-					NewAdmin: keeper.BobKey,
+					Domain:       "test",
+					Owner:        keeper.AliceKey,
+					NewAdmin:     keeper.BobKey,
+					TransferFlag: types.TransferOwned,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgTransferDomain() got error: %s", err)
-				}
-			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// check domain new owner
-				domain, _ := k.GetDomain(ctx, "test")
-				if !keeper.BobKey.Equals(domain.Admin) {
-					t.Fatalf("handlerMsgTransferDomain() expected domain owner: %s, got: %s", keeper.BobKey, domain.Admin)
-				}
-				// check if account new owner has changed
-				account, _ := k.GetAccount(ctx, "test", "1")
-				if !account.Owner.Equals(keeper.BobKey) {
-					t.Fatalf("handlerMsgTransferDomain() expected account owner: %s, got: %s", keeper.BobKey, account.Owner)
-				}
-				// check if targets deleted
-				if account.Targets != nil {
-					t.Fatalf("handlerMsgTransferDomain expected account targets: <nil>, got: %#v", account.Targets)
-				}
-				// check if certs deleted
-				if account.Certificates != nil {
-					t.Fatalf("handlerMsgTransferDomain expected account certificates: <nil>, got: %#v", account.Certificates)
-				}
-				// check no changes in empty account
-				if emptyAcc, _ := k.GetAccount(ctx, "test", ""); !reflect.DeepEqual(emptyAcc, types.Account{Domain: "test", Name: "", Owner: keeper.AliceKey}) {
-					t.Fatalf("handlerMsgTransferdomain() empty account mismatch, expected: %+v, got: %+v", types.Account{Domain: "test", Name: ""}, emptyAcc)
 				}
 			},
 		},
