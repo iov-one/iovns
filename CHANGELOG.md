@@ -1,6 +1,7 @@
 # Changelog 
 
 ## HEAD
+- reconcile domain spec
 - treat handler as orchestrator
 - extend keeper functionality
 - move all errors/authorization checks to handlers
