@@ -1,11 +1,9 @@
 package domain
 
 import (
-	"errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -13,20 +11,13 @@ import (
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
 	c := domain.NewController(ctx, k, msg.Domain)
-	err := c.Validate(domain.MustExist, domain.Type(types.ClosedDomain))
-	if errors.Is(err, types.ErrInvalidDomainType) {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "user is unauthorized to delete domain %s with domain type: %s", msg.Domain, types.ClosedDomain)
-	}
-	if err != nil {
+	// do precondition and authorization checks
+	if err := c.Validate(domain.MustExist, domain.Type(types.ClosedDomain), domain.DeletableBy(msg.Owner)); err != nil {
 		return nil, err
-	}
-	// if domain is not over grace period and signer is not the owner of the domain then the operation is not allowed
-	if err := c.Validate(domain.Owner(msg.Owner)); err != nil && !c.Condition(domain.GracePeriodFinished) {
-		return nil, sdkerrors.Wrap(types.ErrUnauthorized, "unable to delete domain not owned if grace period is not finished")
 	}
 	// operation is allowed
 	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Owner)
+	err := k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
@@ -43,7 +34,12 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	if err != nil {
 		return nil, err
 	}
-	// set new domain
+	// collect fees
+	err = k.CollectFees(ctx, msg, msg.Admin)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "unable to collect fees")
+	}
+	// create new domain
 	d := types.Domain{
 		Name:         msg.Name,
 		Admin:        msg.Admin,
@@ -52,26 +48,8 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		AccountRenew: msg.AccountRenew,
 		Broker:       msg.Broker,
 	}
-
-	// generate empty name account
-	acc := types.Account{
-		Domain:       msg.Name,
-		Name:         "",
-		Owner:        msg.Admin,
-		ValidUntil:   ctx.BlockTime().Add(d.AccountRenew).Unix(),
-		Targets:      nil,
-		Certificates: nil,
-		Broker:       nil, // TODO ??
-	}
-	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Admin)
-	if err != nil {
-		return nil, sdkerrors.Wrap(err, "unable to collect fees")
-	}
 	// save domain
 	k.CreateDomain(ctx, d)
-	// save account
-	k.CreateAccount(ctx, acc)
 	// success TODO think here, can we emit any useful event
 	return &sdk.Result{}, nil
 }
@@ -79,24 +57,17 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 // handlerMsgRenewDomain renews a domain
 func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
 	c := domain.NewController(ctx, k, msg.Domain)
-	err := c.Validate(domain.MustExist)
+	err := c.Validate(domain.MustExist, domain.Renewable)
 	if err != nil {
 		return nil, err
 	}
-	domain := c.Domain()
-	// get configuration
-	renewDuration := k.ConfigurationKeeper.GetDomainRenewDuration(ctx)
-	// update domain valid until
-	domain.ValidUntil = iovns.TimeToSeconds(
-		iovns.SecondsToTime(domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
-	)
 	// collect fees
 	err = k.CollectFees(ctx, msg, msg.Signer)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// update domain
-	k.SetDomain(ctx, domain)
+	k.RenewDomain(ctx, c.Domain())
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
@@ -108,22 +79,29 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 		domain.Type(types.ClosedDomain),
 		domain.Owner(msg.Owner),
 		domain.NotExpired,
+		domain.Transferable(msg.TransferFlag),
 	)
-	if types.ErrInvalidDomainType.Is(err) {
-		return nil, types.ErrUnauthorized
-	}
 	if err != nil {
 		return nil, err
 	}
-	// get domain
-	d := c.Domain()
 	// collect fees
 	err = k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
-	// transfer domain and accounts ownership
-	k.TransferDomain(ctx, msg.NewAdmin, d)
+	// transfer domain
+	k.TransferDomainOwnership(ctx, c.Domain(), msg.NewAdmin)
+	// transfer accounts of the domain based on the transfer flag
+	switch msg.TransferFlag {
+	// reset none is simply skipped as empty account is already transferred during domain transfer
+	case types.ResetNone:
+	// transfer flush, deletes all domain accounts except the empty one
+	case types.TransferFlush:
+		k.FlushDomain(ctx, c.Domain())
+	// transfer owned transfers only accounts owned by the old owner
+	case types.TransferOwned:
+		k.TransferDomainAccountsOwnedByAddr(ctx, c.Domain(), msg.Owner, msg.NewAdmin)
+	}
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
 }

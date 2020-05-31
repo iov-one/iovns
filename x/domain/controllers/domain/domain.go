@@ -2,6 +2,7 @@ package domain
 
 import (
 	"regexp"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -147,7 +148,7 @@ func (c *Domain) dType(Type types.DomainType) error {
 		panic("validation check is not allowed on a non existing domain")
 	}
 	if c.domain.Type != Type {
-		return sdkerrors.Wrapf(types.ErrInvalidDomainType, "invalid domain type %s, expected %s", c.domain.Type, Type)
+		return sdkerrors.Wrapf(types.ErrInvalidDomainType, "operation not allowed on invalid domain type %s, expected %s", c.domain.Type, Type)
 	}
 	return nil
 }
@@ -219,10 +220,68 @@ func (c *Domain) requireConfiguration() {
 	c.conf = &conf
 }
 
+// Deletable checks if the domain can be deleted by the provided address
+func DeletableBy(addr sdk.AccAddress) ControllerFunc {
+	return func(controller *Domain) error {
+		return controller.deletableBy(addr)
+	}
+}
+
+// deletableBy is the underlying operation used by DeletableBy controller
+func (c *Domain) deletableBy(addr sdk.AccAddress) error {
+	// check if either domain is owned by provided address or if grace period is finished
+	if err := c.Validate(Owner(addr)); err != nil && !c.Condition(GracePeriodFinished) {
+		return sdkerrors.Wrap(types.ErrUnauthorized, "unable to delete domain not owned if grace period is not finished")
+	}
+	return nil
+}
+
+func Transferable(flag types.TransferFlag) ControllerFunc {
+	return func(controller *Domain) error {
+		return controller.transferable(flag)
+	}
+}
+
+func (c *Domain) transferable(flag types.TransferFlag) error {
+	if err := c.requireDomain(); err != nil {
+		panic("validation check not allowed on a non existing domain")
+	}
+	switch c.domain.Type {
+	case types.OpenDomain:
+		if flag != types.ResetNone {
+			return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to transfer open domain %s with flag %d", c.domainName, flag)
+		}
+		return nil
+	default:
+		return nil
+	}
+}
+
+// Renewable checks if the domain is allowed to be renewed
+func Renewable(ctrl *Domain) error {
+	return ctrl.renewable()
+}
+
+func (c *Domain) renewable() error {
+	c.requireConfiguration()
+	if err := c.requireDomain(); err != nil {
+		panic("validation check not allowed on a non existing domain")
+	}
+	// do calculations
+	newValidUntil := iovns.SecondsToTime(c.domain.ValidUntil).Add(c.conf.DomainRenewalPeriod) // set new expected valid until
+	maximumValidUntil := c.ctx.BlockTime().Add(c.conf.DomainRenewalPeriod * time.Duration(c.conf.DomainRenewalCountMax))
+	// check if new valid until is after maximum allowed
+	if newValidUntil.After(maximumValidUntil) {
+		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew domain, domain %s renewal period would be after maximum allowed: %s", c.domainName, maximumValidUntil)
+	}
+	// success
+	return nil
+}
+
 // Domain returns a copy the domain, panics if the operation is done without
 // doing validity checks on domain existence as it is not an allowed op
 func (c *Domain) Domain() types.Domain {
-	if c.domain == nil {
+	if err := c.requireDomain(); err != nil {
 		panic("get domain without running existence checks is not allowed")
 	}
 	return *c.domain

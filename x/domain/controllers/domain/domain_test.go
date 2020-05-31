@@ -7,8 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
-	dt "github.com/iov-one/iovns/x/domain/testing"
-
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +17,7 @@ func TestDomain_requireDomain(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
 		k.CreateDomain(ctx, types.Domain{
 			Name:  "test",
-			Admin: dt.AliceKey,
+			Admin: keeper.AliceKey,
 			Type:  types.OpenDomain,
 		})
 		ctrl := NewController(ctx, k, "test")
@@ -43,7 +41,7 @@ func TestDomain_domainExpired(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
 		k.CreateDomain(ctx, types.Domain{
 			Name:       "test",
-			Admin:      dt.AliceKey,
+			Admin:      keeper.AliceKey,
 			Type:       types.OpenDomain,
 			ValidUntil: 0,
 		})
@@ -58,7 +56,7 @@ func TestDomain_domainExpired(t *testing.T) {
 		now := time.Now()
 		k.CreateDomain(ctx, types.Domain{
 			Name:       "test",
-			Admin:      dt.AliceKey,
+			Admin:      keeper.AliceKey,
 			ValidUntil: now.Unix() + 10000,
 		})
 		ctrl := NewController(ctx, k, "test")
@@ -75,17 +73,17 @@ func TestDomain_domainExpired(t *testing.T) {
 }
 
 func TestDomain_gracePeriodFinished(t *testing.T) {
-	cases := map[string]dt.SubTest{
+	cases := map[string]keeper.SubTest{
 		"grace period finished": {
 			BeforeTestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1 * time.Second,
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
-					Admin:      dt.AliceKey,
+					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
 				})
 			},
@@ -101,13 +99,13 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 		"grace period not finished": {
 			BeforeTestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 15 * time.Second,
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
-					Admin:      dt.AliceKey,
+					Admin:      keeper.AliceKey,
 					ValidUntil: 1,
 				})
 			},
@@ -121,22 +119,22 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 			},
 		},
 	}
-	dt.RunTests(t, cases)
+	keeper.RunTests(t, cases)
 }
 
 func TestDomain_ownedBy(t *testing.T) {
-	cases := map[string]dt.SubTest{
+	cases := map[string]keeper.SubTest{
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
-					Admin:      dt.AliceKey,
+					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
-				err := ctrl.ownedBy(dt.AliceKey)
+				err := ctrl.ownedBy(keeper.AliceKey)
 				if err != nil {
 					t.Fatalf("got error: %s", err)
 				}
@@ -146,29 +144,29 @@ func TestDomain_ownedBy(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
-					Admin:      dt.AliceKey,
+					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
-				err := ctrl.ownedBy(dt.BobKey)
+				err := ctrl.ownedBy(keeper.BobKey)
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("want err: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 		},
 	}
-	dt.RunTests(t, cases)
+	keeper.RunTests(t, cases)
 }
 
 func TestDomain_notExpired(t *testing.T) {
-	cases := map[string]dt.SubTest{
+	cases := map[string]keeper.SubTest{
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
-					Admin:      dt.AliceKey,
+					Admin:      keeper.AliceKey,
 					ValidUntil: 2,
 				})
 			},
@@ -185,7 +183,7 @@ func TestDomain_notExpired(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
-					Admin:      dt.AliceKey,
+					Admin:      keeper.AliceKey,
 					ValidUntil: 1,
 				})
 			},
@@ -199,16 +197,16 @@ func TestDomain_notExpired(t *testing.T) {
 			},
 		},
 	}
-	dt.RunTests(t, cases)
+	keeper.RunTests(t, cases)
 }
 
 func TestDomain_type(t *testing.T) {
-	cases := map[string]dt.SubTest{
+	cases := map[string]keeper.SubTest{
 		"saved": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
-					Admin: dt.AliceKey,
+					Admin: keeper.AliceKey,
 					Type:  types.ClosedDomain,
 				})
 			},
@@ -224,7 +222,7 @@ func TestDomain_type(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
-					Admin: dt.AliceKey,
+					Admin: keeper.AliceKey,
 					Type:  types.ClosedDomain,
 				})
 			},
@@ -240,7 +238,7 @@ func TestDomain_type(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
 					Name:  "test",
-					Admin: dt.AliceKey,
+					Admin: keeper.AliceKey,
 					Type:  types.OpenDomain,
 				})
 			},
@@ -253,20 +251,20 @@ func TestDomain_type(t *testing.T) {
 			},
 		},
 	}
-	dt.RunTests(t, cases)
+	keeper.RunTests(t, cases)
 }
 
 func TestDomain_validName(t *testing.T) {
-	cases := map[string]dt.SubTest{
+	cases := map[string]keeper.SubTest{
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidDomainName: dt.RegexMatchAll,
+					ValidDomainName: keeper.RegexMatchAll,
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
-					Admin:      dt.AliceKey,
+					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
 				})
 			},
@@ -280,13 +278,13 @@ func TestDomain_validName(t *testing.T) {
 		},
 		"invalid name": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				setConfig := dt.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidDomainName: dt.RegexMatchNothing,
+					ValidDomainName: keeper.RegexMatchNothing,
 				})
 				k.CreateDomain(ctx, types.Domain{
 					Name:       "test",
-					Admin:      dt.AliceKey,
+					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
 				})
 			},
@@ -299,5 +297,38 @@ func TestDomain_validName(t *testing.T) {
 			},
 		},
 	}
-	dt.RunTests(t, cases)
+	keeper.RunTests(t, cases)
+}
+
+func TestDomain_Renewable(t *testing.T) {
+	ctrl := &Domain{
+		domainName: "test",
+		domain: &types.Domain{
+			Name:         "test",
+			ValidUntil:   1,
+			Type:         "",
+			AccountRenew: 0,
+			Broker:       nil,
+		},
+		conf: &configuration.Config{
+			DomainRenewalPeriod:   2 * time.Second,
+			DomainRenewalCountMax: 1,
+		},
+		k: keeper.Keeper{},
+	}
+	t.Run("success", func(t *testing.T) {
+		ctrl.ctx = sdk.Context{}.WithBlockTime(time.Unix(5, 0))
+		err := ctrl.Validate(Renewable)
+		if err != nil {
+			t.Fatalf("got error: %s", err)
+		}
+	})
+	t.Run("fail renewal not allowed", func(t *testing.T) {
+		ctrl.domain.ValidUntil = ctrl.domain.ValidUntil + int64(ctrl.conf.DomainRenewalPeriod/time.Second)                            // make valid until as if a renew was already made
+		ctrl.ctx = sdk.Context{}.WithBlockTime(time.Unix(ctrl.domain.ValidUntil-int64(ctrl.conf.DomainRenewalPeriod/time.Second), 0)) // make current time domain valid until - one renewal                                    // make current time, domain expiration time - 1 renewal period
+		err := ctrl.Validate(Renewable)
+		if !errors.Is(err, types.ErrUnauthorized) {
+			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
+		}
+	})
 }

@@ -119,7 +119,6 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
-
 }
 
 // AddAccountCertificate adds aliceAddr new certificate to the account
@@ -138,8 +137,8 @@ func (k Keeper) DeleteAccountCertificate(ctx sdk.Context, account types.Account,
 	k.SetAccount(ctx, account)
 }
 
-// UpdateAccountValidity updates an account expiration time
-func (k Keeper) UpdateAccountValidity(ctx sdk.Context, account types.Account, accountRenew time.Duration) {
+// RenewAccount updates an account expiration time
+func (k Keeper) RenewAccount(ctx sdk.Context, account types.Account, accountRenew time.Duration) {
 	// update account time
 	account.ValidUntil = iovns.TimeToSeconds(
 		iovns.SecondsToTime(account.ValidUntil).Add(accountRenew),
@@ -179,4 +178,10 @@ func (k Keeper) IterateAllAccounts(ctx sdk.Context) []types.Account {
 		accounts = append(accounts, a)
 	}
 	return accounts
+}
+
+// UpdateMetadataAccount updates accounts metadata
+func (k Keeper) UpdateMetadataAccount(ctx sdk.Context, account types.Account, newMetadata string) {
+	account.MetadataURI = newMetadata
+	k.SetAccount(ctx, account)
 }

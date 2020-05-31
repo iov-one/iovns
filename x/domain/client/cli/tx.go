@@ -64,6 +64,11 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// get transfer flag
+			transferFlag, err := cmd.Flags().GetInt("transfer-flag")
+			if err != nil {
+				return
+			}
 			// get sdk.AccAddress from string
 			newOwnerAddr, err := sdk.AccAddressFromBech32(newOwner)
 			if err != nil {
@@ -71,9 +76,10 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 			}
 			// build msg
 			msg := &types.MsgTransferDomain{
-				Domain:   domain,
-				Owner:    cliCtx.GetFromAddress(),
-				NewAdmin: newOwnerAddr,
+				Domain:       domain,
+				Owner:        cliCtx.GetFromAddress(),
+				NewAdmin:     newOwnerAddr,
+				TransferFlag: types.TransferFlag(transferFlag),
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -86,6 +92,7 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "the domain name to transfer")
 	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
+	cmd.Flags().Int("transfer-flag", types.ResetNone, fmt.Sprintf("transfer flags for a domain"))
 	//
 	return cmd
 }
