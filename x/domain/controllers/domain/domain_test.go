@@ -299,3 +299,36 @@ func TestDomain_validName(t *testing.T) {
 	}
 	keeper.RunTests(t, cases)
 }
+
+func TestDomain_Renewable(t *testing.T) {
+	ctrl := &Domain{
+		domainName: "test",
+		domain: &types.Domain{
+			Name:         "test",
+			ValidUntil:   1,
+			Type:         "",
+			AccountRenew: 0,
+			Broker:       nil,
+		},
+		conf: &configuration.Config{
+			DomainRenewalPeriod:   2 * time.Second,
+			DomainRenewalCountMax: 1,
+		},
+		k: keeper.Keeper{},
+	}
+	t.Run("success", func(t *testing.T) {
+		ctrl.ctx = sdk.Context{}.WithBlockTime(time.Unix(5, 0))
+		err := ctrl.Validate(Renewable)
+		if err != nil {
+			t.Fatalf("got error: %s", err)
+		}
+	})
+	t.Run("fail renewal not allowed", func(t *testing.T) {
+		ctrl.domain.ValidUntil = ctrl.domain.ValidUntil + int64(ctrl.conf.DomainRenewalPeriod/time.Second)                            // make valid until as if a renew was already made
+		ctrl.ctx = sdk.Context{}.WithBlockTime(time.Unix(ctrl.domain.ValidUntil-int64(ctrl.conf.DomainRenewalPeriod/time.Second), 0)) // make current time domain valid until - one renewal                                    // make current time, domain expiration time - 1 renewal period
+		err := ctrl.Validate(Renewable)
+		if !errors.Is(err, types.ErrUnauthorized) {
+			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
+		}
+	})
+}

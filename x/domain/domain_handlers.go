@@ -57,7 +57,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 // handlerMsgRenewDomain renews a domain
 func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
 	c := domain.NewController(ctx, k, msg.Domain)
-	err := c.Validate(domain.MustExist)
+	err := c.Validate(domain.MustExist, domain.Renewable)
 	if err != nil {
 		return nil, err
 	}

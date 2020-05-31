@@ -2,6 +2,7 @@ package domain
 
 import (
 	"regexp"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -254,6 +255,27 @@ func (c *Domain) transferable(flag types.TransferFlag) error {
 	default:
 		return nil
 	}
+}
+
+// Renewable checks if the domain is allowed to be renewed
+func Renewable(ctrl *Domain) error {
+	return ctrl.renewable()
+}
+
+func (c *Domain) renewable() error {
+	c.requireConfiguration()
+	if err := c.requireDomain(); err != nil {
+		panic("validation check not allowed on a non existing domain")
+	}
+	// do calculations
+	newValidUntil := iovns.SecondsToTime(c.domain.ValidUntil).Add(c.conf.DomainRenewalPeriod) // set new expected valid until
+	maximumValidUntil := c.ctx.BlockTime().Add(c.conf.DomainRenewalPeriod * time.Duration(c.conf.DomainRenewalCountMax))
+	// check if new valid until is after maximum allowed
+	if newValidUntil.After(maximumValidUntil) {
+		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew domain, domain %s renewal period would be after maximum allowed: %s", c.domainName, maximumValidUntil)
+	}
+	// success
+	return nil
 }
 
 // Domain returns a copy the domain, panics if the operation is done without
