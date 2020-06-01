@@ -295,7 +295,312 @@ func Test_handlerMsgDeleteAccountCertificate(t *testing.T) {
 	keeper.RunTests(t, cases)
 }
 
-func Test_handlerMsgDeleteAccount(t *testing.T) {
+func Test_Closed_handlerMsgDeleteAccount(t *testing.T) {
+	cases := map[string]keeper.SubTest{
+		"domain admin can delete": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					Admin:      keeper.AliceKey,
+					Type:       types.ClosedDomain,
+					ValidUntil: types.MaxValidUntil,
+				})
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.BobKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.AliceKey,
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, exists := k.GetAccount(ctx, "test", "test")
+				if exists {
+					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+				}
+			},
+		},
+		"domain expired": {
+			BeforeTestBlockTime: 1,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					Admin:      keeper.AliceKey,
+					Type:       types.ClosedDomain,
+					ValidUntil: 2,
+				})
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.BobKey,
+				})
+			},
+			TestBlockTime: 2,
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.AliceKey,
+				})
+				if !errors.Is(err, types.ErrDomainExpired) {
+					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
+				}
+			},
+		},
+		"account owner cannot delete": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					Admin:      keeper.BobKey,
+					Type:       types.ClosedDomain,
+					ValidUntil: types.MaxValidUntil,
+				})
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.AliceKey,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("unexpected error: %s", err)
+				}
+			},
+		},
+	}
+	keeper.RunTests(t, cases)
+}
+
+func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
+	cases := map[string]keeper.SubTest{
+		"domain admin cannot can delete before grace period": {
+			BeforeTestBlockTime: 1,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainAddress: keeper.RegexMatchNothing,
+					ValidBlockchainID:      keeper.RegexMatchAll,
+					AccountGracePeriod:     1000 * time.Second,
+				})
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					Admin:      keeper.AliceKey,
+					Type:       types.OpenDomain,
+					ValidUntil: types.MaxValidUntil,
+				})
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.BobKey,
+				})
+			},
+			TestBlockTime: 3,
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.AliceKey,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
+				}
+			},
+		},
+		"no domain valid until check": {
+			BeforeTestBlockTime: 1,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainAddress: keeper.RegexMatchNothing,
+					ValidBlockchainID:      keeper.RegexMatchAll,
+					DomainRenewalPeriod:    10,
+				})
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					Admin:      keeper.AliceKey,
+					Type:       types.OpenDomain,
+					ValidUntil: 2,
+				})
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.BobKey,
+				})
+			},
+			TestBlockTime: 100,
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.BobKey,
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgDeleteAccount() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, exists := k.GetAccount(ctx, "test", "test")
+				if exists {
+					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+				}
+			},
+		},
+		"only account owner can delete before grace period": {
+			BeforeTestBlockTime: 1,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainAddress: keeper.RegexMatchNothing,
+					ValidBlockchainID:      keeper.RegexMatchAll,
+					AccountGracePeriod:     10 * time.Second,
+				})
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					Admin:      keeper.BobKey,
+					Type:       types.OpenDomain,
+					ValidUntil: types.MaxValidUntil,
+				})
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.AliceKey,
+				})
+			},
+			TestBlockTime: 5,
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// admin test
+				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.BobKey,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				// anyone test
+				_, err = handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.CharlieKey,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				// account owner test
+				_, err = handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.AliceKey,
+				})
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, exists := k.GetAccount(ctx, "test", "test")
+				if exists {
+					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+				}
+			},
+		},
+		"domain admin can delete after grace": {
+			BeforeTestBlockTime: 1,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainAddress: keeper.RegexMatchNothing,
+					ValidBlockchainID:      keeper.RegexMatchAll,
+					AccountGracePeriod:     10,
+				})
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					Admin:      keeper.BobKey,
+					Type:       types.OpenDomain,
+					ValidUntil: types.MaxValidUntil,
+				})
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.AliceKey,
+				})
+			},
+			TestBlockTime: 100,
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// admin test
+				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.BobKey,
+				})
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, exists := k.GetAccount(ctx, "test", "test")
+				if exists {
+					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+				}
+			},
+		},
+		"anyone can delete after grace": {
+			BeforeTestBlockTime: 1,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainAddress: keeper.RegexMatchNothing,
+					ValidBlockchainID:      keeper.RegexMatchAll,
+					AccountGracePeriod:     10,
+				})
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					Admin:      keeper.BobKey,
+					Type:       types.OpenDomain,
+					ValidUntil: types.MaxValidUntil,
+				})
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.AliceKey,
+				})
+			},
+			TestBlockTime: 100,
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// admin test
+				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
+					Domain: "test",
+					Name:   "test",
+					Owner:  keeper.CharlieKey,
+				})
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, exists := k.GetAccount(ctx, "test", "test")
+				if exists {
+					t.Fatalf("handlerMsgDeleteAccount() account was not deleted")
+				}
+			},
+		},
+	}
+	keeper.RunTests(t, cases)
+}
+
+func Test_Common_handlerMsgDeleteAccount(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -329,30 +634,6 @@ func Test_handlerMsgDeleteAccount(t *testing.T) {
 				})
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("handlerMsgDeleteAccount() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
-				}
-			},
-			AfterTest: nil,
-		},
-		"msg owner does not own domain or account": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
-					Name:  "test",
-					Admin: keeper.AliceKey,
-				})
-				k.CreateAccount(ctx, types.Account{
-					Domain: "test",
-					Name:   "test",
-					Owner:  keeper.AliceKey,
-				})
-			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgDeleteAccount(ctx, k, &types.MsgDeleteAccount{
-					Domain: "test",
-					Name:   "test",
-					Owner:  keeper.BobKey,
-				})
-				if !errors.Is(err, types.ErrUnauthorized) {
-					t.Fatalf("handlerMsgDeleteAccount() expected error: %s, got: %s", types.ErrUnauthorized, err)
 				}
 			},
 			AfterTest: nil,

@@ -231,8 +231,17 @@ func (a *Account) deletableBy(addr sdk.AccAddress) error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check on a non existing account is not allowed")
 	}
-	if !d.Admin.Equals(addr) && !a.account.Owner.Equals(addr) {
-		return sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s and domain admin %s can delete the account", a.account.Owner, d.Admin)
+	switch d.Type {
+	case types.ClosedDomain:
+		if err := a.domainCtrl.Validate(domain.Admin(addr), domain.NotExpired); err != nil {
+			return err
+		}
+	case types.OpenDomain:
+		if a.gracePeriodFinished() != nil {
+			if a.ownedBy(addr) != nil {
+				return sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to delete the account before grace period", a.account.Owner)
+			}
+		}
 	}
 	return nil
 }
@@ -320,6 +329,27 @@ func (a *Account) resettableBy(addr sdk.AccAddress, reset bool) error {
 	case types.ClosedDomain:
 	}
 	return nil
+}
+
+func GracePeriodFinished(controller *Account) error {
+	return controller.gracePeriodFinished()
+}
+
+// gracePeriodFinished is the condition that checks if given account's grace period has finished
+func (a *Account) gracePeriodFinished() error {
+	// require configuration
+	a.requireConfiguration()
+	// assert domain exists
+	if err := a.requireAccount(); err != nil {
+		panic("condition check not allowed on non existing account ")
+	}
+	// get grace period and expiration time
+	gracePeriod := a.conf.AccountGracePeriod
+	expireTime := iovns.SecondsToTime(a.account.ValidUntil)
+	if a.ctx.BlockTime().After(expireTime.Add(gracePeriod)) {
+		return nil
+	}
+	return sdkerrors.Wrapf(types.ErrAccountGracePeriodNotFinished, "account %s grace period has not finished", a.account.Name)
 }
 
 // Account returns the cached account, if the account existence

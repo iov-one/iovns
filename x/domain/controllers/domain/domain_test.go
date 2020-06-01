@@ -113,8 +113,8 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
 				err := ctrl.gracePeriodFinished()
-				if !errors.Is(err, types.ErrGracePeriodNotFinished) {
-					t.Fatalf("expected error: %s, got: %s", types.ErrGracePeriodNotFinished, err)
+				if !errors.Is(err, types.ErrDomainGracePeriodNotFinished) {
+					t.Fatalf("expected error: %s, got: %s", types.ErrDomainGracePeriodNotFinished, err)
 				}
 			},
 		},

@@ -132,6 +132,9 @@ func (m *MsgDeleteAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
+	if m.Name == "" {
+		return errors.Wrap(ErrOpEmptyAcc, "empty")
+	}
 	// success
 	return nil
 }
@@ -490,7 +493,7 @@ func (m *MsgTransferAccount) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
 	if m.Name == "" {
-		return errors.Wrap(ErrTransferEmptyAcc, "empty")
+		return errors.Wrap(ErrOpEmptyAcc, "empty")
 	}
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")

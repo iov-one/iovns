@@ -55,8 +55,8 @@ var ErrCertificateExists = sdkerrors.Register(ModuleName, 15, "certificate alrea
 // ErrCertificateDoesNotExist is returned when an action is performed on a domain that already exists
 var ErrCertificateDoesNotExist = sdkerrors.Register(ModuleName, 16, "certificate does not exist")
 
-// ErrGracePeriodNotFinished is returned when actions are performed on expired domains
-var ErrGracePeriodNotFinished = sdkerrors.Register(ModuleName, 17, "domain grace period has not finished")
+// ErrDomainGracePeriodNotFinished is returned when actions are performed on expired domains
+var ErrDomainGracePeriodNotFinished = sdkerrors.Register(ModuleName, 17, "domain grace period has not finished")
 
 // ErrInvalidDomainType is returned when domain type is invalid
 var ErrInvalidDomainType = sdkerrors.Register(ModuleName, 18, "invalid domain type")
@@ -64,5 +64,8 @@ var ErrInvalidDomainType = sdkerrors.Register(ModuleName, 18, "invalid domain ty
 // ErrInvalidRegisterer is returned when the registerer address provided is not valid (empty, malformed, etc)
 var ErrInvalidRegisterer = sdkerrors.Register(ModuleName, 19, "invalid registerer")
 
-// ErrTransferEmptyAcc is returned when the empty account is being attempted to be transferred
-var ErrTransferEmptyAcc = sdkerrors.Register(ModuleName, 20, "account name provided cannot be empty")
+// ErrOpEmptyAcc is returned when an operation tried to be run on empty account
+var ErrOpEmptyAcc = sdkerrors.Register(ModuleName, 20, "account name provided cannot be empty")
+
+// ErrAccountGracePeriodNotFinished is returned when actions are performed on not expired domains
+var ErrAccountGracePeriodNotFinished = sdkerrors.Register(ModuleName, 21, "account grace period has not finished")

@@ -100,7 +100,7 @@ func (c *Domain) gracePeriodFinished() error {
 	if c.ctx.BlockTime().After(expireTime.Add(gracePeriod)) {
 		return nil
 	}
-	return sdkerrors.Wrapf(types.ErrGracePeriodNotFinished, "domain %s grace period has not finished", c.domain.Name)
+	return sdkerrors.Wrapf(types.ErrDomainGracePeriodNotFinished, "domain %s grace period has not finished", c.domain.Name)
 }
 
 func Admin(addr sdk.AccAddress) ControllerFunc {

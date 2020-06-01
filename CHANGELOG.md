@@ -16,6 +16,7 @@
 - Recon configuration
 - Recon register account handler
 - Recon transfer account handler
+- Recon delete account handler
 
 ## v0.2.5
 
