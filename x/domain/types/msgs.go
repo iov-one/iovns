@@ -470,6 +470,8 @@ type MsgTransferAccount struct {
 	Owner sdk.AccAddress
 	// NewOwner is the new owner of the account
 	NewOwner sdk.AccAddress
+	// Reset indicates if the accounts content will be resetted
+	Reset bool
 }
 
 // Route implements sdk.Msg
@@ -486,6 +488,9 @@ func (m *MsgTransferAccount) Type() string {
 func (m *MsgTransferAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
+	}
+	if m.Name == "" {
+		return errors.Wrap(ErrTransferEmptyAcc, "empty")
 	}
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")

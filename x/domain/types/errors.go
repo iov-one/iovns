@@ -63,3 +63,6 @@ var ErrInvalidDomainType = sdkerrors.Register(ModuleName, 18, "invalid domain ty
 
 // ErrInvalidRegisterer is returned when the registerer address provided is not valid (empty, malformed, etc)
 var ErrInvalidRegisterer = sdkerrors.Register(ModuleName, 19, "invalid registerer")
+
+// ErrTransferEmptyAcc is returned when the empty account is being attempted to be transferred
+var ErrTransferEmptyAcc = sdkerrors.Register(ModuleName, 20, "account name provided cannot be empty")
