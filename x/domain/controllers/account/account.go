@@ -2,8 +2,9 @@ package account
 
 import (
 	"bytes"
-	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"regexp"
+
+	"github.com/iov-one/iovns/x/domain/controllers/domain"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -293,6 +294,22 @@ func (a *Account) transferableBy(addr sdk.AccAddress) error {
 		if a.ownedBy(addr) != nil {
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to transfer the account", a.account.Owner)
 		}
+	}
+	return nil
+}
+
+func BlockchainTargetLimitNotReached(ctrl *Account) error {
+	return ctrl.blockchainTargetLimitNotReached()
+}
+
+func (a *Account) blockchainTargetLimitNotReached() error {
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+
+	if uint32(len(a.account.Targets)) >= a.conf.BlockchainTargetMax {
+		return sdkerrors.Wrapf(types.ErrBlockchainTargetMaxLimit, "blockchain target limit reached: %s", a.conf.BlockchainTargetMax)
 	}
 	return nil
 }

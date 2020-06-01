@@ -1046,6 +1046,49 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
+		"blockchain target exceeded": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainID:      keeper.RegexMatchAll,
+					ValidBlockchainAddress: keeper.RegexMatchAll,
+					BlockchainTargetMax:    uint32(1),
+				})
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Admin:      keeper.BobKey,
+				})
+				// create account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Owner:      keeper.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
+					Domain: "test",
+					Name:   "test",
+					NewTargets: []types.BlockchainAddress{
+						{
+							ID:      "valid",
+							Address: "valid",
+						},
+						{
+							ID:      "valid2",
+							Address: "valid3",
+						},
+					},
+					Owner: keeper.BobKey,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrUnauthorized, err)
+				}
+			},
+			AfterTest: nil,
+		},
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match all
@@ -1053,6 +1096,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainID:      keeper.RegexMatchAll,
 					ValidBlockchainAddress: keeper.RegexMatchAll,
+					BlockchainTargetMax:    uint32(15),
 				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{

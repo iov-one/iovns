@@ -60,3 +60,6 @@ var ErrGracePeriodNotFinished = sdkerrors.Register(ModuleName, 17, "domain grace
 
 // ErrInvalidDomainType is returned when domain type is invalid
 var ErrInvalidDomainType = sdkerrors.Register(ModuleName, 18, "invalid domain type")
+
+// ErrBlockchainTargetMaxLimit is returned when blockchain target max limit reached
+var ErrBlockchainTargetMaxLimit = sdkerrors.Register(ModuleName, 20, "blockchain target limit reached")

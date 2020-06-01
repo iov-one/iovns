@@ -142,7 +142,12 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 	}
 	// perform account checks
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
-	if err := accountCtrl.Validate(account.ValidTargets(msg.NewTargets), account.MustExist, account.NotExpired, account.Owner(msg.Owner)); err != nil {
+	if err := accountCtrl.Validate(
+		account.MustExist,
+		account.NotExpired,
+		account.Owner(msg.Owner),
+		account.BlockchainTargetLimitNotReached,
+		account.ValidTargets(msg.NewTargets)); err != nil {
 		return nil, err
 	}
 	// collect fees
