@@ -2,10 +2,11 @@ package keeper
 
 import (
 	"fmt"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
-	"time"
 )
 
 // contains all the functions to interact with the account store
@@ -107,6 +108,39 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	account.Owner = newOwner   // transfer owner
 	account.Certificates = nil // remove certs
 	account.Targets = nil      // remove targets
+	// save account
+	k.SetAccount(ctx, account)
+	// map account to new owner
+	err = k.mapAccountToOwner(ctx, account)
+	if err != nil {
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
+	}
+	// map accounts new targets
+	err = k.mapTargetToAccount(ctx, account, account.Targets...)
+	if err != nil {
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
+	}
+}
+
+// TransferAccountWithReset transfers the account to aliceAddr new owner after modifying account contents
+func (k Keeper) TransferAccountWithReset(ctx sdk.Context, account types.Account, newOwner sdk.AccAddress, reset bool) {
+	// unmap account to owner
+	err := k.unmapAccountToOwner(ctx, account)
+	if err != nil {
+		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
+	}
+	// unmap account targets
+	err = k.unmapTargetToAccount(ctx, account, account.Targets...)
+	if err != nil {
+		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
+	}
+	if reset {
+		// update account
+		account.Certificates = nil
+		account.Targets = nil
+		account.MetadataURI = ""
+	}
+	account.Owner = newOwner // transfer owner
 	// save account
 	k.SetAccount(ctx, account)
 	// map account to new owner

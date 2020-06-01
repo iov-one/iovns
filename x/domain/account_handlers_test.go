@@ -1434,7 +1434,233 @@ func Test_handlerMsgSetAccountMetadata(t *testing.T) {
 	keeper.RunTests(t, cases)
 }
 
-func Test_handlerAccountTransfer(t *testing.T) {
+func Test_Closed_handlerAccountTransfer(t *testing.T) {
+	testCases := map[string]keeper.SubTest{
+		"only domain admin can transfer": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// domain owned by alice
+				k.CreateDomain(ctx, types.Domain{
+					Name:         "test",
+					Admin:        keeper.AliceKey,
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					Type:         types.ClosedDomain,
+					AccountRenew: 0,
+					Broker:       nil,
+				})
+				// account owned by bob
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					Owner:      keeper.BobKey,
+					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// alice is domain owner and should transfer account owned by bob to alice
+				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+					Domain:   "test",
+					Name:     "test",
+					Owner:    keeper.AliceKey,
+					NewOwner: keeper.CharlieKey,
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+				}
+				_, err = handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+					Domain:   "test",
+					Name:     "test",
+					Owner:    keeper.BobKey,
+					NewOwner: keeper.CharlieKey,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				account, exists := k.GetAccount(ctx, "test", "test")
+				if !exists {
+					panic("unexpected account deletion")
+				}
+				if !account.Owner.Equals(keeper.CharlieKey) {
+					t.Fatalf("handlerAccounTransfer() expected new owner: %s, got: %s", keeper.CharlieKey, account.Owner)
+				}
+			},
+		},
+		"domain admin can reset account content": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// domain owned by alice
+				k.CreateDomain(ctx, types.Domain{
+					Name:         "test",
+					Admin:        keeper.AliceKey,
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					Type:         types.ClosedDomain,
+					AccountRenew: 0,
+					Broker:       nil,
+				})
+				// account owned by bob
+				k.CreateAccount(ctx, types.Account{
+					Domain:       "test",
+					Name:         "test",
+					Owner:        keeper.BobKey,
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					MetadataURI:  "lol",
+					Certificates: []types.Certificate{[]byte("test")},
+					Targets: []types.BlockchainAddress{
+						{
+							ID:      "works",
+							Address: "works",
+						},
+					},
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// alice is domain owner and should transfer account owned by bob to alice
+				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+					Domain:   "test",
+					Name:     "test",
+					Owner:    keeper.AliceKey,
+					NewOwner: keeper.CharlieKey,
+					Reset:    true,
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				account, exists := k.GetAccount(ctx, "test", "test")
+				if !exists {
+					panic("unexpected account deletion")
+				}
+				if account.Targets != nil {
+					panic("targets not deleted")
+				}
+				if account.Certificates != nil {
+					panic("certificates not deleted")
+				}
+				if account.MetadataURI != "" {
+					panic("metadata not deleted")
+				}
+			},
+		},
+	}
+
+	keeper.RunTests(t, testCases)
+}
+
+func Test_Open_handlerAccountTransfer(t *testing.T) {
+	testCases := map[string]keeper.SubTest{
+		"domain admin cannot transfer": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// domain owned by alice
+				k.CreateDomain(ctx, types.Domain{
+					Name:         "test",
+					Admin:        keeper.AliceKey,
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					Type:         types.OpenDomain,
+					AccountRenew: 0,
+					Broker:       nil,
+				})
+				// account owned by bob
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					Owner:      keeper.BobKey,
+					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+					Domain:   "test",
+					Name:     "test",
+					Owner:    keeper.AliceKey,
+					NewOwner: keeper.CharlieKey,
+					Reset:    false,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+				}
+
+				_, err = handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+					Domain:   "test",
+					Name:     "test",
+					Owner:    keeper.BobKey,
+					NewOwner: keeper.CharlieKey,
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				account, exists := k.GetAccount(ctx, "test", "test")
+				if !exists {
+					panic("unexpected account deletion")
+				}
+				if !account.Owner.Equals(keeper.CharlieKey) {
+					t.Fatalf("handlerAccounTransfer() expected new owner: %s, got: %s", keeper.CharlieKey, account.Owner)
+				}
+			},
+		},
+		"domain admin cannot reset account content": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// domain owned by alice
+				k.CreateDomain(ctx, types.Domain{
+					Name:         "test",
+					Admin:        keeper.AliceKey,
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					Type:         types.OpenDomain,
+					AccountRenew: 0,
+					Broker:       nil,
+				})
+				// account owned by bob
+				k.CreateAccount(ctx, types.Account{
+					Domain:       "test",
+					Name:         "test",
+					Owner:        keeper.BobKey,
+					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					MetadataURI:  "lol",
+					Certificates: []types.Certificate{[]byte("test")},
+					Targets: []types.BlockchainAddress{
+						{
+							ID:      "works",
+							Address: "works",
+						},
+					},
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// alice is domain owner and should transfer account owned by bob to alice
+				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
+					Domain:   "test",
+					Name:     "test",
+					Owner:    keeper.AliceKey,
+					NewOwner: keeper.CharlieKey,
+					Reset:    true,
+				})
+				if !errors.Is(err, types.ErrUnauthorized) {
+					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				account, exists := k.GetAccount(ctx, "test", "test")
+				if !exists {
+					t.Fatal("unexpected account deletion")
+				}
+				if account.Targets == nil {
+					t.Fatal("targets deleted")
+				}
+				if account.Certificates == nil {
+					t.Fatal("certificates deleted")
+				}
+				if account.MetadataURI == "" {
+					t.Fatal("metadata not deleted")
+				}
+			},
+		},
+	}
+	keeper.RunTests(t, testCases)
+}
+
+func Test_Common_handlerAccountTransfer(t *testing.T) {
 	testCases := map[string]keeper.SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1641,53 +1867,6 @@ func Test_handlerAccountTransfer(t *testing.T) {
 				}
 				if !account.Owner.Equals(keeper.BobKey) {
 					t.Fatalf("handlerAccounTransfer() expected new owner: %s, got: %s", keeper.BobKey, account.Owner)
-				}
-			},
-		},
-		"success domain with superuser": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// domain owned by alice
-				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        keeper.AliceKey,
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-					Type:         types.ClosedDomain,
-					AccountRenew: 0,
-					Broker:       nil,
-				})
-				// account owned by bob
-				k.CreateAccount(ctx, types.Account{
-					Domain:     "test",
-					Name:       "test",
-					Owner:      keeper.BobKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
-				})
-			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// alice is domain owner and should transfer account owned by bob to alice
-				_, err := handlerMsgTransferAccount(ctx, k, &types.MsgTransferAccount{
-					Domain:   "test",
-					Name:     "test",
-					Owner:    keeper.AliceKey,
-					NewOwner: keeper.CharlieKey,
-				})
-				if err != nil {
-					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
-				}
-			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				account, exists := k.GetAccount(ctx, "test", "test")
-				if !exists {
-					panic("unexpected account deletion")
-				}
-				if account.Targets != nil {
-					t.Fatalf("handlerAccountTransfer() account targets were not deleted")
-				}
-				if account.Certificates != nil {
-					t.Fatalf("handlerAccountTransfer() account certificates were not deleted")
-				}
-				if !account.Owner.Equals(keeper.CharlieKey) {
-					t.Fatalf("handlerAccounTransfer() expected new owner: %s, got: %s", keeper.CharlieKey, account.Owner)
 				}
 			},
 		},

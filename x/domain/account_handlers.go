@@ -194,14 +194,28 @@ func handlerMsgSetAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.M
 func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferAccount) (*sdk.Result, error) {
 	// perform domain checks
 	domainCtrl := domain.NewController(ctx, k, msg.Domain)
-	if err := domainCtrl.Validate(domain.MustExist, domain.NotExpired); err != nil {
+	if err := domainCtrl.Validate(
+		domain.MustExist,
+		domain.NotExpired,
+	); err != nil {
 		return nil, err
 	}
 	// check if account exists
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name).
 		WithDomainController(domainCtrl)
-	if err := accountCtrl.Validate(account.MustExist, account.NotExpired, account.TransferableBy(msg.Owner)); err != nil {
+	if err := accountCtrl.Validate(
+		account.MustExist,
+		account.NotExpired,
+		account.TransferableBy(msg.Owner),
+		account.ResettableBy(msg.Owner, msg.Reset),
+	); err != nil {
 		return nil, err
+	}
+
+	d := domainCtrl.Domain()
+	switch d.Type {
+	case types.OpenDomain:
+
 	}
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
@@ -209,7 +223,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// transfer account
-	k.TransferAccount(ctx, accountCtrl.Account(), msg.NewOwner)
+	k.TransferAccountWithReset(ctx, accountCtrl.Account(), msg.NewOwner, msg.Reset)
 	// success, todo emit event?
 	return &sdk.Result{}, nil
 }

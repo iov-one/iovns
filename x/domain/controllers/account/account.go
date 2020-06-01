@@ -298,6 +298,30 @@ func (a *Account) transferableBy(addr sdk.AccAddress) error {
 	return nil
 }
 
+// ResettableBy checks if the account attributes resettable by the provided address
+func ResettableBy(addr sdk.AccAddress, reset bool) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.resettableBy(addr, reset)
+	}
+}
+
+func (a *Account) resettableBy(addr sdk.AccAddress, reset bool) error {
+	if err := a.requireDomain(); err != nil {
+		panic("validation check not allowed on a non existing domain")
+	}
+	d := a.domainCtrl.Domain()
+	switch d.Type {
+	case types.OpenDomain:
+		if reset {
+			if d.Admin.Equals(addr) {
+				return sdkerrors.Wrapf(types.ErrUnauthorized, "domain admin is not authorized to reset account contents on open domains")
+			}
+		}
+	case types.ClosedDomain:
+	}
+	return nil
+}
+
 // Account returns the cached account, if the account existence
 // was not asserted before, it panics.
 func (a *Account) Account() types.Account {
