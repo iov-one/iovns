@@ -18,7 +18,7 @@ const emptyAccountNameIndexIdentifier = "*"
 type Domain struct {
 	// Name is the name of the domain
 	Name string `json:"name"`
-	// Admin is the owner of the domain
+	// Owner is the owner of the domain
 	Admin sdk.AccAddress `json:"admin"`
 	// ValidUntil is a unix timestamp defines the time when the domain will become invalid
 	ValidUntil int64 `json:"valid_until"`

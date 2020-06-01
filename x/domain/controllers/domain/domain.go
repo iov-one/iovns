@@ -39,6 +39,12 @@ func NewController(ctx sdk.Context, k keeper.Keeper, domain string) *Domain {
 	}
 }
 
+// WithDomainController allows to specify a cached domain controller
+func (a *Domain) WithConfiguration(cfg configuration.Config) *Domain {
+	a.conf = &cfg
+	return a
+}
+
 // ---------------------- VALIDATION -----------------------------
 
 // Validate validates a domain based on the provided checks
@@ -97,14 +103,14 @@ func (c *Domain) gracePeriodFinished() error {
 	return sdkerrors.Wrapf(types.ErrGracePeriodNotFinished, "domain %s grace period has not finished", c.domain.Name)
 }
 
-func Owner(addr sdk.AccAddress) ControllerFunc {
+func Admin(addr sdk.AccAddress) ControllerFunc {
 	return func(controller *Domain) error {
-		return controller.ownedBy(addr)
+		return controller.isAdmin(addr)
 	}
 }
 
-// ownedBy makes sure the domain is owned by the provided address
-func (c *Domain) ownedBy(addr sdk.AccAddress) error {
+// isAdmin makes sure the domain is owned by the provided address
+func (c *Domain) isAdmin(addr sdk.AccAddress) error {
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
 		panic("validation check is not allowed on a non existing domain")
@@ -230,7 +236,7 @@ func DeletableBy(addr sdk.AccAddress) ControllerFunc {
 // deletableBy is the underlying operation used by DeletableBy controller
 func (c *Domain) deletableBy(addr sdk.AccAddress) error {
 	// check if either domain is owned by provided address or if grace period is finished
-	if err := c.Validate(Owner(addr)); err != nil && !c.Condition(GracePeriodFinished) {
+	if err := c.Validate(Admin(addr)); err != nil && !c.Condition(GracePeriodFinished) {
 		return sdkerrors.Wrap(types.ErrUnauthorized, "unable to delete domain not owned if grace period is not finished")
 	}
 	return nil

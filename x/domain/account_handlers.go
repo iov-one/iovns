@@ -76,38 +76,48 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 
 // handleMsgRegisterAccount registers the account
 func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRegisterAccount) (*sdk.Result, error) {
-	// do validity checks on domain
-	domainCtrl := domain.NewController(ctx, k, msg.Domain)
-	err := domainCtrl.Validate(domain.MustExist, domain.Type(types.ClosedDomain), domain.NotExpired, domain.Owner(msg.Owner))
-	if err != nil {
+	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
+	domainCtrl := domain.NewController(ctx, k, msg.Domain).WithConfiguration(conf)
+	if err := domainCtrl.Validate(
+		domain.MustExist,
+		domain.NotExpired,
+	); err != nil {
 		return nil, err
 	}
-	// get domain
 	d := domainCtrl.Domain()
-	// accounts validity checks
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
-	err = accountCtrl.Validate(account.ValidTargets(msg.Targets), account.ValidName, account.MustNotExist)
-	if err != nil {
+	if err := accountCtrl.Validate(
+		account.ValidTargets(msg.Targets),
+		account.ValidName,
+		account.MustNotExist,
+	); err != nil {
 		return nil, err
 	}
-	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Owner)
-	if err != nil {
-		return nil, errors.Wrap(err, "unable to collect fees")
-	}
-	// create account struct
+
 	a := types.Account{
 		Domain:       msg.Domain,
 		Name:         msg.Name,
 		Owner:        msg.Owner,
-		ValidUntil:   ctx.BlockTime().Add(d.AccountRenew * time.Second).Unix(), // add curr block time + domain account renew and convert to unix seconds
+		ValidUntil:   ctx.BlockTime().Add(d.AccountRenew * time.Second).Unix(),
 		Targets:      msg.Targets,
 		Certificates: nil,
 		Broker:       msg.Broker,
 	}
-	// save account
+	switch d.Type {
+	case types.ClosedDomain:
+		if err := domainCtrl.Validate(domain.Admin(msg.Registerer)); err != nil {
+			return nil, err
+		}
+		a.ValidUntil = types.MaxValidUntil
+	case types.OpenDomain:
+		a.ValidUntil = ctx.BlockTime().Add(conf.AccountRenewalPeriod).Unix()
+	}
+
+	err := k.CollectFees(ctx, msg, msg.Registerer)
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to collect fees")
+	}
 	k.CreateAccount(ctx, a)
-	// success; TODO can we emit events?
 	return &sdk.Result{}, nil
 }
 

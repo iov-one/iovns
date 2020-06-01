@@ -134,7 +134,7 @@ func TestDomain_ownedBy(t *testing.T) {
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
-				err := ctrl.ownedBy(keeper.AliceKey)
+				err := ctrl.isAdmin(keeper.AliceKey)
 				if err != nil {
 					t.Fatalf("got error: %s", err)
 				}
@@ -150,7 +150,7 @@ func TestDomain_ownedBy(t *testing.T) {
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				ctrl := NewController(ctx, k, "test")
-				err := ctrl.ownedBy(keeper.BobKey)
+				err := ctrl.isAdmin(keeper.BobKey)
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("want err: %s, got: %s", types.ErrUnauthorized, err)
 				}

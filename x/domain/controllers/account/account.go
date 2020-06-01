@@ -2,8 +2,9 @@ package account
 
 import (
 	"bytes"
-	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"regexp"
+
+	"github.com/iov-one/iovns/x/domain/controllers/domain"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -285,7 +286,7 @@ func (a *Account) transferableBy(addr sdk.AccAddress) error {
 	switch a.domainCtrl.Domain().Type {
 	// if it has a super user then only domain admin can transfer accounts
 	case types.ClosedDomain:
-		if a.domainCtrl.Validate(domain.Owner(addr)) != nil {
+		if a.domainCtrl.Validate(domain.Admin(addr)) != nil {
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", a.domainCtrl.Domain().Admin)
 		}
 	// if it has not a super user then only account owner can transfer the account

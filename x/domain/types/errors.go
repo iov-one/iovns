@@ -60,3 +60,6 @@ var ErrGracePeriodNotFinished = sdkerrors.Register(ModuleName, 17, "domain grace
 
 // ErrInvalidDomainType is returned when domain type is invalid
 var ErrInvalidDomainType = sdkerrors.Register(ModuleName, 18, "invalid domain type")
+
+// ErrInvalidRegisterer is returned when the registerer address provided is not valid (empty, malformed, etc)
+var ErrInvalidRegisterer = sdkerrors.Register(ModuleName, 19, "invalid registerer")
