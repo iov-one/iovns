@@ -38,11 +38,11 @@ func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
 	acc := types.Account{
 		Domain:       domain.Name,
 		Name:         "",
-		Owner:        domain.Admin, // TODO this is not clear, why the domain admin is zero address while this is msg.Owner
+		Owner:        domain.Admin,
 		ValidUntil:   types.MaxValidUntil,
 		Targets:      nil,
 		Certificates: nil,
-		Broker:       nil, // TODO ??
+		Broker:       nil,
 	}
 	// if domain type is open then account valid until needs to be updated
 	if domain.Type == types.OpenDomain {

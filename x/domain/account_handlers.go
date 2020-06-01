@@ -87,9 +87,9 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 	d := domainCtrl.Domain()
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
 	if err := accountCtrl.Validate(
-		account.ValidTargets(msg.Targets),
 		account.ValidName,
 		account.MustNotExist,
+		account.ValidTargets(msg.Targets),
 	); err != nil {
 		return nil, err
 	}
