@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -123,12 +124,22 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
+
+			reset, err := cmd.Flags().GetString("reset")
+			if err != nil {
+				return err
+			}
+			var resetBool bool
+			if resetBool, err = strconv.ParseBool(reset); err != nil {
+				return err
+			}
 			// build msg
 			msg := &types.MsgTransferAccount{
 				Domain:   domain,
 				Name:     name,
 				Owner:    cliCtx.GetFromAddress(),
 				NewOwner: newOwnerAddr,
+				Reset:    resetBool,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -142,6 +153,7 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "the domain name of account")
 	cmd.Flags().String("name", "", "the name of the account you want to transfer")
 	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
+	cmd.Flags().String("reset", "false", "true: reset all data associated with the account, false: preserves the data")
 	//
 	return cmd
 }
