@@ -165,9 +165,11 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
  * Maps iov1 addresses to star1 addresses.
  * @param {Object} dumped - the state of the weave-based chain
  * @param {Object} multisigs - a map of iov1 addresses to multisig account data
+ * @param {Array} indicatives - an array of weave txs stemming from sends to star1*iov
  */
-export const mapIovToStar = ( dumped, multisigs ) => {
+export const mapIovToStar = ( dumped, multisigs, indicatives ) => {
    const iov2star = {};
+   const reMemo = /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/;
 
    dumped.username.forEach( username => {
       const target = username.Targets.find( target => target.address.indexOf( "star1" ) == 0 );
@@ -175,6 +177,14 @@ export const mapIovToStar = ( dumped, multisigs ) => {
       iov2star[username.Owner] = target ? target.address : false;
    } );
    Object.keys( multisigs ).forEach( iov1 => iov2star[iov1] = multisigs[iov1].star1 );
+   indicatives.forEach( tx => {
+      const iov1 = tx.message.details.source;
+      const star1 = tx.message.details.memo.match( reMemo )[0];
+
+      if ( iov2star[iov1] && iov2star[iov1] != star1 ) throw new Error( `star1 mismatch on ${iov1}!  ${iov2star[iov1]} != ${star1}!` );
+
+      iov2star[iov1] = star1;
+    } );
 
    return iov2star;
 }
@@ -279,6 +289,7 @@ export const migrate = args => {
    const dumped = args.dumped;
    const flammable = args.flammable;
    const genesis = args.genesis;
+   const indicatives = args.indicatives;
    const multisigs = args.multisigs;
    const osaka = args.osaka;
    const premiums = args.premiums;
@@ -291,7 +302,7 @@ export const migrate = args => {
    fixChainIds( dumped, chainIds );
 
    // ...transform (order matters)...
-   const iov2star = mapIovToStar( dumped, multisigs, source2multisig );
+   const iov2star = mapIovToStar( dumped, multisigs, indicatives );
    const escrows = consolidateEscrows( dumped, source2multisig );
    const { accounts, starnames, domains } = convertToCosmosSdk( dumped, iov2star, multisigs, premiums );
 
