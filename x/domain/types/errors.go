@@ -69,3 +69,6 @@ var ErrOpEmptyAcc = sdkerrors.Register(ModuleName, 20, "account name provided ca
 
 // ErrAccountGracePeriodNotFinished is returned when actions are performed on not expired domains
 var ErrAccountGracePeriodNotFinished = sdkerrors.Register(ModuleName, 21, "account grace period has not finished")
+
+// ErrBlockchainTargetLimit exceeded is returned when blockchain target limit is exceeded
+var ErrBlockhainTargetLimitExceeded = sdkerrors.Register(ModuleName, 22, "blockchain target limit exceeded")

@@ -352,6 +352,24 @@ func (a *Account) gracePeriodFinished() error {
 	return sdkerrors.Wrapf(types.ErrAccountGracePeriodNotFinished, "account %s grace period has not finished", a.account.Name)
 }
 
+// ResettableBy checks if the account attributes resettable by the provided address
+func BlockchainTargetLimitNotExceeded(targets []types.BlockchainAddress) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.blockchainTargetLimitNotExceeded(targets)
+	}
+}
+
+func (a *Account) blockchainTargetLimitNotExceeded(targets []types.BlockchainAddress) error {
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+	if uint32(len(targets)) >= a.conf.BlockchainTargetMax {
+		return sdkerrors.Wrapf(types.ErrBlockhainTargetLimitExceeded, "blockchain target limit: %d", a.conf.BlockchainTargetMax)
+	}
+	return nil
+}
+
 // Account returns the cached account, if the account existence
 // was not asserted before, it panics.
 func (a *Account) Account() types.Account {
