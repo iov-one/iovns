@@ -22,8 +22,8 @@ install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/iovnscli
 
 build: go.sum
-	GOARCH=amd64 CGO_ENABLED=0 GOOS=linux go build -o ./cmd/iovnsd -mod=readonly $(BUILD_FLAGS) ./cmd/iovnsd
-	GOARCH=amd64 CGO_ENABLED=0 GOOS=linux go build -o ./cmd/iovnscli -mod=readonly $(BUILD_FLAGS) ./cmd/iovnscli
+	GOARCH=amd64 CGO_ENABLED=0 GOOS=linux go build -o ./build/iovnsd -mod=readonly $(BUILD_FLAGS) ./cmd/iovnsd
+	GOARCH=amd64 CGO_ENABLED=0 GOOS=linux go build -o ./build/iovnscli -mod=readonly $(BUILD_FLAGS) ./cmd/iovnscli
 
 go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
