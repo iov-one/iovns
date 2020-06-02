@@ -1,6 +1,7 @@
 import { burnTokens, consolidateEscrows, convertToCosmosSdk, fixChainIds, labelAccounts, labelMultisigs, mapIovToStar, migrate } from "../../lib/migrate";
 import { chainIds, source2multisig } from "../../lib/constants";
 import compareObjects from "../compareObjects";
+import tmp from "tmp";
 
 "use strict";
 
@@ -557,7 +558,10 @@ describe( "Tests ../../lib/migrate.js.", () => {
    } );
 
    it( `Should migrate.`, async () => {
-      migrate( { chainIds, dumped, flammable, genesis, indicatives, multisigs, osaka, premiums, reserveds, source2multisig } );
+      const tmpobj = tmp.dirSync( { template: "migrate-test-XXXXXX", unsafeCleanup: true } );
+      const home = tmpobj.name;
+
+      migrate( { chainIds, dumped, flammable, genesis, home, indicatives, multisigs, osaka, premiums, reserveds, source2multisig } );
 
       const nextGen = {
          "chain_id": "migration-test",
@@ -1044,5 +1048,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       // ...comparing
       compareObjects( nextGen, genesis );
+
+      tmpobj.removeCallback();
    } );
 } );

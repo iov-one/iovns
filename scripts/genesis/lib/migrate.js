@@ -1,3 +1,7 @@
+import stringify from "json-stable-stringify";
+import fs from "fs";
+import path from "path";
+
 "use strict";
 
 /**
@@ -303,6 +307,7 @@ export const migrate = args => {
    const dumped = args.dumped;
    const flammable = args.flammable;
    const genesis = args.genesis;
+   const home = args.home;
    const indicatives = args.indicatives;
    const multisigs = args.multisigs;
    const osaka = args.osaka;
@@ -326,4 +331,10 @@ export const migrate = args => {
    genesis.app_state.auth.accounts.push( ...Object.values( escrows ) );
    genesis.app_state.domain.accounts.push( ...starnames );
    genesis.app_state.domain.domains.push( ...domains );
+
+   // write genesis.json before...
+   fs.writeFileSync( path.join( home, "genesis.json" ), stringify( genesis, { space: "  " } ), "utf-8" );
+
+   // ...incorporating gentxs
+   // TODO
 };

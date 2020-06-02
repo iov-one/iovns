@@ -18,6 +18,7 @@
    },
    "devDependencies": {
       "jest": "^25.4.0",
-      "jest-cli": "^25.4.0"
+      "jest-cli": "^25.4.0",
+      "tmp": "^0.2.1"
    }
 }
