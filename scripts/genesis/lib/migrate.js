@@ -99,7 +99,7 @@ export const createStarname = ( args = {} ) => {
       "name": args.name || "",
       "owner": args.address || "",
       "targets": null,
-      "valid_until": Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60, // 1 year from now
+      "valid_until": String( Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60 ), // 1 year from now
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -118,7 +118,7 @@ export const createDomain = ( args = {} ) => {
       "broker": null,
       "name": args.domain,
       "type": "closed",
-      "valid_until": Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60, // 1 year from now
+      "valid_until": String( Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60 ), // 1 year from now
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
