@@ -57,6 +57,14 @@ func (a *Account) WithConfiguration(cfg configuration.Config) *Account {
 	return a
 }
 
+// WithAccount allows to specify a cached account
+func (a *Account) WithAccount(acc types.Account) *Account {
+	a.account = &acc
+	a.domain = acc.Domain
+	a.name = acc.Name
+	return a
+}
+
 // requireDomain builds the domain controller after asserting domain existence
 func (a *Account) requireDomain() error {
 	if a.domainCtrl != nil {
@@ -141,6 +149,14 @@ func (a *Account) notExpired() error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check is not allowed on a non existing account")
 	}
+	if err := a.requireDomain(); err != nil {
+		panic("validation check is not allowed on a non existing domain")
+	}
+	switch a.domainCtrl.Domain().Type {
+	// if domain is closed type then skip the expiration validation checks
+	case types.ClosedDomain:
+		return nil
+	}
 	// check if account has expired
 	expireTime := iovns.SecondsToTime(a.account.ValidUntil)
 	if !expireTime.Before(a.ctx.BlockTime()) {
@@ -160,19 +176,16 @@ func (a *Account) maxRenewNotExceeded() error {
 	}
 	a.requireConfiguration()
 
-	renewalPeriod := a.conf.AccountRenewalPeriod
-	renewMaxCount := a.conf.AccountRenewalCountMax
-	validUntil := iovns.SecondsToTime(a.account.ValidUntil)
-	expireWithRP := validUntil.Add(renewalPeriod)
-	lastRenewTime := time.Duration(int64(renewalPeriod.Seconds()) * int64(renewMaxCount))
-	lastExpiration := a.ctx.BlockTime().Add(lastRenewTime)
-
-	if expireWithRP.Before(lastExpiration) {
-		return nil
+	// do calculations
+	newValidUntil := iovns.SecondsToTime(a.account.ValidUntil).Add(a.conf.DomainRenewalPeriod) // set new expected valid until
+	maximumValidUntil := a.ctx.BlockTime().Add(a.conf.AccountRenewalPeriod * time.Duration(a.conf.AccountRenewalCountMax))
+	// check if new valid until is after maximum allowed
+	if newValidUntil.After(maximumValidUntil) {
+		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew account %s in domain %s, domain %s renewal period would be after maximum allowed: %s", a.account, a.domain, maximumValidUntil)
 	}
 
 	// if it has expired return error
-	return sdkerrors.Wrapf(types.ErrMaxRenewExceeded, "account %s in domain %s has expired", a.name, a.domain)
+	return nil
 }
 
 // Owner asserts the account is owned by the provided address
@@ -452,6 +465,27 @@ func (a *Account) metadataSizeNotExceeded(metadata string) error {
 		return sdkerrors.Wrapf(types.ErrMetadataSizeExceeded, "max metadata size %d exceeded", a.conf.MetadataSizeMax)
 	}
 	return nil
+}
+
+// RegistrableBy asserts that an account can be registered by the provided address
+func RegistrableBy(addr sdk.AccAddress) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.registrableBy(addr)
+	}
+}
+
+func (a *Account) registrableBy(addr sdk.AccAddress) error {
+	if err := a.requireDomain(); err != nil {
+		panic("validation check is not allowed on a non existing domain")
+	}
+	// check domain type
+	switch a.domainCtrl.Domain().Type {
+	// if domain is closed then the registerer must be domain owner
+	case types.ClosedDomain:
+		return a.domainCtrl.Validate(domain.Admin(addr))
+	default:
+		return nil
+	}
 }
 
 // Account returns the cached account, if the account existence

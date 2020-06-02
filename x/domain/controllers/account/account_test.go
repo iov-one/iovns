@@ -2,6 +2,7 @@ package account
 
 import (
 	"errors"
+	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"testing"
 	"time"
 
@@ -166,28 +167,46 @@ func TestAccount_certNotExist(t *testing.T) {
 }
 
 func TestAccount_notExpired(t *testing.T) {
+	closedDomain := (&domain.Domain{}).WithDomain(types.Domain{
+		Type: types.ClosedDomain,
+	})
+	openDomain := (&domain.Domain{}).WithDomain(types.Domain{
+		Type: types.OpenDomain,
+	})
 	t.Run("success", func(t *testing.T) {
-		acc := &Account{
+		acc := (&Account{
 			account: &types.Account{
 				ValidUntil: 10,
 			},
 			ctx: sdk.Context{}.WithBlockTime(time.Unix(0, 0)),
-		}
+		}).WithDomainController(openDomain)
 		err := acc.Validate(NotExpired)
 		if err != nil {
 			t.Fatalf("got error: %s", err)
 		}
 	})
 	t.Run("expired", func(t *testing.T) {
-		acc := &Account{
+		acc := (&Account{
 			account: &types.Account{
 				ValidUntil: 10,
 			},
 			ctx: sdk.Context{}.WithBlockTime(time.Unix(11, 0)),
-		}
+		}).WithDomainController(openDomain)
 		err := acc.Validate(NotExpired)
 		if !errors.Is(err, types.ErrAccountExpired) {
 			t.Fatalf("want error: %s, got: %s", types.ErrAccountExpired, err)
+		}
+	})
+	t.Run("success account expired but in closed domain", func(t *testing.T) {
+		acc := (&Account{
+			account: &types.Account{
+				ValidUntil: 1,
+			},
+			ctx: sdk.Context{}.WithBlockTime(time.Unix(20, 0)),
+		}).WithDomainController(closedDomain)
+		err := acc.Validate(NotExpired)
+		if err != nil {
+			t.Fatalf("got error: %s", err)
 		}
 	})
 }
@@ -234,6 +253,37 @@ func TestAccount_validName(t *testing.T) {
 		err := acc.Validate(ValidName)
 		if !errors.Is(err, types.ErrInvalidAccountName) {
 			t.Fatalf("unexpected error: %s, wanted: %s", err, types.ErrInvalidAccountName)
+		}
+	})
+}
+
+func TestAccountRegistrableBy(t *testing.T) {
+	closedDomain := (&domain.Domain{}).WithDomain(types.Domain{
+		Type:  types.ClosedDomain,
+		Admin: keeper.AliceKey,
+	})
+	openDomain := (&domain.Domain{}).WithDomain(types.Domain{
+		Type: types.OpenDomain,
+	})
+	t.Run("success in closed domain", func(t *testing.T) {
+		acc := (&Account{}).WithDomainController(closedDomain)
+		err := acc.Validate(RegistrableBy(keeper.AliceKey))
+		if err != nil {
+			t.Fatalf("got error: %s", err)
+		}
+	})
+	t.Run("fail in closed domain", func(t *testing.T) {
+		acc := (&Account{}).WithDomainController(closedDomain)
+		err := acc.Validate(RegistrableBy(keeper.BobKey))
+		if !errors.Is(err, types.ErrUnauthorized) {
+			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
+		}
+	})
+	t.Run("success other domain type", func(t *testing.T) {
+		acc := (&Account{}).WithDomainController(openDomain)
+		err := acc.Validate(RegistrableBy(keeper.AliceKey))
+		if err != nil {
+			t.Fatalf("got error: %s", err)
 		}
 	})
 }

@@ -1568,8 +1568,8 @@ func Test_Closed_handlerMsgRenewAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 				})
-				if !errors.Is(err, types.ErrClosedDomainAccExpire) {
-					t.Fatalf("handlerMsgRenewAccount() got error: %s", err)
+				if !errors.Is(err, types.ErrInvalidDomainType) {
+					t.Fatalf("handlerMsgRenewAccount() want err: %s, got: %s", types.ErrInvalidDomainType, err)
 				}
 			},
 		},
@@ -1625,24 +1625,25 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success domain grace period not updated": {
+			TestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					AccountRenewalPeriod: 1,
-					AccountGracePeriod:   5,
+					AccountRenewalPeriod:   1 * time.Second,
+					AccountRenewalCountMax: 200000,
+					AccountGracePeriod:     5 * time.Second,
 				})
 				// set mock domain
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					AccountRenew: 1000 * time.Second,
-					Type:         types.OpenDomain,
-					Admin:        keeper.BobKey,
+					Name:  "test",
+					Type:  types.OpenDomain,
+					Admin: keeper.BobKey,
 				})
 				// set mock account
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Unix(1000, 0)),
+					ValidUntil: iovns.TimeToSeconds(time.Unix(1, 0)),
 					Owner:      keeper.AliceKey,
 				})
 			},
@@ -1657,9 +1658,9 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				account, _ := k.GetAccount(ctx, "test", "test")
-				want := iovns.TimeToSeconds(time.Unix(1000, 0).Add(1000 * time.Second))
-				if account.ValidUntil != want {
-					t.Fatalf("handlerMsgRenewAccount() want: %d, got: %d", want, account.ValidUntil)
+				want := ctx.BlockTime().Add(k.ConfigurationKeeper.GetConfiguration(ctx).AccountRenewalPeriod)
+				if account.ValidUntil != iovns.TimeToSeconds(want) {
+					t.Fatalf("handlerMsgRenewAccount() want: %d, got: %d", want.Unix(), account.ValidUntil)
 				}
 			},
 		},
@@ -1670,7 +1671,7 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 
 func Test_Closed_handlerMsgReplaceAccountTargets(t *testing.T) {
 	cases := map[string]keeper.SubTest{
-		"does not respect account valid until": {
+		"fail does not respect account valid until": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
@@ -1684,6 +1685,7 @@ func Test_Closed_handlerMsgReplaceAccountTargets(t *testing.T) {
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
+					Type:       types.ClosedDomain,
 				})
 				// create account
 				k.CreateAccount(ctx, types.Account{
@@ -1707,16 +1709,6 @@ func Test_Closed_handlerMsgReplaceAccountTargets(t *testing.T) {
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgReplaceAccountTargets() got error: %s", err)
-				}
-			},
-			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				expected := []types.BlockchainAddress{{
-					ID:      "valid",
-					Address: "valid",
-				}}
-				account, _ := k.GetAccount(ctx, "test", "test")
-				if !reflect.DeepEqual(expected, account.Targets) {
-					t.Fatalf("handlerMsgReplaceAccountTargets() expected: %+v, got %+v", expected, account.Targets)
 				}
 			},
 		},
