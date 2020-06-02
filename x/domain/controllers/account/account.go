@@ -364,7 +364,7 @@ func (a *Account) blockchainTargetLimitNotExceeded(targets []types.BlockchainAdd
 		panic("validation check is not allowed on a non existing account")
 	}
 	a.requireConfiguration()
-	if uint32(len(targets)) >= a.conf.BlockchainTargetMax {
+	if uint32(len(targets)) > a.conf.BlockchainTargetMax {
 		return sdkerrors.Wrapf(types.ErrBlockhainTargetLimitExceeded, "blockchain target limit: %d", a.conf.BlockchainTargetMax)
 	}
 	return nil

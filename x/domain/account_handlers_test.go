@@ -1293,8 +1293,112 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 
 	keeper.RunTests(t, cases)
 }
+func Test_Closed_handlerMsgReplaceAccountTargets(t *testing.T) {
+	cases := map[string]keeper.SubTest{
+		"does not respect account valid until": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// set config to match all
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainID:      keeper.RegexMatchAll,
+					ValidBlockchainAddress: keeper.RegexMatchAll,
+					BlockchainTargetMax:    5,
+				})
+				// create domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Admin:      keeper.BobKey,
+				})
+				// create account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: 0,
+					Owner:      keeper.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
+					Domain: "test",
+					Name:   "test",
+					NewTargets: []types.BlockchainAddress{
+						{
+							ID:      "valid",
+							Address: "valid",
+						},
+					},
+					Owner: keeper.AliceKey,
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgReplaceAccountTargets() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				expected := []types.BlockchainAddress{{
+					ID:      "valid",
+					Address: "valid",
+				}}
+				account, _ := k.GetAccount(ctx, "test", "test")
+				if !reflect.DeepEqual(expected, account.Targets) {
+					t.Fatalf("handlerMsgReplaceAccountTargets() expected: %+v, got %+v", expected, account.Targets)
+				}
+			},
+		},
+	}
 
-func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
+	keeper.RunTests(t, cases)
+}
+
+func Test_Open_handlerMsgReplaceAccountTargets(t *testing.T) {
+	cases := map[string]keeper.SubTest{
+		"account expired": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// set config to match all
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainID:      keeper.RegexMatchAll,
+					ValidBlockchainAddress: keeper.RegexMatchAll,
+					BlockchainTargetMax:    3,
+				})
+				// create domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Admin:      keeper.BobKey,
+					Type:       types.OpenDomain,
+				})
+				// create account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: 0,
+					Owner:      keeper.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
+					Domain: "test",
+					Name:   "test",
+					NewTargets: []types.BlockchainAddress{
+						{
+							ID:      "valid",
+							Address: "valid",
+						},
+					},
+					Owner: keeper.AliceKey,
+				})
+				if !errors.Is(err, types.ErrAccountExpired) {
+					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrAccountExpired, err)
+				}
+			},
+			AfterTest: nil,
+		},
+	}
+
+	keeper.RunTests(t, cases)
+}
+func Test_Common_handlerMsgReplaceAccountTargets(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"invalid blockchain target": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1331,6 +1435,86 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					Owner: keeper.AliceKey,
 				})
 				if !errors.Is(err, types.ErrInvalidBlockchainTarget) {
+					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrInvalidBlockchainTarget, err)
+				}
+			},
+		},
+		"blockchain target limit exceeded": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				// set config to match all
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					ValidBlockchainID:      keeper.RegexMatchAll,
+					ValidBlockchainAddress: keeper.RegexMatchAll,
+					BlockchainTargetMax:    2,
+				})
+				// create domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Admin:      keeper.BobKey,
+				})
+				// create account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					Owner:      keeper.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
+					Domain: "test",
+					Name:   "test",
+					NewTargets: []types.BlockchainAddress{
+						{
+							ID:      "valid",
+							Address: "valid",
+						},
+						{
+							ID:      "valid1",
+							Address: "valid1",
+						},
+						{
+							ID:      "valid2",
+							Address: "valid2",
+						},
+					},
+					Owner: keeper.AliceKey,
+				})
+				if !errors.Is(err, types.ErrBlockhainTargetLimitExceeded) {
+					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrInvalidBlockchainTarget, err)
+				}
+				_, err = handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
+					Domain: "test",
+					Name:   "test",
+					NewTargets: []types.BlockchainAddress{
+						{
+							ID:      "invalid",
+							Address: "invalid",
+						},
+						{
+							ID:      "invalid2",
+							Address: "invalid2",
+						},
+					},
+					Owner: keeper.AliceKey,
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrInvalidBlockchainTarget, err)
+				}
+				_, err = handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
+					Domain: "test",
+					Name:   "test",
+					NewTargets: []types.BlockchainAddress{
+						{
+							ID:      "invalid",
+							Address: "invalid",
+						},
+					},
+					Owner: keeper.AliceKey,
+				})
+				if err != nil {
 					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrInvalidBlockchainTarget, err)
 				}
 			},
@@ -1422,47 +1606,6 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				})
 				if !errors.Is(err, types.ErrAccountDoesNotExist) {
 					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrAccountDoesNotExist, err)
-				}
-			},
-			AfterTest: nil,
-		},
-		"account expired": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// set config to match all
-				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
-				setConfig(ctx, configuration.Config{
-					ValidBlockchainID:      keeper.RegexMatchAll,
-					ValidBlockchainAddress: keeper.RegexMatchAll,
-				})
-				// create domain
-				k.CreateDomain(ctx, types.Domain{
-					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
-					Admin:      keeper.BobKey,
-					Type:       types.OpenDomain,
-				})
-				// create account
-				k.CreateAccount(ctx, types.Account{
-					Domain:     "test",
-					Name:       "test",
-					ValidUntil: 0,
-					Owner:      keeper.AliceKey,
-				})
-			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{
-					Domain: "test",
-					Name:   "test",
-					NewTargets: []types.BlockchainAddress{
-						{
-							ID:      "valid",
-							Address: "valid",
-						},
-					},
-					Owner: nil,
-				})
-				if !errors.Is(err, types.ErrAccountExpired) {
-					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrAccountExpired, err)
 				}
 			},
 			AfterTest: nil,
