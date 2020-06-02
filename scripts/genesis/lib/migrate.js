@@ -1,4 +1,4 @@
-import stringify from "json-stable-stringify";
+import stringify from "fast-json-stable-stringify";
 import fs from "fs";
 import path from "path";
 
