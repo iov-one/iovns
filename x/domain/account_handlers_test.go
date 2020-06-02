@@ -1439,6 +1439,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 					Name:       "test",
 					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
+					Type:       types.OpenDomain,
 				})
 				// create account
 				k.CreateAccount(ctx, types.Account{
@@ -1513,6 +1514,7 @@ func Test_handlerMsgReplaceAccountTargets(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidBlockchainID:      keeper.RegexMatchAll,
 					ValidBlockchainAddress: keeper.RegexMatchAll,
+					BlockchainTargetMax:    5,
 				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
