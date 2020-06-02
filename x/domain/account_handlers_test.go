@@ -1539,11 +1539,53 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 	keeper.RunTests(t, testCases)
 }
 
-func Test_handlerMsgRenewAccount(t *testing.T) {
+func Test_Closed_handlerMsgRenewAccount(t *testing.T) {
+	cases := map[string]keeper.SubTest{
+		"account cannot be renewed since its max": {
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					AccountRenewalPeriod: 1,
+					AccountGracePeriod:   5,
+				})
+				// set mock domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:         "test",
+					AccountRenew: 1000 * time.Second,
+					Type:         types.ClosedDomain,
+					Admin:        keeper.BobKey,
+				})
+				// set mock account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Unix(1000, 0)),
+					Owner:      keeper.AliceKey,
+				})
+			},
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
+					Domain: "test",
+					Name:   "test",
+				})
+				if !errors.Is(err, types.ErrClosedDomainAccExpire) {
+					t.Fatalf("handlerMsgRenewAccount() got error: %s", err)
+				}
+			},
+		},
+	}
+
+	keeper.RunTests(t, cases)
+}
+func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"domain does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					AccountRenewalPeriod: 1,
+					AccountGracePeriod:   5,
+				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
@@ -1558,10 +1600,16 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 		},
 		"account does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					AccountRenewalPeriod: 1,
+					AccountGracePeriod:   5,
+				})
 				// set mock domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					AccountRenew: 100,
+					Type:         types.OpenDomain,
 					Admin:        keeper.BobKey,
 				})
 			},
@@ -1576,12 +1624,18 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
-		"success": {
+		"success domain grace period not updated": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					AccountRenewalPeriod: 1,
+					AccountGracePeriod:   5,
+				})
 				// set mock domain
 				k.CreateDomain(ctx, types.Domain{
 					Name:         "test",
 					AccountRenew: 1000 * time.Second,
+					Type:         types.OpenDomain,
 					Admin:        keeper.BobKey,
 				})
 				// set mock account
@@ -1613,6 +1667,7 @@ func Test_handlerMsgRenewAccount(t *testing.T) {
 
 	keeper.RunTests(t, cases)
 }
+
 func Test_Closed_handlerMsgReplaceAccountTargets(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"does not respect account valid until": {
@@ -1802,7 +1857,7 @@ func Test_Common_handlerMsgReplaceAccountTargets(t *testing.T) {
 					},
 					Owner: keeper.AliceKey,
 				})
-				if !errors.Is(err, types.ErrBlockhainTargetLimitExceeded) {
+				if !errors.Is(err, types.ErrBlockchainTargetLimitExceeded) {
 					t.Fatalf("handlerMsgReplaceAccountTargets() expected error: %s, got: %s", types.ErrInvalidBlockchainTarget, err)
 				}
 				_, err = handlerMsgReplaceAccountTargets(ctx, k, &types.MsgReplaceAccountTargets{

@@ -71,7 +71,7 @@ var ErrOpEmptyAcc = sdkerrors.Register(ModuleName, 20, "account name provided ca
 var ErrAccountGracePeriodNotFinished = sdkerrors.Register(ModuleName, 21, "account grace period has not finished")
 
 // ErrBlockchainTargetLimit exceeded is returned when blockchain target limit is exceeded
-var ErrBlockhainTargetLimitExceeded = sdkerrors.Register(ModuleName, 22, "blockchain target limit exceeded")
+var ErrBlockchainTargetLimitExceeded = sdkerrors.Register(ModuleName, 22, "blockchain target limit exceeded")
 
 // ErrCertificateSizeExceeded is returned when certificate size exceeded
 var ErrCertificateSizeExceeded = sdkerrors.Register(ModuleName, 23, "certificate size exceeded")
@@ -81,3 +81,9 @@ var ErrCertificateLimitReached = sdkerrors.Register(ModuleName, 24, "certificate
 
 // ErrMetadataSizeExceeded is returned when metadata size exceeded
 var ErrMetadataSizeExceeded = sdkerrors.Register(ModuleName, 25, "metadata size exceeded")
+
+// ErrClosedDomainAccExpire is returned when expiration related operation trying to be run on closed domain
+var ErrClosedDomainAccExpire = sdkerrors.Register(ModuleName, 26, "accounts in closed domains do not expire")
+
+// ErrMaxRenewExceeded is returned when max renew time exceeded
+var ErrMaxRenewExceeded = sdkerrors.Register(ModuleName, 27, "max renew exceeded")

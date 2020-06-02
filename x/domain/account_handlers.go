@@ -3,6 +3,8 @@ package domain
 import (
 	"time"
 
+	"github.com/iov-one/iovns"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/iovns/x/domain/controllers/account"
@@ -152,14 +154,23 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 }
 
 func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewAccount) (*sdk.Result, error) {
+	conf := k.ConfigurationKeeper.GetConfiguration(ctx)
 	// validate domain
-	domainCtrl := domain.NewController(ctx, k, msg.Domain)
+	domainCtrl := domain.NewController(ctx, k, msg.Domain).WithConfiguration(conf)
 	if err := domainCtrl.Validate(domain.MustExist); err != nil {
 		return nil, err
 	}
+	d := domainCtrl.Domain()
+	switch d.Type {
+	case types.ClosedDomain:
+		// Closed domains do not expire
+		return nil, types.ErrClosedDomainAccExpire
+	}
 	// validate account
-	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
-	if err := accountCtrl.Validate(account.MustExist); err != nil {
+	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name).WithConfiguration(conf)
+	if err := accountCtrl.Validate(
+		account.MustExist,
+		account.MaxRenewNotExceeded); err != nil {
 		return nil, err
 	}
 	// collect fees
@@ -168,7 +179,17 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// renew account
-	k.RenewAccount(ctx, accountCtrl.Account(), domainCtrl.Domain().AccountRenew)
+	a := accountCtrl.Account()
+	// account valid until is extended here
+	k.RenewAccount(ctx, &a, conf.AccountRenewalPeriod)
+	// get grace period and expiration time
+	dgp := conf.DomainGracePeriod
+	domainGracePeriodUntil := iovns.SecondsToTime(d.ValidUntil).Add(dgp)
+	accNewValidUntil := iovns.SecondsToTime(a.ValidUntil)
+	if domainGracePeriodUntil.Before(accNewValidUntil) {
+		d.ValidUntil = accNewValidUntil.Unix()
+		k.SetDomain(ctx, d)
+	}
 	// success; todo emit event??
 	return &sdk.Result{}, nil
 }

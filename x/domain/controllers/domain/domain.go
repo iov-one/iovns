@@ -39,7 +39,7 @@ func NewController(ctx sdk.Context, k keeper.Keeper, domain string) *Domain {
 	}
 }
 
-// WithDomainController allows to specify a cached domain controller
+// WithConfiguration allows to specify a cached config
 func (a *Domain) WithConfiguration(cfg configuration.Config) *Domain {
 	a.conf = &cfg
 	return a

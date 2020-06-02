@@ -3,6 +3,7 @@ package account
 import (
 	"bytes"
 	"regexp"
+	"time"
 
 	"github.com/iov-one/iovns/x/domain/controllers/domain"
 
@@ -47,6 +48,12 @@ func NewController(ctx sdk.Context, k keeper.Keeper, domain, name string) *Accou
 // WithDomainController allows to specify a cached domain controller
 func (a *Account) WithDomainController(dom *domain.Domain) *Account {
 	a.domainCtrl = dom
+	return a
+}
+
+// WithConfiguration allows to specify a cached config
+func (a *Account) WithConfiguration(cfg configuration.Config) *Account {
+	a.conf = &cfg
 	return a
 }
 
@@ -141,6 +148,31 @@ func (a *Account) notExpired() error {
 	}
 	// if it has expired return error
 	return sdkerrors.Wrapf(types.ErrAccountExpired, "account %s in domain %s has expired", a.name, a.domain)
+}
+
+func MaxRenewNotExceeded(ctrl *Account) error {
+	return ctrl.maxRenewNotExceeded()
+}
+
+func (a *Account) maxRenewNotExceeded() error {
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+
+	renewalPeriod := a.conf.AccountRenewalPeriod
+	renewMaxCount := a.conf.AccountRenewalCountMax
+	validUntil := iovns.SecondsToTime(a.account.ValidUntil)
+	expireWithRP := validUntil.Add(renewalPeriod)
+	lastRenewTime := time.Duration(int64(renewalPeriod.Seconds()) * int64(renewMaxCount))
+	lastExpiration := a.ctx.BlockTime().Add(lastRenewTime)
+
+	if expireWithRP.Before(lastExpiration) {
+		return nil
+	}
+
+	// if it has expired return error
+	return sdkerrors.Wrapf(types.ErrMaxRenewExceeded, "account %s in domain %s has expired", a.name, a.domain)
 }
 
 // Owner asserts the account is owned by the provided address
@@ -399,7 +431,7 @@ func (a *Account) blockchainTargetLimitNotExceeded(targets []types.BlockchainAdd
 	}
 	a.requireConfiguration()
 	if uint32(len(targets)) > a.conf.BlockchainTargetMax {
-		return sdkerrors.Wrapf(types.ErrBlockhainTargetLimitExceeded, "blockchain target limit: %d", a.conf.BlockchainTargetMax)
+		return sdkerrors.Wrapf(types.ErrBlockchainTargetLimitExceeded, "blockchain target limit: %d", a.conf.BlockchainTargetMax)
 	}
 	return nil
 }
