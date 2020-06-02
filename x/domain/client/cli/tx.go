@@ -615,7 +615,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			msg := &types.MsgSetAccountMetadata{
+			msg := &types.MsgReplaceAccountMetadata{
 				Domain:         domain,
 				Name:           name,
 				Owner:          cliCtx.GetFromAddress(),

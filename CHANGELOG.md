@@ -20,6 +20,7 @@
 - Recon replace account targets handler
 - Recon add account certs handler
 - Recon delete account cert handler
+- Recon replace metadata handler
 
 ## v0.2.5
 

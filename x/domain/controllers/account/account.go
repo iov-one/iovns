@@ -404,6 +404,24 @@ func (a *Account) blockchainTargetLimitNotExceeded(targets []types.BlockchainAdd
 	return nil
 }
 
+func MetadataSizeNotExceeded(metadata string) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.metadataSizeNotExceeded(metadata)
+	}
+}
+
+func (a *Account) metadataSizeNotExceeded(metadata string) error {
+	// assert domain exists
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+	if uint64(len(metadata)) > a.conf.MetadataSizeMax {
+		return sdkerrors.Wrapf(types.ErrMetadataSizeExceeded, "max metadata size %d exceeded", a.conf.MetadataSizeMax)
+	}
+	return nil
+}
+
 // Account returns the cached account, if the account existence
 // was not asserted before, it panics.
 func (a *Account) Account() types.Account {

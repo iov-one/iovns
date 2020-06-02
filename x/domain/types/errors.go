@@ -78,3 +78,6 @@ var ErrCertificateSizeExceeded = sdkerrors.Register(ModuleName, 23, "certificate
 
 // ErrCertificateLimitReached is returned when certificate limit is exceeded
 var ErrCertificateLimitReached = sdkerrors.Register(ModuleName, 24, "certificate limit reached")
+
+// ErrMetadataSizeExceeded is returned when metadata size exceeded
+var ErrMetadataSizeExceeded = sdkerrors.Register(ModuleName, 25, "metadata size exceeded")

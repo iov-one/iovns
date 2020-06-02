@@ -414,9 +414,9 @@ func (m *MsgReplaceAccountTargets) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }
 
-// MsgSetAccountMetadata is the function used
+// MsgReplaceAccountMetadata is the function used
 // to set accounts metadata
-type MsgSetAccountMetadata struct {
+type MsgReplaceAccountMetadata struct {
 	// Domain is the domain name of the account
 	Domain string
 	// Name is the name of the account
@@ -429,17 +429,17 @@ type MsgSetAccountMetadata struct {
 }
 
 // Route implements sdk.Msg
-func (m *MsgSetAccountMetadata) Route() string {
+func (m *MsgReplaceAccountMetadata) Route() string {
 	return RouterKey
 }
 
 // Type implements sdk.Msg
-func (m *MsgSetAccountMetadata) Type() string {
+func (m *MsgReplaceAccountMetadata) Type() string {
 	return "set_account_metadata"
 }
 
 // ValidateBasic implements sdk.Msg
-func (m *MsgSetAccountMetadata) ValidateBasic() error {
+func (m *MsgReplaceAccountMetadata) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
@@ -453,12 +453,12 @@ func (m *MsgSetAccountMetadata) ValidateBasic() error {
 }
 
 // GetSignBytes implements sdk.Msg
-func (m *MsgSetAccountMetadata) GetSignBytes() []byte {
+func (m *MsgReplaceAccountMetadata) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgSetAccountMetadata) GetSigners() []sdk.AccAddress {
+func (m *MsgReplaceAccountMetadata) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }
 

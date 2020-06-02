@@ -210,8 +210,8 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 	return &sdk.Result{}, nil
 }
 
-// handlerMsgSetAccountMetadata takes care of setting account metadata
-func handlerMsgSetAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.MsgSetAccountMetadata) (*sdk.Result, error) {
+// handlerMsgReplaceAccountMetadata takes care of setting account metadata
+func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.MsgReplaceAccountMetadata) (*sdk.Result, error) {
 	// perform domain checks
 	domainCtrl := domain.NewController(ctx, k, msg.Domain)
 	if err := domainCtrl.Validate(domain.MustExist, domain.NotExpired); err != nil {
@@ -219,8 +219,18 @@ func handlerMsgSetAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *types.M
 	}
 	// perform account checks
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
-	if err := accountCtrl.Validate(account.MustExist, account.NotExpired, account.Owner(msg.Owner)); err != nil {
+	if err := accountCtrl.Validate(
+		account.MustExist,
+		account.Owner(msg.Owner),
+		account.MetadataSizeNotExceeded(msg.NewMetadataURI)); err != nil {
 		return nil, err
+	}
+	d := domainCtrl.Domain()
+	switch d.Type {
+	case types.OpenDomain:
+		if err := accountCtrl.Validate(account.NotExpired); err != nil {
+			return nil, err
+		}
 	}
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
