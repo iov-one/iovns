@@ -47,10 +47,27 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *typ
 }
 
 func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
+	// perform domain checks
+	domainCtrl := domain.NewController(ctx, k, msg.Domain)
+	if err := domainCtrl.Validate(
+		domain.MustExist,
+		domain.NotExpired); err != nil {
+		return nil, err
+	}
 	// perform account checks, save certificate index
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
+	d := domainCtrl.Domain()
+	switch d.Type {
+	case types.OpenDomain:
+		if err := accountCtrl.Validate(account.NotExpired); err != nil {
+			return nil, err
+		}
+	}
 	certIndex := new(int)
-	if err := accountCtrl.Validate(account.MustExist, account.Owner(msg.Owner), account.CertificateExists(msg.DeleteCertificate, certIndex)); err != nil {
+	if err := accountCtrl.Validate(
+		account.MustExist,
+		account.Owner(msg.Owner),
+		account.CertificateExists(msg.DeleteCertificate, certIndex)); err != nil {
 		return nil, err
 	}
 	err := k.CollectFees(ctx, msg, msg.Owner)
