@@ -17,9 +17,22 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *typ
 	if err := domainCtrl.Validate(domain.MustExist, domain.NotExpired); err != nil {
 		return nil, err
 	}
+
 	// perform account checks
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name)
-	if err := accountCtrl.Validate(account.MustExist, account.NotExpired, account.Owner(msg.Owner), account.CertificateNotExist(msg.NewCertificate)); err != nil {
+	d := domainCtrl.Domain()
+	switch d.Type {
+	case types.OpenDomain:
+		if err := accountCtrl.Validate(account.NotExpired); err != nil {
+			return nil, err
+		}
+	}
+	if err := accountCtrl.Validate(
+		account.MustExist,
+		account.Owner(msg.Owner),
+		account.CertificateLimitNotExceeded,
+		account.CertificateSizeNotExceeded(msg.NewCertificate),
+		account.CertificateNotExist(msg.NewCertificate)); err != nil {
 		return nil, err
 	}
 	// collect fees

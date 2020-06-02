@@ -205,6 +205,40 @@ func (a *Account) certNotExist(newCert []byte, indexPointer *int) error {
 	return nil
 }
 
+func CertificateSizeNotExceeded(cert []byte) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.certSizeNotExceeded(cert)
+	}
+}
+
+func (a *Account) certSizeNotExceeded(newCert []byte) error {
+	// assert domain exists
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+	if uint64(len(newCert)) > a.conf.CertificateSizeMax {
+		return sdkerrors.Wrapf(types.ErrCertificateSizeExceeded, "max certificate size %d exceeded", a.conf.CertificateSizeMax)
+	}
+	return nil
+}
+
+func CertificateLimitNotExceeded(ctrl *Account) error {
+	return ctrl.certLimitNotExceeded()
+}
+
+func (a *Account) certLimitNotExceeded() error {
+	// assert domain exists
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+	if uint32(len(a.account.Certificates)) >= a.conf.CertificateCountMax {
+		return sdkerrors.Wrapf(types.ErrCertificateLimitReached, "max certificate limit %d reached, cannot add more", a.conf.CertificateCountMax)
+	}
+	return nil
+}
+
 // Validate verifies the account against the order of provided controllers
 func (a *Account) Validate(checks ...ControllerFunc) error {
 	for _, check := range checks {

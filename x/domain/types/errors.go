@@ -72,3 +72,9 @@ var ErrAccountGracePeriodNotFinished = sdkerrors.Register(ModuleName, 21, "accou
 
 // ErrBlockchainTargetLimit exceeded is returned when blockchain target limit is exceeded
 var ErrBlockhainTargetLimitExceeded = sdkerrors.Register(ModuleName, 22, "blockchain target limit exceeded")
+
+// ErrCertificateSizeExceeded is returned when certificate size exceeded
+var ErrCertificateSizeExceeded = sdkerrors.Register(ModuleName, 23, "certificate size exceeded")
+
+// ErrCertificateLimitReached is returned when certificate limit is exceeded
+var ErrCertificateLimitReached = sdkerrors.Register(ModuleName, 24, "certificate limit reached")

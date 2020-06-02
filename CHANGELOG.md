@@ -18,6 +18,7 @@
 - Recon transfer account handler
 - Recon delete account handler
 - Recon replace account targets handler
+- Recon add account certs handler
 
 ## v0.2.5
 
