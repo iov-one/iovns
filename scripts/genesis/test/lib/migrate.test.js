@@ -76,6 +76,10 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "address": "iov1q40tvnph5xy7cjyj3tmqzghukeheykudq246d6",
             "coins": [ { "ticker": "IOV", "whole": 22171 } ]
          },
+         {
+            "address": "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq",
+            "coins": [ { "fractional": 500000000, "ticker": "IOV", "whole": 13015243 } ]
+         },
       ],
       "escrow": [
          {
@@ -278,7 +282,12 @@ describe( "Tests ../../lib/migrate.js.", () => {
       iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc: {
          "//name": "Custodian of missing star1 accounts",
          address: "cond:multisig/usage/0000000000000006",
-         star1: "star1 custodian", // TODO
+         star1: "star1custodian",
+      },
+      iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq: {
+         "//name": "IOV SAS",
+         address: "cond:multisig/usage/0000000000000001",
+         star1: "star1iov",
       },
    };
    const osaka = {
@@ -344,6 +353,12 @@ describe( "Tests ../../lib/migrate.js.", () => {
       iov1ylw3cnluf3zayfths0ezgjp5cwf6ddvsvwa7l4: [ "lovely" ],
       iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx: [ "gianna", "nodeateam", "tyler", "michael" ],
    };
+   const reserveds = [
+      "goldman",
+      "socgen",
+      "twitter",
+      "youtube",
+   ];
 
    it( `Should burn tokens.`, async () => {
       const copied = JSON.parse( JSON.stringify( dumped ) );
@@ -451,8 +466,9 @@ describe( "Tests ../../lib/migrate.js.", () => {
       fixChainIds( dumpedCopy, chainIds );
 
       const iov2star = mapIovToStar( dumpedCopy, multisigs, indicatives );
-      const { accounts, starnames, domains } = convertToCosmosSdk( dumpedCopy, iov2star, multisigs, premiums );
+      const { accounts, starnames, domains } = convertToCosmosSdk( dumpedCopy, iov2star, multisigs, premiums, reserveds );
       const custodian = accounts.find( account => account["//iov1"] == "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc" );
+      const iov = accounts.find( account => account["//iov1"] == "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq" );
       const rewards = accounts.find( account => account["//iov1"] == "iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n" );
       const bonus = accounts.find( account => account["//iov1"] == "iov1zd573wa38pxfvn9mxvpkjm6a8vteqvar2dwzs0" );
       const dave = accounts.find( account => account["//iov1"] == "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
@@ -526,12 +542,20 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       const hash = domains.find( domain => domain.name == "hash" );
       const huth = domains.find( domain => domain.name == "huth" );
+      const goldman = domains.find( domain => domain.name == "goldman" );
+      const socgen = domains.find( domain => domain.name == "socgen" );
+      const twitter = domains.find( domain => domain.name == "twitter" );
+      const youtube = domains.find( domain => domain.name == "youtube" );
 
       expect( hash.admin ).toEqual( "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y" );
       expect( huth.admin ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
+      expect( goldman.admin ).toEqual( iov.value.address );
+      expect( socgen.admin ).toEqual( iov.value.address );
+      expect( twitter.admin ).toEqual( iov.value.address );
+      expect( youtube.admin ).toEqual( iov.value.address );
    } );
 
    it( `Should migrate.`, async () => {
-      migrate( { chainIds, dumped, flammable, genesis, indicatives, multisigs, osaka, premiums, source2multisig } );
+      migrate( { chainIds, dumped, flammable, genesis, indicatives, multisigs, osaka, premiums, reserveds, source2multisig } );
    } );
 } );

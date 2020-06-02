@@ -201,8 +201,9 @@ export const mapIovToStar = ( dumped, multisigs, indicatives ) => {
  * @param {Object} iov2star - a map of iov1 address to star1 addresses
  * @param {Object} multisigs - a map of iov1 addresses to multisig account data
  * @param {Object} premiums - a map of iov1 addresses to arrays of domains
+ * @param {Array} reserveds - domains reserved by IOV SAS
  */
-export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums ) => {
+export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reserveds ) => {
    const accounts = [];
    const getAmount = wallet => {
       const coins0 = wallet.coins[0];
@@ -282,6 +283,12 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums ) => {
       } );
    } );
 
+   const iov1 = "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq";
+   const address = multisigs[iov1].star1;
+   reserveds.forEach( domain => {
+      domains.push( createDomain( { address, iov1, domain } ) );
+   } );
+
    domains.sort( ( a, b ) => a.name.localeCompare( b.name ) );
 
    return { accounts, starnames, domains };
@@ -300,6 +307,7 @@ export const migrate = args => {
    const multisigs = args.multisigs;
    const osaka = args.osaka;
    const premiums = args.premiums;
+   const reserveds = args.reserveds;
    const source2multisig = args.source2multisig;
 
    // massage inputs...
@@ -311,7 +319,7 @@ export const migrate = args => {
    // ...transform (order matters)...
    const iov2star = mapIovToStar( dumped, multisigs, indicatives );
    const escrows = consolidateEscrows( dumped, source2multisig );
-   const { accounts, starnames, domains } = convertToCosmosSdk( dumped, iov2star, multisigs, premiums );
+   const { accounts, starnames, domains } = convertToCosmosSdk( dumped, iov2star, multisigs, premiums, reserveds );
 
    // ...mutate genesis
    genesis.app_state.auth.accounts.push( ...Object.values( accounts ) );
