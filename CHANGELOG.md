@@ -1,6 +1,8 @@
 # Changelog 
 
 ## HEAD
+- fix account controller max renew exceed
+- add tests to account handlers in domain
 - reconcile domain spec
 - treat handler as orchestrator
 - extend keeper functionality
