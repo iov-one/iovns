@@ -14,7 +14,7 @@ describe( "Tests ../../lib/pullDumpedState.js.", () => {
       expect( dave ).toBeTruthy();
       expect( dave.Owner ).toEqual( "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
       expect( dave.Targets.length ).toBeGreaterThanOrEqual( 1 );
-      expect( weave.contract.length ).toEqual( 5 );
+      expect( weave.contract.length ).toEqual( 6 );
       expect( weave.escrow.length ).toBeLessThanOrEqual( 18 );
       expect( weave.height ).toBeGreaterThanOrEqual( 65318 );
    } );

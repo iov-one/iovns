@@ -11,6 +11,7 @@ describe( "Tests ../../lib/constants.js.", () => {
    const multisig3 = "cond:multisig/usage/0000000000000003";
    const multisig4 = "cond:multisig/usage/0000000000000004";
    const multisig5 = "cond:multisig/usage/0000000000000005";
+   const multisig6 = "cond:multisig/usage/0000000000000006";
 
    // names
    const reward = "reward fund";
@@ -19,10 +20,11 @@ describe( "Tests ../../lib/constants.js.", () => {
    const pending = "IOV SAS pending deals pocket; close deal or burn";
    const bounty = "IOV SAS bounty fund";
    const cofounders = "Unconfirmed contributors/co-founders";
+   const custodian = "Custodian of missing star1 accounts";
 
 
    it( `Should get multisigs keyed on iov1.`, () => {
-      expect( Object.keys( multisigs ).length ).toEqual( 6 );
+      expect( Object.keys( multisigs ).length ).toEqual( 7 );
 
       expect( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n["//name"] ).toEqual( reward );
       expect( multisigs.iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq["//name"] ).toEqual( iov );
@@ -30,6 +32,7 @@ describe( "Tests ../../lib/constants.js.", () => {
       expect( multisigs.iov1ppzrq5gwqlcsnwdvlz7x9mu98fntmp65m9a3mz["//name"] ).toEqual( pending );
       expect( multisigs.iov1ym3uxcfv9zar2md0xd3hq2vah02u3fm6zn8mnu["//name"] ).toEqual( bounty );
       expect( multisigs.iov1myq53ry9pa6awl88m0xgp224q0dgwjdvz2dcsw["//name"] ).toEqual( cofounders );
+      expect( multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc["//name"] ).toEqual( custodian );
 
       expect( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.address ).toEqual( gov2 );
       expect( multisigs.iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq.address ).toEqual( multisig1 );
@@ -37,6 +40,7 @@ describe( "Tests ../../lib/constants.js.", () => {
       expect( multisigs.iov1ppzrq5gwqlcsnwdvlz7x9mu98fntmp65m9a3mz.address ).toEqual( multisig3 );
       expect( multisigs.iov1ym3uxcfv9zar2md0xd3hq2vah02u3fm6zn8mnu.address ).toEqual( multisig4 );
       expect( multisigs.iov1myq53ry9pa6awl88m0xgp224q0dgwjdvz2dcsw.address ).toEqual( multisig5 );
+      expect( multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.address ).toEqual( multisig6 );
 
       expect( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 ).toEqual( "TBD" ); // TODO
       expect( multisigs.iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq.star1 ).toEqual( "TBD" ); // TODO
@@ -44,6 +48,7 @@ describe( "Tests ../../lib/constants.js.", () => {
       expect( multisigs.iov1ppzrq5gwqlcsnwdvlz7x9mu98fntmp65m9a3mz.star1 ).toEqual( "TBD" ); // TODO
       expect( multisigs.iov1ym3uxcfv9zar2md0xd3hq2vah02u3fm6zn8mnu.star1 ).toEqual( "TBD" ); // TODO
       expect( multisigs.iov1myq53ry9pa6awl88m0xgp224q0dgwjdvz2dcsw.star1 ).toEqual( "TBD" ); // TODO
+      expect( multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1 ).toEqual( "TBD" ); // TODO
    } );
 
    it( `Should get multisigs keyed on cond.`, () => {
@@ -72,7 +77,7 @@ describe( "Tests ../../lib/constants.js.", () => {
    } );
 
    it( `Should get multisigs keyed on "//name".`, () => {
-      expect( Object.keys( names ).length ).toEqual( 6 );
+      expect( Object.keys( names ).length ).toEqual( 7 );
 
       expect( names[reward    ].cond ).toEqual( gov2 );
       expect( names[iov       ].cond ).toEqual( multisig1 );
@@ -80,6 +85,7 @@ describe( "Tests ../../lib/constants.js.", () => {
       expect( names[pending   ].cond ).toEqual( multisig3 );
       expect( names[bounty    ].cond ).toEqual( multisig4 );
       expect( names[cofounders].cond ).toEqual( multisig5 );
+      expect( names[custodian ].cond ).toEqual( multisig6 );
 
       expect( names[reward    ].iov1 ).toEqual( "iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n" );
       expect( names[iov       ].iov1 ).toEqual( "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq" );
@@ -87,6 +93,7 @@ describe( "Tests ../../lib/constants.js.", () => {
       expect( names[pending   ].iov1 ).toEqual( "iov1ppzrq5gwqlcsnwdvlz7x9mu98fntmp65m9a3mz" );
       expect( names[bounty    ].iov1 ).toEqual( "iov1ym3uxcfv9zar2md0xd3hq2vah02u3fm6zn8mnu" );
       expect( names[cofounders].iov1 ).toEqual( "iov1myq53ry9pa6awl88m0xgp224q0dgwjdvz2dcsw" );
+      expect( names[custodian ].iov1 ).toEqual( "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc" );
 
       expect( names[reward    ].star1 ).toEqual( "TBD" ); // TODO
       expect( names[iov       ].star1 ).toEqual( "TBD" ); // TODO
@@ -94,6 +101,7 @@ describe( "Tests ../../lib/constants.js.", () => {
       expect( names[pending   ].star1 ).toEqual( "TBD" ); // TODO
       expect( names[bounty    ].star1 ).toEqual( "TBD" ); // TODO
       expect( names[cofounders].star1 ).toEqual( "TBD" ); // TODO
+      expect( names[custodian ].star1 ).toEqual( "TBD" ); // TODO
    } );
 
    it( `Should validate CAIP-based chain ids.`, () => {
