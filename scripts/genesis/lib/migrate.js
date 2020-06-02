@@ -91,9 +91,15 @@ export const createAccount = ( args = {} ) => {
  * @param {Object} args - optional address, name
  */
 export const createStarname = ( args = {} ) => {
-   const template = { // TODO: FIXME
-      "address": args.address || "",
-      "starname": args.starname,
+   const template = {
+      "broker": null,
+      "certificates": null,
+      "domain": args.domain || "",
+      "metadata_uri": "",
+      "name": args.name || "",
+      "owner": args.address || "",
+      "targets": null,
+      "valid_until": Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60, // 1 year from now
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -107,12 +113,12 @@ export const createStarname = ( args = {} ) => {
  */
 export const createDomain = ( args = {} ) => {
    const template = {
-      "name": args.domain,
-      "admin": args.address,
-      "valid_until": Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60, // 1 year from now
-      "has_super_user": true, // TODO: FIXME
       "account_renew": 10 * 365.25 * 24 * 60 * 60, // 10 years in seconds
+      "admin": args.address,
       "broker": null,
+      "name": args.domain,
+      "type": "closed",
+      "valid_until": Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60, // 1 year from now
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -247,6 +253,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums ) => {
       const iov1 = username.Owner;
       const address = iov2star[iov1] || custodian.value.address; // add to the custodial account if needed
       const starname = username.Username;
+      const [ name, domain ] = starname.split( "*" );
 
       if ( address == custodian.value.address ) {
          const previous = custodian[`//no star1 ${iov1}`];
@@ -255,7 +262,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums ) => {
          custodian[`//no star1 ${iov1}`] = current;
       }
 
-      return createStarname( { address, iov1, starname } );
+      return createStarname( { address, iov1, domain, name } );
    } );
 
    const domains = [];

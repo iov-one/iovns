@@ -486,27 +486,33 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const daveiov = starnames.find( starname => starname["//iov1"] == "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
       const huobiiov = starnames.find( starname => starname["//iov1"] == "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn" );
 
-      expect( alphaiov.address ).toEqual( "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd" );
-      expect( alphaiov.starname ).toEqual( "alpha*iov" );
+      expect( alphaiov.owner ).toEqual( "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd" );
+      expect( alphaiov.domain ).toEqual( "iov" );
+      expect( alphaiov.name ).toEqual( "alpha" );
 
-      expect( daveiov.address ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
-      expect( daveiov.starname ).toEqual( "dave*iov" );
+      expect( daveiov.owner ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
+      expect( daveiov.domain ).toEqual( "iov" );
+      expect( daveiov.name ).toEqual( "dave" );
 
-      expect( huobiiov.address ).toEqual( "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y" );
-      expect( huobiiov.starname ).toEqual( "huobi*iov" );
+      expect( huobiiov.owner ).toEqual( "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y" );
+      expect( huobiiov.domain ).toEqual( "iov" );
+      expect( huobiiov.name ).toEqual( "huobi" );
 
       const alexiov = starnames.find( starname => starname["//iov1"] == "iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl" );
       const confioiov = starnames.find( starname => starname["//iov1"] == "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98" );
       const kadimaiov = starnames.find( starname => starname["//iov1"] == "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph" );
 
-      expect( alexiov.address ).toEqual( custodian.value.address );
-      expect( alexiov.starname ).toEqual( "alex*iov" );
+      expect( alexiov.owner ).toEqual( custodian.value.address );
+      expect( alexiov.domain ).toEqual( "iov" );
+      expect( alexiov.name ).toEqual( "alex" );
 
-      expect( confioiov.address ).toEqual( custodian.value.address );
-      expect( confioiov.starname ).toEqual( "confio*iov" );
+      expect( confioiov.owner ).toEqual( custodian.value.address );
+      expect( confioiov.domain ).toEqual( "iov" );
+      expect( confioiov.name ).toEqual( "confio" );
 
-      expect( kadimaiov.address ).toEqual( custodian.value.address );
-      expect( kadimaiov.starname ).toEqual( "kadima*iov" );
+      expect( kadimaiov.owner ).toEqual( custodian.value.address );
+      expect( kadimaiov.domain ).toEqual( "iov" );
+      expect( kadimaiov.name ).toEqual( "kadima" );
 
       const gianna = domains.find( domain => domain.name == "gianna" );
       const lovely = domains.find( domain => domain.name == "lovely" );
