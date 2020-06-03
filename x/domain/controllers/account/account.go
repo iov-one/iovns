@@ -181,7 +181,7 @@ func (a *Account) maxRenewNotExceeded() error {
 	maximumValidUntil := a.ctx.BlockTime().Add(a.conf.AccountRenewalPeriod * time.Duration(a.conf.AccountRenewalCountMax))
 	// check if new valid until is after maximum allowed
 	if newValidUntil.After(maximumValidUntil) {
-		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew account %s in domain %s, domain %s renewal period would be after maximum allowed: %s", a.account, a.domain, maximumValidUntil)
+		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew account %s in domain %s, maximum domain renewal has exceeded: %s", a.account.Name, a.domain, maximumValidUntil)
 	}
 
 	// if it has expired return error
