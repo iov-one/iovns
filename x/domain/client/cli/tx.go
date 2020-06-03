@@ -615,10 +615,22 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			feePayerStr, err := cmd.Flags().GetString("feepayer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			msg := &types.MsgReplaceAccountMetadata{
 				Domain:         domain,
 				Name:           name,
 				Owner:          cliCtx.GetFromAddress(),
+				FeePayer:       feePayer,
 				NewMetadataURI: metadata,
 			}
 			// check if valid
@@ -633,6 +645,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "the domain name of account")
 	cmd.Flags().String("name", "", "the name of the account whose targets you want to replace")
 	cmd.Flags().String("metadata", "", "the new metadata URI, leave empty to unset")
+	cmd.Flags().String("feepayer", "", "address of the fee payer, optional")
 	// return cmd
 	return cmd
 }
