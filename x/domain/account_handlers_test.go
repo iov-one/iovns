@@ -1243,7 +1243,6 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
-		// TODO cleanup comments
 		"fail invalid blockchain targets id": {
 			TestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1661,6 +1660,49 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 				want := ctx.BlockTime().Add(k.ConfigurationKeeper.GetConfiguration(ctx).AccountRenewalPeriod)
 				if account.ValidUntil != iovns.TimeToSeconds(want) {
 					t.Fatalf("handlerMsgRenewAccount() want: %d, got: %d", want.Unix(), account.ValidUntil)
+				}
+			},
+		},
+		"success domain valid until updated": {
+			BeforeTestBlockTime: 1,
+			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+				setConfig(ctx, configuration.Config{
+					AccountRenewalPeriod:   1 * time.Second,
+					AccountRenewalCountMax: 200000,
+					AccountGracePeriod:     5 * time.Second,
+					DomainGracePeriod:      2 * time.Second,
+				})
+				// set mock domain
+				k.CreateDomain(ctx, types.Domain{
+					Name:       "test",
+					Type:       types.OpenDomain,
+					Admin:      keeper.BobKey,
+					ValidUntil: 2,
+				})
+				// set mock account
+				k.CreateAccount(ctx, types.Account{
+					Domain:     "test",
+					Name:       "test",
+					ValidUntil: iovns.TimeToSeconds(time.Unix(1, 0)),
+					Owner:      keeper.AliceKey,
+				})
+			},
+			TestBlockTime: 10,
+			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				_, err := handlerMsgRenewAccount(ctx, k, &types.MsgRenewAccount{
+					Domain: "test",
+					Name:   "test",
+				})
+				if err != nil {
+					t.Fatalf("handlerMsgRenewAccount() got error: %s", err)
+				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+				domain, _ := k.GetDomain(ctx, "test")
+				account, _ := k.GetAccount(ctx, "test", "test")
+				if domain.ValidUntil != account.ValidUntil {
+					t.Fatalf("handlerMsgRenewAccount() want: %d, got: %d", domain.ValidUntil, account.ValidUntil)
 				}
 			},
 		},

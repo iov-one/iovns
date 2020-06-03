@@ -149,13 +149,6 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 	if err := domainCtrl.Validate(domain.MustExist, domain.Type(types.OpenDomain)); err != nil {
 		return nil, err
 	}
-	/* TODO here to avoid doing another check, I used the domain.Type controller function, maybe it's worth analyzing how we can make the domain.Type function return errors with more context
-	switch d.Type {
-	case types.ClosedDomain:
-		// Closed domains do not expire
-		return nil, types.ErrClosedDomainAccExpire
-	}
-	*/
 	// validate account
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name).WithConfiguration(conf)
 	if err := accountCtrl.Validate(
@@ -264,11 +257,6 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 		return nil, err
 	}
 
-	d := domainCtrl.Domain()
-	switch d.Type {
-	case types.OpenDomain:
-
-	}
 	// collect fees
 	err := k.CollectFees(ctx, msg, msg.Owner)
 	if err != nil {
