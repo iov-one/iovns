@@ -15,8 +15,8 @@ USER iovnsuser
 # p2p, rpc and prometheus port
 EXPOSE 46656 46657 46660
 
-ARG NSDBINARY=cmd/iovnsd/iovnsd
-ARG NSCLIBINARY=cmd/iovnscli/iovnscli
+ARG NSDBINARY=build/iovnsd
+ARG NSCLIBINARY=build/iovnscli
 
 COPY $NSDBINARY /usr/bin/iovnsd
 COPY $NSCLIBINARY /usr/bin/iovnscli

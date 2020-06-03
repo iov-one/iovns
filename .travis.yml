@@ -18,12 +18,15 @@ addons:
   apt:
     packages:
       - docker-ce
+      - apt-cacher-ng
 
 cache:
   directories:
     - $HOME/.cache/go-build
     - $HOME/gopath/pkg/mod
     - $HOME/docker
+    - $TRAVIS_BUILD_DIR/.gitian-builder-cache
+    - /var/cache/apt-cacher-ng
 
 env:
   global:
@@ -58,7 +61,8 @@ script:
     release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
     if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
-    make build;
+    ./contrib/gitian-build.sh linux ;
+    mkdir build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
     docker build --pull --tag ${IMAGE_NAME} . ;
     fi;
 
@@ -86,3 +90,16 @@ branches:
     - master
     - /^v[0-9]+\.[0-9]+\.x$/
     - /^v[0-9]+\.[0-9]+\.[0-9]+$/
+
+deploy:
+  provider: releases
+  api_key:
+    ${GITHUB_API_KEY}
+  file:
+    - ${TRAVIS_BUILD_DIR}/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz
+    - ${TRAVIS_BUILD_DIR}/iovns-build-linux/build/out/src/iovns-${VERSION}.tar.gz
+    - ${TRAVIS_BUILD_DIR}/iovns-build-linux/result/iovns-linux-res.yml
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
