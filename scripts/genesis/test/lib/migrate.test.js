@@ -1,6 +1,9 @@
-import { burnTokens, consolidateEscrows, convertToCosmosSdk, fixChainIds, labelAccounts, labelMultisigs, mapIovToStar, migrate } from "../../lib/migrate";
+import { addGentxs, burnTokens, consolidateEscrows, convertToCosmosSdk, fixChainIds, labelAccounts, labelMultisigs, mapIovToStar, migrate } from "../../lib/migrate";
 import { chainIds, source2multisig } from "../../lib/constants";
 import compareObjects from "../compareObjects";
+import fs from "fs";
+import path from "path";
+import stringify from "fast-json-stable-stringify";
 import tmp from "tmp";
 
 "use strict";
@@ -260,7 +263,22 @@ describe( "Tests ../../lib/migrate.js.", () => {
             accounts: [],
          },
       },
-      consensus_params: {},
+      consensus_params: {
+         block: {
+            max_bytes: "500000",
+            max_gas: "-1",
+            time_iota_ms: "1000"
+         },
+         evidence: {
+            max_age_num_blocks: "100000",
+            max_age_duration: "172800000000000"
+         },
+         validator: {
+            pub_key_types: [
+               "ed25519"
+            ]
+         }
+      },
       crisis: {},
       genutil: {},
       gov: {},
@@ -557,8 +575,154 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( youtube.admin ).toEqual( iov.value.address );
    } );
 
+   it( `Should fail to add gentxs due to floating point amount.`, async () => {
+      const tmpobj = tmp.dirSync( { template: "migrate-test-gentxs-XXXXXX", unsafeCleanup: true } );
+      const home = tmpobj.name;
+      const config = path.join( home, "config" );
+      const gentx = "gentx-61e1f6d195f022cab0fe18f2ac1a4d33430999eb.json";
+      const gentxs = path.join( home, "gentxs" );
+      const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
+
+      genesisCopy.app_state.auth.accounts.push( { // add the account used in gentx
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "416.51" // must be an integer
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         },
+         "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un"
+      } );
+
+      fs.mkdirSync( config );
+      fs.mkdirSync( gentxs );
+      fs.copyFileSync( path.join( __dirname, gentx ), path.join( gentxs, gentx ) );
+      fs.writeFileSync( path.join( config, "genesis.json" ), stringify( genesisCopy, { space: "  " } ), "utf-8" );
+
+      try {
+         addGentxs( gentxs, home );
+      } catch ( e ) {
+         expect( e.message.indexOf( "416.51" ) ).not.toEqual( -1 );
+      }
+
+      tmpobj.removeCallback();
+   } );
+
+   it( `Should fail to add gentxs due to missing account.`, async () => {
+      const tmpobj = tmp.dirSync( { template: "migrate-test-gentxs-XXXXXX", unsafeCleanup: true } );
+      const home = tmpobj.name;
+      const config = path.join( home, "config" );
+      const gentx = "gentx-61e1f6d195f022cab0fe18f2ac1a4d33430999eb.json";
+      const gentxs = path.join( home, "gentxs" );
+
+      fs.mkdirSync( config );
+      fs.mkdirSync( gentxs );
+      fs.copyFileSync( path.join( __dirname, gentx ), path.join( gentxs, gentx ) );
+      fs.writeFileSync( path.join( config, "genesis.json" ), stringify( genesis, { space: "  " } ), "utf-8" );
+
+      try {
+         addGentxs( gentxs, home );
+      } catch ( e ) {
+         expect( e.message.indexOf( "account star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk not in genesis.json" ) ).not.toEqual( -1 );
+      }
+
+      tmpobj.removeCallback();
+   } );
+
+   it( `Should add gentxs.`, async () => {
+      const tmpobj = tmp.dirSync( { template: "migrate-test-gentxs-XXXXXX", unsafeCleanup: true } );
+      const home = tmpobj.name;
+      const config = path.join( home, "config" );
+      const gentx = "gentx-61e1f6d195f022cab0fe18f2ac1a4d33430999eb.json";
+      const gentxs = path.join( home, "gentxs" );
+      const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
+
+      genesisCopy.app_state.auth.accounts.push( { // add the account used in gentx
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "416"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         },
+         "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un"
+      } );
+
+      fs.mkdirSync( config );
+      fs.mkdirSync( gentxs );
+      fs.copyFileSync( path.join( __dirname, gentx ), path.join( gentxs, gentx ) );
+      fs.writeFileSync( path.join( config, "genesis.json" ), stringify( genesisCopy, { space: "  " } ), "utf-8" );
+
+      addGentxs( gentxs, home );
+
+      const json = fs.readFileSync( path.join( config, "genesis.json" ), "utf-8" );
+      const validatored = JSON.parse( json );
+      const slim = {
+         "type": "cosmos-sdk/StdTx",
+         "value": {
+            "msg": [
+               {
+                  "type": "cosmos-sdk/MsgCreateValidator",
+                  "value": {
+                     "description": {
+                        "moniker": "slim",
+                        "identity": "",
+                        "website": "",
+                        "security_contact": "",
+                        "details": ""
+                     },
+                     "commission": {
+                        "rate": "0.100000000000000000",
+                        "max_rate": "0.200000000000000000",
+                        "max_change_rate": "0.010000000000000000"
+                     },
+                     "min_self_delegation": "1",
+                     "delegator_address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
+                     "validator_address": "starvaloper1478t4fltj689nqu83vsmhz27quk7uggjtjp2gl",
+                     "pubkey": "starvalconspub1zcjduepqds57cwz6kgzprcsuermllsyglcwz9w2z85nuar575z82mujtrhws0n4m0g",
+                     "value": {
+                        "denom": "iov",
+                        "amount": "1"
+                     }
+                  }
+               }
+            ],
+            "fee": {
+               "amount": [],
+               "gas": "200000"
+            },
+            "signatures": [
+               {
+                  "pub_key": {
+                     "type": "tendermint/PubKeySecp256k1",
+                     "value": "AwOzGduZPxmjUMKASZGKPrUA7Drs9CvfJfXkgR/RSdyu"
+                  },
+                  "signature": "mi817tgVyfLtiObMU0/I7TUjqbyKwUiQGYAJY2oAG0dhlEGGRJFNTfS12nLUw42n5lZp09LUq9pXcHxHRXuV9g=="
+               }
+            ],
+            "memo": "61e1f6d195f022cab0fe18f2ac1a4d33430999eb@192.168.1.46:26656"
+         }
+      };
+
+      compareObjects( slim, validatored.app_state.genutil.gentxs[0] );
+
+      tmpobj.removeCallback();
+   } );
+
    it( `Should migrate.`, async () => {
-      const tmpobj = tmp.dirSync( { template: "migrate-test-XXXXXX", unsafeCleanup: true } );
+      const tmpobj = tmp.dirSync( { template: "migrate-test-migrate-XXXXXX", unsafeCleanup: true } );
       const home = tmpobj.name;
 
       migrate( { chainIds, dumped, flammable, genesis, home, indicatives, multisigs, osaka, premiums, reserveds, source2multisig } );
@@ -1028,7 +1192,20 @@ describe( "Tests ../../lib/migrate.js.", () => {
                ]
             }
          },
-         "consensus_params": {},
+         "consensus_params": {
+            "block": {
+               "max_bytes": "500000",
+               "max_gas": "-1",
+               "time_iota_ms": "1000"
+            },
+            "evidence": {
+               "max_age_num_blocks": "100000",
+               "max_age_duration": "172800000000000"
+            },
+            "validator": {
+               "pub_key_types": [ "ed25519" ]
+            }
+         },
          "crisis": {},
          "genutil": {},
          "gov": {}

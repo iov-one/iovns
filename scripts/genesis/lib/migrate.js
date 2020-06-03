@@ -1,6 +1,7 @@
-import stringify from "fast-json-stable-stringify";
+import { spawnSync } from "child_process";
 import fs from "fs";
 import path from "path";
+import stringify from "fast-json-stable-stringify";
 
 "use strict";
 
@@ -296,6 +297,25 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
    domains.sort( ( a, b ) => a.name.localeCompare( b.name ) );
 
    return { accounts, starnames, domains };
+}
+
+/**
+ * Add gentxs to the genesis.json file in home/config.
+ * @param {string} gentxs - the value of the --gentx-dir flag for `iovnsd collect-gentxs`
+ * @param {string} home - the value of the --home flag for `iovnsd collect-gentxs`
+ */
+export const addGentxs = ( gentxs, home ) => {
+   const iovnsd = spawnSync( "iovnsd", [ "collect-gentxs", "--gentx-dir", gentxs, "--home", home, "--trace" ] );
+
+   if ( iovnsd.stdout.length ) {
+      console.log( `${iovnsd.stdout}` );
+   }
+
+   if ( iovnsd.stderr.length ) {
+      const error = `${iovnsd.stderr}`;
+
+      if ( error.indexOf( "ERROR" ) != -1 || error.indexOf( "panic" ) != -1 ) throw new Error( error );
+   };
 }
 
 /**
