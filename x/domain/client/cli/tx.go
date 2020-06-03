@@ -2,7 +2,6 @@ package cli
 
 import (
 	"bufio"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -65,6 +64,11 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// get transfer flag
+			transferFlag, err := cmd.Flags().GetInt("transfer-flag")
+			if err != nil {
+				return
+			}
 			// get sdk.AccAddress from string
 			newOwnerAddr, err := sdk.AccAddressFromBech32(newOwner)
 			if err != nil {
@@ -72,9 +76,10 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 			}
 			// build msg
 			msg := &types.MsgTransferDomain{
-				Domain:   domain,
-				Owner:    cliCtx.GetFromAddress(),
-				NewAdmin: newOwnerAddr,
+				Domain:       domain,
+				Owner:        cliCtx.GetFromAddress(),
+				NewAdmin:     newOwnerAddr,
+				TransferFlag: types.TransferFlag(transferFlag),
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -87,6 +92,7 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "the domain name to transfer")
 	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
+	cmd.Flags().Int("transfer-flag", types.ResetNone, fmt.Sprintf("transfer flags for a domain"))
 	//
 	return cmd
 }
@@ -117,12 +123,22 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
+
+			reset, err := cmd.Flags().GetString("reset")
+			if err != nil {
+				return err
+			}
+			var resetBool bool
+			if resetBool, err = strconv.ParseBool(reset); err != nil {
+				return err
+			}
 			// build msg
 			msg := &types.MsgTransferAccount{
 				Domain:   domain,
 				Name:     name,
 				Owner:    cliCtx.GetFromAddress(),
 				NewOwner: newOwnerAddr,
+				Reset:    resetBool,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -136,6 +152,7 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "the domain name of account")
 	cmd.Flags().String("name", "", "the name of the account you want to transfer")
 	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
+	cmd.Flags().String("reset", "false", "true: reset all data associated with the account, false: preserves the data")
 	//
 	return cmd
 }
@@ -354,7 +371,7 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
-			cert, err := cmd.Flags().GetBytesHex("cert")
+			cert, err := cmd.Flags().GetBytesBase64("cert")
 			if err != nil {
 				return
 			}
@@ -380,8 +397,10 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				c = make([]byte, hex.EncodedLen(len(cfb)))
-				hex.Encode(c, cfb)
+				var c json.RawMessage
+				if err := json.Unmarshal(cfb, &c); err != nil {
+					return nil
+				}
 			}
 			// build msg
 			msg := &types.MsgDeleteAccountCertificate{
@@ -401,8 +420,8 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "domain name of the account")
 	cmd.Flags().String("name", "", "account name")
-	cmd.Flags().BytesHex("cert", []byte{}, "hex bytes of the certificate you want to delete")
-	cmd.Flags().String("cert-file", "", "directory of certificate file. File content will be encoded to hex")
+	cmd.Flags().BytesBase64("cert", []byte{}, "certificate you want to add in base64 encoded format")
+	cmd.Flags().String("cert-file", "", "directory of certificate file")
 	// return cmd
 	return cmd
 }
@@ -425,7 +444,7 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
-			cert, err := cmd.Flags().GetBytesHex("cert")
+			cert, err := cmd.Flags().GetBytesBase64("cert")
 			if err != nil {
 				return
 			}
@@ -451,8 +470,10 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				c = make([]byte, hex.EncodedLen(len(cfb)))
-				hex.Encode(c, cfb)
+				var c json.RawMessage
+				if err := json.Unmarshal(cfb, &c); err != nil {
+					return nil
+				}
 			}
 
 			// build msg
@@ -473,8 +494,8 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "domain of the account")
 	cmd.Flags().String("name", "", "name of the account")
-	cmd.Flags().BytesHex("cert", []byte{}, "hex bytes of the certificate you want to add")
-	cmd.Flags().String("cert-file", "", "directory of certificate file. File content will be encoded to hex")
+	cmd.Flags().BytesBase64("cert", []byte{}, "certificate you want to add in base64 encoded format")
+	cmd.Flags().String("cert-file", "", "directory of certificate file")
 	// return cmd
 	return cmd
 }
@@ -498,11 +519,21 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
+			owner, err := cmd.Flags().GetString("owner")
+			if err != nil {
+				return
+			}
+			// get sdk.AccAddress from string
+			ownerAddr, err := sdk.AccAddressFromBech32(owner)
+			if err != nil {
+				return
+			}
 			// build msg
 			msg := &types.MsgRegisterAccount{
-				Domain: domain,
-				Name:   name,
-				Owner:  cliCtx.GetFromAddress(),
+				Domain:     domain,
+				Name:       name,
+				Owner:      ownerAddr,
+				Registerer: cliCtx.GetFromAddress(),
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -514,6 +545,7 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 	}
 	cmd.Flags().String("domain", "", "the existing domain name for your account")
 	cmd.Flags().String("name", "", "the name of your account")
+	cmd.Flags().String("owner", "", "the address of the owner")
 	return cmd
 }
 
@@ -530,12 +562,11 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			hasSuperUserStr, err := cmd.Flags().GetString("has-superuser")
+			dType, err := cmd.Flags().GetString("type")
 			if err != nil {
 				return err
 			}
-			hasSuperUser, err := strconv.ParseBool(hasSuperUserStr)
-			if err != nil {
+			if err := types.ValidateDomainType(types.DomainType(dType)); err != nil {
 				return err
 			}
 			accountRenew, err := cmd.Flags().GetDuration("account-renew")
@@ -545,7 +576,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			msg := &types.MsgRegisterDomain{
 				Name:         domain,
 				Admin:        cliCtx.GetFromAddress(),
-				HasSuperuser: hasSuperUser,
+				DomainType:   types.DomainType(dType),
 				Broker:       nil,
 				AccountRenew: accountRenew,
 			}
@@ -561,7 +592,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 	defaultDuration, _ := time.ParseDuration("1h")
 	// add flags
 	cmd.Flags().String("domain", "", "name of the domain you want to register")
-	cmd.Flags().String("has-superuser", "true", "define if this domain has a superuser or not")
+	cmd.Flags().String("type", types.ClosedDomain, "type of the domain")
 	cmd.Flags().Duration("account-renew", defaultDuration, "account duration in seconds before expiration")
 	return cmd
 }
@@ -598,8 +629,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 					return
 				}
 			}
-			// get sdk.AccAddress from string
-			msg := &types.MsgSetAccountMetadata{
+			msg := &types.MsgReplaceAccountMetadata{
 				Domain:         domain,
 				Name:           name,
 				Owner:          cliCtx.GetFromAddress(),

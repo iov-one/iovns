@@ -2894,12 +2894,13 @@ components:
         admin:
           $ref: "#/components/schemas/Address"
           description: Owner of the domain
-        calidUntil:
+        validUntil:
           type: number
-          description: ValidUntil is a unix timestamp that defines for how long the domain is valid
-        hasSuperUser:
-          type: bool
-          description: If the domain is owned by a super user or not
+          description: Unix timestamp that defines for how long the domain is valid
+        domainType:
+          type: string
+          example: close
+          description: defines the type of the domain
         accountRenew:
           type: number
           description: The duration of each created or renewed account under the domain
