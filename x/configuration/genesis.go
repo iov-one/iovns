@@ -83,7 +83,7 @@ func DefaultGenesisState() GenesisState {
 	fees.UpsertDefaultFees(&domain_types.MsgReplaceAccountTargets{}, defFee)
 	fees.UpsertDefaultFees(&domain_types.MsgTransferAccount{}, defFee)
 	fees.UpsertDefaultFees(&domain_types.MsgTransferDomain{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgSetAccountMetadata{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgReplaceAccountMetadata{}, defFee)
 	// return genesis
 	return GenesisState{
 		Config: config,

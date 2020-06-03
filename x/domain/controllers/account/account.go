@@ -2,8 +2,10 @@ package account
 
 import (
 	"bytes"
-	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"regexp"
+	"time"
+
+	"github.com/iov-one/iovns/x/domain/controllers/domain"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -46,6 +48,20 @@ func NewController(ctx sdk.Context, k keeper.Keeper, domain, name string) *Accou
 // WithDomainController allows to specify a cached domain controller
 func (a *Account) WithDomainController(dom *domain.Domain) *Account {
 	a.domainCtrl = dom
+	return a
+}
+
+// WithConfiguration allows to specify a cached config
+func (a *Account) WithConfiguration(cfg configuration.Config) *Account {
+	a.conf = &cfg
+	return a
+}
+
+// WithAccount allows to specify a cached account
+func (a *Account) WithAccount(acc types.Account) *Account {
+	a.account = &acc
+	a.domain = acc.Domain
+	a.name = acc.Name
 	return a
 }
 
@@ -133,6 +149,14 @@ func (a *Account) notExpired() error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check is not allowed on a non existing account")
 	}
+	if err := a.requireDomain(); err != nil {
+		panic("validation check is not allowed on a non existing domain")
+	}
+	switch a.domainCtrl.Domain().Type {
+	// if domain is closed type then skip the expiration validation checks
+	case types.ClosedDomain:
+		return nil
+	}
 	// check if account has expired
 	expireTime := iovns.SecondsToTime(a.account.ValidUntil)
 	if !expireTime.Before(a.ctx.BlockTime()) {
@@ -140,6 +164,28 @@ func (a *Account) notExpired() error {
 	}
 	// if it has expired return error
 	return sdkerrors.Wrapf(types.ErrAccountExpired, "account %s in domain %s has expired", a.name, a.domain)
+}
+
+func MaxRenewNotExceeded(ctrl *Account) error {
+	return ctrl.maxRenewNotExceeded()
+}
+
+func (a *Account) maxRenewNotExceeded() error {
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+
+	// do calculations
+	newValidUntil := iovns.SecondsToTime(a.account.ValidUntil).Add(a.conf.DomainRenewalPeriod) // set new expected valid until
+	maximumValidUntil := a.ctx.BlockTime().Add(a.conf.AccountRenewalPeriod * time.Duration(a.conf.AccountRenewalCountMax))
+	// check if new valid until is after maximum allowed
+	if newValidUntil.After(maximumValidUntil) {
+		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew account %s in domain %s, maximum domain renewal has exceeded: %s", a.account.Name, a.domain, maximumValidUntil)
+	}
+
+	// if it has expired return error
+	return nil
 }
 
 // Owner asserts the account is owned by the provided address
@@ -204,6 +250,40 @@ func (a *Account) certNotExist(newCert []byte, indexPointer *int) error {
 	return nil
 }
 
+func CertificateSizeNotExceeded(cert []byte) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.certSizeNotExceeded(cert)
+	}
+}
+
+func (a *Account) certSizeNotExceeded(newCert []byte) error {
+	// assert domain exists
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+	if uint64(len(newCert)) > a.conf.CertificateSizeMax {
+		return sdkerrors.Wrapf(types.ErrCertificateSizeExceeded, "max certificate size %d exceeded", a.conf.CertificateSizeMax)
+	}
+	return nil
+}
+
+func CertificateLimitNotExceeded(ctrl *Account) error {
+	return ctrl.certLimitNotExceeded()
+}
+
+func (a *Account) certLimitNotExceeded() error {
+	// assert domain exists
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+	if uint32(len(a.account.Certificates)) >= a.conf.CertificateCountMax {
+		return sdkerrors.Wrapf(types.ErrCertificateLimitReached, "max certificate limit %d reached, cannot add more", a.conf.CertificateCountMax)
+	}
+	return nil
+}
+
 // Validate verifies the account against the order of provided controllers
 func (a *Account) Validate(checks ...ControllerFunc) error {
 	for _, check := range checks {
@@ -230,8 +310,17 @@ func (a *Account) deletableBy(addr sdk.AccAddress) error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check on a non existing account is not allowed")
 	}
-	if !d.Admin.Equals(addr) && !a.account.Owner.Equals(addr) {
-		return sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s and domain admin %s can delete the account", a.account.Owner, d.Admin)
+	switch d.Type {
+	case types.ClosedDomain:
+		if err := a.domainCtrl.Validate(domain.Admin(addr), domain.NotExpired); err != nil {
+			return err
+		}
+	case types.OpenDomain:
+		if a.gracePeriodFinished() != nil {
+			if a.ownedBy(addr) != nil {
+				return sdkerrors.Wrapf(types.ErrUnauthorized, "only account owner %s is allowed to delete the account before grace period", a.account.Owner)
+			}
+		}
 	}
 	return nil
 }
@@ -285,7 +374,7 @@ func (a *Account) transferableBy(addr sdk.AccAddress) error {
 	switch a.domainCtrl.Domain().Type {
 	// if it has a super user then only domain admin can transfer accounts
 	case types.ClosedDomain:
-		if a.domainCtrl.Validate(domain.Owner(addr)) != nil {
+		if a.domainCtrl.Validate(domain.Admin(addr)) != nil {
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", a.domainCtrl.Domain().Admin)
 		}
 	// if it has not a super user then only account owner can transfer the account
@@ -295,6 +384,108 @@ func (a *Account) transferableBy(addr sdk.AccAddress) error {
 		}
 	}
 	return nil
+}
+
+// ResettableBy checks if the account attributes resettable by the provided address
+func ResettableBy(addr sdk.AccAddress, reset bool) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.resettableBy(addr, reset)
+	}
+}
+
+func (a *Account) resettableBy(addr sdk.AccAddress, reset bool) error {
+	if err := a.requireDomain(); err != nil {
+		panic("validation check not allowed on a non existing domain")
+	}
+	d := a.domainCtrl.Domain()
+	switch d.Type {
+	case types.OpenDomain:
+		if reset {
+			if d.Admin.Equals(addr) {
+				return sdkerrors.Wrapf(types.ErrUnauthorized, "domain admin is not authorized to reset account contents on open domains")
+			}
+		}
+	case types.ClosedDomain:
+	}
+	return nil
+}
+
+func GracePeriodFinished(controller *Account) error {
+	return controller.gracePeriodFinished()
+}
+
+// gracePeriodFinished is the condition that checks if given account's grace period has finished
+func (a *Account) gracePeriodFinished() error {
+	// require configuration
+	a.requireConfiguration()
+	// assert domain exists
+	if err := a.requireAccount(); err != nil {
+		panic("condition check not allowed on non existing account ")
+	}
+	// get grace period and expiration time
+	gracePeriod := a.conf.AccountGracePeriod
+	expireTime := iovns.SecondsToTime(a.account.ValidUntil)
+	if a.ctx.BlockTime().After(expireTime.Add(gracePeriod)) {
+		return nil
+	}
+	return sdkerrors.Wrapf(types.ErrAccountGracePeriodNotFinished, "account %s grace period has not finished", a.account.Name)
+}
+
+// ResettableBy checks if the account attributes resettable by the provided address
+func BlockchainTargetLimitNotExceeded(targets []types.BlockchainAddress) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.blockchainTargetLimitNotExceeded(targets)
+	}
+}
+
+func (a *Account) blockchainTargetLimitNotExceeded(targets []types.BlockchainAddress) error {
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+	if uint32(len(targets)) > a.conf.BlockchainTargetMax {
+		return sdkerrors.Wrapf(types.ErrBlockchainTargetLimitExceeded, "blockchain target limit: %d", a.conf.BlockchainTargetMax)
+	}
+	return nil
+}
+
+func MetadataSizeNotExceeded(metadata string) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.metadataSizeNotExceeded(metadata)
+	}
+}
+
+func (a *Account) metadataSizeNotExceeded(metadata string) error {
+	// assert domain exists
+	if err := a.requireAccount(); err != nil {
+		panic("validation check is not allowed on a non existing account")
+	}
+	a.requireConfiguration()
+	if uint64(len(metadata)) > a.conf.MetadataSizeMax {
+		return sdkerrors.Wrapf(types.ErrMetadataSizeExceeded, "max metadata size %d exceeded", a.conf.MetadataSizeMax)
+	}
+	return nil
+}
+
+// RegistrableBy asserts that an account can be registered by the provided address
+func RegistrableBy(addr sdk.AccAddress) ControllerFunc {
+	return func(ctrl *Account) error {
+		return ctrl.registrableBy(addr)
+	}
+}
+
+func (a *Account) registrableBy(addr sdk.AccAddress) error {
+	if err := a.requireDomain(); err != nil {
+		panic("validation check is not allowed on a non existing domain")
+	}
+	// check domain type
+	switch a.domainCtrl.Domain().Type {
+	// if domain is closed then the registerer must be domain owner
+	case types.ClosedDomain:
+		return a.domainCtrl.Validate(domain.Admin(addr))
+	default:
+		return nil
+	}
 }
 
 // Account returns the cached account, if the account existence
