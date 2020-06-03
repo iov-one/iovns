@@ -2,7 +2,6 @@ package cli
 
 import (
 	"bufio"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -372,7 +371,7 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
-			cert, err := cmd.Flags().GetBytesHex("cert")
+			cert, err := cmd.Flags().GetBytesBase64("cert")
 			if err != nil {
 				return
 			}
@@ -398,8 +397,10 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				c = make([]byte, hex.EncodedLen(len(cfb)))
-				hex.Encode(c, cfb)
+				var c json.RawMessage
+				if err := json.Unmarshal(cfb, &c); err != nil {
+					return nil
+				}
 			}
 			// build msg
 			msg := &types.MsgDeleteAccountCertificate{
@@ -419,8 +420,8 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "domain name of the account")
 	cmd.Flags().String("name", "", "account name")
-	cmd.Flags().BytesHex("cert", []byte{}, "hex bytes of the certificate you want to delete")
-	cmd.Flags().String("cert-file", "", "directory of certificate file. File content will be encoded to hex")
+	cmd.Flags().BytesBase64("cert", []byte{}, "certificate you want to add in base64 encoded format")
+	cmd.Flags().String("cert-file", "", "directory of certificate file")
 	// return cmd
 	return cmd
 }
@@ -443,7 +444,7 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
-			cert, err := cmd.Flags().GetBytesHex("cert")
+			cert, err := cmd.Flags().GetBytesBase64("cert")
 			if err != nil {
 				return
 			}
@@ -469,8 +470,10 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				c = make([]byte, hex.EncodedLen(len(cfb)))
-				hex.Encode(c, cfb)
+				var c json.RawMessage
+				if err := json.Unmarshal(cfb, &c); err != nil {
+					return nil
+				}
 			}
 
 			// build msg
@@ -491,8 +494,8 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "domain of the account")
 	cmd.Flags().String("name", "", "name of the account")
-	cmd.Flags().BytesHex("cert", []byte{}, "hex bytes of the certificate you want to add")
-	cmd.Flags().String("cert-file", "", "directory of certificate file. File content will be encoded to hex")
+	cmd.Flags().BytesBase64("cert", []byte{}, "certificate you want to add in base64 encoded format")
+	cmd.Flags().String("cert-file", "", "directory of certificate file")
 	// return cmd
 	return cmd
 }
