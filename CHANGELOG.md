@@ -1,9 +1,28 @@
 # Changelog 
 
 ## HEAD
-
+- fix account controller max renew exceed
+- add tests to account handlers in domain
+- reconcile domain spec
+- treat handler as orchestrator
+- extend keeper functionality
+- move all errors/authorization checks to handlers
+- introduce domain and account controllers
 - upgrade cosmos-sdk to v0.38.4
 - iovnsd: fix fee colletor address
+
+### Breaking changes
+
+- change hasSuperUser to DomainType
+- Open domain's admin is changed from zero address to normal address
+- Recon configuration
+- Recon register account handler
+- Recon transfer account handler
+- Recon delete account handler
+- Recon replace account targets handler
+- Recon add account certs handler
+- Recon delete account cert handler
+- Recon replace metadata handler
 
 ## v0.2.5
 

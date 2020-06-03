@@ -132,6 +132,9 @@ func (m *MsgDeleteAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
+	if m.Name == "" {
+		return errors.Wrap(ErrOpEmptyAcc, "empty")
+	}
 	// success
 	return nil
 }
@@ -194,6 +197,8 @@ type MsgRegisterAccount struct {
 	Name string
 	// Owner is the owner of the account
 	Owner sdk.AccAddress
+	// Registerer is the user who registers this account
+	Registerer sdk.AccAddress
 	// Targets are the blockchain addresses of the account
 	Targets []BlockchainAddress
 	// Broker is the account that facilitated the transaction
@@ -218,6 +223,9 @@ func (m *MsgRegisterAccount) ValidateBasic() error {
 	if m.Owner.Empty() {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
+	if m.Registerer.Empty() {
+		return errors.Wrap(ErrInvalidRegisterer, "empty")
+	}
 	return nil
 }
 
@@ -228,7 +236,7 @@ func (m *MsgRegisterAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	return []sdk.AccAddress{m.Registerer}
 }
 
 // MsgRegisterDomain is the request used to register new domains
@@ -238,8 +246,8 @@ type MsgRegisterDomain struct {
 	// Admin is the address of the newly registered domain
 	Admin    sdk.AccAddress `json:"admin"`
 	FeePayer sdk.AccAddress
-	// HasSuperuser defines if the domain registered has an owner or not
-	HasSuperuser bool `json:"has_superuser"`
+	// DomainType defines the type of the domain
+	DomainType DomainType `json:"type"`
 	// Broker TODO document
 	Broker sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
 	// AccountRenew defines the expiration time in seconds of each newly registered account.
@@ -264,6 +272,9 @@ func (m *MsgRegisterDomain) ValidateBasic() error {
 	}
 	if m.AccountRenew == 0 {
 		return errors.Wrap(ErrInvalidRequest, "account renew value can not be zero")
+	}
+	if err := ValidateDomainType(m.DomainType); err != nil {
+		return err
 	}
 	// success
 	return nil
@@ -403,9 +414,9 @@ func (m *MsgReplaceAccountTargets) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }
 
-// MsgSetAccountMetadata is the function used
+// MsgReplaceAccountMetadata is the function used
 // to set accounts metadata
-type MsgSetAccountMetadata struct {
+type MsgReplaceAccountMetadata struct {
 	// Domain is the domain name of the account
 	Domain string
 	// Name is the name of the account
@@ -419,17 +430,17 @@ type MsgSetAccountMetadata struct {
 }
 
 // Route implements sdk.Msg
-func (m *MsgSetAccountMetadata) Route() string {
+func (m *MsgReplaceAccountMetadata) Route() string {
 	return RouterKey
 }
 
 // Type implements sdk.Msg
-func (m *MsgSetAccountMetadata) Type() string {
+func (m *MsgReplaceAccountMetadata) Type() string {
 	return "set_account_metadata"
 }
 
 // ValidateBasic implements sdk.Msg
-func (m *MsgSetAccountMetadata) ValidateBasic() error {
+func (m *MsgReplaceAccountMetadata) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrapf(ErrInvalidDomainName, "empty")
 	}
@@ -443,12 +454,12 @@ func (m *MsgSetAccountMetadata) ValidateBasic() error {
 }
 
 // GetSignBytes implements sdk.Msg
-func (m *MsgSetAccountMetadata) GetSignBytes() []byte {
+func (m *MsgReplaceAccountMetadata) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgSetAccountMetadata) GetSigners() []sdk.AccAddress {
+func (m *MsgReplaceAccountMetadata) GetSigners() []sdk.AccAddress {
 	if m.FeePayer == nil {
 		return []sdk.AccAddress{m.Owner}
 	} else {
@@ -467,6 +478,8 @@ type MsgTransferAccount struct {
 	Owner sdk.AccAddress
 	// NewOwner is the new owner of the account
 	NewOwner sdk.AccAddress
+	// Reset indicates if the accounts content will be resetted
+	Reset bool
 }
 
 // Route implements sdk.Msg
@@ -483,6 +496,9 @@ func (m *MsgTransferAccount) Type() string {
 func (m *MsgTransferAccount) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
+	}
+	if m.Name == "" {
+		return errors.Wrap(ErrOpEmptyAcc, "empty")
 	}
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")
@@ -504,12 +520,27 @@ func (m *MsgTransferAccount) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{m.Owner}
 }
 
+// TransferFlag defines the type of domain transfer
+type TransferFlag int
+
+const (
+	// TransferFlush clears all domain account data, except empty account)
+	TransferFlush = iota
+	// TransferOwned transfers only accounts owned by the current owner
+	TransferOwned
+	// ResetNone leaves things as they are except for empty account
+	ResetNone
+	// TransferAll is not available is here only for tests backwards compatibility and will be removed. TODO deprecate
+	TransferAll
+)
+
 // MsgTransferDomain is the request model
 // used to transfer a domain
 type MsgTransferDomain struct {
-	Domain   string
-	Owner    sdk.AccAddress
-	NewAdmin sdk.AccAddress
+	Domain       string
+	Owner        sdk.AccAddress
+	NewAdmin     sdk.AccAddress
+	TransferFlag TransferFlag
 }
 
 // Route implements sdk.Msg
@@ -532,6 +563,13 @@ func (m *MsgTransferDomain) ValidateBasic() error {
 	}
 	if m.NewAdmin == nil {
 		return errors.Wrap(ErrInvalidRequest, "new admin is empty")
+	}
+	switch m.TransferFlag {
+	case TransferOwned:
+	case ResetNone:
+	case TransferFlush:
+	default:
+		return errors.Wrapf(ErrInvalidRequest, "unknown reset flag: %d", m.TransferFlag)
 	}
 	return nil
 }

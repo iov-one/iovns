@@ -96,7 +96,7 @@ func Test_domainIndexing(t *testing.T) {
 	domainKeys = nil
 	// transfer domain
 	domain, _ := k.GetDomain(ctx, "1")
-	k.TransferDomain(ctx, aliceAddr, domain)
+	k.TransferDomainAll(ctx, aliceAddr, domain)
 	// check if addr b has 0 keys
 	err = k.iterDomainToOwner(ctx, bobAddr, do)
 	if err != nil {

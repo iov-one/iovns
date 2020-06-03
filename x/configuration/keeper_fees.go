@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"encoding/json"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration/types"
 )
@@ -9,7 +10,7 @@ import (
 // GetFees returns the network fees
 func (k Keeper) GetFees(ctx sdk.Context) *types.Fees {
 	store := ctx.KVStore(k.storeKey)
-	value := store.Get([]byte(feeKey))
+	value := store.Get([]byte(types.FeeKey))
 	if value == nil {
 		panic("no length fees set")
 	}
@@ -41,5 +42,5 @@ func (k Keeper) SetFees(ctx sdk.Context, fees *types.Fees) {
 	if err != nil {
 		panic(err)
 	}
-	store.Set([]byte(feeKey), b)
+	store.Set([]byte(types.FeeKey), b)
 }

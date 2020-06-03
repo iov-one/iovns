@@ -215,8 +215,8 @@ func transferDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
 
 // transferDomain is the request model for transferDomainHandler
 type setAccountMetadata struct {
-	BaseReq rest.BaseReq                 `json:"base_req"`
-	Message *types.MsgSetAccountMetadata `json:"message"`
+	BaseReq rest.BaseReq                     `json:"base_req"`
+	Message *types.MsgReplaceAccountMetadata `json:"message"`
 }
 
 // transferDomainHandler builds the transaction to sign to transfer domains

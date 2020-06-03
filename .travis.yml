@@ -84,5 +84,6 @@ notifications:
 branches:
   only:
     - master
+    - v0.3.0-pre
     - /^v[0-9]+\.[0-9]+\.x$/
     - /^v[0-9]+\.[0-9]+\.[0-9]+$/

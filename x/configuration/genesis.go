@@ -2,7 +2,6 @@ package configuration
 
 import (
 	"fmt"
-	"regexp"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration/types"
@@ -28,23 +27,8 @@ func NewGenesisState(conf types.Config, fees *types.Fees) GenesisState {
 // ValidateGenesis makes sure that the genesis state is valid
 func ValidateGenesis(data GenesisState) error {
 	conf := data.Config
-	if conf.DomainRenew < 0 {
-		return fmt.Errorf("empty domain renew")
-	}
-	if conf.Configurer == nil {
-		return fmt.Errorf("empty owner")
-	}
-	if _, err := regexp.Compile(conf.ValidBlockchainAddress); err != nil {
-		return fmt.Errorf("empty valid blockchain address regexp: %w", err)
-	}
-	if _, err := regexp.Compile(conf.ValidBlockchainID); err != nil {
-		return fmt.Errorf("empty valid blockchain id regexp: %w", err)
-	}
-	if _, err := regexp.Compile(conf.ValidDomain); err != nil {
-		return fmt.Errorf("empty valid domain regexp: %w", err)
-	}
-	if conf.ValidName == "" {
-		return fmt.Errorf("empty valid name regexp")
+	if err := conf.Validate(); err != nil {
+		return err
 	}
 	if data.Fees == nil {
 		return fmt.Errorf("empty fees")
@@ -69,11 +53,20 @@ func DefaultGenesisState() GenesisState {
 	// set default configs
 	config := types.Config{
 		Configurer:             owner,
-		ValidDomain:            "^(.*?)?",
-		ValidName:              "^(.*?)?",
+		ValidDomainName:        "^(.*?)?",
+		ValidAccountName:       "^(.*?)?",
 		ValidBlockchainID:      "^(.*?)?",
 		ValidBlockchainAddress: "^(.*?)?",
-		DomainRenew:            86400,
+		DomainRenewalPeriod:    86400,
+		DomainRenewalCountMax:  86400,
+		DomainGracePeriod:      86400,
+		AccountRenewalPeriod:   86400,
+		AccountRenewalCountMax: 86400,
+		AccountGracePeriod:     86400,
+		BlockchainTargetMax:    86400,
+		CertificateSizeMax:     86400,
+		CertificateCountMax:    86400,
+		MetadataSizeMax:        86400,
 	}
 	// set fees
 	fees := types.NewFees()
@@ -90,7 +83,7 @@ func DefaultGenesisState() GenesisState {
 	fees.UpsertDefaultFees(&domain_types.MsgReplaceAccountTargets{}, defFee)
 	fees.UpsertDefaultFees(&domain_types.MsgTransferAccount{}, defFee)
 	fees.UpsertDefaultFees(&domain_types.MsgTransferDomain{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgSetAccountMetadata{}, defFee)
+	fees.UpsertDefaultFees(&domain_types.MsgReplaceAccountMetadata{}, defFee)
 	// return genesis
 	return GenesisState{
 		Config: config,

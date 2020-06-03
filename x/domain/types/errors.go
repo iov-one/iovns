@@ -40,14 +40,50 @@ var ErrInvalidBlockchainTarget = sdkerrors.Register(ModuleName, 10, "blockchain 
 // ErrDomainExpired is returned when actions are performed on expired domains
 var ErrDomainExpired = sdkerrors.Register(ModuleName, 11, "domain has expired")
 
+// ErrDomainExpired is returned when actions are performed on not expired domains
+var ErrDomainNotExpired = sdkerrors.Register(ModuleName, 12, "domain has not expired")
+
 // ErrAccountExists is returned when a create action is done on an account that already exists
-var ErrAccountExists = sdkerrors.Register(ModuleName, 12, "account already exists")
+var ErrAccountExists = sdkerrors.Register(ModuleName, 13, "account already exists")
 
 // ErrInvalidRequest is a general error that covers the uncommon cases of invalid request
-var ErrInvalidRequest = sdkerrors.Register(ModuleName, 13, "malformed request")
+var ErrInvalidRequest = sdkerrors.Register(ModuleName, 14, "malformed request")
 
 // ErrCertificateExists is returned when a creation action is done on a certificate that already exists
-var ErrCertificateExists = sdkerrors.Register(ModuleName, 14, "certificate already exists")
+var ErrCertificateExists = sdkerrors.Register(ModuleName, 15, "certificate already exists")
 
 // ErrCertificateDoesNotExist is returned when an action is performed on a domain that already exists
-var ErrCertificateDoesNotExist = sdkerrors.Register(ModuleName, 15, "certificate does not exist")
+var ErrCertificateDoesNotExist = sdkerrors.Register(ModuleName, 16, "certificate does not exist")
+
+// ErrDomainGracePeriodNotFinished is returned when actions are performed on expired domains
+var ErrDomainGracePeriodNotFinished = sdkerrors.Register(ModuleName, 17, "domain grace period has not finished")
+
+// ErrInvalidDomainType is returned when domain type is invalid
+var ErrInvalidDomainType = sdkerrors.Register(ModuleName, 18, "invalid domain type")
+
+// ErrInvalidRegisterer is returned when the registerer address provided is not valid (empty, malformed, etc)
+var ErrInvalidRegisterer = sdkerrors.Register(ModuleName, 19, "invalid registerer")
+
+// ErrOpEmptyAcc is returned when an operation tried to be run on empty account
+var ErrOpEmptyAcc = sdkerrors.Register(ModuleName, 20, "account name provided cannot be empty")
+
+// ErrAccountGracePeriodNotFinished is returned when actions are performed on not expired domains
+var ErrAccountGracePeriodNotFinished = sdkerrors.Register(ModuleName, 21, "account grace period has not finished")
+
+// ErrBlockchainTargetLimit exceeded is returned when blockchain target limit is exceeded
+var ErrBlockchainTargetLimitExceeded = sdkerrors.Register(ModuleName, 22, "blockchain target limit exceeded")
+
+// ErrCertificateSizeExceeded is returned when certificate size exceeded
+var ErrCertificateSizeExceeded = sdkerrors.Register(ModuleName, 23, "certificate size exceeded")
+
+// ErrCertificateLimitReached is returned when certificate limit is exceeded
+var ErrCertificateLimitReached = sdkerrors.Register(ModuleName, 24, "certificate limit reached")
+
+// ErrMetadataSizeExceeded is returned when metadata size exceeded
+var ErrMetadataSizeExceeded = sdkerrors.Register(ModuleName, 25, "metadata size exceeded")
+
+// ErrClosedDomainAccExpire is returned when expiration related operation trying to be run on closed domain
+var ErrClosedDomainAccExpire = sdkerrors.Register(ModuleName, 26, "accounts in closed domains do not expire")
+
+// ErrMaxRenewExceeded is returned when max renew time exceeded
+var ErrMaxRenewExceeded = sdkerrors.Register(ModuleName, 27, "max renew exceeded")
