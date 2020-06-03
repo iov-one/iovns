@@ -1,5 +1,5 @@
 ---
-name: "iovns-windows"
+name: "iovns-linux"
 enable_cache: true
 distro: "ubuntu"
 suites:
@@ -36,7 +36,6 @@ script: |
   rm -f "${GO_SRC_TARBALL}"
   [ -d go/ ]
 
-  export GOOS=windows
   export GOROOT=${BUILD_DIR}/go
   export GOPATH=${BUILD_DIR}/gopath
   mkdir -p ${GOPATH}/bin
@@ -44,7 +43,7 @@ script: |
   export PATH_orig=${PATH}
   export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 
-  export ARCHS='386 amd64'
+  export ARCHS='amd64'
   export GO111MODULE=on
 
   # Make release tarball
@@ -89,14 +88,13 @@ script: |
     # Build iovns tool suite
     pushd ${distsrc}
     for prog in iovnscli iovnsd; do
-      exe=${prog}.exe
       GOARCH=${arch} GOROOT_FINAL=${GOROOT} go build -a \
         -trimpath \
         -gcflags=all=-trimpath=${GOPATH} \
         -asmflags=all=-trimpath=${GOPATH} \
         -mod=readonly -tags "netgo ledger" \
         -ldflags="${LDFLAGS}" \
-        -o ${INSTALLPATH}/${exe} ./cmd/${prog}
+        -o ${INSTALLPATH}/${prog} ./cmd/${prog}
 
     done
     popd # ${distsrc}
@@ -105,7 +103,7 @@ script: |
     find -type f | sort | tar \
       --no-recursion --mode='u+rw,go+r-w,a+X' \
       --numeric-owner --sort=name \
-      --owner=0 --group=0 -c -T - | gzip -9n > ${OUTDIR}/${DISTNAME}-windows-${arch}.tar.gz
+      --owner=0 --group=0 -c -T - | gzip -9n > ${OUTDIR}/${DISTNAME}-linux-${arch}.tar.gz
     popd  # installed
   done
 

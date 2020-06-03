@@ -42,10 +42,7 @@ f_help() {
 Usage: $(basename $0) [-h] PLATFORM
 Launch a gitian build from the current source directory for the given PLATFORM.
 The following platforms are supported:
-  darwin
   linux
-  windows
-  all
 
   Options:
    -h               display this help and exit
@@ -182,7 +179,7 @@ f_prep_build "${g_platforms}"
 export USE_DOCKER=1
 for g_os in ${g_platforms}; do
   g_release="$(git describe --tags --abbrev=9 | sed 's/^v//')-${g_os}"
-  g_descriptor="${g_workdir}/contrib/gitian-descriptors/gitian-${g_os}.yml"
+  g_descriptor="${g_workdir}/contrib/gitian-descriptors/iovns-${g_os}.yml"
   [ -f ${g_descriptor} ]
   g_builddir="$(f_builddir ${g_os})"
 
