@@ -3,7 +3,7 @@ import { chainIds, source2multisig } from "../../lib/constants";
 import compareObjects from "../compareObjects";
 import fs from "fs";
 import path from "path";
-import stringify from "fast-json-stable-stringify";
+import stringify from "json-stable-stringify";
 import tmp from "tmp";
 
 "use strict";
