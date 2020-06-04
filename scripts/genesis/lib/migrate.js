@@ -360,5 +360,5 @@ export const migrate = args => {
    fs.writeFileSync( path.join( config, "genesis.json" ), stringify( genesis, { space: "  " } ), "utf-8" );
 
    // ...incorporating gentxs
-   addGentxs( gentxs, home );
+   if ( gentxs ) addGentxs( gentxs, home );
 };
