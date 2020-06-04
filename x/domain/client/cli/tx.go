@@ -523,10 +523,15 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
-			// get sdk.AccAddress from string
-			ownerAddr, err := sdk.AccAddressFromBech32(owner)
-			if err != nil {
-				return
+			var ownerAddr sdk.AccAddress
+			if owner == "" {
+				ownerAddr = cliCtx.GetFromAddress()
+			} else {
+				// get sdk.AccAddress from string
+				ownerAddr, err = sdk.AccAddressFromBech32(owner)
+				if err != nil {
+					return
+				}
 			}
 			// build msg
 			msg := &types.MsgRegisterAccount{
@@ -545,7 +550,7 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 	}
 	cmd.Flags().String("domain", "", "the existing domain name for your account")
 	cmd.Flags().String("name", "", "the name of your account")
-	cmd.Flags().String("owner", "", "the address of the owner")
+	cmd.Flags().String("owner", "", "the address of the owner, if no owner provided signer is the owner")
 	return cmd
 }
 
