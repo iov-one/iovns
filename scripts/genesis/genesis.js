@@ -1,18 +1,24 @@
+import { chainIds, multisigs, source2multisig } from "./lib/constants";
+import { migrate, patchGalaxynet, patchMainnet, } from "./lib/migrate";
 import fetchIndicativeSendsTo from "./lib/fetchIndicativeSendsTo";
-import fs from "fs";
-import stringify from "json-stable-stringify";
+import fetchOsakaGenesisFile from "./lib/fetchOsakaGenesisFile";
+import path from "path";
+import pullDumpedState from "./lib/pullDumpedState";
+import pullPremiums from "./lib/pullPremiums";
 
 
 const main = async () => {
-   const chain_id = "iov-mainnet2";
-   const genesis_time = new Date( "2020-04-15T10:00:00Z" ).toISOString();
-   const ledgers = await fetchIndicativeSendsTo( "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un", /./ ).catch( e => { throw e } );  // TODO: remove this placeholder
-   const genesis = { // TODO: remove placeholders
+   // network dependent constants
+   const mainnet = process.argv[2].indexOf( "mainnet" ) != -1;
+   const chain_id = mainnet ? "iov-mainnet-2" : "iovns-galaxynet";
+   const home = mainnet ? path.join( __dirname, "data", chain_id ) : path.join( __dirname, "data", "galaxynet" );
+   const gentxs = mainnet ? path.join( __dirname, "data", "gentxs" ) : undefined;
+   const patch = mainnet ? patchMainnet : patchGalaxynet;
+
+   // genesis file skeleton
+   const genesis = {
       chain_id: chain_id,
-      genesis_time: genesis_time,
-      accounts: [
-         ...ledgers,
-      ],
+      genesis_time: new Date( "2020-04-15T10:00:00Z" ).toISOString(),
       app_hash: "",
       app_state: {
          bank: {
@@ -186,11 +192,20 @@ const main = async () => {
       },
    }
 
-   fs.writeFileSync( "genesis.json", stringify( genesis, { space: "  " } ) );
+   // other data
+   const dumped = await pullDumpedState().catch( e => { throw e } );
+   const flammable = [ "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" ]; // accounts to burn; "pending deals" tokens were effectively burned by sending to this 0x0 hex account
+   const indicatives = await fetchIndicativeSendsTo( "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6", /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/ ).catch( e => { throw e } );
+   const osaka = await fetchOsakaGenesisFile().catch( e => { throw e } );
+   const premiums = await pullPremiums().catch( e => { throw e } );
+   const reserveds = []; // TODO
+
+   // migration
+   migrate( { chainIds, dumped, flammable, genesis, gentxs, home, indicatives, multisigs, osaka, patch, premiums, reserveds, source2multisig } );
 }
 
 
 main().catch( e => {
-   console.error( e );
+   console.error( e.stack || e.message || e );
    process.exit( -1 );
 } );
