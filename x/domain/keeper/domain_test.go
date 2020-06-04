@@ -15,12 +15,11 @@ func TestKeeper_IterateAllDomains(t *testing.T) {
 	domainSet := make(map[string]struct{}, 100)
 	for i := 0; i < n; i++ {
 		k.SetDomain(ctx, types.Domain{
-			Name:         fmt.Sprintf("%d", i),
-			Admin:        nil,
-			ValidUntil:   1000,
-			Type:         types.ClosedDomain,
-			AccountRenew: 1000000,
-			Broker:       nil,
+			Name:       fmt.Sprintf("%d", i),
+			Admin:      nil,
+			ValidUntil: 1000,
+			Type:       types.ClosedDomain,
+			Broker:     nil,
 		})
 		domainSet[fmt.Sprintf("%d", i)] = struct{}{}
 	}
@@ -41,20 +40,18 @@ func TestKeeper_CreateDomain(t *testing.T) {
 	ctx.WithBlockTime(time.Unix(0, 0))
 	// create mock domains
 	closedDomain := types.Domain{
-		Name:         "closed",
-		Admin:        AliceKey,
-		ValidUntil:   1,
-		Type:         types.ClosedDomain,
-		AccountRenew: 2,
-		Broker:       nil,
+		Name:       "closed",
+		Admin:      AliceKey,
+		ValidUntil: 1,
+		Type:       types.ClosedDomain,
+		Broker:     nil,
 	}
 	openDomain := types.Domain{
-		Name:         "open",
-		Admin:        AliceKey,
-		ValidUntil:   1,
-		Type:         types.OpenDomain,
-		AccountRenew: 2,
-		Broker:       nil,
+		Name:       "open",
+		Admin:      AliceKey,
+		ValidUntil: 1,
+		Type:       types.OpenDomain,
+		Broker:     nil,
 	}
 	k.CreateDomain(ctx, closedDomain)
 	k.CreateDomain(ctx, openDomain)

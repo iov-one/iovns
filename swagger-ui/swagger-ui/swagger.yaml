@@ -2901,9 +2901,6 @@ components:
           type: string
           example: close
           description: defines the type of the domain
-        accountRenew:
-          type: number
-          description: The duration of each created or renewed account under the domain
         broker:
           $ref: "#/components/schemas/Address"
           description: Address of the broker

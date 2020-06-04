@@ -1,8 +1,6 @@
 package types
 
 import (
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -250,9 +248,6 @@ type MsgRegisterDomain struct {
 	DomainType DomainType `json:"type"`
 	// Broker TODO document
 	Broker sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
-	// AccountRenew defines the expiration time in seconds of each newly registered account.
-	AccountRenew time.Duration `json:"account_renew" arg:"--account-renew" helper:"account's renewal time in seconds"`
-	// TODO MSGFEEs
 }
 
 // Route implements sdk.Msg
@@ -269,9 +264,6 @@ func (m *MsgRegisterDomain) Type() string {
 func (m *MsgRegisterDomain) ValidateBasic() error {
 	if m.Admin == nil {
 		return errors.Wrap(ErrInvalidRequest, "admin is missing")
-	}
-	if m.AccountRenew == 0 {
-		return errors.Wrap(ErrInvalidRequest, "account renew value can not be zero")
 	}
 	if err := ValidateDomainType(m.DomainType); err != nil {
 		return err
