@@ -41,12 +41,11 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	}
 	// create new domain
 	d := types.Domain{
-		Name:         msg.Name,
-		Admin:        msg.Admin,
-		ValidUntil:   ctx.BlockTime().Add(k.ConfigurationKeeper.GetDomainRenewDuration(ctx)).Unix(),
-		Type:         msg.DomainType,
-		AccountRenew: msg.AccountRenew,
-		Broker:       msg.Broker,
+		Name:       msg.Name,
+		Admin:      msg.Admin,
+		ValidUntil: ctx.BlockTime().Add(k.ConfigurationKeeper.GetDomainRenewDuration(ctx)).Unix(),
+		Type:       msg.DomainType,
+		Broker:     msg.Broker,
 	}
 	// save domain
 	k.CreateDomain(ctx, d)

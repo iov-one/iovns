@@ -304,11 +304,10 @@ func TestDomain_Renewable(t *testing.T) {
 	ctrl := &Domain{
 		domainName: "test",
 		domain: &types.Domain{
-			Name:         "test",
-			ValidUntil:   1,
-			Type:         "",
-			AccountRenew: 0,
-			Broker:       nil,
+			Name:       "test",
+			ValidUntil: 1,
+			Type:       "",
+			Broker:     nil,
 		},
 		conf: &configuration.Config{
 			DomainRenewalPeriod:   2 * time.Second,

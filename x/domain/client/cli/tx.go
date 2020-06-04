@@ -569,16 +569,11 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			if err := types.ValidateDomainType(types.DomainType(dType)); err != nil {
 				return err
 			}
-			accountRenew, err := cmd.Flags().GetDuration("account-renew")
-			if err != nil {
-				return err
-			}
 			msg := &types.MsgRegisterDomain{
-				Name:         domain,
-				Admin:        cliCtx.GetFromAddress(),
-				DomainType:   types.DomainType(dType),
-				Broker:       nil,
-				AccountRenew: accountRenew,
+				Name:       domain,
+				Admin:      cliCtx.GetFromAddress(),
+				DomainType: types.DomainType(dType),
+				Broker:     nil,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {

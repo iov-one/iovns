@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -24,9 +23,6 @@ type Domain struct {
 	ValidUntil int64 `json:"valid_until"`
 	// Type defines the type of the domain
 	Type DomainType `json:"type"`
-	// AccountRenew defines the duration of each created or renewed account
-	// under the domain
-	AccountRenew time.Duration `json:"account_renew"`
 	// Broker TODO needs comment
 	Broker sdk.AccAddress `json:"broker"`
 }

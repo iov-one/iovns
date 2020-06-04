@@ -31,12 +31,11 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 		"fail domain open": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        keeper.AliceKey,
-					ValidUntil:   0,
-					Type:         types.OpenDomain,
-					AccountRenew: 0,
-					Broker:       nil,
+					Name:       "test",
+					Admin:      keeper.AliceKey,
+					ValidUntil: 0,
+					Type:       types.OpenDomain,
+					Broker:     nil,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -58,12 +57,11 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					DomainGracePeriod: 1000000000000000,
 				})
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        keeper.BobKey,
-					ValidUntil:   0,
-					Type:         types.ClosedDomain,
-					AccountRenew: 0,
-					Broker:       nil,
+					Name:       "test",
+					Admin:      keeper.BobKey,
+					ValidUntil: 0,
+					Type:       types.ClosedDomain,
+					Broker:     nil,
 				})
 			},
 			TestBlockTime: 1,
@@ -86,12 +84,11 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					DomainGracePeriod: 5,
 				})
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        keeper.BobKey,
-					ValidUntil:   3,
-					Type:         types.ClosedDomain,
-					AccountRenew: 0,
-					Broker:       nil,
+					Name:       "test",
+					Admin:      keeper.BobKey,
+					ValidUntil: 3,
+					Type:       types.ClosedDomain,
+					Broker:     nil,
 				})
 			},
 			TestBlockTime: 3,
@@ -114,12 +111,11 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					DomainGracePeriod: 5,
 				})
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        keeper.BobKey,
-					ValidUntil:   4,
-					Type:         types.ClosedDomain,
-					AccountRenew: 0,
-					Broker:       nil,
+					Name:       "test",
+					Admin:      keeper.BobKey,
+					ValidUntil: 4,
+					Type:       types.ClosedDomain,
+					Broker:     nil,
 				})
 			},
 			TestBlockTime: 10,
@@ -142,20 +138,18 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					DomainGracePeriod: 1,
 				})
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test1",
-					Admin:        keeper.BobKey,
-					ValidUntil:   1589826439,
-					Type:         types.ClosedDomain,
-					AccountRenew: 0,
-					Broker:       nil,
+					Name:       "test1",
+					Admin:      keeper.BobKey,
+					ValidUntil: 1589826439,
+					Type:       types.ClosedDomain,
+					Broker:     nil,
 				})
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test2",
-					Admin:        keeper.BobKey,
-					ValidUntil:   1589828251,
-					Type:         types.ClosedDomain,
-					AccountRenew: 0,
-					Broker:       nil,
+					Name:       "test2",
+					Admin:      keeper.BobKey,
+					ValidUntil: 1589828251,
+					Type:       types.ClosedDomain,
+					Broker:     nil,
 				})
 			},
 			TestBlockTime: 1589826441,
@@ -194,12 +188,11 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				// set domain
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        keeper.AliceKey,
-					ValidUntil:   0,
-					Type:         types.ClosedDomain,
-					AccountRenew: 0,
-					Broker:       nil,
+					Name:       "test",
+					Admin:      keeper.AliceKey,
+					ValidUntil: 0,
+					Type:       types.ClosedDomain,
+					Broker:     nil,
 				})
 			},
 			TestBlockTime: 4,
@@ -235,12 +228,11 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				})
 				// set domain
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "test",
-					Admin:        keeper.AliceKey,
-					ValidUntil:   0,
-					Type:         types.ClosedDomain,
-					AccountRenew: 0,
-					Broker:       nil,
+					Name:       "test",
+					Admin:      keeper.AliceKey,
+					ValidUntil: 0,
+					Type:       types.ClosedDomain,
+					Broker:     nil,
 				})
 				// add two accounts
 				k.CreateAccount(ctx, types.Account{
@@ -296,20 +288,18 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
-					Name:         "domain-closed",
-					DomainType:   types.ClosedDomain,
-					AccountRenew: 10,
-					Admin:        keeper.BobKey,
+					Name:       "domain-closed",
+					DomainType: types.ClosedDomain,
+					Admin:      keeper.BobKey,
 				})
 				if err != nil {
 					t.Fatalf("handleMsgRegisterDomain() with close domain, got error: %s", err)
 				}
 				_, err = handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
-					Name:         "domain-open",
-					Admin:        keeper.AliceKey,
-					DomainType:   types.OpenDomain,
-					Broker:       nil,
-					AccountRenew: 20,
+					Name:       "domain-open",
+					Admin:      keeper.AliceKey,
+					DomainType: types.OpenDomain,
+					Broker:     nil,
 				})
 				if err != nil {
 					t.Fatalf("handleMsgRegisterDomain() with open domain, got error: %s", err)
@@ -330,20 +320,18 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 		"fail domain name exists": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				k.CreateDomain(ctx, types.Domain{
-					Name:         "exists",
-					Admin:        keeper.BobKey,
-					ValidUntil:   0,
-					Type:         types.ClosedDomain,
-					AccountRenew: 0,
-					Broker:       nil,
+					Name:       "exists",
+					Admin:      keeper.BobKey,
+					ValidUntil: 0,
+					Type:       types.ClosedDomain,
+					Broker:     nil,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
-					Name:         "exists",
-					Admin:        keeper.AliceKey,
-					DomainType:   types.ClosedDomain,
-					AccountRenew: 0,
+					Name:       "exists",
+					Admin:      keeper.AliceKey,
+					DomainType: types.ClosedDomain,
 				})
 				if !errors.Is(err, types.ErrDomainAlreadyExists) {
 					t.Fatalf("handleMsgRegisterDomain() expected: %s got: %s", types.ErrDomainAlreadyExists, err)
@@ -363,11 +351,10 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handleMsgRegisterDomain(ctx, k, &types.MsgRegisterDomain{
-					Name:         "invalid-name",
-					Admin:        nil,
-					DomainType:   types.OpenDomain,
-					Broker:       nil,
-					AccountRenew: 0,
+					Name:       "invalid-name",
+					Admin:      nil,
+					DomainType: types.OpenDomain,
+					Broker:     nil,
 				})
 				if !errors.Is(err, types.ErrInvalidDomainName) {
 					t.Fatalf("handleMsgRegisterDomain() expected error: %s, got: %s", types.ErrInvalidDomainName, err)
