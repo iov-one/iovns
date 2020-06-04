@@ -327,6 +327,7 @@ export const migrate = args => {
    const dumped = args.dumped;
    const flammable = args.flammable;
    const genesis = args.genesis;
+   const gentxs = args.gentxs;
    const home = args.home;
    const indicatives = args.indicatives;
    const multisigs = args.multisigs;
@@ -353,8 +354,11 @@ export const migrate = args => {
    genesis.app_state.domain.domains.push( ...domains );
 
    // write genesis.json before...
-   fs.writeFileSync( path.join( home, "genesis.json" ), stringify( genesis, { space: "  " } ), "utf-8" );
+   const config = path.join( home, "config" );
+
+   if ( !fs.existsSync( config ) ) fs.mkdirSync( config );
+   fs.writeFileSync( path.join( config, "genesis.json" ), stringify( genesis, { space: "  " } ), "utf-8" );
 
    // ...incorporating gentxs
-   // TODO
+   addGentxs( gentxs, home );
 };

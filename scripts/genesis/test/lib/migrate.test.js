@@ -724,8 +724,15 @@ describe( "Tests ../../lib/migrate.js.", () => {
    it( `Should migrate.`, async () => {
       const tmpobj = tmp.dirSync( { template: "migrate-test-migrate-XXXXXX", unsafeCleanup: true } );
       const home = tmpobj.name;
+      const config = path.join( home, "config" );
+      const gentx = "gentx-61e1f6d195f022cab0fe18f2ac1a4d33430999eb.json";
+      const gentxs = path.join( home, "gentxs" );
 
-      migrate( { chainIds, dumped, flammable, genesis, home, indicatives, multisigs, osaka, premiums, reserveds, source2multisig } );
+      fs.mkdirSync( config );
+      fs.mkdirSync( gentxs );
+      fs.copyFileSync( path.join( __dirname, gentx ), path.join( gentxs, gentx ) );
+
+      migrate( { chainIds, dumped, flammable, genesis, gentxs, home, indicatives, multisigs, osaka, premiums, reserveds, source2multisig } );
 
       const nextGen = {
          "chain_id": "migration-test",
@@ -1207,7 +1214,56 @@ describe( "Tests ../../lib/migrate.js.", () => {
             }
          },
          "crisis": {},
-         "genutil": {},
+         "genutil": {
+            "gentxs": [
+               {
+                  "type": "cosmos-sdk/StdTx",
+                  "value": {
+                     "msg": [
+                        {
+                           "type": "cosmos-sdk/MsgCreateValidator",
+                           "value": {
+                              "description": {
+                                 "moniker": "slim",
+                                 "identity": "",
+                                 "website": "",
+                                 "security_contact": "",
+                                 "details": ""
+                              },
+                              "commission": {
+                                 "rate": "0.100000000000000000",
+                                 "max_rate": "0.200000000000000000",
+                                 "max_change_rate": "0.010000000000000000"
+                              },
+                              "min_self_delegation": "1",
+                              "delegator_address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
+                              "validator_address": "starvaloper1478t4fltj689nqu83vsmhz27quk7uggjtjp2gl",
+                              "pubkey": "starvalconspub1zcjduepqds57cwz6kgzprcsuermllsyglcwz9w2z85nuar575z82mujtrhws0n4m0g",
+                              "value": {
+                                 "denom": "iov",
+                                 "amount": "1"
+                              }
+                           }
+                        }
+                     ],
+                     "fee": {
+                        "amount": [],
+                        "gas": "200000"
+                     },
+                     "signatures": [
+                        {
+                           "pub_key": {
+                              "type": "tendermint/PubKeySecp256k1",
+                              "value": "AwOzGduZPxmjUMKASZGKPrUA7Drs9CvfJfXkgR/RSdyu"
+                           },
+                           "signature": "mi817tgVyfLtiObMU0/I7TUjqbyKwUiQGYAJY2oAG0dhlEGGRJFNTfS12nLUw42n5lZp09LUq9pXcHxHRXuV9g=="
+                        }
+                     ],
+                     "memo": "61e1f6d195f022cab0fe18f2ac1a4d33430999eb@192.168.1.46:26656"
+                  }
+               }
+            ],
+         },
          "gov": {}
       }
 
