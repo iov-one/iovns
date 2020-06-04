@@ -1,4 +1,17 @@
-import { addGentxs, burnTokens, consolidateEscrows, convertToCosmosSdk, fixChainIds, labelAccounts, labelMultisigs, mapIovToStar, migrate } from "../../lib/migrate";
+import {
+   addGentxs,
+   burnTokens,
+   consolidateEscrows,
+   convertToCosmosSdk,
+   fixChainIds,
+   labelAccounts,
+   labelMultisigs,
+   mapIovToStar,
+   migrate,
+   patchGalaxynet,
+   patchJestnet,
+   patchMainnet,
+} from "../../lib/migrate";
 import { chainIds, source2multisig } from "../../lib/constants";
 import compareObjects from "../compareObjects";
 import fs from "fs";
@@ -241,7 +254,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       ],
    };
    const genesis = {
-      chain_id: "migration-test",
+      chain_id: "jestnet",
       genesis_time: new Date( "2020-04-15T10:00:00Z" ).toISOString(),
       app_hash: "",
       app_state: {
@@ -721,6 +734,97 @@ describe( "Tests ../../lib/migrate.js.", () => {
       tmpobj.removeCallback();
    } );
 
+   it( `Should fail to patch wrong-chain_id.`, async () => {
+      const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
+
+      genesisCopy.chain_id = "wrong-chain_id";
+
+      expect( () => { patchJestnet( genesisCopy ) } ).toThrow( `Wrong chain_id: ${genesisCopy.chain_id} != jestnet.` );
+   } );
+
+   it( `Should patch jestnet.`, async () => {
+      const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
+      const previous = genesisCopy.app_state.domain.domains[0].account_renew;
+
+      patchJestnet( genesisCopy );
+
+      const current = genesisCopy.app_state.domain.domains[0].account_renew;
+
+      expect( current ).not.toEqual( previous );
+      expect( current ).toEqual( "3600" );
+   } );
+
+   it( `Should patch iovns-galaxynet.`, async () => {
+      const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
+      const previous = [].concat( genesisCopy.app_state.auth.accounts );
+      const poor =  {
+         "//name": "dave*iov",
+         "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "416.51"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0,
+         },
+      };
+
+      previous.push( JSON.parse( JSON.stringify( poor ) ) );
+      genesisCopy.app_state.auth.accounts = [].concat( previous );
+      genesisCopy.chain_id = "iovns-galaxynet";
+
+      patchGalaxynet( genesisCopy );
+
+      const current = genesisCopy.app_state.auth.accounts;
+
+      expect( current.length ).not.toEqual( previous.length );
+      expect( current.length ).toEqual( 9 );
+
+      const antoine = current.find( account => account["//name"] == "antoine" );
+      const dave = current.find( account => account["//name"] == "dave*iov" );
+      const faucet = current.find( account => account["//name"] == "faucet" );
+      const msig1 = current.find( account => account["//name"] == "msig1" );
+      const w1 = current.find( account => account["//name"] == "w1" );
+      const w2 = current.find( account => account["//name"] == "w2" );
+      const w3 = current.find( account => account["//name"] == "w3" );
+
+      expect( antoine ).toBeTruthy();
+      expect( dave ).toBeTruthy();
+      expect( faucet ).toBeTruthy();
+      expect( msig1 ).toBeTruthy();
+      expect( w1 ).toBeTruthy();
+      expect( w2 ).toBeTruthy();
+      expect( w3 ).toBeTruthy();
+
+      expect( dave.value.address ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
+      expect( msig1.value.address ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
+      expect( w1.value.address ).toEqual( "star19jj4wc3lxd54hkzl42m7ze73rzy3dd3wry2f3q" );
+      expect( w2.value.address ).toEqual( "star1l4mvu36chkj9lczjhy9anshptdfm497fune6la" );
+      expect( w3.value.address ).toEqual( "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9" );
+
+      expect( dave.value.coins[0].amount ).not.toEqual( poor.value.coins[0].amount );
+      expect( dave.value.coins[0].amount ).toEqual( "1000000" );
+   } );
+
+   it( `Should patch iov-mainnet-2.`, async () => {
+      const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
+      const previous = [].concat( genesisCopy.app_state.auth.accounts );
+
+      genesisCopy.chain_id = "iov-mainnet-2";
+
+      patchMainnet( genesisCopy );
+
+      const current = genesisCopy.app_state.auth.accounts;
+
+      expect( current.length ).not.toEqual( previous.length );
+   } );
+
    it( `Should migrate.`, async () => {
       const tmpobj = tmp.dirSync( { template: "migrate-test-migrate-XXXXXX", unsafeCleanup: true } );
       const home = tmpobj.name;
@@ -735,7 +839,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       migrate( { chainIds, dumped, flammable, genesis, gentxs, home, indicatives, multisigs, osaka, premiums, reserveds, source2multisig } );
 
       const nextGen = {
-         "chain_id": "migration-test",
+         "chain_id": "jestnet",
          "genesis_time": "2020-04-15T10:00:00.000Z",
          "app_hash": "",
          "app_state": {

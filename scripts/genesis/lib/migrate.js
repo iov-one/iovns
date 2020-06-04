@@ -319,6 +319,171 @@ export const addGentxs = ( gentxs, home ) => {
 }
 
 /**
+ * Patches the jestnet genesis object.
+ * @param {Object} genesis - the jestnet genesis object
+ */
+export const patchJestnet = genesis => {
+   if ( genesis.chain_id != "jestnet" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != jestnet.` );
+
+   genesis.app_state.domain.domains[0].account_renew = "3600";
+}
+
+/**
+ * Patches the iovns-galaxynet genesis object.
+ * @param {Object} genesis - the iovns-galaxynet genesis object
+ */
+export const patchGalaxynet = genesis => {
+   if ( genesis.chain_id != "iovns-galaxynet" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iovns-galaxynet.` );
+
+   // make dave rich for testing
+   const dave = genesis.app_state.auth.accounts.find( account => account.value.address == "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
+
+   if ( dave ) dave.value.coins[0].amount = "1000000";
+
+   // add other test accounts
+   const accounts = [
+      {
+         "//name": "faucet",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star13dq838nu0wmzvx8ge6z5upvu7uze3xlusnts5c",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "1000000"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         }
+      },
+      {
+         "//name": "antoine",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star1z5v82hpklh4vv5a6jqsemcs0tmngel8m057mju",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "1000000"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         }
+      },
+      {
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star10lalxx8ml63hs86j64nk76kucf72dsucluexz8",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "1000000"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         }
+      },
+      {
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star1936a62ple4uayhsynvzkx5zzz8jv4z2n8x09fu",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "1000000"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         }
+      },
+      {
+         "//name": "msig1",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "1000000"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         }
+      },
+      {
+         "//name": "w1",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star19jj4wc3lxd54hkzl42m7ze73rzy3dd3wry2f3q",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "1000000"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         }
+      },
+      {
+         "//name": "w2",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star1l4mvu36chkj9lczjhy9anshptdfm497fune6la",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "1000000"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         }
+      },
+      {
+         "//name": "w3",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9",
+            "coins": [
+               {
+                  "denom": "iov",
+                  "amount": "1000000"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         }
+      },
+   ];
+
+   genesis.app_state.auth.accounts.push( ...accounts );
+}
+
+/**
+ * Patches the iov-mainnet-2 genesis object.
+ * @param {Object} genesis - the iov-mainnet-2 genesis object
+ */
+export const patchMainnet = genesis => {
+   if ( genesis.chain_id != "iov-mainnet-2" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iov-mainnet-2.` );
+
+   // TODO
+}
+
+/**
  * Performs all the necessary transformations to migrate from the weave-based chain to a cosmos-sdk-based chain.
  * @param {Object} args - various objects required for the transformation
  */
@@ -332,6 +497,7 @@ export const migrate = args => {
    const indicatives = args.indicatives;
    const multisigs = args.multisigs;
    const osaka = args.osaka;
+   const patch = args.patch;
    const premiums = args.premiums;
    const reserveds = args.reserveds;
    const source2multisig = args.source2multisig;
@@ -352,6 +518,8 @@ export const migrate = args => {
    genesis.app_state.auth.accounts.push( ...Object.values( escrows ) );
    genesis.app_state.domain.accounts.push( ...starnames );
    genesis.app_state.domain.domains.push( ...domains );
+
+   if ( patch ) patch( genesis );
 
    // write genesis.json before...
    const config = path.join( home, "config" );
