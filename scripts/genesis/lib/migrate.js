@@ -471,6 +471,16 @@ export const patchGalaxynet = genesis => {
    ];
 
    genesis.app_state.auth.accounts.push( ...accounts );
+
+   // set the configuration owner
+   const config = genesis.app_state.configuration.config;
+
+   config["//note"] = "msig1 multisig address from w1,w2,w3,p1 in iovns/docs/cli, threshold 3";
+   config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg";
+   config.domain_renew_period = String( 5 * 60 );
+   config.domain_grace_period = "60";
+   config.account_renew_period = String( 3 * 60 );
+   config.account_grace_period =  "60";
 }
 
 /**

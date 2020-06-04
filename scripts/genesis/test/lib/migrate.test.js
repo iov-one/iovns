@@ -261,6 +261,25 @@ describe( "Tests ../../lib/migrate.js.", () => {
          auth: {
             accounts: [],
          },
+         configuration: {
+            config: {
+               account_grace_period: String( 30 * 24 * 60 * 60 ),
+               account_renew_count_max: 2,
+               account_renew_period: String( 365.25 * 24 * 60 * 60 ),
+               blockchain_target_max: 16,
+               certificate_count_max: 16,
+               certificate_size_max: "1024",
+               configurer: "star1 IOV SAS",
+               domain_grace_period: String( 30 * 24 * 60 * 60 ),
+               domain_renew_count_max: 2,
+               domain_renew_period: String( 365.25 * 24 * 60 * 60 ),
+               metadata_size_max: "1024",
+               valid_account_name: "[-_\\.a-z0-9]{0,64}$",
+               valid_blockchain_address: "^[a-z0-9A-Z]+$",
+               valid_blockchain_id: "[-a-z0-9A-Z:]+$",
+               valid_domain_name: "^[-_a-z0-9]{4,16}$",
+            },
+         },
          domain: {
             domains: [
                {
@@ -810,6 +829,15 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       expect( dave.value.coins[0].amount ).not.toEqual( poor.value.coins[0].amount );
       expect( dave.value.coins[0].amount ).toEqual( "1000000" );
+
+      const config = genesisCopy.app_state.configuration.config;
+
+      expect( config["//note"] ).toEqual( "msig1 multisig address from w1,w2,w3,p1 in iovns/docs/cli, threshold 3" );
+      expect( config.configurer ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
+      expect( config.domain_renew_period ).toEqual( String( 5 * 60 ) );
+      expect( config.domain_grace_period ).toEqual( "60" );
+      expect( config.account_renew_period ).toEqual( String( 3 * 60 ) );
+      expect( config.account_grace_period ).toEqual( "60" );
    } );
 
    it( `Should patch iov-mainnet-2.`, async () => {
