@@ -58,7 +58,7 @@ export const labelAccounts = ( dumped, osaka ) => {
  */
 export const fixChainIds = ( dumped, ids ) => {
    dumped.username.forEach( username => {
-      username.Targets.forEach( target => {
+      username.Targets && username.Targets.forEach( target => {
          if ( ids[target.blockchain_id] ) target.blockchain_id = ids[target.blockchain_id];
       } );
    } );
@@ -183,7 +183,7 @@ export const mapIovToStar = ( dumped, multisigs, indicatives ) => {
    const reMemo = /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/;
 
    dumped.username.forEach( username => {
-      const target = username.Targets.find( target => target.address.indexOf( "star1" ) == 0 );
+      const target = username.Targets && username.Targets.find( target => target.address.indexOf( "star1" ) == 0 );
 
       iov2star[username.Owner] = target ? target.address : false;
    } );
