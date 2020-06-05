@@ -118,7 +118,7 @@ export const createStarname = ( args = {} ) => {
  */
 export const createDomain = ( args = {} ) => {
    const template = {
-      "account_renew": 10 * 365.25 * 24 * 60 * 60, // 10 years in seconds
+      "account_renew": String( 10 * 365.25 * 24 * 60 * 60 ), // 10 years in seconds
       "admin": args.address,
       "broker": null,
       "name": args.domain,
