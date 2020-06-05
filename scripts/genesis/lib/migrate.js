@@ -375,7 +375,7 @@ export const patchGalaxynet = genesis => {
          "//name": "antoine",
          "type": "cosmos-sdk/Account",
          "value": {
-            "address": "star1z5v82hpklh4vv5a6jqsemcs0tmngel8m057mju",
+            "address": "star1ttf6p8ek3s28luqhnhsxjjh6f7r7t6af5u4895",
             "coins": [
                {
                   "denom": "iov",
@@ -485,15 +485,116 @@ export const patchGalaxynet = genesis => {
 
    genesis.app_state.auth.accounts.push( ...accounts );
 
-   // set the configuration owner
+   // make dave own multisig accounts since pubkeys for others are still pending; TODO: delete when possible
+   genesis.app_state.auth.accounts.forEach( account => {
+      if ( account["//alias"] || account.value.address.indexOf( "TBD" ) != -1 ) {
+         account.value.address = dave.value.address;
+      }
+   } );
+   genesis.app_state.domain.domains.forEach( domain => {
+      if ( domain.admin.indexOf( "custodial" ) != -1 ) {
+         domain.admin = dave.value.address;
+      }
+   } );
+   genesis.app_state.domain.accounts.forEach( account => {
+      if ( account.owner.indexOf( "custodial" ) != -1 ) {
+         account.owner = dave.value.address;
+      }
+   } );
+
+   // set the configuration owner and parameters
    const config = genesis.app_state.configuration.config;
 
    config["//note"] = "msig1 multisig address from w1,w2,w3,p1 in iovns/docs/cli, threshold 3";
+   config.account_grace_period = "1800";
+   config.account_renew_count_max = 2;
+   config.account_renew_period = "1800";
+   config.blockchain_target_max = 3;
+   config.certificate_count_max = 3;
+   config.certificate_size_max = "1000";
    config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg";
-   config.domain_renew_period = String( 5 * 60 );
-   config.domain_grace_period = "60";
-   config.account_renew_period = String( 3 * 60 );
-   config.account_grace_period =  "60";
+   config.domain_grace_period = "400";
+   config.domain_renew_count_max = 2;
+   config.domain_renew_period = "1800";
+   config.metadata_size_max = "1000";
+
+   // set the incorrect fee implementation TODO: delete after https://github.com/iov-one/iovns/issues/22 is closed
+   const fees = genesis.app_state.configuration.fees;
+
+   fees.default_fees = {
+      "domain/add_certificates_account": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/delete_account": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/delete_certificate_account": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/delete_domain": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/register_account": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/register_domain": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/renew_account": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/renew_domain": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/replace_account_targets": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/set_account_metadata": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/transfer_account": {
+         "amount": "10",
+         "denom": "iov"
+      },
+      "domain/transfer_domain": {
+         "amount": "10",
+         "denom": "iov"
+      }
+   };
+   fees.level_fees = {
+      "domain/register_domain": {
+         "1": {
+            "amount": "10000",
+            "denom": "iov"
+         },
+         "2": {
+            "amount": "5000",
+            "denom": "iov"
+         },
+         "3": {
+            "amount": "2000",
+            "denom": "iov"
+         },
+         "4": {
+            "amount": "1000",
+            "denom": "iov"
+         },
+         "5": {
+            "amount": "500",
+            "denom": "iov"
+         }
+      }
+   };
 }
 
 /**
