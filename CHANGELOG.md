@@ -4,6 +4,7 @@
 
 - Integrate gitian builds
 - Remove account renew field in types.Domain
+- Improve json field names in msgs
 - Improve iovnscli tx add-certs error handling
 
 ## v0.3.0
