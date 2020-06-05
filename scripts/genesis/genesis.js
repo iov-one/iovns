@@ -37,7 +37,7 @@ const main = async () => {
               domain_renew_count_max: 2,
               domain_renew_period: String( 365.25 * 24 * 60 * 60 ),
               metadata_size_max: "1024",
-              valid_account_name: "[-_\\.a-z0-9]{0,64}$",
+              valid_account_name: "[-_\\.a-z0-9]{1,64}$",
               valid_blockchain_address: "^[a-z0-9A-Z]+$",
               valid_blockchain_id: "[-a-z0-9A-Z:]+$",
               valid_domain_name: "^[-_a-z0-9]{4,16}$",
