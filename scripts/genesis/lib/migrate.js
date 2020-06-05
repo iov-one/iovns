@@ -173,6 +173,17 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
 }
 
 /**
+ * Fixes human errors that arose during the migration.
+ * @param {Array} indicatives - an array of weave txs stemming from sends to star1*iov
+ */
+export const fixHumanErrors = ( indicatives ) => {
+   // iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960 both "upgraded" via Neuma and sent to star1*iov, so drop the star1*iov data
+   const index = indicatives.findIndex( indicative => indicative.message.details.source == "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960" );
+
+   indicatives.splice( index, 1 );
+}
+
+/**
  * Maps iov1 addresses to star1 addresses.
  * @param {Object} dumped - the state of the weave-based chain
  * @param {Object} multisigs - a map of iov1 addresses to multisig account data
@@ -517,6 +528,7 @@ export const migrate = args => {
    labelAccounts( dumped, osaka );
    labelMultisigs( dumped, multisigs );
    fixChainIds( dumped, chainIds );
+   fixHumanErrors( indicatives );
 
    // ...transform (order matters)...
    const iov2star = mapIovToStar( dumped, multisigs, indicatives );

@@ -4,6 +4,7 @@ import {
    consolidateEscrows,
    convertToCosmosSdk,
    fixChainIds,
+   fixHumanErrors,
    labelAccounts,
    labelMultisigs,
    mapIovToStar,
@@ -251,6 +252,16 @@ describe( "Tests ../../lib/migrate.js.", () => {
             ],
             "Username": "corentin*iov"
          },
+         {
+            "Owner": "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960",
+            "Targets": [
+               { "address": "star1qvpth6t72336fjxlej2xv8eu84hrpxdxf5rgzz", "blockchain_id": "starname-migration" },
+               { "address": "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960", "blockchain_id": "iov-mainnet" },
+               { "address": "16104600299727948959L", "blockchain_id": "lisk-ed14889723" },
+               { "address": "0x40698A9DcE4d6a63E766Dd08b83D03c6727DCB1a", "blockchain_id": "ethereum-eip155-1" }
+            ],
+            "Username": "btc13*iov"
+         },
       ],
    };
    const genesis = {
@@ -496,8 +507,22 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( kadima.value.coins[0].amount ).toEqual( "269559" );
    } );
 
+   it( `Should fix human errors.`, async () => {
+      const indicativesCopy = JSON.parse( JSON.stringify( indicatives ) );
+      const previous = [].concat( indicativesCopy );
+
+      fixHumanErrors( indicativesCopy );
+
+      expect( indicativesCopy.length ).toEqual( previous.length - 1 );
+      expect( indicativesCopy.findIndex( indicative => indicative.message.details.source == "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960" ) ).toEqual( -1 );
+   } );
+
    it( `Should map iov1 addresses to star1 addresses.`, async () => {
-      const iov2star = mapIovToStar( dumped, multisigs, indicatives );
+      const indicativesCopy = JSON.parse( JSON.stringify( indicatives ) );
+
+      fixHumanErrors( indicativesCopy );
+
+      const iov2star = mapIovToStar( dumped, multisigs, indicativesCopy );
       const reMemo = /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/;
 
       expect( iov2star.iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl ).toEqual( false ); // alex
@@ -505,19 +530,20 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( iov2star.iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9 ).toEqual( false );
       expect( iov2star.iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
       expect( iov2star.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n ).toEqual( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 );
-      expect( iov2star[indicatives[0].message.details.source] ).toEqual( indicatives[0].message.details.memo.match( reMemo )[0] );
-      expect( iov2star[indicatives[1].message.details.source] ).toEqual( indicatives[1].message.details.memo.match( reMemo )[1] );
+      expect( iov2star[indicativesCopy[0].message.details.source] ).toEqual( indicativesCopy[0].message.details.memo.match( reMemo )[0] );
    } );
 
    it( `Should convert genesis objects from weave to cosmos-sdk.`, async () => {
       const dumpedCopy = JSON.parse( JSON.stringify( dumped ) );
+      const indicativesCopy = JSON.parse( JSON.stringify( indicatives ) );
 
       burnTokens( dumpedCopy, flammable );
       labelAccounts( dumpedCopy, osaka );
       labelMultisigs( dumpedCopy, multisigs );
       fixChainIds( dumpedCopy, chainIds );
+      fixHumanErrors( indicativesCopy );
 
-      const iov2star = mapIovToStar( dumpedCopy, multisigs, indicatives );
+      const iov2star = mapIovToStar( dumpedCopy, multisigs, indicativesCopy );
       const { accounts, starnames, domains } = convertToCosmosSdk( dumpedCopy, iov2star, multisigs, premiums, reserveds );
       const custodian = accounts.find( account => account["//iov1"] == "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc" );
       const iov = accounts.find( account => account["//iov1"] == "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq" );
