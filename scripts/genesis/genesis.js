@@ -74,6 +74,12 @@ const main = async () => {
                TransferOpenDomain: "10 / 1",
             }
          },
+         crisis: {
+            constant_fee: {
+               denom: "iov",
+               amount: "1000"
+            }
+         },
          domain: {
             domains: [],
             accounts: []
@@ -82,10 +88,12 @@ const main = async () => {
             fee_pool: {
                community_pool: []
             },
-            community_tax: "0.000000000000000000",
-            base_proposer_reward: "0.050000000000000000",
-            bonus_proposer_reward: "0.050000000000000000",
-            withdraw_addr_enabled: true,
+            params: {
+               community_tax: "0.000000000000000000",
+               base_proposer_reward: "0.050000000000000000",
+               bonus_proposer_reward: "0.050000000000000000",
+               withdraw_addr_enabled: true,
+            },
             delegator_withdraw_infos: [],
             previous_proposer: "",
             outstanding_rewards: [],
@@ -94,6 +102,40 @@ const main = async () => {
             validator_current_rewards: [],
             delegator_starting_infos: [],
             validator_slash_events: []
+         },
+         evidence: {
+            evidence: [
+            ],
+            params: {
+               max_evidence_age: "120000000000"
+            }
+         },
+         genutil: {
+            gentxs: [
+            ]
+         },
+         gov: {
+            starting_proposal_id: "1",
+            deposits: null,
+            votes: null,
+            proposals: null,
+            deposit_params: {
+               min_deposit: [
+                  {
+                     denom: "iov",
+                     amount: "1000"
+                  }
+               ],
+               max_deposit_period: "172800000000000"
+            },
+            voting_params: {
+               voting_period: "345600000000000"
+            },
+            tally_params: {
+               quorum: "0.334000000000000000",
+               threshold: "0.500000000000000000",
+               veto: "0.334000000000000000"
+            }
          },
          slashing: {
             params: {
@@ -109,6 +151,7 @@ const main = async () => {
          },
          staking: {
             params: {
+               historical_entries: 0,
                unbonding_time: "259200000000000",
                max_validators: 16,
                max_entries: 7,
@@ -141,6 +184,8 @@ const main = async () => {
             }
          },
          params: null,
+         upgrade: {
+         }
       },
       consensus_params: {
          block: {
@@ -156,39 +201,6 @@ const main = async () => {
             pub_key_types: [
                "ed25519"
             ]
-         }
-      },
-      crisis: {
-         constant_fee: {
-            denom: "iov",
-            amount: "1000"
-         }
-      },
-      genutil: {
-         gentxs: [
-         ]
-      },
-      gov: {
-         starting_proposal_id: "1",
-         deposits: null,
-         votes: null,
-         proposals: null,
-         deposit_params: {
-            min_deposit: [
-               {
-                  denom: "iov",
-                  amount: "1000"
-               }
-            ],
-            max_deposit_period: "172800000000000"
-         },
-         voting_params: {
-            voting_period: "345600000000000"
-         },
-         tally_params: {
-            quorum: "0.334000000000000000",
-            threshold: "0.500000000000000000",
-            veto: "0.334000000000000000"
          }
       },
    }
