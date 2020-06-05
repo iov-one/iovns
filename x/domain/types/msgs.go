@@ -10,13 +10,13 @@ import (
 // to his account
 type MsgAddAccountCertificates struct {
 	// Domain is the domain of the account
-	Domain string
+	Domain string `json:"domain"`
 	// Name is the name of the account
-	Name string
+	Name string `json:"name"`
 	// Owner is the owner of the account
-	Owner sdk.AccAddress
+	Owner sdk.AccAddress `json:"owner"`
 	// NewCertificate is the new certificate to add
-	NewCertificate []byte
+	NewCertificate []byte `json:"new_certificate"`
 }
 
 // Route implements sdk.Msg
@@ -58,13 +58,13 @@ func (m *MsgAddAccountCertificates) GetSigners() []sdk.AccAddress {
 // account
 type MsgDeleteAccountCertificate struct {
 	// Domain is the name of the domain of the account
-	Domain string
+	Domain string `json:"domain"`
 	// Name is the name of the account
-	Name string
+	Name string `json:"name"`
 	// DeleteCertificate is the certificate to delete
-	DeleteCertificate []byte
+	DeleteCertificate []byte `json:"delete_certificate"`
 	// Owner is the owner of the account
-	Owner sdk.AccAddress
+	Owner sdk.AccAddress `json:"owner"`
 }
 
 // Route implements sdk.Msg
@@ -105,11 +105,11 @@ func (m *MsgDeleteAccountCertificate) GetSigners() []sdk.AccAddress {
 // used to delete an account
 type MsgDeleteAccount struct {
 	// Domain is the name of the domain of the account
-	Domain string
+	Domain string `json:"domain"`
 	// Name is the name of the account
-	Name string
+	Name string `json:"name"`
 	// Owner is the owner of the account
-	Owner sdk.AccAddress
+	Owner sdk.AccAddress `json:"owner"`
 }
 
 // Route implements sdk.Msg
@@ -150,8 +150,8 @@ func (m *MsgDeleteAccount) GetSigners() []sdk.AccAddress {
 // MsgDeleteDomain is the request
 // model to delete a domain
 type MsgDeleteDomain struct {
-	Domain string
-	Owner  sdk.AccAddress
+	Domain string         `json:"domain"`
+	Owner  sdk.AccAddress `json:"owner"`
 }
 
 // Route implements sdk.Msg
@@ -190,17 +190,17 @@ func (m *MsgDeleteDomain) GetSigners() []sdk.AccAddress {
 // model used to register new accounts
 type MsgRegisterAccount struct {
 	// Domain is the domain of the account
-	Domain string
+	Domain string `json:"domain"`
 	// Name is the name of the account
-	Name string
+	Name string `json:"name"`
 	// Owner is the owner of the account
-	Owner sdk.AccAddress
+	Owner sdk.AccAddress `json:"owner"`
 	// Registerer is the user who registers this account
-	Registerer sdk.AccAddress
+	Registerer sdk.AccAddress `json:"registerer"`
 	// Targets are the blockchain addresses of the account
-	Targets []BlockchainAddress
+	Targets []BlockchainAddress `json:"targets"`
 	// Broker is the account that facilitated the transaction
-	Broker sdk.AccAddress
+	Broker sdk.AccAddress `json:"broker"`
 }
 
 // Route implements sdk.Msg
@@ -243,7 +243,7 @@ type MsgRegisterDomain struct {
 	Name string `json:"domain" arg:"--domain" helper:"name of the domain"`
 	// Admin is the address of the newly registered domain
 	Admin    sdk.AccAddress `json:"admin"`
-	FeePayer sdk.AccAddress
+	FeePayer sdk.AccAddress `json:"fee_payer"`
 	// DomainType defines the type of the domain
 	DomainType DomainType `json:"type"`
 	// Broker TODO document
@@ -286,11 +286,11 @@ func (m *MsgRegisterDomain) GetSigners() []sdk.AccAddress {
 // model used to renew accounts
 type MsgRenewAccount struct {
 	// Domain is the domain of the account
-	Domain string
+	Domain string `json:"domain"`
 	// Name is the name of the account
-	Name string
+	Name string `json:"name"`
 	// Signer is the signer of the request
-	Signer sdk.AccAddress
+	Signer sdk.AccAddress `json:"signer"`
 }
 
 // Route implements sdk.Msg
@@ -325,9 +325,9 @@ func (m *MsgRenewAccount) GetSigners() []sdk.AccAddress {
 // model used to renew a domain
 type MsgRenewDomain struct {
 	// Domain is the domain name to renew
-	Domain string
+	Domain string `json:"domain"`
 	// Signer is the request signer
-	Signer sdk.AccAddress
+	Signer sdk.AccAddress `json:"signer"`
 }
 
 // Route implements sdk.Msg
@@ -363,13 +363,13 @@ func (m *MsgRenewDomain) GetSigners() []sdk.AccAddress {
 // with an account
 type MsgReplaceAccountTargets struct {
 	// Domain is the domain name of the account
-	Domain string
+	Domain string `json:"domain"`
 	// Name is the name of the account
-	Name string
+	Name string `json:"name"`
 	// NewTargets are the new blockchain addresses
-	NewTargets []BlockchainAddress
+	NewTargets []BlockchainAddress `json:"new_targets"`
 	// Owner is the owner of the account
-	Owner sdk.AccAddress
+	Owner sdk.AccAddress `json:"owner"`
 }
 
 // Route implements sdk.Msg
@@ -410,15 +410,15 @@ func (m *MsgReplaceAccountTargets) GetSigners() []sdk.AccAddress {
 // to set accounts metadata
 type MsgReplaceAccountMetadata struct {
 	// Domain is the domain name of the account
-	Domain string
+	Domain string `json:"domain"`
 	// Name is the name of the account
-	Name string
+	Name string `json:"name"`
 	// NewMetadataURI is the metadata URI of the account
 	// we want to update or insert
-	NewMetadataURI string
+	NewMetadataURI string `json:"new_metadata_uri"`
 	// Owner is the owner of the account
-	Owner    sdk.AccAddress
-	FeePayer sdk.AccAddress
+	Owner    sdk.AccAddress `json:"owner"`
+	FeePayer sdk.AccAddress `json:"fee_payer"`
 }
 
 // Route implements sdk.Msg
@@ -463,15 +463,15 @@ func (m *MsgReplaceAccountMetadata) GetSigners() []sdk.AccAddress {
 // model used to transfer accounts
 type MsgTransferAccount struct {
 	// Domain is the domain name of the account
-	Domain string
+	Domain string `json:"domain"`
 	// Account is the account name
-	Name string
+	Name string `json:"name"`
 	// Owner is the actual owner of the account
-	Owner sdk.AccAddress
+	Owner sdk.AccAddress `json:"owner"`
 	// NewOwner is the new owner of the account
-	NewOwner sdk.AccAddress
+	NewOwner sdk.AccAddress `json:"new_owner"`
 	// Reset indicates if the accounts content will be resetted
-	Reset bool
+	Reset bool `json:"reset"`
 }
 
 // Route implements sdk.Msg
@@ -529,10 +529,10 @@ const (
 // MsgTransferDomain is the request model
 // used to transfer a domain
 type MsgTransferDomain struct {
-	Domain       string
-	Owner        sdk.AccAddress
-	NewAdmin     sdk.AccAddress
-	TransferFlag TransferFlag
+	Domain       string         `json:"domain"`
+	Owner        sdk.AccAddress `json:"owner"`
+	NewAdmin     sdk.AccAddress `json:"new_admin"`
+	TransferFlag TransferFlag   `json:"transfer_flag"`
 }
 
 // Route implements sdk.Msg
