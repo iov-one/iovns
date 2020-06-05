@@ -89,6 +89,10 @@ export const source2multisig = {
       "//id": "kadima*iov",
       star1: "IOV SAS multisig star1_TBD_kadima*iov", // TODO
    },
+   iov149cn0rauw2773lfdp34njyejg3cfz2d56c0m5t: {
+      "//id": "joghurt*iov",
+      star1: "IOV SAS multisig star1_TBD_joghurt*iov", // TODO
+   },
    iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u: {
       "//id": "vaildator guaranteed reward fund",
       star1: "IOV SAS multisig star1_TBD_guaranteed", // TODO
