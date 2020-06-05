@@ -21,6 +21,16 @@ const main = async () => {
       genesis_time: new Date( "2020-04-15T10:00:00Z" ).toISOString(),
       app_hash: "",
       app_state: {
+         auth: {
+            accounts: [],
+            params: {
+               max_memo_characters: "256",
+               sig_verify_cost_ed25519: "590",
+               sig_verify_cost_secp256k1: "1000",
+               tx_sig_limit: "7",
+               tx_size_cost_per_byte: "10"
+            },
+         },
          bank: {
             send_enabled: true
          },
@@ -131,15 +141,6 @@ const main = async () => {
             }
          },
          params: null,
-      },
-      auth: {
-         params: {
-            max_memo_characters: "256",
-            sig_verify_cost_ed25519: "590",
-            sig_verify_cost_secp256k1: "1000",
-            tx_sig_limit: "7",
-            tx_size_cost_per_byte: "10"
-         }
       },
       consensus_params: {
          block: {
