@@ -4,6 +4,7 @@
 
 - Integrate gitian builds
 - Remove account renew field in types.Domain
+- Improve iovnscli tx add-certs error handling
 
 ## v0.3.0
 - fix account controller max renew exceed
