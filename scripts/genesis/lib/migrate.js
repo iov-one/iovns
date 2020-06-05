@@ -194,9 +194,11 @@ export const mapIovToStar = ( dumped, multisigs, indicatives ) => {
    const reMemo = /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/;
 
    dumped.username.forEach( username => {
-      const target = username.Targets && username.Targets.find( target => target.address.indexOf( "star1" ) == 0 );
+      if ( !iov2star[username.Owner] ) {
+         const target = username.Targets && username.Targets.find( target => target.address.indexOf( "star1" ) == 0 );
 
-      iov2star[username.Owner] = target ? target.address : false;
+         iov2star[username.Owner] = target ? target.address : false;
+      }
    } );
    Object.keys( multisigs ).forEach( iov1 => iov2star[iov1] = multisigs[iov1].star1 );
    indicatives.forEach( tx => {
