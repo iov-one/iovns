@@ -7,7 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
-	"time"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -438,21 +439,22 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
 			if err != nil {
-				return
+				return err
 			}
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				return
+				return err
 			}
 			cert, err := cmd.Flags().GetBytesBase64("cert")
 			if err != nil {
-				return
+				return err
 			}
 			certFile, err := cmd.Flags().GetString("cert-file")
 			if err != nil {
-				return
+				return err
 			}
 
+			fmt.Println("debug1")
 			var c []byte
 			switch {
 			case len(cert) == 0 && len(certFile) == 0:
@@ -464,15 +466,15 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 			case len(cert) == 0 && len(certFile) != 0:
 				cf, err := os.Open(certFile)
 				if err != nil {
-					return err
+					return sdkerrors.Wrapf(ErrInvalidCertificate, "err: %s", err)
 				}
 				cfb, err := ioutil.ReadAll(cf)
 				if err != nil {
-					return err
+					return sdkerrors.Wrapf(ErrInvalidCertificate, "err: %s", err)
 				}
 				var c json.RawMessage
 				if err := json.Unmarshal(cfb, &c); err != nil {
-					return nil
+					return sdkerrors.Wrapf(ErrInvalidCertificate, "err: %s", err)
 				}
 			}
 
@@ -589,11 +591,9 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 
-	defaultDuration, _ := time.ParseDuration("1h")
 	// add flags
 	cmd.Flags().String("domain", "", "name of the domain you want to register")
 	cmd.Flags().String("type", types.ClosedDomain, "type of the domain")
-	cmd.Flags().Duration("account-renew", defaultDuration, "account duration in seconds before expiration")
 	return cmd
 }
 
