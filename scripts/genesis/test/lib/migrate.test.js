@@ -4,7 +4,7 @@ import {
    consolidateEscrows,
    convertToCosmosSdk,
    fixChainIds,
-   fixHumanErrors,
+   fixErrors,
    labelAccounts,
    labelMultisigs,
    mapIovToStar,
@@ -515,7 +515,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const indicativesCopy = JSON.parse( JSON.stringify( indicatives ) );
       const previous = [].concat( indicativesCopy );
 
-      fixHumanErrors( indicativesCopy );
+      fixErrors( indicativesCopy );
 
       expect( indicativesCopy.length ).toEqual( previous.length - 1 );
       expect( indicativesCopy.findIndex( indicative => indicative.message.details.source == "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960" ) ).toEqual( -1 );
@@ -524,7 +524,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
    it( `Should map iov1 addresses to star1 addresses.`, async () => {
       const indicativesCopy = JSON.parse( JSON.stringify( indicatives ) );
 
-      fixHumanErrors( indicativesCopy );
+      fixErrors( indicativesCopy );
 
       const iov2star = mapIovToStar( dumped, multisigs, indicativesCopy );
       const reMemo = /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/;
@@ -545,7 +545,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       labelAccounts( dumpedCopy, osaka );
       labelMultisigs( dumpedCopy, multisigs );
       fixChainIds( dumpedCopy, chainIds );
-      fixHumanErrors( indicativesCopy );
+      fixErrors( indicativesCopy );
 
       const iov2star = mapIovToStar( dumpedCopy, multisigs, indicativesCopy );
       const { accounts, starnames, domains } = convertToCosmosSdk( dumpedCopy, iov2star, multisigs, premiums, reserveds );
