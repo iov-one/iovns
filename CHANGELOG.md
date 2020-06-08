@@ -1,7 +1,8 @@
 # Changelog 
 
 ## HEAD
-
+- fix multisig message length
+- add ledger support
 - Integrate gitian builds
 - Remove account renew field in types.Domain
 - Improve json field names in msgs
