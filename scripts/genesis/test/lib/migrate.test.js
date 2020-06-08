@@ -290,7 +290,10 @@ describe( "Tests ../../lib/migrate.js.", () => {
                valid_blockchain_id: "[-a-z0-9A-Z:]+$",
                valid_domain_name: "^[-_a-z0-9]{4,16}$",
             },
+            fees: {
+            },
          },
+         crisis: {},
          domain: {
             domains: [
                {
@@ -305,6 +308,8 @@ describe( "Tests ../../lib/migrate.js.", () => {
             ],
             accounts: [],
          },
+         genutil: {},
+         gov: {},
       },
       consensus_params: {
          block: {
@@ -322,9 +327,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
             ]
          }
       },
-      crisis: {},
-      genutil: {},
-      gov: {},
    };
    const flammable = [ "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" ];
    const indicatives = [
@@ -415,6 +417,8 @@ describe( "Tests ../../lib/migrate.js.", () => {
       iov1y63fp8pncpuke7mrc2huqefud59t3munnh0k32: [ "multiverse" ],
       iov1ylw3cnluf3zayfths0ezgjp5cwf6ddvsvwa7l4: [ "lovely" ],
       iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx: [ "gianna", "nodeateam", "tyler", "michael" ],
+      zGLlamFypWMPUeHVVsvo4mXFFOE63: [ "cosmostation", "ibcwallet", "korea", "mintscan", "seoul", "station" ],
+      zHbPpUYyRguRlhAiC30zimM05hGx2: [ "jim" ],
    };
    const reserveds = [
       "goldman",
@@ -502,9 +506,9 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( isabella ).toBeTruthy();
       expect( kadima ).toBeTruthy();
 
-      expect( guaranteed.value.coins[0].amount ).toEqual( "2347987" );
-      expect( isabella.value.coins[0].amount ).toEqual( "808677" );
-      expect( kadima.value.coins[0].amount ).toEqual( "269559" );
+      expect( guaranteed.value.coins[0].amount ).toEqual( "2347987000000" );
+      expect( isabella.value.coins[0].amount ).toEqual( "808677000000" );
+      expect( kadima.value.coins[0].amount ).toEqual( "269559000000" );
    } );
 
    it( `Should fix human errors.`, async () => {
@@ -552,7 +556,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const dave = accounts.find( account => account["//iov1"] == "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
 
       expect( custodian.value.address ).toEqual( multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1 );
-      expect( custodian.value.coins[0].amount ).toEqual( "8321023.157268" );
+      expect( custodian.value.coins[0].amount ).toEqual( "8321439" );
       expect( custodian["//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"][0] ).toEqual( 3234710 );
       expect( custodian["//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"][1] ).toEqual( "confio*iov" );
       expect( custodian["//no star1 iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9"][0] ).toEqual( 26.5 );
@@ -568,13 +572,13 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( custodian["//no star1 iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"][3] ).toEqual( "michael" );
 
       expect( rewards.value.address ).toEqual( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 );
-      expect( rewards.value.coins[0].amount ).toEqual( "37" );
+      expect( rewards.value.coins[0].amount ).toEqual( "37000000" );
 
       expect( bonus.value.address ).toEqual( multisigs.iov1zd573wa38pxfvn9mxvpkjm6a8vteqvar2dwzs0.star1 );
-      expect( bonus.value.coins[0].amount ).toEqual( "3570582" );
+      expect( bonus.value.coins[0].amount ).toEqual( "3570582000000" );
 
       expect( dave.value.address ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
-      expect( dave.value.coins[0].amount ).toEqual( "416.51" );
+      expect( dave.value.coins[0].amount ).toEqual( "416510000" );
 
       const alphaiov = starnames.find( starname => starname["//iov1"] == "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d" );
       const daveiov = starnames.find( starname => starname["//iov1"] == "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
@@ -860,10 +864,16 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       expect( config["//note"] ).toEqual( "msig1 multisig address from w1,w2,w3,p1 in iovns/docs/cli, threshold 3" );
       expect( config.configurer ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
-      expect( config.domain_renew_period ).toEqual( String( 5 * 60 ) );
-      expect( config.domain_grace_period ).toEqual( "60" );
-      expect( config.account_renew_period ).toEqual( String( 3 * 60 ) );
-      expect( config.account_grace_period ).toEqual( "60" );
+      expect( config.account_grace_period ).toEqual( "1800" );
+      expect( config.account_renew_count_max ).toEqual( 2 );
+      expect( config.account_renew_period ).toEqual( "1800" );
+      expect( config.blockchain_target_max ).toEqual( 3 );
+      expect( config.certificate_count_max ).toEqual( 3 );
+      expect( config.certificate_size_max ).toEqual( "1000" );
+      expect( config.domain_grace_period ).toEqual( "400" );
+      expect( config.domain_renew_count_max ).toEqual( 2 );
+      expect( config.domain_renew_period ).toEqual( "1800" );
+      expect( config.metadata_size_max ).toEqual( "1000" );
    } );
 
    it( `Should patch iov-mainnet-2.`, async () => {
