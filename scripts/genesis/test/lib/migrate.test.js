@@ -262,6 +262,12 @@ describe( "Tests ../../lib/migrate.js.", () => {
             ],
             "Username": "btc13*iov"
          },
+         {
+            "Owner": "iov1fpezwaxfnmef8tyyg4t7avz9a2d9gqh3yh8d8n",
+            "Targets": [
+               { "address": "iov1fpezwaxfnmef8tyyg4t7avz9a2d9gqh3yh8d8n", "blockchain_id": "iov-mainnet" } ],
+            "Username": "ledger*iov"
+         },
       ],
    };
    const genesis = {
@@ -512,19 +518,25 @@ describe( "Tests ../../lib/migrate.js.", () => {
    } );
 
    it( `Should fix human errors.`, async () => {
+      const dumpedCopy = JSON.parse( JSON.stringify( dumped ) );
       const indicativesCopy = JSON.parse( JSON.stringify( indicatives ) );
       const previous = [].concat( indicativesCopy );
 
-      fixErrors( indicativesCopy );
+      fixErrors( dumpedCopy, indicativesCopy );
 
       expect( indicativesCopy.length ).toEqual( previous.length - 1 );
       expect( indicativesCopy.findIndex( indicative => indicative.message.details.source == "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960" ) ).toEqual( -1 );
+
+      const ledger = dumpedCopy.username.find( username => username.Username == "ledger*iov" );
+
+      expect( ledger.Owner ).toEqual( "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
    } );
 
    it( `Should map iov1 addresses to star1 addresses.`, async () => {
+      const dumpedCopy = JSON.parse( JSON.stringify( dumped ) );
       const indicativesCopy = JSON.parse( JSON.stringify( indicatives ) );
 
-      fixErrors( indicativesCopy );
+      fixErrors( dumpedCopy, indicativesCopy );
 
       const iov2star = mapIovToStar( dumped, multisigs, indicativesCopy );
       const reMemo = /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/;
@@ -545,7 +557,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       labelAccounts( dumpedCopy, osaka );
       labelMultisigs( dumpedCopy, multisigs );
       fixChainIds( dumpedCopy, chainIds );
-      fixErrors( indicativesCopy );
+      fixErrors( dumpedCopy, indicativesCopy );
 
       const iov2star = mapIovToStar( dumpedCopy, multisigs, indicativesCopy );
       const { accounts, starnames, domains } = convertToCosmosSdk( dumpedCopy, iov2star, multisigs, premiums, reserveds );

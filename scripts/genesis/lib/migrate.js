@@ -177,13 +177,17 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
 
 /**
  * Fixes errors that arose during the migration.
+ * @param {Object} dumped - the state of the weave-based chain
  * @param {Array} indicatives - an array of weave txs stemming from sends to star1*iov
  */
-export const fixErrors = ( indicatives ) => {
+export const fixErrors = ( dumped, indicatives ) => {
    // iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960 both "upgraded" via Neuma and sent to star1*iov, so drop the star1*iov data
    const index = indicatives.findIndex( indicative => indicative.message.details.source == "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960" );
 
    indicatives.splice( index, 1 );
+
+   // iov1fpezwaxfnmef8tyyg4t7avz9a2d9gqh3yh8d8n upgraded Ledger firmware
+   dumped.username.find( username => username.Owner == "iov1fpezwaxfnmef8tyyg4t7avz9a2d9gqh3yh8d8n" ).Owner = "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un";
 }
 
 /**
@@ -646,7 +650,7 @@ export const migrate = args => {
    labelAccounts( dumped, osaka );
    labelMultisigs( dumped, multisigs );
    fixChainIds( dumped, chainIds );
-   fixErrors( indicatives );
+   fixErrors( dumped, indicatives );
 
    // ...transform (order matters)...
    const iov2star = mapIovToStar( dumped, multisigs, indicatives );
