@@ -75,7 +75,7 @@ export const createAccount = ( args = {} ) => {
          "address": args.address || "",
          "coins": [
             {
-               "denom": args.denom ? args.denom : "iov",
+               "denom": args.denom ? args.denom : "uiov",
                "amount": args.amount ? String( args.amount ) : "0",
             }
          ],
@@ -87,6 +87,7 @@ export const createAccount = ( args = {} ) => {
 
    if ( args.id ) template["//id"] = args.id;
    if ( args.iov1 ) template["//iov1"] = args.iov1;
+   if ( isFinite( args.iov ) ) template.value.coins[0]["//IOV"] = args.iov;
 
    return template;
 };
@@ -155,13 +156,15 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
 
       // ...adding them to multisigs
       escrows[source].forEach( escrow => {
-         const account = accumulator[source] || createAccount();
+         const account = accumulator[source] || createAccount( { iov:0 } );
          const value = account.value;
+         const iov = parseInt( escrow.amount[0].whole ); // escrows don't have fractional as of 2020.06.07
 
          account["//id"] = `consolidated escrows with source ${source} (${source2multisig[source]["//id"]})`;
-         account[`//timeout ${new Date( escrow.timeout * 1000 ).toISOString()}`] = `${escrow.address} yields ${escrow.amount[0].whole} ${value.coins[0].denom}`;
+         account[`//timeout ${new Date( escrow.timeout * 1000 ).toISOString()}`] = `${escrow.address} yields ${escrow.amount[0].whole} ${escrow.amount[0].ticker}`;
          value.address = source2multisig[source].star1;
-         value.coins[0].amount = `${parseInt( value.coins[0].amount ) + escrow.amount[0].whole}`; // no fractionals; must be a string
+         value.coins[0]["//IOV"] += iov;
+         value.coins[0].amount = `${parseInt( value.coins[0].amount ) + 1e6 * iov}`; // must be a string
 
          accumulator[source] = account;
       } );
@@ -234,9 +237,10 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
       const index = dumped.cash.findIndex( wallet => wallet.address == iov1 );
       const wallet = dumped.cash[index];
       const address = multisigs[iov1].star1;
-      const amount = getAmount( wallet );
+      const iov = getAmount( wallet );
+      const amount = 1e6 * iov;
       const id = multisigs[iov1]["//name"];
-      const account = createAccount( { address, amount, id, iov1 } );
+      const account = createAccount( { address, amount, id, iov, iov1 } );
 
       account["//alias"] = multisigs[iov1].address;
 
@@ -248,25 +252,27 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
 
    const custodian = accounts.find( account => account["//iov1"] == "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc" );
    const copied = [].concat( dumped.cash ); // copy because the burnTokens() below splices dumped.cash
-
-   copied.sort( ( a, b ) => getAmount( b ) - getAmount( a ) ).forEach( wallet => {
+   const safeguarded = copied.sort( ( a, b ) => getAmount( b ) - getAmount( a ) ).reduce( ( previous, wallet ) => {
       const iov1 = wallet.address;
       const address = iov2star[iov1];
-      const amount = getAmount( wallet );
+      const iov = getAmount( wallet );
+      const amount = 1e6 * iov; // convert to uiov;
       const id = wallet["//id"];
 
       if ( address ) {
-         const account = createAccount( { amount, address, id, iov1 } );
+         const account = createAccount( { amount, address, id, iov, iov1 } );
 
          accounts.push( account );
       } else {
          // burn before...
          burnTokens( dumped, [ iov1 ] );
-         // ...adding to the custodial account
-         custodian[`//no star1 ${iov1}`] = amount;
-         custodian.value.coins[0].amount = String( +custodian.value.coins[0].amount + +amount )
+         // ...adding to the custodial account...
+         custodian[`//no star1 ${iov1}`] = iov;
       }
-   } );
+
+      return previous + iov; // ...after reduction
+   }, 0 );
+   custodian.value.coins[0].amount = String( Math.ceil( safeguarded ) );
 
    const starnames = dumped.username.sort( ( a, b ) => a.Username.localeCompare( b.Username ) ).map( username => {
       const iov1 = username.Owner;
