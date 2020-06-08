@@ -76,8 +76,8 @@ const main = async () => {
          },
          crisis: {
             constant_fee: {
-               denom: "iov",
-               amount: "1000"
+               denom: "uiov",
+               amount: "1000000000"
             }
          },
          domain: {
@@ -122,8 +122,8 @@ const main = async () => {
             deposit_params: {
                min_deposit: [
                   {
-                     denom: "iov",
-                     amount: "1000"
+                     denom: "uiov",
+                     amount: "1000000000"
                   }
                ],
                max_deposit_period: "172800000000000"
@@ -155,7 +155,7 @@ const main = async () => {
                unbonding_time: "259200000000000",
                max_validators: 16,
                max_entries: 7,
-               bond_denom: "iov"
+               bond_denom: "uiov"
             },
             last_total_power: "0",
             last_validator_powers: null,
@@ -180,7 +180,7 @@ const main = async () => {
                inflation_max: "0.0000000000000000",
                inflation_min: "0.0000000000000000",
                inflation_rate_change: "0.000000000000000000",
-               mint_denom: "iov"
+               mint_denom: "uiov"
             }
          },
          params: null,
