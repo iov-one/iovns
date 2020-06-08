@@ -357,7 +357,7 @@ export const patchGalaxynet = genesis => {
    // make dave rich for testing
    const dave = genesis.app_state.auth.accounts.find( account => account.value.address == "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
 
-   if ( dave ) dave.value.coins[0].amount = "1000000";
+   if ( dave ) dave.value.coins[0].amount = "1000000000000";
 
    // add other test accounts
    const accounts = [
@@ -368,8 +368,8 @@ export const patchGalaxynet = genesis => {
             "address": "star13dq838nu0wmzvx8ge6z5upvu7uze3xlusnts5c",
             "coins": [
                {
-                  "denom": "iov",
-                  "amount": "1000000"
+                  "denom": "uiov",
+                  "amount": "1000000000000"
                }
             ],
             "public_key": "",
@@ -384,8 +384,8 @@ export const patchGalaxynet = genesis => {
             "address": "star1ttf6p8ek3s28luqhnhsxjjh6f7r7t6af5u4895",
             "coins": [
                {
-                  "denom": "iov",
-                  "amount": "1000000"
+                  "denom": "uiov",
+                  "amount": "1000000000000"
                }
             ],
             "public_key": "",
@@ -399,8 +399,8 @@ export const patchGalaxynet = genesis => {
             "address": "star10lalxx8ml63hs86j64nk76kucf72dsucluexz8",
             "coins": [
                {
-                  "denom": "iov",
-                  "amount": "1000000"
+                  "denom": "uiov",
+                  "amount": "1000000000000"
                }
             ],
             "public_key": "",
@@ -414,8 +414,8 @@ export const patchGalaxynet = genesis => {
             "address": "star1936a62ple4uayhsynvzkx5zzz8jv4z2n8x09fu",
             "coins": [
                {
-                  "denom": "iov",
-                  "amount": "1000000"
+                  "denom": "uiov",
+                  "amount": "1000000000000"
                }
             ],
             "public_key": "",
@@ -430,8 +430,8 @@ export const patchGalaxynet = genesis => {
             "address": "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg",
             "coins": [
                {
-                  "denom": "iov",
-                  "amount": "1000000"
+                  "denom": "uiov",
+                  "amount": "1000000000000"
                }
             ],
             "public_key": "",
@@ -446,8 +446,8 @@ export const patchGalaxynet = genesis => {
             "address": "star19jj4wc3lxd54hkzl42m7ze73rzy3dd3wry2f3q",
             "coins": [
                {
-                  "denom": "iov",
-                  "amount": "1000000"
+                  "denom": "uiov",
+                  "amount": "1000000000000"
                }
             ],
             "public_key": "",
@@ -462,8 +462,8 @@ export const patchGalaxynet = genesis => {
             "address": "star1l4mvu36chkj9lczjhy9anshptdfm497fune6la",
             "coins": [
                {
-                  "denom": "iov",
-                  "amount": "1000000"
+                  "denom": "uiov",
+                  "amount": "1000000000000"
                }
             ],
             "public_key": "",
@@ -478,8 +478,8 @@ export const patchGalaxynet = genesis => {
             "address": "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9",
             "coins": [
                {
-                  "denom": "iov",
-                  "amount": "1000000"
+                  "denom": "uiov",
+                  "amount": "1000000000000"
                }
             ],
             "public_key": "",
@@ -530,74 +530,74 @@ export const patchGalaxynet = genesis => {
    fees.default_fees = {
       "domain/add_certificates_account": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/delete_account": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/delete_certificate_account": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/delete_domain": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/register_account": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/register_domain": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/renew_account": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/renew_domain": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/replace_account_targets": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/set_account_metadata": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/transfer_account": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       },
       "domain/transfer_domain": {
          "amount": "10",
-         "denom": "iov"
+         "denom": "uiov"
       }
    };
    fees.level_fees = {
       "domain/register_domain": {
          "1": {
             "amount": "10000",
-            "denom": "iov"
+            "denom": "uiov"
          },
          "2": {
             "amount": "5000",
-            "denom": "iov"
+            "denom": "uiov"
          },
          "3": {
             "amount": "2000",
-            "denom": "iov"
+            "denom": "uiov"
          },
          "4": {
             "amount": "1000",
-            "denom": "iov"
+            "denom": "uiov"
          },
          "5": {
             "amount": "500",
-            "denom": "iov"
+            "denom": "uiov"
          }
       }
    };
