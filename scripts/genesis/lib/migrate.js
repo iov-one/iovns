@@ -601,6 +601,15 @@ export const patchGalaxynet = genesis => {
          }
       }
    };
+
+   // stabilize valid_untils
+   const validUntil = 1609415999;
+   const fixTransients = hasValidUntils => {
+      hasValidUntils.forEach( hasValidUntil => hasValidUntil.valid_until = String( validUntil ) );
+   };
+
+   fixTransients( genesis.app_state.domain.domains );
+   fixTransients( genesis.app_state.domain.accounts );
 }
 
 /**
