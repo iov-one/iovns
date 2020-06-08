@@ -104,7 +104,7 @@ export const createStarname = ( args = {} ) => {
       "metadata_uri": "",
       "name": args.name || "",
       "owner": args.address || "",
-      "targets": null,
+      "targets": args.targets && args.targets.length ? args.targets : null,
       "valid_until": String( Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60 ), // 1 year from now
    };
 
@@ -283,6 +283,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
       const address = iov2star[iov1] || custodian.value.address; // add to the custodial account if needed
       const starname = username.Username;
       const [ name, domain ] = starname.split( "*" );
+      const targets = username.Targets && username.Targets.filter( target => target.address != iov1 ) || []; // drop the legacy IOV target
 
       if ( address == custodian.value.address ) {
          const previous = custodian[`//no star1 ${iov1}`];
@@ -291,7 +292,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
          custodian[`//no star1 ${iov1}`] = current;
       }
 
-      return createStarname( { address, iov1, domain, name } );
+      return createStarname( { address, iov1, domain, name, targets } );
    } );
 
    const domains = [];

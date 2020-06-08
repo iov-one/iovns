@@ -15,7 +15,7 @@ const main = async () => {
    const gentxs = mainnet ? path.join( __dirname, "data", "gentxs" ) : undefined;
    const patch = mainnet ? patchMainnet : patchGalaxynet;
 
-   // genesis file skeleton
+   // genesis file scaffolding
    const genesis = {
       chain_id: chain_id,
       genesis_time: new Date( "2020-04-15T10:00:00Z" ).toISOString(),
