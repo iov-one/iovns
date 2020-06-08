@@ -14,6 +14,7 @@ BINDIR ?= $(GOPATH)/bin
 export GO111MODULE := on
 
 include contrib/devtools/Makefile
+include Makefile.ledger
 
 all: install
 
