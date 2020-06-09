@@ -81,7 +81,16 @@ const main = async () => {
             }
          },
          domain: {
-            domains: [],
+            domains: [
+               {
+                  account_renew: "31557600",
+                  admin: multisigs.iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq.star1,
+                  broker: null,
+                  name: "iov",
+                  type: "open",
+                  valid_until: "1924991999"
+                },
+            ],
             accounts: []
          },
          distribution: {
