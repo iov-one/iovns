@@ -182,7 +182,7 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
  * @param {Array} indicatives - an array of weave txs stemming from sends to star1*iov
  */
 export const fixErrors = ( dumped, indicatives ) => {
-   // iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960 both "upgraded" via Neuma and sent to star1*iov, so drop the star1*iov data
+   // iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960 both "upgraded" via Neuma and sent to star1*iov, so drop the star1*iov data as requested: https://internetofvalues.slack.com/archives/CPNRVHG94/p1591714233003600
    const index = indicatives.findIndex( indicative => indicative.message.details.source == "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960" );
 
    indicatives.splice( index, 1 );
