@@ -1,0 +1,98 @@
+- name: reward fund
+  type: local
+  address: star1rad8f5rm39ak03h3ev0q4lrshywjdn3v9fn6w3
+  pubkey: starpub1addwnpepqdg0fhaqr20anwdftxl3q24d8e6qhmld6mtd7uehgfkmsz0jnufguk8uw5n
+  mnemonic:
+   swallow acquire range number divorce sense lake maple uncover enact confirm fashion bonus vacuum humble release piece choose jeans route once unique cactus chase
+  threshold: 0
+  pubkeys: []
+
+- name: IOV SAS
+  type: local
+  address: star12d063hg3ypass56a52fhap25tfgxyaluu6w02r
+  pubkey: starpub1addwnpepqwve879m494c4tek7rzlzqtql0wynm0r5ddf0xmhlky8c2erf0kay43wcys
+  mnemonic:
+   april word damp include fancy unusual diary animal clown before fork like dream near laugh case smooth trade dragon curious vapor deny desert laundry
+  threshold: 0
+  pubkeys: []
+
+- name: IOV SAS employee bonus pool/colloboration appropriation pool
+  type: local
+  address: star1v6na4q8kqljynwkh3gt4katlsrqzsk3ewxv6aw
+  pubkey: starpub1addwnpepqtxy6kne5twnkvurtcd9gkfnz607wu25tzc3y2rasjqcrvy4u4gpknpxcaj
+  mnemonic:
+   labor argue cook scatter comic october outside settle pipe noble quiz unhappy claim cannon ramp solid fury treat ship lab chair limit school sweet
+  threshold: 0
+  pubkeys: []
+
+- name: IOV SAS pending deals pocket; close deal or burn
+  type: local
+  address: star1vhkg66j3xvzqf4smy9qup5ra8euyjwlpdkdyn4
+  pubkey: starpub1addwnpepq2v9f2as77nhamq22fc4qq63eg9ek8stk9w6dfl7fp6jefm8j7jywdrgzgr
+  mnemonic:
+   final pitch camera woman glove spy skin sibling mask fiscal finish exhaust picture review dog dial elegant there faint winter apple option cupboard phrase
+  threshold: 0
+  pubkeys: []
+
+- name: IOV SAS bounty fund
+  type: local
+  address: star1gxchcu6wycentu6fs977hygqx67kv5n7x25w4g
+  pubkey: starpub1addwnpepqg2ey788r0zrcdf90x7r42v0ue9rtaj9wt2vukguwqzywshvkepj5600l43
+  mnemonic:
+   parade amount public sample snap earth enough double reflect library pig wet salt grape grid wait swim castle busy frame scale basket owner busy
+  threshold: 0
+  pubkeys: []
+
+- name: Unconfirmed contributors/co-founders
+  type: local
+  address: star1f27zp27q6d8xqeq768r0gffg7ux34ml69dt67j
+  pubkey: starpub1addwnpepqt3xwmqawf3leqguxytjmhyatzj0578rzgjkhj87lcrkkkj2s8gzcerkvlh
+  mnemonic:
+   riot pass wheel bachelor orient ritual fuel fall actress road conduct thumb syrup world possible uphold orange page royal guide hungry boring travel champion
+  threshold: 0
+  pubkeys: []
+
+- name: escrow isabella*iov
+  type: local
+  address: star1uzn9lxhmw0q2vfgy6d5meh2n7m43fqse6ryru6
+  pubkey: starpub1addwnpepqw9520chs8ufdpufq2eqps66d0dnjewhzn93ll4wkl4r3awt77c323hzusz
+  mnemonic:
+   number pumpkin panel clog runway oxygen kitchen pumpkin wagon hat erosion inquiry copy range sleep idle inmate before bleak innocent chicken require awesome congress
+  threshold: 0
+  pubkeys: []
+
+- name: escrow kadima*iov
+  type: local
+  address: star1hkeufxdyypclg876kc4u9nxjqudkgh2uecrpm7
+  pubkey: starpub1addwnpepqg8ludeal6yug7zrt2w23hx75gvw2rxz5727vhcjhv66n8s85gfy6xtevrn
+  mnemonic:
+   plug hero oak monkey property develop defy list twenty manual favorite prosper rookie venture blade also correct corn face slogan hotel rather nation boat
+  threshold: 0
+  pubkeys: []
+
+- name: escrow guaranteed reward fund
+  type: local
+  address: star1v875jc00cqh26k5505p5mt4q8w0ylwypsca3jr
+  pubkey: starpub1addwnpepqgtw9uj8y4nw8nm8tk9q4nsqspskt6wwlcykrqdc63qhp88kh4e5y4395yl
+  mnemonic:
+   this lonely chair stay goose bone twelve master arm cousin cluster sauce drive romance deal winter urban antique radio easy example stumble essence broken
+  threshold: 0
+  pubkeys: []
+
+- name: vaildator guaranteed reward fund
+  type: local
+  address: star1n0et7nukw4htc56lkuqer67heppfjpdhs525ua
+  pubkey: starpub1addwnpepqg3lcgq3kv93yd2xmcmu77ecnx75dcc5ajqvmygtjc3qs4nq565azmdxwvm
+  mnemonic:
+    unaware pledge sister omit flock victory jungle rhythm organ yard puppy library license put sort tired demise dune tragic start leg rough angle winter
+  threshold: 0
+  pubkeys: []
+
+- name: Custodian of missing star1 accounts
+  type: local
+  address: star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy
+  pubkey: starpub1addwnpepq0khlgx9r040eesj478h8rqf04kjqxut6k26ct89u8k28te9fckk5p7vdxv
+  mnemonic:
+    salad add walk lend also shoulder merge dream shrimp casino improve rival case angry burden vocal job market great topple isolate advance reunion joke
+  threshold: 0
+  pubkeys: []

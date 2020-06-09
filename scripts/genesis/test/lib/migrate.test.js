@@ -835,17 +835,108 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "sequence": 0,
          },
       };
+      const iovsas = {
+         "//alias": "cond:multisig/usage/0000000000000001",
+         "//id": "IOV SAS",
+         "//iov1": "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": 0,
+            "address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
+            "coins": [
+               {
+                  "//IOV": 13015243.5,
+                  "amount": "13015243500000",
+                  "denom": "uiov"
+               }
+            ],
+            "public_key": "",
+            "sequence": 0
+         }
+      };
+      const custodian = {
+         "//alias": "cond:multisig/usage/0000000000000006",
+         "//id": "Custodian of missing star1 accounts",
+         "//iov1": "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": 0,
+            "address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
+            "coins": [
+               {
+                  "//IOV": 1.000123,
+                  "amount": "72898628",
+                  "denom": "uiov"
+               }
+            ],
+            "public_key": "",
+            "sequence": 0
+         }
+      };
+      const accounts = [ poor, iovsas, custodian ];
 
-      previous.push( JSON.parse( JSON.stringify( poor ) ) );
+      previous.push( ...JSON.parse( JSON.stringify( accounts ) ) );
       genesisCopy.app_state.auth.accounts = [].concat( previous );
       genesisCopy.chain_id = "iovns-galaxynet";
+      genesisCopy.app_state.domain.domains = [
+         {
+            "account_renew": "315576000",
+            "admin": multisigs.iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq.star1,
+            "broker": null,
+            "name": "iov",
+            "type": "open",
+            "valid_until": "1609415999"
+         },
+         {
+            "//iov1": "zEaAIrHRUZTZF9uEWy0KJZ92J42T2",
+            "account_renew": "315576000",
+            "admin": multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1,
+            "broker": null,
+            "name": "0000",
+            "type": "closed",
+            "valid_until": "1609415999"
+         },
+      ];
+      genesisCopy.app_state.domain.accounts = [
+         {
+            "//iov1": "iov1akhp7t0gtuaq4dwdw6qf0nvv6d2vf4vz8kwyl8",
+            "broker": null,
+            "certificates": null,
+            "domain": "iov",
+            "metadata_uri": "",
+            "name": "...",
+            "owner": multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1,
+            "targets": null,
+            "valid_until": "1609415999"
+         },
+         {
+            "//iov1": "iov16qzp8q9kffdgamwtfcztg6z7puet374mgsxvhr",
+            "broker": null,
+            "certificates": null,
+            "domain": "iov",
+            "metadata_uri": "",
+            "name": "01node",
+            "owner": multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1,
+            "targets": [
+              {
+                "address": "992290736603857528L",
+                "blockchain_id": "lip9:9ee11e9df416b18b"
+              },
+              {
+                "address": "0x6DF432079347050e0D8dA43C21fa6fe54697AfA7",
+                "blockchain_id": "eip155:1"
+              }
+            ],
+            "valid_until": "1609415999"
+          },
+      ];
 
       patchGalaxynet( genesisCopy );
 
       const current = genesisCopy.app_state.auth.accounts;
 
       expect( current.length ).not.toEqual( previous.length );
-      expect( current.length ).toEqual( 9 );
+      expect( current.length ).toEqual( 11 );
 
       const antoine = current.find( account => account["//name"] == "antoine" );
       const dave = current.find( account => account["//name"] == "dave*iov" );
@@ -886,6 +977,21 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( config.domain_renew_count_max ).toEqual( 2 );
       expect( config.domain_renew_period ).toEqual( "1800" );
       expect( config.metadata_size_max ).toEqual( "1000" );
+
+      const iov = genesisCopy.app_state.domain.domains.find( domain => domain.name == "iov" );
+      const zeros = genesisCopy.app_state.domain.domains.find( domain => domain.name == "0000" );
+      const dots = genesisCopy.app_state.domain.accounts.find( account => account.name == "..." );
+      const claudiu  = genesisCopy.app_state.domain.accounts.find( account => account.name == "01node" );
+
+      expect( iov ).toBeTruthy();
+      expect( zeros ).toBeTruthy();
+      expect( dots ).toBeTruthy();
+      expect( claudiu ).toBeTruthy();
+
+      expect( iov.admin ).toEqual( "star12d063hg3ypass56a52fhap25tfgxyaluu6w02r" );
+      expect( zeros.admin ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
+      expect( dots.owner ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
+      expect( claudiu.owner ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
    } );
 
    it( `Should patch iov-mainnet-2.`, async () => {

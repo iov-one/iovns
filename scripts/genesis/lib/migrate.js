@@ -496,20 +496,38 @@ export const patchGalaxynet = genesis => {
 
    genesis.app_state.auth.accounts.push( ...accounts );
 
-   // make dave own multisig accounts since pubkeys for others are still pending; TODO: delete when possible
+   // hack multisig accounts since pubkeys from others are still pending; TODO: delete when possible
+   const hackMultisig = {
+      "reward fund":                                                  "star1rad8f5rm39ak03h3ev0q4lrshywjdn3v9fn6w3",
+      "IOV SAS":                                                      "star12d063hg3ypass56a52fhap25tfgxyaluu6w02r",
+      "IOV SAS employee bonus pool/colloboration appropriation pool": "star1v6na4q8kqljynwkh3gt4katlsrqzsk3ewxv6aw",
+      "IOV SAS pending deals pocket; close deal or burn":             "star1vhkg66j3xvzqf4smy9qup5ra8euyjwlpdkdyn4",
+      "IOV SAS bounty fund":                                          "star1gxchcu6wycentu6fs977hygqx67kv5n7x25w4g",
+      "Unconfirmed contributors/co-founders":                         "star1f27zp27q6d8xqeq768r0gffg7ux34ml69dt67j",
+      "escrow isabella*iov":                                          "star1uzn9lxhmw0q2vfgy6d5meh2n7m43fqse6ryru6",
+      "escrow kadima*iov":                                            "star1hkeufxdyypclg876kc4u9nxjqudkgh2uecrpm7",
+      "escrow guaranteed reward fund":                                "star1v875jc00cqh26k5505p5mt4q8w0ylwypsca3jr",
+      "vaildator guaranteed reward fund":                             "star1n0et7nukw4htc56lkuqer67heppfjpdhs525ua",
+      "Custodian of missing star1 accounts":                          "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
+   };
+   const hackMultisigKeys = Object.keys( hackMultisig );
+   const hackCustodianStar1 = hackMultisig["Custodian of missing star1 accounts"];
+
    genesis.app_state.auth.accounts.forEach( account => {
-      if ( account["//alias"] || account.value.address.indexOf( "TBD" ) != -1 ) {
-         account.value.address = dave.value.address;
+      if ( hackMultisigKeys.findIndex( key => key == account["//id"] ) != -1 ) {
+         account.value.address = hackMultisig[account["//id"]];
       }
    } );
    genesis.app_state.domain.domains.forEach( domain => {
-      if ( domain.admin.indexOf( "custodial" ) != -1 ) {
-         domain.admin = dave.value.address;
+      if ( domain.admin.toLowerCase().indexOf( "custodia" ) != -1 ) {
+         domain.admin = hackCustodianStar1;
+      } else if ( domain.type == "open" ) {
+         domain.admin = hackMultisig["IOV SAS"];
       }
    } );
    genesis.app_state.domain.accounts.forEach( account => {
-      if ( account.owner.indexOf( "custodial" ) != -1 ) {
-         account.owner = dave.value.address;
+      if ( account.owner.toLowerCase().indexOf( "custodia" ) != -1 ) {
+         account.owner = hackCustodianStar1;
       }
    } );
 
