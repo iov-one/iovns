@@ -82,15 +82,15 @@ export const chainIds = {
 
 export const source2multisig = {
    iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x: {
-      "//id": "isabella*iov",
+      "//id": "escrow isabella*iov",
       star1: "IOV SAS multisig star1_TBD_isabella*iov", // TODO
    },
    iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph: {
-      "//id": "kadima*iov",
+      "//id": "escrow kadima*iov",
       star1: "IOV SAS multisig star1_TBD_kadima*iov", // TODO
    },
    iov149cn0rauw2773lfdp34njyejg3cfz2d56c0m5t: {
-      "//id": "joghurt*iov",
+      "//id": "escrow joghurt*iov",
       star1: "IOV SAS multisig star1_TBD_joghurt*iov", // TODO
    },
    iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u: {

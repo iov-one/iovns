@@ -96,3 +96,39 @@
     salad add walk lend also shoulder merge dream shrimp casino improve rival case angry burden vocal job market great topple isolate advance reunion joke
   threshold: 0
   pubkeys: []
+
+- name: vaildator guaranteed reward fund
+  type: local
+  address: star13c7s0xkmpu9uykn56scwwnkjl07svm69j0jm29
+  pubkey: starpub1addwnpepqvdlehyxluevjy5pgqt972s0jzmplrdenrddesah82ta959r7fwnw5g8pha
+  mnemonic:
+   boil unfold merge light target nurse pipe purpose lamp silver crime artist asset fantasy accuse cricket rocket oven dash hotel exhaust rate oak upgrade
+  threshold: 0
+  pubkeys: []
+
+- name: escrow isabella*iov
+  type: local
+  address: star1wywlg9ddad2l5zw7zqgcytwx838x00t7t2qqag
+  pubkey: starpub1addwnpepqvntn450ggeemdqddc62c7ray2clr7ur6jj33xn7mmelslvr9mnggjr2eaz
+  mnemonic:
+   outdoor leisure slim correct coast profit trigger glad hour length asthma about media town yellow waste close burden cradle maze teach pig isolate mistake
+  threshold: 0
+  pubkeys: []
+
+- name: escrow kadima*iov
+  type: local
+  address: star1s7dy7pmhzj8t0s48xnvt0ceug873zn9ue4qqma
+  pubkey: starpub1addwnpepq2nr88q2l3wpe7xkj90gj46fyrxrr04lx75yyv4ec0cmja2nvsyd6hpr3q6
+  mnemonic:
+   music crucial cheap ring provide circle canoe payment cook that humble spoil prefer piece spirit angry insect aerobic noise cool math maple blossom toddler
+  threshold: 0
+  pubkeys: []
+
+- name: escrow joghurt*iov
+  type: local
+  address: star1wy4kze7hanky9kpmvrygad5ar8j37wur4e5e3g
+  pubkey: starpub1addwnpepqdfqgjlttqkx66x8mv7t5ge69wzznrmtrjp46wgmk8vysusgp2ejuza68w5
+  mnemonic:
+   produce sport step broom glue avoid left recall type effort invest material idea only hotel enter review canyon where mimic maze busy surge intact
+  threshold: 0
+  pubkeys: []

@@ -1,4 +1,4 @@
-import { chainIds, conds, multisigs, names } from "../../lib/constants";
+import { chainIds, conds, multisigs, names, source2multisig } from "../../lib/constants";
 
 "use strict";
 
@@ -52,7 +52,7 @@ describe( "Tests ../../lib/constants.js.", () => {
    } );
 
    it( `Should get multisigs keyed on cond.`, () => {
-      expect( Object.keys( conds ).length ).toEqual( 6 );
+      expect( Object.keys( conds ).length ).toEqual( 7 );
 
       expect( conds[gov2     ]["//name"] ).toEqual( reward );
       expect( conds[multisig1]["//name"] ).toEqual( iov );
@@ -108,5 +108,22 @@ describe( "Tests ../../lib/constants.js.", () => {
       Object.values( chainIds ).forEach( id => {
          expect( id.indexOf( ":" ) ).not.toEqual( -1 );
       } );
+   } );
+
+   it( `Should get validate star1 addresses for escrows.`, () => {
+      const isabella = source2multisig.iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x;
+      const kadima = source2multisig.iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph;
+      const joghurt = source2multisig.iov149cn0rauw2773lfdp34njyejg3cfz2d56c0m5t;
+      const guaranteed = source2multisig.iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u;
+
+      expect( isabella[  "//id"] ).toEqual( "escrow isabella*iov" );
+      expect( kadima[    "//id"] ).toEqual( "escrow kadima*iov" );
+      expect( joghurt[   "//id"] ).toEqual( "escrow joghurt*iov" );
+      expect( guaranteed["//id"] ).toEqual( "vaildator guaranteed reward fund" );
+
+      expect( isabella.star1   ).toEqual( "TBD" ); // TODO
+      expect( kadima.star1     ).toEqual( "TBD" ); // TODO
+      expect( joghurt.star1    ).toEqual( "TBD" ); // TODO
+      expect( guaranteed.star1 ).toEqual( "TBD" ); // TODO
    } );
 } );

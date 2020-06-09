@@ -160,7 +160,8 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
          const value = account.value;
          const iov = parseInt( escrow.amount[0].whole ); // escrows don't have fractional as of 2020.06.07
 
-         account["//id"] = `consolidated escrows with source ${source} (${source2multisig[source]["//id"]})`;
+         account["//id"] = source2multisig[source]["//id"];
+         account["//note"] = `consolidated escrows with source ${source}`;
          account[`//timeout ${new Date( escrow.timeout * 1000 ).toISOString()}`] = `${escrow.address} yields ${escrow.amount[0].whole} ${escrow.amount[0].ticker}`;
          value.address = source2multisig[source].star1;
          value.coins[0]["//IOV"] += iov;
@@ -509,6 +510,10 @@ export const patchGalaxynet = genesis => {
       "escrow guaranteed reward fund":                                "star1v875jc00cqh26k5505p5mt4q8w0ylwypsca3jr",
       "vaildator guaranteed reward fund":                             "star1n0et7nukw4htc56lkuqer67heppfjpdhs525ua",
       "Custodian of missing star1 accounts":                          "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
+      "vaildator guaranteed reward fund":                             "star13c7s0xkmpu9uykn56scwwnkjl07svm69j0jm29",
+      "escrow isabella*iov":                                          "star1wywlg9ddad2l5zw7zqgcytwx838x00t7t2qqag",
+      "escrow kadima*iov":                                            "star1s7dy7pmhzj8t0s48xnvt0ceug873zn9ue4qqma",
+      "escrow joghurt*iov":                                           "star1wy4kze7hanky9kpmvrygad5ar8j37wur4e5e3g",
    };
    const hackMultisigKeys = Object.keys( hackMultisig );
    const hackCustodianStar1 = hackMultisig["Custodian of missing star1 accounts"];

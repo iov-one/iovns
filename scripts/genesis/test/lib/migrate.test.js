@@ -873,7 +873,24 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "sequence": 0
          }
       };
-      const accounts = [ poor, iovsas, custodian ];
+      const isabella = {
+         "//id": source2multisig.iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x["//id"],
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": 0,
+            "address": "IOV SAS multisig star1_TBD_isabella*iov",
+            "coins": [
+               {
+                  "//IOV": 2965149,
+                  "amount": "2965149000000",
+                  "denom": "uiov"
+               }
+            ],
+            "public_key": "",
+            "sequence": 0
+         }
+      };
+      const accounts = [ poor, iovsas, custodian, isabella ];
 
       previous.push( ...JSON.parse( JSON.stringify( accounts ) ) );
       genesisCopy.app_state.auth.accounts = [].concat( previous );
@@ -936,7 +953,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const current = genesisCopy.app_state.auth.accounts;
 
       expect( current.length ).not.toEqual( previous.length );
-      expect( current.length ).toEqual( 11 );
+      expect( current.length ).toEqual( 12 );
 
       const antoine = current.find( account => account["//name"] == "antoine" );
       const dave = current.find( account => account["//name"] == "dave*iov" );
@@ -982,16 +999,19 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const zeros = genesisCopy.app_state.domain.domains.find( domain => domain.name == "0000" );
       const dots = genesisCopy.app_state.domain.accounts.find( account => account.name == "..." );
       const claudiu  = genesisCopy.app_state.domain.accounts.find( account => account.name == "01node" );
+      const escrow  = genesisCopy.app_state.auth.accounts.find( account => account["//id"] == "escrow isabella*iov" );
 
       expect( iov ).toBeTruthy();
       expect( zeros ).toBeTruthy();
       expect( dots ).toBeTruthy();
       expect( claudiu ).toBeTruthy();
+      expect( escrow ).toBeTruthy();
 
       expect( iov.admin ).toEqual( "star12d063hg3ypass56a52fhap25tfgxyaluu6w02r" );
       expect( zeros.admin ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
       expect( dots.owner ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
       expect( claudiu.owner ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
+      expect( escrow.value.address ).toEqual( "star1wywlg9ddad2l5zw7zqgcytwx838x00t7t2qqag" );
    } );
 
    it( `Should patch iov-mainnet-2.`, async () => {
