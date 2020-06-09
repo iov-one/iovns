@@ -316,6 +316,37 @@ describe( "Tests ../../lib/migrate.js.", () => {
          },
          genutil: {},
          gov: {},
+         mint: {
+            minter: {
+               inflation: "0.000000000000000000",
+               annual_provisions: "0.000000000000000000"
+            },
+            params: {
+               blocks_per_year: "105192",
+               "//note": "goal_bonded cannot be 0: module=consensus err='division by zero'",
+               goal_bonded: "0.000000000000000001",
+               inflation_max: "0.0000000000000000",
+               inflation_min: "0.0000000000000000",
+               inflation_rate_change: "0.000000000000000000",
+               mint_denom: "uiov"
+            }
+         },
+         staking: {
+            params: {
+               historical_entries: 0,
+               unbonding_time: "259200000000000",
+               max_validators: 16,
+               max_entries: 7,
+               bond_denom: "uiov"
+            },
+            last_total_power: "0",
+            last_validator_powers: null,
+            validators: null,
+            delegations: null,
+            unbonding_delegations: null,
+            redelegations: null,
+            exported: false
+         },
       },
       consensus_params: {
          block: {
@@ -1012,6 +1043,11 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( dots.owner ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
       expect( claudiu.owner ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
       expect( escrow.value.address ).toEqual( "star1wywlg9ddad2l5zw7zqgcytwx838x00t7t2qqag" );
+
+      expect( dave.value.coins[0].denom ).toEqual( "uvoi" );
+      expect( escrow.value.coins[0].denom ).toEqual( "uvoi" );
+      expect( genesisCopy.app_state.mint.params.mint_denom ).toEqual( "uvoi" );
+      expect( genesisCopy.app_state.staking.params.bond_denom ).toEqual( "uvoi" );
    } );
 
    it( `Should patch iov-mainnet-2.`, async () => {

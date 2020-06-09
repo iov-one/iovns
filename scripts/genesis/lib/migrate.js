@@ -638,6 +638,11 @@ export const patchGalaxynet = genesis => {
 
    fixTransients( genesis.app_state.domain.domains );
    fixTransients( genesis.app_state.domain.accounts );
+
+   // use uvoi as the token denomination
+   genesis.app_state.auth.accounts.forEach( account => account.value.coins[0].denom = "uvoi" );
+   genesis.app_state.mint.params.mint_denom = "uvoi";
+   genesis.app_state.staking.params.bond_denom = "uvoi";
 }
 
 /**
