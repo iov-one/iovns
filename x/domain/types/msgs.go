@@ -289,7 +289,7 @@ type MsgRenewAccount struct {
 	Domain string `json:"domain"`
 	// Name is the name of the account
 	Name string `json:"name"`
-	// Signer is the signer of the request
+	// Configurer is the signer of the request
 	Signer sdk.AccAddress `json:"signer"`
 }
 
@@ -326,7 +326,7 @@ func (m *MsgRenewAccount) GetSigners() []sdk.AccAddress {
 type MsgRenewDomain struct {
 	// Domain is the domain name to renew
 	Domain string `json:"domain"`
-	// Signer is the request signer
+	// Configurer is the request signer
 	Signer sdk.AccAddress `json:"signer"`
 }
 

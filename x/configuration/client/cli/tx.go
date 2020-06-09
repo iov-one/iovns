@@ -2,7 +2,9 @@ package cli
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -28,9 +30,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 
 	configTxCmd.AddCommand(flags.PostCommands(
 		getCmdUpdateConfig(cdc),
-		getCmdUpsertDefaultFee(cdc),
-		getCmdUpsertLevelFee(cdc),
-		getCmdDeleteLevelFee(cdc),
+		getCmdUpdateFees(cdc),
 	)...)
 	return configTxCmd
 }
@@ -39,6 +39,43 @@ var defaultDuration, _ = time.ParseDuration("1h")
 
 const defaultRegex = "^(.*?)?"
 const defaultNumber = 1
+
+func getCmdUpdateFees(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-fees",
+		Short: "update fees using a file",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			// get fees file
+			feeFile, err := cmd.Flags().GetString("fees-file")
+			if err != nil {
+				return err
+			}
+			f, err := os.Open(feeFile)
+			if err != nil {
+				return fmt.Errorf("unable to open fee file: %s", err)
+			}
+			defer f.Close()
+			newFees := new(types.Fees)
+			err = json.NewDecoder(f).Decode(newFees)
+			if err != nil {
+				return err
+			}
+			msg := types.MsgUpdateFees{
+				Fees:       newFees,
+				Configurer: cliCtx.GetFromAddress(),
+			}
+			if err := msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("invalid tx: %w", err)
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+		},
+	}
+	cmd.Flags().String("fee-file", "fees.json", "fees file in json format")
+	return cmd
+}
 
 func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
@@ -201,169 +238,5 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().Uint64("certificate-size-max", uint64(defaultNumber), "maximum size of a certificate that could be saved under an account")
 	cmd.Flags().Uint32("certificate-count-max", uint32(defaultNumber), "maximum number of certificates that could be saved under an account")
 	cmd.Flags().Uint64("metadata-size-max", uint64(defaultNumber), "maximum size of metadata that could be saved under an account")
-	return cmd
-}
-
-func getCmdUpsertDefaultFee(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "upsert-default-fee",
-		Short: "upsert default fee configuration",
-		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			// get flags
-			configurerStr, err := cmd.Flags().GetString("configurer")
-			if err != nil {
-				return
-			}
-			configurer, err := sdk.AccAddressFromBech32(configurerStr)
-			if err != nil {
-				return
-			}
-
-			module, err := cmd.Flags().GetString("module")
-			if err != nil {
-				return err
-			}
-
-			msgType, err := cmd.Flags().GetString("msg-type")
-			if err != nil {
-				return err
-			}
-
-			feeStr, err := cmd.Flags().GetString("fee")
-			fee, err := sdk.ParseCoin(feeStr)
-			if err != nil {
-				return err
-			}
-
-			// build msg
-			msg := &types.MsgUpsertDefaultFee{
-				Configurer: configurer,
-				Module:     module,
-				MsgType:    msgType,
-				Fee:        fee,
-			}
-			// check if valid
-			if err = msg.ValidateBasic(); err != nil {
-				return err
-			}
-			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
-		},
-	}
-	// add flags
-	cmd.Flags().String("configurer", "", "configurer in bech32 format")
-	cmd.Flags().String("module", "", "what is this?")
-	cmd.Flags().String("msg-type", "", "type of the message")
-	cmd.Flags().String("fee", "10iov", "amount of the fee")
-	return cmd
-}
-
-func getCmdUpsertLevelFee(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "upsert-level-fee",
-		Short: "upsert level fee configuration",
-		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			// get flags
-			configurerStr, err := cmd.Flags().GetString("configurer")
-			if err != nil {
-				return
-			}
-			configurer, err := sdk.AccAddressFromBech32(configurerStr)
-			if err != nil {
-				return
-			}
-
-			module, err := cmd.Flags().GetString("module")
-			if err != nil {
-				return err
-			}
-
-			msgType, err := cmd.Flags().GetString("msg-type")
-			if err != nil {
-				return err
-			}
-
-			feeStr, err := cmd.Flags().GetString("fee")
-			fee, err := sdk.ParseCoin(feeStr)
-			if err != nil {
-				return err
-			}
-
-			// build msg
-			msg := &types.MsgUpsertLevelFee{
-				Configurer: configurer,
-				Module:     module,
-				MsgType:    msgType,
-				Fee:        fee,
-			}
-			// check if valid
-			if err = msg.ValidateBasic(); err != nil {
-				return err
-			}
-			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
-		},
-	}
-	// add flags
-	cmd.Flags().String("configurer", "", "configurer in bech32 format")
-	cmd.Flags().String("module", "", "what is this?")
-	cmd.Flags().String("msg-type", "", "type of the message")
-	cmd.Flags().String("fee", "10iov", "amount of the fee")
-	return cmd
-}
-
-func getCmdDeleteLevelFee(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "delete-level-fee",
-		Short: "delete level fee configuration",
-		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			// get flags
-			configurerStr, err := cmd.Flags().GetString("configurer")
-			if err != nil {
-				return
-			}
-			configurer, err := sdk.AccAddressFromBech32(configurerStr)
-			if err != nil {
-				return
-			}
-
-			module, err := cmd.Flags().GetString("module")
-			if err != nil {
-				return err
-			}
-
-			msgType, err := cmd.Flags().GetString("msg-type")
-			if err != nil {
-				return err
-			}
-
-			// build msg
-			msg := &types.MsgDeleteLevelFee{
-				Configurer: configurer,
-				Module:     module,
-				MsgType:    msgType,
-			}
-			// check if valid
-			if err = msg.ValidateBasic(); err != nil {
-				return err
-			}
-			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
-		},
-	}
-	// add flags
-	cmd.Flags().String("configurer", "", "configurer in bech32 format")
-	cmd.Flags().String("module", "", "what is this?")
-	cmd.Flags().String("msg-type", "", "type of the message")
-	cmd.Flags().String("fee", "10iov", "amount of the fee")
 	return cmd
 }

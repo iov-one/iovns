@@ -1,105 +1,75 @@
 package types
 
 import (
-	"bytes"
-	"encoding/json"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/domain/types"
-	"math/rand"
-	"reflect"
-	"strconv"
+	"github.com/cosmos/cosmos-sdk/types"
 	"testing"
-	"time"
 )
 
-func TestFeesCases(t *testing.T) {
-	t.Run("cases", func(t *testing.T) {
-		f := NewFees()
-		_, ok := f.CalculateLevelFees(MsgUpdateConfig{}, 0)
-		// no fees expected
-		if ok {
-			t.Fatalf("CalculateLevelFees() unexpected result: %v", ok)
-		}
-		// get default fees
-		coinFee := sdk.NewCoin("test", sdk.NewInt(10))
-		f.UpsertDefaultFees(MsgUpdateConfig{}, coinFee)
-		res, ok := f.CalculateLevelFees(MsgUpdateConfig{}, 0)
-		if !ok {
-			t.Fatalf("CalculateLevelFees() result expected")
-		}
-		if !res.IsEqual(coinFee) {
-			t.Fatalf("CalculateLevelFees() wanted: %s, got: %s", coinFee, res)
-		}
-		// get level fees
-		levelFee := sdk.NewCoin("test", sdk.NewInt(15))
-		f.UpsertLevelFees(MsgUpdateConfig{}, 10, levelFee)
-		res, ok = f.CalculateLevelFees(MsgUpdateConfig{}, 10)
-		if !ok {
-			t.Fatalf("CalculateLevelFees() result expected")
-		}
-		if !res.IsEqual(levelFee) {
-			t.Fatalf("CalculatELengthFees() wanted: %s, got: %s", levelFee, res)
-		}
-		// get default fee because level does not exist
-		res, ok = f.CalculateLevelFees(MsgUpdateConfig{}, 11)
-		if !ok {
-			t.Fatalf("CalculateLevelFees() result expected")
-		}
-		if !res.IsEqual(coinFee) {
-			t.Fatalf("CalculateLevelFees() want: %s, got: %s", coinFee, res)
-		}
-	})
-}
-
-func TestLengthFeeMapper_MarshalUnmarshal(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
-	x := make(LevelFeeMapper)
-	for i := 0; i < 500; i++ {
-		x[strconv.Itoa(rand.Int())] = sdk.NewCoin("idk", sdk.NewInt(int64(rand.Int())))
+func TestFees_Validate(t *testing.T) {
+	type fields struct {
+		IovTokenPrice                types.Dec
+		DefaultFee                   types.Coin
+		RegisterClosedAccount        types.Coin
+		RegisterOpenAccount          types.Coin
+		TransferClosedAccount        types.Coin
+		TransferOpenAccount          types.Coin
+		ReplaceAccountTargets        types.Coin
+		AddAccountCertificate        types.Coin
+		DelAccountCertificate        types.Coin
+		SetAccountMetadata           types.Coin
+		RegisterDomain               types.Coin
+		RegisterDomain1              types.Coin
+		RegisterDomain2              types.Coin
+		RegisterDomain3              types.Coin
+		RegisterDomain4              types.Coin
+		RegisterDomain5              types.Coin
+		RegisterDomainDefault        types.Coin
+		RegisterOpenDomainMultiplier types.Int
+		TransferDomainClosed         types.Coin
+		TransferDomainOpen           types.Coin
+		RenewOpenDomain              types.Coin
 	}
-	b, err := json.Marshal(x)
-	// test deterministic marshalling
-	for i := 0; i < 500; i++ {
-		x, err := json.Marshal(x)
-		if err != nil {
-			t.Fatalf("got error: %s", err)
-		}
-		if !bytes.Equal(x, b) {
-			t.Fatalf("undeterministic behaviour")
-		}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{
+			name: "fail field not set",
+			fields: fields{
+				IovTokenPrice: types.NewDec(10),
+			},
+			wantErr: true,
+		},
 	}
-	if err != nil {
-		t.Fatalf("got error: %s", err)
-	}
-	var y = make(LevelFeeMapper)
-	err = json.Unmarshal(b, &y)
-	if err != nil {
-		t.Fatalf("got error: %s", err)
-	}
-	if !reflect.DeepEqual(y, x) {
-		t.Fatalf("results do not match")
-	}
-}
-
-func TestFees_MarshalUnmarshalJSON(t *testing.T) {
-	fees := NewFees()
-	// insert default fees
-	fees.UpsertDefaultFees(MsgUpdateConfig{}, sdk.NewCoin("test", sdk.NewInt(2)))
-	fees.UpsertDefaultFees(&types.MsgRegisterDomain{}, sdk.NewCoin("test", sdk.NewInt(1)))
-	// insert length fees
-	fees.UpsertLevelFees(MsgUpdateConfig{}, 10, sdk.NewCoin("test", sdk.NewInt(10)))
-	fees.UpsertLevelFees(&types.MsgRegisterDomain{}, 4, sdk.NewCoin("test", sdk.NewInt(15)))
-	x, err := json.Marshal(fees)
-	if err != nil {
-		t.Fatalf("got error: %s", err)
-	}
-	var y = new(Fees)
-	err = json.Unmarshal(x, y)
-	if err != nil {
-		t.Fatalf("got error: %s", err)
-	}
-	// check equality
-	if !reflect.DeepEqual(fees, y) {
-		t.Fatalf("results mismatch: got %+v, want: %+v", y, fees)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f := &Fees{
+				IovTokenPrice:                tt.fields.IovTokenPrice,
+				DefaultFee:                   tt.fields.DefaultFee,
+				RegisterClosedAccount:        tt.fields.RegisterClosedAccount,
+				RegisterOpenAccount:          tt.fields.RegisterOpenAccount,
+				TransferClosedAccount:        tt.fields.TransferClosedAccount,
+				TransferOpenAccount:          tt.fields.TransferOpenAccount,
+				ReplaceAccountTargets:        tt.fields.ReplaceAccountTargets,
+				AddAccountCertificate:        tt.fields.AddAccountCertificate,
+				DelAccountCertificate:        tt.fields.DelAccountCertificate,
+				SetAccountMetadata:           tt.fields.SetAccountMetadata,
+				RegisterDomain:               tt.fields.RegisterDomain,
+				RegisterDomain1:              tt.fields.RegisterDomain1,
+				RegisterDomain2:              tt.fields.RegisterDomain2,
+				RegisterDomain3:              tt.fields.RegisterDomain3,
+				RegisterDomain4:              tt.fields.RegisterDomain4,
+				RegisterDomain5:              tt.fields.RegisterDomain5,
+				RegisterDomainDefault:        tt.fields.RegisterDomainDefault,
+				RegisterOpenDomainMultiplier: tt.fields.RegisterOpenDomainMultiplier,
+				TransferDomainClosed:         tt.fields.TransferDomainClosed,
+				TransferDomainOpen:           tt.fields.TransferDomainOpen,
+				RenewOpenDomain:              tt.fields.RenewOpenDomain,
+			}
+			if err := f.Validate(); (err != nil) != tt.wantErr {
+				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
 	}
 }
