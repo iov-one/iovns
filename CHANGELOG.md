@@ -1,6 +1,7 @@
 # Changelog 
 
 ## HEAD
+- change reconciliate with new fee calculator spec
 - fix multisig message length
 - add ledger support
 - Integrate gitian builds

@@ -1,11 +1,8 @@
 package configuration
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration/types"
-	domain_types "github.com/iov-one/iovns/x/domain/types"
 )
 
 // GenesisState is used to unmarshal the genesis state
@@ -30,14 +27,8 @@ func ValidateGenesis(data GenesisState) error {
 	if err := conf.Validate(); err != nil {
 		return err
 	}
-	if data.Fees == nil {
-		return fmt.Errorf("empty fees")
-	}
-	if data.Fees.LevelFees == nil {
-		return fmt.Errorf("empty length fees")
-	}
-	if data.Fees.DefaultFees == nil {
-		return fmt.Errorf("empty default fees")
+	if err := data.Fees.Validate(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -69,21 +60,12 @@ func DefaultGenesisState() GenesisState {
 		MetadataSizeMax:        86400,
 	}
 	// set fees
+	// add domain module fees
+	feeCoinDenom := "iov" // set coin denom used for fees
+	// generate new fees
 	fees := types.NewFees()
-	defFee := sdk.NewCoin("iov", sdk.NewInt(10))
-	// add domain fees
-	fees.UpsertDefaultFees(&domain_types.MsgRegisterDomain{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgAddAccountCertificates{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgDeleteAccountCertificate{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgDeleteDomain{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgDeleteAccount{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgRegisterAccount{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgRenewAccount{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgRenewDomain{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgReplaceAccountTargets{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgTransferAccount{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgTransferDomain{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgReplaceAccountMetadata{}, defFee)
+	// set default fees
+	fees.SetDefaults(feeCoinDenom)
 	// return genesis
 	return GenesisState{
 		Config: config,

@@ -17,7 +17,7 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 	}
 	// operation is allowed
 	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner)
+	err := k.CollectFees(ctx, msg, msg.Owner, c.Domain())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
@@ -34,11 +34,6 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	if err != nil {
 		return nil, err
 	}
-	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Admin)
-	if err != nil {
-		return nil, sdkerrors.Wrap(err, "unable to collect fees")
-	}
 	// create new domain
 	d := types.Domain{
 		Name:       msg.Name,
@@ -46,6 +41,11 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		ValidUntil: ctx.BlockTime().Add(k.ConfigurationKeeper.GetDomainRenewDuration(ctx)).Unix(),
 		Type:       msg.DomainType,
 		Broker:     msg.Broker,
+	}
+	// collect fees
+	err = k.CollectFees(ctx, msg, msg.Admin, d)
+	if err != nil {
+		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// save domain
 	k.CreateDomain(ctx, d)
@@ -61,7 +61,7 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 		return nil, err
 	}
 	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Signer)
+	err = k.CollectFees(ctx, msg, msg.Signer, c.Domain())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
@@ -84,7 +84,7 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 		return nil, err
 	}
 	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Owner)
+	err = k.CollectFees(ctx, msg, msg.Owner, c.Domain())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}

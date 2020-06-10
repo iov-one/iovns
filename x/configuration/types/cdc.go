@@ -7,9 +7,7 @@ import (
 
 // RegisterCodec registers concrete types on codec
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgUpsertLevelFee{}, fmt.Sprintf("%s/MsgUpsertLevelFees", ModuleName), nil)
-	cdc.RegisterConcrete(MsgUpsertDefaultFee{}, fmt.Sprintf("%s/MsgUpsertDefaultFees", ModuleName), nil)
-	cdc.RegisterConcrete(MsgDeleteLevelFee{}, fmt.Sprintf("%s/MsgDeleteLevelFees", ModuleName), nil)
+	cdc.RegisterConcrete(MsgUpdateFees{}, fmt.Sprintf("%s/MsgUpdateFees", ModuleName), nil)
 	cdc.RegisterConcrete(MsgUpdateConfig{}, fmt.Sprintf("%s/MsgUpdateConfig", ModuleName), nil)
 }
 

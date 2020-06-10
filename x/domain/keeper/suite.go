@@ -9,7 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
-	types2 "github.com/iov-one/iovns/x/domain/types"
 )
 
 var ks, addrs = tutils.GeneratePrivKeyAddressPairs(3)
@@ -55,20 +54,7 @@ func RunTests(t *testing.T, tests map[string]SubTest) {
 		// set default fees
 		setFees := domainKeeper.ConfigurationKeeper.(ConfigurationSetter).SetFees
 		fees := configuration.NewFees()
-		defFee := types.NewCoin("testcoin", types.NewInt(10))
-
-		fees.UpsertDefaultFees(&types2.MsgRegisterDomain{}, defFee)
-		fees.UpsertDefaultFees(&types2.MsgAddAccountCertificates{}, defFee)
-		fees.UpsertDefaultFees(&types2.MsgDeleteAccountCertificate{}, defFee)
-		fees.UpsertDefaultFees(&types2.MsgDeleteDomain{}, defFee)
-		fees.UpsertDefaultFees(&types2.MsgDeleteAccount{}, defFee)
-		fees.UpsertDefaultFees(&types2.MsgRegisterAccount{}, defFee)
-		fees.UpsertDefaultFees(&types2.MsgRenewAccount{}, defFee)
-		fees.UpsertDefaultFees(&types2.MsgRenewDomain{}, defFee)
-		fees.UpsertDefaultFees(&types2.MsgReplaceAccountTargets{}, defFee)
-		fees.UpsertDefaultFees(&types2.MsgTransferAccount{}, defFee)
-		fees.UpsertDefaultFees(&types2.MsgTransferDomain{}, defFee)
-
+		fees.SetDefaults("testcoin")
 		setFees(ctx, fees)
 		// run sub SubTest
 		t.Run(name, func(t *testing.T) {
