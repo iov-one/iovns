@@ -7,27 +7,28 @@ import (
 
 func TestFees_Validate(t *testing.T) {
 	type fields struct {
-		IovTokenPrice                types.Dec
-		DefaultFee                   types.Coin
-		RegisterClosedAccount        types.Coin
-		RegisterOpenAccount          types.Coin
-		TransferClosedAccount        types.Coin
-		TransferOpenAccount          types.Coin
-		ReplaceAccountTargets        types.Coin
-		AddAccountCertificate        types.Coin
-		DelAccountCertificate        types.Coin
-		SetAccountMetadata           types.Coin
-		RegisterDomain               types.Coin
-		RegisterDomain1              types.Coin
-		RegisterDomain2              types.Coin
-		RegisterDomain3              types.Coin
-		RegisterDomain4              types.Coin
-		RegisterDomain5              types.Coin
-		RegisterDomainDefault        types.Coin
-		RegisterOpenDomainMultiplier types.Int
-		TransferDomainClosed         types.Coin
-		TransferDomainOpen           types.Coin
-		RenewOpenDomain              types.Coin
+		FeeCoinDenom                 string
+		FeeCoinPrice                 types.Dec
+		DefaultFee                   types.Dec
+		RegisterClosedAccount        types.Dec
+		RegisterOpenAccount          types.Dec
+		TransferClosedAccount        types.Dec
+		TransferOpenAccount          types.Dec
+		ReplaceAccountTargets        types.Dec
+		AddAccountCertificate        types.Dec
+		DelAccountCertificate        types.Dec
+		SetAccountMetadata           types.Dec
+		RegisterDomain               types.Dec
+		RegisterDomain1              types.Dec
+		RegisterDomain2              types.Dec
+		RegisterDomain3              types.Dec
+		RegisterDomain4              types.Dec
+		RegisterDomain5              types.Dec
+		RegisterDomainDefault        types.Dec
+		RegisterOpenDomainMultiplier types.Dec
+		TransferDomainClosed         types.Dec
+		TransferDomainOpen           types.Dec
+		RenewOpenDomain              types.Dec
 	}
 	tests := []struct {
 		name    string
@@ -35,17 +36,25 @@ func TestFees_Validate(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "fail field not set",
-			fields: fields{
-				IovTokenPrice: types.NewDec(10),
-			},
+			name: "success",
+			fields: func() fields {
+				fees := NewFees()
+				fees.SetDefaults("test")
+				return fields(*fees)
+			}(),
+			wantErr: false,
+		},
+		{
+			name:    "fail missing fee",
+			fields:  fields{},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f := &Fees{
-				IovTokenPrice:                tt.fields.IovTokenPrice,
+				FeeCoinDenom:                 tt.fields.FeeCoinDenom,
+				FeeCoinPrice:                 tt.fields.FeeCoinPrice,
 				DefaultFee:                   tt.fields.DefaultFee,
 				RegisterClosedAccount:        tt.fields.RegisterClosedAccount,
 				RegisterOpenAccount:          tt.fields.RegisterOpenAccount,

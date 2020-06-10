@@ -34,8 +34,8 @@ type feeApplier struct {
 	domain     types.Domain
 }
 
-func (f feeApplier) registerDomain() sdk.Coin {
-	var registerDomainFee sdk.Coin
+func (f feeApplier) registerDomain() sdk.Dec {
+	var registerDomainFee sdk.Dec
 	level := len(f.domain.Name)
 	switch level {
 	case 1:
@@ -53,12 +53,12 @@ func (f feeApplier) registerDomain() sdk.Coin {
 	}
 	// if domain is open then we multiply
 	if f.domain.Type == types.OpenDomain {
-		registerDomainFee.Amount.Mul(f.moduleFees.RegisterOpenDomainMultiplier)
+		registerDomainFee.Mul(f.moduleFees.RegisterOpenDomainMultiplier)
 	}
 	return registerDomainFee
 }
 
-func (f feeApplier) transferDomain() sdk.Coin {
+func (f feeApplier) transferDomain() sdk.Dec {
 	switch f.domain.Type {
 	case types.OpenDomain:
 		return f.moduleFees.TransferDomainOpen
@@ -68,7 +68,7 @@ func (f feeApplier) transferDomain() sdk.Coin {
 	return f.moduleFees.DefaultFee
 }
 
-func (f feeApplier) renewDomain() sdk.Coin {
+func (f feeApplier) renewDomain() sdk.Dec {
 	if f.domain.Type == types.OpenDomain {
 		return f.moduleFees.RenewOpenDomain
 	}
@@ -78,11 +78,11 @@ func (f feeApplier) renewDomain() sdk.Coin {
 		return true
 	})
 	fee := f.moduleFees.RegisterClosedAccount
-	fee.Amount.MulRaw(accountN)
+	fee.MulInt64(accountN)
 	return fee
 }
 
-func (f feeApplier) registerAccount() sdk.Coin {
+func (f feeApplier) registerAccount() sdk.Dec {
 	switch f.domain.Type {
 	case types.OpenDomain:
 		return f.moduleFees.RegisterOpenAccount
@@ -92,7 +92,7 @@ func (f feeApplier) registerAccount() sdk.Coin {
 	return f.moduleFees.DefaultFee
 }
 
-func (f feeApplier) transferAccount() sdk.Coin {
+func (f feeApplier) transferAccount() sdk.Dec {
 	switch f.domain.Type {
 	case types.ClosedDomain:
 		return f.moduleFees.TransferClosedAccount
@@ -102,7 +102,7 @@ func (f feeApplier) transferAccount() sdk.Coin {
 	return f.moduleFees.DefaultFee
 }
 
-func (f feeApplier) renewAccount() sdk.Coin {
+func (f feeApplier) renewAccount() sdk.Dec {
 	switch f.domain.Type {
 	case types.OpenDomain:
 		return f.moduleFees.RegisterOpenAccount
@@ -112,28 +112,27 @@ func (f feeApplier) renewAccount() sdk.Coin {
 	return f.moduleFees.DefaultFee
 }
 
-func (f feeApplier) replaceTargets() sdk.Coin {
+func (f feeApplier) replaceTargets() sdk.Dec {
 	return f.moduleFees.ReplaceAccountTargets
 }
 
-func (f feeApplier) addCert() sdk.Coin {
+func (f feeApplier) addCert() sdk.Dec {
 	return f.moduleFees.AddAccountCertificate
 }
 
-func (f feeApplier) delCert() sdk.Coin {
+func (f feeApplier) delCert() sdk.Dec {
 	return f.moduleFees.DelAccountCertificate
 }
 
-func (f feeApplier) setMetadata() sdk.Coin {
+func (f feeApplier) setMetadata() sdk.Dec {
 	return f.moduleFees.SetAccountMetadata
 }
 
-func (f feeApplier) defaultFee() sdk.Coin {
+func (f feeApplier) defaultFee() sdk.Dec {
 	return f.moduleFees.DefaultFee
 }
 
-// GetFee returns a fee based on the provided message
-func (f feeApplier) GetFee(msg sdk.Msg) sdk.Coin {
+func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 	switch msg.(type) {
 	case *types.MsgTransferDomain:
 		return f.transferDomain()
@@ -156,4 +155,26 @@ func (f feeApplier) GetFee(msg sdk.Msg) sdk.Coin {
 	default:
 		return f.defaultFee()
 	}
+}
+
+// GetFee returns a fee based on the provided message
+func (f feeApplier) GetFee(msg sdk.Msg) sdk.Coin {
+	// get current price
+	currentPrice := f.moduleFees.FeeCoinPrice
+	// get coin denom
+	coinDenom := f.moduleFees.FeeCoinDenom
+	// get fee parameter
+	param := f.getFeeParam(msg)
+	// calculate the quotient between current price and parameter
+	toPay := currentPrice.Quo(param)
+	var feeAmount sdk.Int
+	// get fee amount
+	feeAmount = toPay.TruncateInt()
+	// if expected fee is lower than default fee then set the default fee as current fee
+	if feeAmount.LT(f.moduleFees.DefaultFee.TruncateInt()) {
+		feeAmount = f.moduleFees.DefaultFee.TruncateInt()
+	}
+	// generate coins to pay
+	coinsToPay := sdk.NewCoin(coinDenom, feeAmount)
+	return coinsToPay
 }

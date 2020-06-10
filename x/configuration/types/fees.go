@@ -14,33 +14,35 @@ func NewFees() *Fees {
 // to calculate coins to detract when
 // processing different messages
 type Fees struct {
-	IovTokenPrice sdk.Dec
-
-	DefaultFee sdk.Coin
+	// FeeCoinDenom defines the denominator of the coin used to process fees
+	FeeCoinDenom string
+	FeeCoinPrice sdk.Dec
+	// DefaultFee is the parameter defining the default fee
+	DefaultFee sdk.Dec
 	// account fees
-	RegisterClosedAccount sdk.Coin
-	RegisterOpenAccount   sdk.Coin
-	TransferClosedAccount sdk.Coin
-	TransferOpenAccount   sdk.Coin
-	ReplaceAccountTargets sdk.Coin
-	AddAccountCertificate sdk.Coin
-	DelAccountCertificate sdk.Coin
-	SetAccountMetadata    sdk.Coin
+	RegisterClosedAccount sdk.Dec
+	RegisterOpenAccount   sdk.Dec
+	TransferClosedAccount sdk.Dec
+	TransferOpenAccount   sdk.Dec
+	ReplaceAccountTargets sdk.Dec
+	AddAccountCertificate sdk.Dec
+	DelAccountCertificate sdk.Dec
+	SetAccountMetadata    sdk.Dec
 	// domain fees
 	// Register domain
-	RegisterDomain               sdk.Coin
-	RegisterDomain1              sdk.Coin
-	RegisterDomain2              sdk.Coin
-	RegisterDomain3              sdk.Coin
-	RegisterDomain4              sdk.Coin
-	RegisterDomain5              sdk.Coin
-	RegisterDomainDefault        sdk.Coin
-	RegisterOpenDomainMultiplier sdk.Int
+	RegisterDomain               sdk.Dec
+	RegisterDomain1              sdk.Dec
+	RegisterDomain2              sdk.Dec
+	RegisterDomain3              sdk.Dec
+	RegisterDomain4              sdk.Dec
+	RegisterDomain5              sdk.Dec
+	RegisterDomainDefault        sdk.Dec
+	RegisterOpenDomainMultiplier sdk.Dec
 	// TransferDomain
-	TransferDomainClosed sdk.Coin
-	TransferDomainOpen   sdk.Coin
+	TransferDomainClosed sdk.Dec
+	TransferDomainOpen   sdk.Dec
 	// RenewDomain
-	RenewOpenDomain sdk.Coin
+	RenewOpenDomain sdk.Dec
 }
 
 func (f *Fees) Validate() error {
@@ -51,19 +53,18 @@ func (f *Fees) Validate() error {
 	for _, field := range m.Fields() {
 		switch fee := field.Value().(type) {
 		case sdk.Dec:
-			if !fee.IsNil() {
-				return fmt.Errorf("invalid dec: %s", field.Name())
+			if fee.IsNil() {
+				return fmt.Errorf("nil dec in field %s", field.Name())
 			}
-		case sdk.Coin:
-			if fee.Amount.IsZero() {
-				return fmt.Errorf("invalid dec coin: %s", field.Name())
-			}
-			if !fee.IsValid() {
-				return fmt.Errorf("invalid dec coin: %s", field.Name())
-			}
-		case sdk.Int:
 			if fee.IsZero() {
-				return fmt.Errorf("invalid int multiplier: %s", field.Name())
+				return fmt.Errorf("zero dec in field %s", field.Name())
+			}
+			if fee.IsNegative() {
+				return fmt.Errorf("negative dec in field %s", field.Name())
+			}
+		case string:
+			if err := sdk.ValidateDenom(fee); err != nil {
+				return fmt.Errorf("invalid coin denom in field %s: %s", field.Name(), fee)
 			}
 		default:
 			panic(fmt.Sprintf("invalid type: %T", fee))
@@ -72,32 +73,38 @@ func (f *Fees) Validate() error {
 	return nil
 }
 
-// SetDefaults sets the default fees
-func (f *Fees) SetDefaults(coin sdk.Coin) {
+// SetDefaults sets the default fees, it takes only one parameter which is the coin name that
+// will be used by the users who want to access the domain module functionalities
+func (f *Fees) SetDefaults(denom string) {
+	if err := sdk.ValidateDenom(denom); err != nil {
+		panic(fmt.Errorf("invalid coin denom %s: %w", denom, err))
+	}
+	defaultFeeParameter := sdk.NewDec(1)
 	if f == nil {
 		panic("cannot set default fees for nil fees")
 	}
 	*f = Fees{
-		IovTokenPrice:                sdk.NewDec(10),
-		DefaultFee:                   coin,
-		RegisterClosedAccount:        coin,
-		RegisterOpenAccount:          coin,
-		TransferClosedAccount:        coin,
-		TransferOpenAccount:          coin,
-		ReplaceAccountTargets:        coin,
-		AddAccountCertificate:        coin,
-		DelAccountCertificate:        coin,
-		SetAccountMetadata:           coin,
-		RegisterDomain:               coin,
-		RegisterDomain1:              coin,
-		RegisterDomain2:              coin,
-		RegisterDomain3:              coin,
-		RegisterDomain4:              coin,
-		RegisterDomain5:              coin,
-		RegisterDomainDefault:        coin,
-		RegisterOpenDomainMultiplier: sdk.NewInt(2),
-		TransferDomainClosed:         coin,
-		TransferDomainOpen:           coin,
-		RenewOpenDomain:              coin,
+		FeeCoinDenom:                 denom,
+		FeeCoinPrice:                 sdk.NewDec(10),
+		DefaultFee:                   defaultFeeParameter,
+		RegisterClosedAccount:        defaultFeeParameter,
+		RegisterOpenAccount:          defaultFeeParameter,
+		TransferClosedAccount:        defaultFeeParameter,
+		TransferOpenAccount:          defaultFeeParameter,
+		ReplaceAccountTargets:        defaultFeeParameter,
+		AddAccountCertificate:        defaultFeeParameter,
+		DelAccountCertificate:        defaultFeeParameter,
+		SetAccountMetadata:           defaultFeeParameter,
+		RegisterDomain:               defaultFeeParameter,
+		RegisterDomain1:              defaultFeeParameter,
+		RegisterDomain2:              defaultFeeParameter,
+		RegisterDomain3:              defaultFeeParameter,
+		RegisterDomain4:              defaultFeeParameter,
+		RegisterDomain5:              defaultFeeParameter,
+		RegisterDomainDefault:        defaultFeeParameter,
+		RegisterOpenDomainMultiplier: sdk.NewDec(2),
+		TransferDomainClosed:         defaultFeeParameter,
+		TransferDomainOpen:           defaultFeeParameter,
+		RenewOpenDomain:              defaultFeeParameter,
 	}
 }

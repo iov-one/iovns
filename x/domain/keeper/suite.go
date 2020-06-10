@@ -54,8 +54,7 @@ func RunTests(t *testing.T, tests map[string]SubTest) {
 		// set default fees
 		setFees := domainKeeper.ConfigurationKeeper.(ConfigurationSetter).SetFees
 		fees := configuration.NewFees()
-		defFee := types.NewCoin("testcoin", types.NewInt(10))
-		fees.SetDefaults(defFee)
+		fees.SetDefaults("testcoin")
 		setFees(ctx, fees)
 		// run sub SubTest
 		t.Run(name, func(t *testing.T) {

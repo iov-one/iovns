@@ -61,11 +61,11 @@ func DefaultGenesisState() GenesisState {
 	}
 	// set fees
 	// add domain module fees
-	defFee := sdk.NewCoin("iov", sdk.NewInt(10))
+	feeCoinDenom := "iov" // set coin denom used for fees
 	// generate new fees
 	fees := types.NewFees()
 	// set default fees
-	fees.SetDefaults(defFee)
+	fees.SetDefaults(feeCoinDenom)
 	// return genesis
 	return GenesisState{
 		Config: config,
