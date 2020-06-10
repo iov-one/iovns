@@ -242,9 +242,21 @@ func DeletableBy(addr sdk.AccAddress) ControllerFunc {
 
 // deletableBy is the underlying operation used by DeletableBy controller
 func (c *Domain) deletableBy(addr sdk.AccAddress) error {
-	// check if either domain is owned by provided address or if grace period is finished
-	if err := c.Validate(Admin(addr)); err != nil && !c.Condition(GracePeriodFinished) {
-		return sdkerrors.Wrap(types.ErrUnauthorized, "unable to delete domain not owned if grace period is not finished")
+	if err := c.requireDomain(); err != nil {
+		panic("validation check not allowed on a non existing domain")
+	}
+	switch c.domain.Type {
+	case types.ClosedDomain:
+		// check if either domain is owned by provided address or if grace period is finished
+		if err := c.gracePeriodFinished(); err != nil {
+			if err := c.isAdmin(addr); err != nil {
+				return sdkerrors.Wrap(types.ErrUnauthorized, "only admin delete domain before grace period is finished")
+			}
+		}
+	case types.OpenDomain:
+		if err := c.gracePeriodFinished(); err != nil {
+			return sdkerrors.Wrap(types.ErrDomainGracePeriodNotFinished, "cannot delete open domain before grace period is finished")
+		}
 	}
 	return nil
 }
