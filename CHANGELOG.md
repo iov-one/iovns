@@ -9,6 +9,7 @@
 - Improve iovnscli tx add-certs error handling
 - Add signer to update-configuration msg for offline usage
 - Implement cli integration tests
+- Fix delete domain handler
 
 ## v0.3.0
 - fix account controller max renew exceed

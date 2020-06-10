@@ -453,8 +453,7 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			fmt.Println("debug1")
-			var c []byte
+			var c json.RawMessage
 			switch {
 			case len(cert) == 0 && len(certFile) == 0:
 				return ErrCertificateNotProvided
@@ -471,7 +470,6 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 				if err != nil {
 					return sdkerrors.Wrapf(ErrInvalidCertificate, "err: %s", err)
 				}
-				var c json.RawMessage
 				if err := json.Unmarshal(cfb, &c); err != nil {
 					return sdkerrors.Wrapf(ErrInvalidCertificate, "err: %s", err)
 				}
@@ -495,8 +493,8 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "domain of the account")
 	cmd.Flags().String("name", "", "name of the account")
-	cmd.Flags().BytesBase64("cert", []byte{}, "certificate you want to add in base64 encoded format")
-	cmd.Flags().String("cert-file", "", "directory of certificate file")
+	cmd.Flags().BytesBase64("cert", []byte{}, "certificate json you want to add in base64 encoded format")
+	cmd.Flags().String("cert-file", "", "directory of certificate file in json format")
 	// return cmd
 	return cmd
 }
