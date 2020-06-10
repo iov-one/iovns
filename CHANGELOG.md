@@ -7,6 +7,7 @@
 - Remove account renew field in types.Domain
 - Improve json field names in msgs
 - Improve iovnscli tx add-certs error handling
+- Fix delete domain handler
 
 ## v0.3.0
 - fix account controller max renew exceed
