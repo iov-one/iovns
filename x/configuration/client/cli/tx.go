@@ -272,7 +272,7 @@ func getCmdUpsertDefaultFee(cdc *codec.Codec) *cobra.Command {
 	}
 	// add flags
 	cmd.Flags().String("configurer", "", "configurer in bech32 format")
-	cmd.Flags().String("module", "", "what is this?")
+	cmd.Flags().String("module", "", "module name")
 	cmd.Flags().String("msg-type", "", "type of the message")
 	cmd.Flags().String("fee", "10iov", "amount of the fee")
 	return cmd
