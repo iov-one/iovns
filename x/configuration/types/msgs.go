@@ -8,7 +8,7 @@ import (
 // MsgUpdateConfig is used to update
 // configuration using a multisig strategy
 type MsgUpdateConfig struct {
-	Configurer       sdk.AccAddress
+	Signer           sdk.AccAddress
 	NewConfiguration Config
 }
 
@@ -19,8 +19,11 @@ func (m MsgUpdateConfig) Route() string { return RouterKey }
 func (m MsgUpdateConfig) Type() string { return "update_config" }
 
 func (m MsgUpdateConfig) ValidateBasic() error {
-	if m.Configurer.Empty() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "no configurer specified")
+	if m.Signer.Empty() {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "no signer specified")
+	}
+	if err := m.NewConfiguration.Validate(); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid new configuration")
 	}
 	return nil
 }
@@ -29,7 +32,7 @@ func (m MsgUpdateConfig) ValidateBasic() error {
 func (m MsgUpdateConfig) GetSignBytes() []byte { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m)) }
 
 // GetSigners implements sdk.Msg
-func (m MsgUpdateConfig) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Configurer} }
+func (m MsgUpdateConfig) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Signer} }
 
 // MsgUpdateDefaultFee inserts or update the default fees
 type MsgUpsertDefaultFee struct {

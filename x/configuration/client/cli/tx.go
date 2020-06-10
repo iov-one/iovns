@@ -48,14 +48,29 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			rawCfg, _, err := cliCtx.QueryStore([]byte(types.ConfigKey), types.StoreKey)
-			if err != nil {
-				return err
+			config := &types.Config{}
+			if !cliCtx.GenerateOnly {
+				rawCfg, _, err := cliCtx.QueryStore([]byte(types.ConfigKey), types.StoreKey)
+				if err != nil {
+					return err
+				}
+				cdc.MustUnmarshalBinaryBare(rawCfg, config)
 			}
-			var config types.Config
-			cdc.MustUnmarshalBinaryBare(rawCfg, &config)
-
 			// get flags
+			var signer sdk.AccAddress
+			// if tx is not generate only, use --from flag as signer, otherwise get it from signer flag
+			if !cliCtx.GenerateOnly {
+				signer = cliCtx.FromAddress
+			} else {
+				signerStr, err := cmd.Flags().GetString("signer")
+				if err != nil {
+					return err
+				}
+				signer, err = sdk.AccAddressFromBech32(signerStr)
+				if err != nil {
+					return err
+				}
+			}
 			configurerStr, err := cmd.Flags().GetString("configurer")
 			if err != nil {
 				return
@@ -171,8 +186,8 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			}
 			// build msg
 			msg := &types.MsgUpdateConfig{
-				Configurer:       cliCtx.GetFromAddress(),
-				NewConfiguration: config,
+				Signer:           signer,
+				NewConfiguration: *config,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -183,7 +198,9 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 	// add flags
+	cmd.Flags().String("signer", "", "current configuration owner, for offline usage, otherwise --from is used")
 	cmd.Flags().String("configurer", "", "configurer in bech32 format")
+	cmd.Flags().String("offline", "false", "if true do not fetch current configuration from the node")
 	cmd.Flags().String("valid-domain-name", defaultRegex, "regexp that determines if domain name is valid or not")
 	cmd.Flags().String("valid-account-name", defaultRegex, "regexp that determines if account name is valid or not")
 	cmd.Flags().String("valid-blockchain-id", defaultRegex, "regexp that determines if blockchain id is valid or not")
