@@ -398,7 +398,6 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				var c json.RawMessage
 				if err := json.Unmarshal(cfb, &c); err != nil {
 					return nil
 				}

@@ -8,6 +8,7 @@
 - Improve json field names in msgs
 - Improve iovnscli tx add-certs error handling
 - Add signer to update-configuration msg for offline usage
+- Implement cli integration tests
 
 ## v0.3.0
 - fix account controller max renew exceed

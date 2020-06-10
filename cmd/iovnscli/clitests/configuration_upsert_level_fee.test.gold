@@ -1,0 +1,26 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "configuration/MsgUpsertLevelFees",
+        "value": {
+          "Configurer": "star1yfcw3pju4wd8rud9l0uzkzwgs7c2drg88k7vzk",
+          "Module": "domain",
+          "MsgType": "msg1",
+          "Level": "0",
+          "Fee": {
+            "denom": "iov",
+            "amount": "15"
+          }
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}

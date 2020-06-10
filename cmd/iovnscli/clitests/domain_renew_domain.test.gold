@@ -1,0 +1,20 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "domain/RenewDomain",
+        "value": {
+          "domain": "test",
+          "signer": "star13dq838nu0wmzvx8ge6z5upvu7uze3xlusnts5c"
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}

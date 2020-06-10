@@ -1,0 +1,36 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "configuration/MsgUpdateConfig",
+        "value": {
+          "Signer": "star1yfcw3pju4wd8rud9l0uzkzwgs7c2drg88k7vzk",
+          "NewConfiguration": {
+            "configurer": "star1yfcw3pju4wd8rud9l0uzkzwgs7c2drg88k7vzk",
+            "valid_domain_name": "",
+            "valid_account_name": "",
+            "valid_blockchain_id": "",
+            "valid_blockchain_address": "",
+            "domain_renew_period": "0",
+            "domain_renew_count_max": 0,
+            "domain_grace_period": "3600000000000",
+            "account_renew_period": "3600000000000",
+            "account_renew_count_max": 0,
+            "account_grace_period": "0",
+            "blockchain_target_max": 0,
+            "certificate_size_max": "0",
+            "certificate_count_max": 0,
+            "metadata_size_max": "0"
+          }
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}
