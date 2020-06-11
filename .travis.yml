@@ -62,7 +62,7 @@ script:
 
     if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
     ./contrib/gitian-build.sh linux ;
-    mkdir build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
+    mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
     docker build --pull --tag ${IMAGE_NAME} . ;
     fi;
 
