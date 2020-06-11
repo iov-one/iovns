@@ -363,7 +363,7 @@ export const patchGalaxynet = genesis => {
    // make dave rich for testing
    const dave = genesis.app_state.auth.accounts.find( account => account.value.address == "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
 
-   if ( dave ) dave.value.coins[0].amount = "1000000000000";
+   if ( dave ) dave.value.coins[0].amount = "1000000000000000";
 
    // add other test accounts
    const accounts = [
@@ -375,7 +375,7 @@ export const patchGalaxynet = genesis => {
             "coins": [
                {
                   "denom": "uiov",
-                  "amount": "1000000000000"
+                  "amount": "1000000000000000"
                }
             ],
             "public_key": "",
@@ -391,7 +391,7 @@ export const patchGalaxynet = genesis => {
             "coins": [
                {
                   "denom": "uiov",
-                  "amount": "1000000000000"
+                  "amount": "1000000000000000"
                }
             ],
             "public_key": "",
@@ -406,7 +406,7 @@ export const patchGalaxynet = genesis => {
             "coins": [
                {
                   "denom": "uiov",
-                  "amount": "1000000000000"
+                  "amount": "1000000000000000"
                }
             ],
             "public_key": "",
@@ -421,7 +421,7 @@ export const patchGalaxynet = genesis => {
             "coins": [
                {
                   "denom": "uiov",
-                  "amount": "1000000000000"
+                  "amount": "1000000000000000"
                }
             ],
             "public_key": "",
@@ -437,7 +437,7 @@ export const patchGalaxynet = genesis => {
             "coins": [
                {
                   "denom": "uiov",
-                  "amount": "1000000000000"
+                  "amount": "1000000000000000"
                }
             ],
             "public_key": "",
@@ -453,7 +453,7 @@ export const patchGalaxynet = genesis => {
             "coins": [
                {
                   "denom": "uiov",
-                  "amount": "1000000000000"
+                  "amount": "1000000000000000"
                }
             ],
             "public_key": "",
@@ -469,7 +469,7 @@ export const patchGalaxynet = genesis => {
             "coins": [
                {
                   "denom": "uiov",
-                  "amount": "1000000000000"
+                  "amount": "1000000000000000"
                }
             ],
             "public_key": "",
@@ -485,7 +485,7 @@ export const patchGalaxynet = genesis => {
             "coins": [
                {
                   "denom": "uiov",
-                  "amount": "1000000000000"
+                  "amount": "1000000000000000"
                }
             ],
             "public_key": "",
