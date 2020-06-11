@@ -2,7 +2,10 @@
 
 ## HEAD
 
+## v0.5.0
+
 - Enable gitian on travis builds
+
 ### Breaking changes
 
 - Implement fee payer functionality
