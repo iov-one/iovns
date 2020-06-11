@@ -10,12 +10,12 @@ import (
 
 // CollectFees collects the fees of a msg and sends them
 // to the distribution module to validators and stakers
-func (k Keeper) CollectFees(ctx sdk.Context, msg sdk.Msg, addr sdk.AccAddress, domain types.Domain) error {
+func (k Keeper) CollectFees(ctx sdk.Context, msg types.MsgWithFeePayer, domain types.Domain) error {
 	moduleFees := k.ConfigurationKeeper.GetFees(ctx)
 	// create fee calculator
 	calculator := fees.NewController(ctx, k, moduleFees, domain)
 	// get fee
 	fee := calculator.GetFee(msg)
 	// transfer fee to distribution
-	return k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, addr, auth.FeeCollectorName, sdk.NewCoins(fee))
+	return k.SupplyKeeper.SendCoinsFromAccountToModule(ctx, msg.FeePayer(), auth.FeeCollectorName, sdk.NewCoins(fee))
 }

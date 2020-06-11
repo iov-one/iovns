@@ -17,7 +17,7 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 	}
 	// operation is allowed
 	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner, c.Domain())
+	err := k.CollectFees(ctx, msg, c.Domain())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
@@ -43,7 +43,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		Broker:     msg.Broker,
 	}
 	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Admin, d)
+	err = k.CollectFees(ctx, msg, d)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
@@ -61,7 +61,7 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 		return nil, err
 	}
 	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Signer, c.Domain())
+	err = k.CollectFees(ctx, msg, c.Domain())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
@@ -84,7 +84,7 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 		return nil, err
 	}
 	// collect fees
-	err = k.CollectFees(ctx, msg, msg.Owner, c.Domain())
+	err = k.CollectFees(ctx, msg, c.Domain())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
