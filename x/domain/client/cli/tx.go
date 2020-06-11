@@ -75,12 +75,24 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgTransferDomain{
 				Domain:       domain,
 				Owner:        cliCtx.GetFromAddress(),
 				NewAdmin:     newOwnerAddr,
 				TransferFlag: types.TransferFlag(transferFlag),
+				FeePayerAddr: feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -94,7 +106,7 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "the domain name to transfer")
 	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
 	cmd.Flags().Int("transfer-flag", types.ResetNone, fmt.Sprintf("transfer flags for a domain"))
-	//
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	return cmd
 }
 
@@ -133,13 +145,25 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 			if resetBool, err = strconv.ParseBool(reset); err != nil {
 				return err
 			}
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgTransferAccount{
-				Domain:   domain,
-				Name:     name,
-				Owner:    cliCtx.GetFromAddress(),
-				NewOwner: newOwnerAddr,
-				Reset:    resetBool,
+				Domain:       domain,
+				Name:         name,
+				Owner:        cliCtx.GetFromAddress(),
+				NewOwner:     newOwnerAddr,
+				Reset:        resetBool,
+				FeePayerAddr: feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -154,7 +178,7 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("name", "", "the name of the account you want to transfer")
 	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
 	cmd.Flags().String("reset", "false", "true: reset all data associated with the account, false: preserves the data")
-	//
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	return cmd
 }
 
@@ -191,12 +215,24 @@ func getCmdReplaceAccountTargets(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgReplaceAccountTargets{
-				Domain:     domain,
-				Name:       name,
-				NewTargets: targets,
-				Owner:      cliCtx.GetFromAddress(),
+				Domain:       domain,
+				Name:         name,
+				NewTargets:   targets,
+				Owner:        cliCtx.GetFromAddress(),
+				FeePayerAddr: feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -210,6 +246,7 @@ func getCmdReplaceAccountTargets(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "the domain name of account")
 	cmd.Flags().String("name", "", "the name of the account whose targets you want to replace")
 	cmd.Flags().String("src", "targets.json", "the file containing the new targets in json format")
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	// return cmd
 	return cmd
 }
@@ -227,10 +264,22 @@ func getCmdDelDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgDeleteDomain{
-				Domain: domain,
-				Owner:  cliCtx.GetFromAddress(),
+				Domain:       domain,
+				Owner:        cliCtx.GetFromAddress(),
+				FeePayerAddr: feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -242,7 +291,7 @@ func getCmdDelDomain(cdc *codec.Codec) *cobra.Command {
 	}
 	// add flags
 	cmd.Flags().String("domain", "", "name of the domain you want to delete")
-	//
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	return cmd
 }
 
@@ -263,11 +312,23 @@ func getCmdDelAccount(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgDeleteAccount{
-				Domain: domain,
-				Name:   name,
-				Owner:  cliCtx.GetFromAddress(),
+				Domain:       domain,
+				Name:         name,
+				Owner:        cliCtx.GetFromAddress(),
+				FeePayerAddr: feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -280,7 +341,7 @@ func getCmdDelAccount(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "the domain name of account")
 	cmd.Flags().String("name", "", "the name of the account you want to delete")
-	//
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	return cmd
 }
 
@@ -297,10 +358,22 @@ func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgRenewDomain{
-				Domain: domain,
-				Signer: cliCtx.GetFromAddress(),
+				Domain:       domain,
+				Signer:       cliCtx.GetFromAddress(),
+				FeePayerAddr: feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -312,6 +385,7 @@ func getCmdRenewDomain(cdc *codec.Codec) *cobra.Command {
 	}
 	// add flags
 	cmd.Flags().String("domain", "", "name of the domain you want to renew")
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	// return
 	return cmd
 }
@@ -333,11 +407,23 @@ func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgRenewAccount{
-				Domain: domain,
-				Name:   name,
-				Signer: cliCtx.GetFromAddress(),
+				Domain:       domain,
+				Name:         name,
+				Signer:       cliCtx.GetFromAddress(),
+				FeePayerAddr: feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -350,7 +436,7 @@ func getCmdRenewAccount(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "domain name of the account")
 	cmd.Flags().String("name", "", "account name you want to renew")
-	// return
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	return cmd
 }
 
@@ -403,12 +489,24 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 					return nil
 				}
 			}
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgDeleteAccountCertificate{
 				Domain:            domain,
 				Name:              name,
 				Owner:             cliCtx.GetFromAddress(),
 				DeleteCertificate: c,
+				FeePayerAddr:      feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -423,6 +521,7 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("name", "", "account name")
 	cmd.Flags().BytesBase64("cert", []byte{}, "certificate you want to add in base64 encoded format")
 	cmd.Flags().String("cert-file", "", "directory of certificate file")
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	// return cmd
 	return cmd
 }
@@ -475,13 +574,24 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 					return sdkerrors.Wrapf(ErrInvalidCertificate, "err: %s", err)
 				}
 			}
-
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgAddAccountCertificates{
 				Domain:         domain,
 				Name:           name,
 				Owner:          cliCtx.GetFromAddress(),
 				NewCertificate: c,
+				FeePayerAddr:   feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -496,7 +606,7 @@ func getCmdAddAccountCerts(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("name", "", "name of the account")
 	cmd.Flags().BytesBase64("cert", []byte{}, "certificate json you want to add in base64 encoded format")
 	cmd.Flags().String("cert-file", "", "directory of certificate file in json format")
-	// return cmd
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	return cmd
 }
 
@@ -533,12 +643,24 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 					return
 				}
 			}
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgRegisterAccount{
-				Domain:     domain,
-				Name:       name,
-				Owner:      ownerAddr,
-				Registerer: cliCtx.GetFromAddress(),
+				Domain:       domain,
+				Name:         name,
+				Owner:        ownerAddr,
+				Registerer:   cliCtx.GetFromAddress(),
+				FeePayerAddr: feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -551,6 +673,7 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "the existing domain name for your account")
 	cmd.Flags().String("name", "", "the name of your account")
 	cmd.Flags().String("owner", "", "the address of the owner, if no owner provided signer is the owner")
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	return cmd
 }
 
@@ -571,14 +694,27 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			if err := types.ValidateDomainType(types.DomainType(dType)); err != nil {
 				return err
 			}
+			feePayerStr, err := cmd.Flags().GetString("fee-payer")
+			if err != nil {
+				return err
+			}
+			var feePayer sdk.AccAddress
+			if feePayerStr != "" {
+				feePayer, err = sdk.AccAddressFromBech32(feePayerStr)
+				if err != nil {
+					return
+				}
+			}
 			msg := &types.MsgRegisterDomain{
-				Name:       domain,
-				Admin:      cliCtx.GetFromAddress(),
-				DomainType: types.DomainType(dType),
-				Broker:     nil,
+				Name:         domain,
+				Admin:        cliCtx.GetFromAddress(),
+				DomainType:   types.DomainType(dType),
+				Broker:       nil,
+				FeePayerAddr: feePayer,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -592,6 +728,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "name of the domain you want to register")
 	cmd.Flags().String("type", types.ClosedDomain, "type of the domain")
+	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	return cmd
 }
 
@@ -616,7 +753,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			feePayerStr, err := cmd.Flags().GetString("feepayer")
+			feePayerStr, err := cmd.Flags().GetString("fee_payer")
 			if err != nil {
 				return err
 			}
@@ -631,7 +768,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 				Domain:         domain,
 				Name:           name,
 				Owner:          cliCtx.GetFromAddress(),
-				FeePayer:       feePayer,
+				FeePayerAddr:   feePayer,
 				NewMetadataURI: metadata,
 			}
 			// check if valid
@@ -646,7 +783,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "the domain name of account")
 	cmd.Flags().String("name", "", "the name of the account whose targets you want to replace")
 	cmd.Flags().String("metadata", "", "the new metadata URI, leave empty to unset")
-	cmd.Flags().String("feepayer", "", "address of the fee payer, optional")
+	cmd.Flags().String("fee_payer", "", "address of the fee payer, optional")
 	// return cmd
 	return cmd
 }

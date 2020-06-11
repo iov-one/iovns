@@ -2,6 +2,10 @@
 
 ## HEAD
 
+### Breaking changes
+
+- Implement fee payer functionality
+
 ## v0.4.0
 
 - change reconciliate with new fee calculator spec

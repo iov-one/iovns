@@ -5,6 +5,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+type MsgWithFeePayer interface {
+	sdk.Msg
+	FeePayer() sdk.AccAddress
+}
+
 // MsgAddAccountCertificates is the message used
 // when a user wants to add new certificates
 // to his account
@@ -16,7 +21,18 @@ type MsgAddAccountCertificates struct {
 	// Owner is the owner of the account
 	Owner sdk.AccAddress `json:"owner"`
 	// NewCertificate is the new certificate to add
-	NewCertificate []byte `json:"new_certificate"`
+	NewCertificate []byte         `json:"new_certificate"`
+	FeePayerAddr   sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgAddAccountCertificates)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgAddAccountCertificates) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Owner
 }
 
 // Route implements sdk.Msg
@@ -50,7 +66,11 @@ func (m *MsgAddAccountCertificates) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgAddAccountCertificates) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Owner}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
+	}
 }
 
 // MsgDeleteAccountCertificate is the request
@@ -64,7 +84,18 @@ type MsgDeleteAccountCertificate struct {
 	// DeleteCertificate is the certificate to delete
 	DeleteCertificate []byte `json:"delete_certificate"`
 	// Owner is the owner of the account
-	Owner sdk.AccAddress `json:"owner"`
+	Owner        sdk.AccAddress `json:"owner"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgDeleteAccountCertificate)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgDeleteAccountCertificate) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Owner
 }
 
 // Route implements sdk.Msg
@@ -98,7 +129,11 @@ func (m *MsgDeleteAccountCertificate) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Owner}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
+	}
 }
 
 // MsgDeleteAccount is the request model
@@ -109,7 +144,18 @@ type MsgDeleteAccount struct {
 	// Name is the name of the account
 	Name string `json:"name"`
 	// Owner is the owner of the account
-	Owner sdk.AccAddress `json:"owner"`
+	Owner        sdk.AccAddress `json:"owner"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgDeleteAccount)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgDeleteAccount) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Owner
 }
 
 // Route implements sdk.Msg
@@ -144,14 +190,29 @@ func (m *MsgDeleteAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteAccount) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Owner}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
+	}
 }
 
 // MsgDeleteDomain is the request
 // model to delete a domain
 type MsgDeleteDomain struct {
-	Domain string         `json:"domain"`
-	Owner  sdk.AccAddress `json:"owner"`
+	Domain       string         `json:"domain"`
+	Owner        sdk.AccAddress `json:"owner"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgDeleteDomain)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgDeleteDomain) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Owner
 }
 
 // Route implements sdk.Msg
@@ -183,7 +244,11 @@ func (m *MsgDeleteDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgDeleteDomain) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Owner}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
+	}
 }
 
 // MsgRegisterAccount is the request
@@ -200,7 +265,18 @@ type MsgRegisterAccount struct {
 	// Targets are the blockchain addresses of the account
 	Targets []BlockchainAddress `json:"targets"`
 	// Broker is the account that facilitated the transaction
-	Broker sdk.AccAddress `json:"broker"`
+	Broker       sdk.AccAddress `json:"broker"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgRegisterAccount)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgRegisterAccount) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Registerer
 }
 
 // Route implements sdk.Msg
@@ -234,7 +310,11 @@ func (m *MsgRegisterAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Registerer}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Registerer}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Registerer}
+	}
 }
 
 // MsgRegisterDomain is the request used to register new domains
@@ -242,12 +322,22 @@ type MsgRegisterDomain struct {
 	// Name is the name of the domain we want to register
 	Name string `json:"domain" arg:"--domain" helper:"name of the domain"`
 	// Admin is the address of the newly registered domain
-	Admin    sdk.AccAddress `json:"admin"`
-	FeePayer sdk.AccAddress `json:"fee_payer"`
+	Admin sdk.AccAddress `json:"admin"`
 	// DomainType defines the type of the domain
 	DomainType DomainType `json:"type"`
 	// Broker TODO document
-	Broker sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
+	Broker       sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgRegisterDomain)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgRegisterDomain) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Admin
 }
 
 // Route implements sdk.Msg
@@ -279,7 +369,11 @@ func (m *MsgRegisterDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRegisterDomain) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Admin}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Admin}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Admin}
+	}
 }
 
 // MsgRenewAccount is the request
@@ -290,7 +384,18 @@ type MsgRenewAccount struct {
 	// Name is the name of the account
 	Name string `json:"name"`
 	// Configurer is the signer of the request
-	Signer sdk.AccAddress `json:"signer"`
+	Signer       sdk.AccAddress `json:"signer"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgRenewAccount)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgRenewAccount) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Signer
 }
 
 // Route implements sdk.Msg
@@ -318,7 +423,11 @@ func (m *MsgRenewAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRenewAccount) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Signer}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Signer}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Signer}
+	}
 }
 
 // MsgRenewDomain is the request
@@ -327,7 +436,18 @@ type MsgRenewDomain struct {
 	// Domain is the domain name to renew
 	Domain string `json:"domain"`
 	// Configurer is the request signer
-	Signer sdk.AccAddress `json:"signer"`
+	Signer       sdk.AccAddress `json:"signer"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgRenewDomain)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgRenewDomain) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Signer
 }
 
 // Route implements sdk.Msg
@@ -355,7 +475,11 @@ func (m *MsgRenewDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgRenewDomain) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Signer}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Signer}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Signer}
+	}
 }
 
 // MsgReplaceAccountTargets is the request model
@@ -369,7 +493,18 @@ type MsgReplaceAccountTargets struct {
 	// NewTargets are the new blockchain addresses
 	NewTargets []BlockchainAddress `json:"new_targets"`
 	// Owner is the owner of the account
-	Owner sdk.AccAddress `json:"owner"`
+	Owner        sdk.AccAddress `json:"owner"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgReplaceAccountTargets)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgReplaceAccountTargets) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Owner
 }
 
 // Route implements sdk.Msg
@@ -403,7 +538,11 @@ func (m *MsgReplaceAccountTargets) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgReplaceAccountTargets) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Owner}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
+	}
 }
 
 // MsgReplaceAccountMetadata is the function used
@@ -417,8 +556,18 @@ type MsgReplaceAccountMetadata struct {
 	// we want to update or insert
 	NewMetadataURI string `json:"new_metadata_uri"`
 	// Owner is the owner of the account
-	Owner    sdk.AccAddress `json:"owner"`
-	FeePayer sdk.AccAddress `json:"fee_payer"`
+	Owner        sdk.AccAddress `json:"owner"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgReplaceAccountMetadata)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgReplaceAccountMetadata) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Owner
 }
 
 // Route implements sdk.Msg
@@ -452,10 +601,10 @@ func (m *MsgReplaceAccountMetadata) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgReplaceAccountMetadata) GetSigners() []sdk.AccAddress {
-	if m.FeePayer == nil {
+	if m.FeePayerAddr.Empty() {
 		return []sdk.AccAddress{m.Owner}
 	} else {
-		return []sdk.AccAddress{m.FeePayer, m.Owner}
+		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
 }
 
@@ -471,7 +620,18 @@ type MsgTransferAccount struct {
 	// NewOwner is the new owner of the account
 	NewOwner sdk.AccAddress `json:"new_owner"`
 	// Reset indicates if the accounts content will be resetted
-	Reset bool `json:"reset"`
+	Reset        bool           `json:"reset"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgTransferAccount)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgTransferAccount) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Owner
 }
 
 // Route implements sdk.Msg
@@ -509,7 +669,11 @@ func (m *MsgTransferAccount) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgTransferAccount) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Owner}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
+	}
 }
 
 // TransferFlag defines the type of domain transfer
@@ -533,6 +697,17 @@ type MsgTransferDomain struct {
 	Owner        sdk.AccAddress `json:"owner"`
 	NewAdmin     sdk.AccAddress `json:"new_admin"`
 	TransferFlag TransferFlag   `json:"transfer_flag"`
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
+}
+
+var _ MsgWithFeePayer = (*MsgTransferDomain)(nil)
+
+// Route implements sdk.Msg
+func (m *MsgTransferDomain) FeePayer() sdk.AccAddress {
+	if !m.FeePayerAddr.Empty() {
+		return m.FeePayerAddr
+	}
+	return m.Owner
 }
 
 // Route implements sdk.Msg
@@ -573,5 +748,9 @@ func (m *MsgTransferDomain) GetSignBytes() []byte {
 
 // GetSigners implements sdk.Msg
 func (m *MsgTransferDomain) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{m.Owner}
+	if m.FeePayerAddr.Empty() {
+		return []sdk.AccAddress{m.Owner}
+	} else {
+		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
+	}
 }

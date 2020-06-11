@@ -33,7 +33,7 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *typ
 		return nil, err
 	}
 	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
@@ -63,7 +63,7 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *t
 	); err != nil {
 		return nil, err
 	}
-	err := k.CollectFees(ctx, msg, msg.Owner, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -87,7 +87,7 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 		return nil, err
 	}
 	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -134,7 +134,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 		a.ValidUntil = ctx.BlockTime().Add(conf.AccountRenewalPeriod).Unix()
 	}
 
-	err := k.CollectFees(ctx, msg, msg.Registerer, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -157,7 +157,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 		return nil, err
 	}
 	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Signer, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -197,7 +197,7 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 		return nil, err
 	}
 	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -224,7 +224,7 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *typ
 		return nil, err
 	}
 	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -258,7 +258,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 	}
 
 	// collect fees
-	err := k.CollectFees(ctx, msg, msg.Owner, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
