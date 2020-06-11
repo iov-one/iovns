@@ -36,16 +36,17 @@ const main = async () => {
          },
          configuration: {
             config: {
-              account_grace_period: String( 30 * 24 * 60 * 60 ),
+              "//note duration": "all the durations are in nanoseconds",
+              account_grace_period: 30 * 24 * 60 * 60 + "000000000", // (ab)use javascript
               account_renew_count_max: 2,
-              account_renew_period: String( 365.25 * 24 * 60 * 60 ),
+              account_renew_period: 365.25 * 24 * 60 * 60 + "000000000",
               blockchain_target_max: 16,
               certificate_count_max: 16,
               certificate_size_max: "1024",
               configurer: "star1 IOV SAS", // TODO
-              domain_grace_period: String( 30 * 24 * 60 * 60 ),
+              domain_grace_period: 30 * 24 * 60 * 60 + "000000000",
               domain_renew_count_max: 2,
-              domain_renew_period: String( 365.25 * 24 * 60 * 60 ),
+              domain_renew_period: 365.25 * 24 * 60 * 60 + "000000000",
               metadata_size_max: "1024",
               valid_account_name: "[-_\\.a-z0-9]{1,64}$",
               valid_blockchain_address: "^[a-z0-9A-Z]+$",
@@ -53,25 +54,28 @@ const main = async () => {
               valid_domain_name: "^[-_a-z0-9]{4,16}$",
             },
             fees: {
-               AddCertificate: "100 / 1",
-               DefaultFee: "1 / 2", // the fee for messages that don't explicitly have a fee
-               IovTokenPrice: "4 / 10", // price in euros; manually updated
-               RegisterClosedAccount: "1 / 2",
-               RegisterDomain_1: "10000 / 1", // domain name with 1 char
-               RegisterDomain_2: "5000 / 1",
-               RegisterDomain_3: "2000 / 1",
-               RegisterDomain_4: "1000 / 1",
-               RegisterDomain_5: "500 / 1",
-               "RegisterDomain_6+": "250 / 1", // domain name with 6 or more chars
-               RegisterOpenAccount: "10 / 1",
-               RegisterOpenDomainMultiplier: "10 / 1",
-               RenewOpenDomain: "12345 / 1",
-               ReplaceTargets: "10 / 1",
-               SetMetaData: "500 / 3",
-               TransferCloseAccount: "10 / 1",
-               TransferClosedDomain: "10 / 1",
-               TransferOpenAccount: "10 / 1",
-               TransferOpenDomain: "10 / 1",
+               AddAccountCertificate: "100",
+               DefaultFee: "0.5", // the fee for messages that don't explicitly have a fee
+               DelAccountCertificate: "0.5",
+               FeeCoinDenom: "uiov",
+               FeeCoinPrice: "0.1",
+               RegisterClosedAccount: "0.5",
+               RegisterDomain: "0.5", // TODO: drop this when https://github.com/iov-one/iovns/issues/197 is resolved
+               RegisterDomain1: "10000", // domain name with 1 char
+               RegisterDomain2: "5000",
+               RegisterDomain3: "2000",
+               RegisterDomain4: "1000",
+               RegisterDomain5: "500",
+               RegisterDomainDefault: "250", // domain name with 6 or more chars
+               RegisterOpenAccount: "10",
+               RegisterOpenDomainMultiplier: "5.5",
+               RenewOpenDomain: "12345",
+               ReplaceAccountTargets: "10",
+               SetAccountMetadata: "500",
+               TransferClosedAccount: "10",
+               TransferDomainClosed: "10",
+               TransferOpenAccount: "10",
+               TransferDomainOpen: "10",
             }
          },
          crisis: {

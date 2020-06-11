@@ -1015,15 +1015,15 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       expect( config["//note"] ).toEqual( "msig1 multisig address from w1,w2,w3,p1 in iovns/docs/cli, threshold 3" );
       expect( config.configurer ).toEqual( "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg" );
-      expect( config.account_grace_period ).toEqual( "1800" );
+      expect( config.account_grace_period ).toEqual( "60000000000" );
       expect( config.account_renew_count_max ).toEqual( 2 );
-      expect( config.account_renew_period ).toEqual( "1800" );
+      expect( config.account_renew_period ).toEqual( "180000000000" );
       expect( config.blockchain_target_max ).toEqual( 3 );
       expect( config.certificate_count_max ).toEqual( 3 );
       expect( config.certificate_size_max ).toEqual( "1000" );
-      expect( config.domain_grace_period ).toEqual( "400" );
+      expect( config.domain_grace_period ).toEqual( "60000000000" );
       expect( config.domain_renew_count_max ).toEqual( 2 );
-      expect( config.domain_renew_period ).toEqual( "1800" );
+      expect( config.domain_renew_period ).toEqual( "300000000000" );
       expect( config.metadata_size_max ).toEqual( "1000" );
 
       const iov = genesisCopy.app_state.domain.domains.find( domain => domain.name == "iov" );
