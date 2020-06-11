@@ -1,6 +1,9 @@
 # Changelog 
 
 ## HEAD
+
+## v0.4.0
+
 - change reconciliate with new fee calculator spec
 - fix multisig message length
 - add ledger support
