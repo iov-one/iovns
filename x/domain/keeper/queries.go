@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/iovns"
@@ -418,9 +419,6 @@ func (q *QueryResolveAccount) Handler() QueryHandlerFunc {
 func (q *QueryResolveAccount) Validate() error {
 	if q.Domain == "" {
 		return sdkerrors.Wrapf(types.ErrInvalidDomainName, "empty")
-	}
-	if q.Name == "" {
-		return sdkerrors.Wrapf(types.ErrInvalidAccountName, "empty")
 	}
 	return nil
 }
