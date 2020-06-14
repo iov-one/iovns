@@ -1,0 +1,23 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "domain/AddAccountCertificates",
+        "value": {
+          "domain": "test",
+          "name": "",
+          "owner": "star1yfcw3pju4wd8rud9l0uzkzwgs7c2drg88k7vzk",
+          "new_certificate": "ewogICJjZXJ0IjogInRlc3QiCn0=",
+          "fee_payer": "star1em9fw954cgpv0rhkga2damur43k8gky8ska6yd"
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "domain/DeleteDomain",
+        "value": {
+          "domain": "test",
+          "owner": "star13dq838nu0wmzvx8ge6z5upvu7uze3xlusnts5c",
+          "fee_payer": "star1em9fw954cgpv0rhkga2damur43k8gky8ska6yd"
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}

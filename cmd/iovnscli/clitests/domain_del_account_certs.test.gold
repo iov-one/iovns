@@ -1,0 +1,48 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "domain/DeleteAccountCertificates",
+        "value": {
+          "domain": "test",
+          "name": "",
+          "delete_certificate": "ewogICJjZXJ0IjogInRlc3QiCn0=",
+          "owner": "star1yfcw3pju4wd8rud9l0uzkzwgs7c2drg88k7vzk",
+          "fee_payer": ""
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}
+
+
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "domain/DeleteAccountCertificates",
+        "value": {
+          "domain": "test",
+          "name": "",
+          "delete_certificate": "Y2VydC5qc29uCg==",
+          "owner": "star1yfcw3pju4wd8rud9l0uzkzwgs7c2drg88k7vzk",
+          "fee_payer": ""
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}

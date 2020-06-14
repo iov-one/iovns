@@ -76,7 +76,15 @@ lint:
 	@go mod verify
 
 test:
+	@# iovnscli binary is required for it tests
+	go install -mod=readonly $(BUILD_FLAGS)  ./cmd/iovnscli
+
+	go vet -mod=readonly  ./...
 	go test -mod=readonly -race ./...
+
+# Test fast
+tf:
+	go test -short ./...
 
 update-swagger-docs: statik
 	$(BINDIR)/statik -src=swagger-ui/swagger-ui -dest=swagger-ui -f -m

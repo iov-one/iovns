@@ -1,0 +1,52 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "domain/RegisterAccount",
+        "value": {
+          "domain": "test",
+          "name": "test",
+          "owner": "star13dq838nu0wmzvx8ge6z5upvu7uze3xlusnts5c",
+          "registerer": "star13dq838nu0wmzvx8ge6z5upvu7uze3xlusnts5c",
+          "targets": null,
+          "broker": "",
+          "fee_payer": ""
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}
+
+
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "domain/RegisterAccount",
+        "value": {
+          "domain": "test",
+          "name": "test",
+          "owner": "star1yfcw3pju4wd8rud9l0uzkzwgs7c2drg88k7vzk",
+          "registerer": "star13dq838nu0wmzvx8ge6z5upvu7uze3xlusnts5c",
+          "targets": null,
+          "broker": "",
+          "fee_payer": ""
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}
