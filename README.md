@@ -11,6 +11,6 @@ docker build -t iovns .
 bash scripts/init.sh
 # run docker iovnsd
 docker run -it -p 127.0.0.1:46657:26657 -p 127.0.0.1:46656:26656 \
-  -v ~/.iovnsd:/app/.iovnsd -v ~/.iovnscli:/app/.iovnscli \
+  -v ~/.iovnsd:/.iovnsd -v ~/.iovnscli:/.iovnscli -u `id -u $USER` \
   iovns iovnsd start
 ```
