@@ -18,7 +18,7 @@ type ControllerFunc func(controller *Domain) error
 // ControllerCond is the function signature for domain condition functions
 type ControllerCond func(controller *Domain) bool
 
-// ExistingDomain is the domain controller
+// Domain is the domain controller
 type Domain struct {
 	domainName string
 	ctx        sdk.Context
@@ -27,7 +27,7 @@ type Domain struct {
 	k          keeper.Keeper
 }
 
-// NewController is the constructor for ExistingDomain
+// NewController is the constructor for Domain
 // everything is processed sequentially, a wrong order of the sequence
 // is forbidden, example: asserting domain expiration on a non existing
 // domain causes a panic as it violates the condition scope of action.
@@ -303,7 +303,7 @@ func (c *Domain) renewable() error {
 	return nil
 }
 
-// ExistingDomain returns a copy the domain, panics if the operation is done without
+// Domain returns a copy the domain, panics if the operation is done without
 // doing validity checks on domain existence as it is not an allowed op
 func (c *Domain) Domain() types.Domain {
 	if err := c.requireDomain(); err != nil {
