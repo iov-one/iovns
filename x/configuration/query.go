@@ -87,15 +87,6 @@ func (q *QueryConfiguration) QueryPath() string {
 
 // queryAccountsInDomainHandler returns all accounts in aliceAddr domain
 func queryConfigurationHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	query := new(QueryConfiguration)
-	err := iovns.DefaultQueryDecode(req.Data, query)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
-	}
-	// verify request
-	if err = query.Validate(); err != nil {
-		return nil, err
-	}
 	cfg := k.GetConfiguration(ctx)
 	// return response
 	respBytes, err := iovns.DefaultQueryEncode(QueryConfigurationResponse{Config: cfg})
@@ -106,7 +97,7 @@ func queryConfigurationHandler(ctx sdk.Context, _ []string, req abci.RequestQuer
 }
 
 type QueryConfigurationResponse struct {
-	Config Config
+	Config Config `json:"configuration"`
 }
 
 type QueryFees struct{}
@@ -132,15 +123,6 @@ func (q *QueryFees) QueryPath() string {
 }
 
 func queryFeesHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	query := new(QueryConfiguration)
-	err := iovns.DefaultQueryDecode(req.Data, query)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
-	}
-	// verify request
-	if err = query.Validate(); err != nil {
-		return nil, err
-	}
 	fees := k.GetFees(ctx)
 	// return response
 	respBytes, err := iovns.DefaultQueryEncode(QueryFeesResponse{Fees: *fees})
@@ -151,5 +133,5 @@ func queryFeesHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keep
 }
 
 type QueryFeesResponse struct {
-	Fees Fees
+	Fees Fees `json:"fees"`
 }

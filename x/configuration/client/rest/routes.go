@@ -46,11 +46,13 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 			rest.WriteErrorResponse(writer, http.StatusInternalServerError, err.Error())
 			return
 		}
-		// unmarshal request from the client to the query handler
-		err = iovns.DefaultQueryDecode(b, query)
-		if err != nil {
-			rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
-			return
+		if len(b) != 0 {
+			// unmarshal request from the client to the query handler
+			err = iovns.DefaultQueryDecode(b, query)
+			if err != nil {
+				rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
+				return
+			}
 		}
 		// verify query correctness
 		if err = query.Validate(); err != nil {
