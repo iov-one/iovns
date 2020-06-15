@@ -54,28 +54,27 @@ const main = async () => {
               valid_domain_name: "^[-_a-z0-9]{4,16}$",
             },
             fees: {
-               AddAccountCertificate: "100",
-               DefaultFee: "0.5", // the fee for messages that don't explicitly have a fee
-               DelAccountCertificate: "0.5",
-               FeeCoinDenom: "uiov",
-               FeeCoinPrice: "0.1",
-               RegisterClosedAccount: "0.5",
-               RegisterDomain: "0.5", // TODO: drop this when https://github.com/iov-one/iovns/issues/197 is resolved
-               RegisterDomain1: "10000", // domain name with 1 char
-               RegisterDomain2: "5000",
-               RegisterDomain3: "2000",
-               RegisterDomain4: "1000",
-               RegisterDomain5: "500",
-               RegisterDomainDefault: "250", // domain name with 6 or more chars
-               RegisterOpenAccount: "10",
-               RegisterOpenDomainMultiplier: "5.5",
-               RenewOpenDomain: "12345",
-               ReplaceAccountTargets: "10",
-               SetAccountMetadata: "500",
-               TransferClosedAccount: "10",
-               TransferDomainClosed: "10",
-               TransferOpenAccount: "10",
-               TransferDomainOpen: "10",
+               add_account_certificate: "100",
+               del_account_certificate: "0.5",
+               fee_coin_denom: "uiov",
+               fee_coin_price: "0.1",
+               fee_default: "0.5", // the fee for messages that don't explicitly have a fee
+               register_account_closed: "0.5",
+               register_account_open: "10",
+               register_domain_1: "10000", // domain name with 1 char
+               register_domain_2: "5000",
+               register_domain_3: "2000",
+               register_domain_4: "1000",
+               register_domain_5: "500",
+               register_domain_default: "250", // domain name with 6 or more chars
+               register_open_domain_multiplier: "5.5",
+               renew_domain_open: "12345",
+               replace_account_targets: "10",
+               set_account_metadata: "500",
+               transfer_account_closed: "10",
+               transfer_account_open: "10",
+               transfer_domain_closed: "10",
+               transfer_domain_open: "10",
             }
          },
          crisis: {

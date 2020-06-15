@@ -1009,7 +1009,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( w3.value.address ).toEqual( "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9" );
 
       expect( dave.value.coins[0].amount ).not.toEqual( poor.value.coins[0].amount );
-      expect( dave.value.coins[0].amount ).toEqual( "1000000000000" );
+      expect( dave.value.coins[0].amount ).toEqual( "1000000000000000" );
 
       const config = genesisCopy.app_state.configuration.config;
 
