@@ -61,9 +61,9 @@ func (f feeApplier) registerDomain() sdk.Dec {
 func (f feeApplier) transferDomain() sdk.Dec {
 	switch f.domain.Type {
 	case types.OpenDomain:
-		return f.moduleFees.TransferDomainOpen
+		return f.moduleFees.TransferOpenDomain
 	case types.ClosedDomain:
-		return f.moduleFees.TransferDomainClosed
+		return f.moduleFees.TransferClosedDomain
 	}
 	return f.moduleFees.DefaultFee
 }

@@ -18,7 +18,6 @@ func TestFees_Validate(t *testing.T) {
 		AddAccountCertificate        types.Dec
 		DelAccountCertificate        types.Dec
 		SetAccountMetadata           types.Dec
-		RegisterDomain               types.Dec
 		RegisterDomain1              types.Dec
 		RegisterDomain2              types.Dec
 		RegisterDomain3              types.Dec
@@ -26,8 +25,8 @@ func TestFees_Validate(t *testing.T) {
 		RegisterDomain5              types.Dec
 		RegisterDomainDefault        types.Dec
 		RegisterOpenDomainMultiplier types.Dec
-		TransferDomainClosed         types.Dec
-		TransferDomainOpen           types.Dec
+		TransferClosedDomain         types.Dec
+		TransferOpenDomain           types.Dec
 		RenewOpenDomain              types.Dec
 	}
 	tests := []struct {
@@ -64,7 +63,6 @@ func TestFees_Validate(t *testing.T) {
 				AddAccountCertificate:        tt.fields.AddAccountCertificate,
 				DelAccountCertificate:        tt.fields.DelAccountCertificate,
 				SetAccountMetadata:           tt.fields.SetAccountMetadata,
-				RegisterDomain:               tt.fields.RegisterDomain,
 				RegisterDomain1:              tt.fields.RegisterDomain1,
 				RegisterDomain2:              tt.fields.RegisterDomain2,
 				RegisterDomain3:              tt.fields.RegisterDomain3,
@@ -72,8 +70,8 @@ func TestFees_Validate(t *testing.T) {
 				RegisterDomain5:              tt.fields.RegisterDomain5,
 				RegisterDomainDefault:        tt.fields.RegisterDomainDefault,
 				RegisterOpenDomainMultiplier: tt.fields.RegisterOpenDomainMultiplier,
-				TransferDomainClosed:         tt.fields.TransferDomainClosed,
-				TransferDomainOpen:           tt.fields.TransferDomainOpen,
+				TransferClosedDomain:         tt.fields.TransferClosedDomain,
+				TransferOpenDomain:           tt.fields.TransferOpenDomain,
 				RenewOpenDomain:              tt.fields.RenewOpenDomain,
 			}
 			if err := f.Validate(); (err != nil) != tt.wantErr {

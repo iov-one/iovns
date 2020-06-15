@@ -30,7 +30,6 @@ type Fees struct {
 	SetAccountMetadata    sdk.Dec
 	// domain fees
 	// Register domain
-	RegisterDomain               sdk.Dec
 	RegisterDomain1              sdk.Dec
 	RegisterDomain2              sdk.Dec
 	RegisterDomain3              sdk.Dec
@@ -39,8 +38,8 @@ type Fees struct {
 	RegisterDomainDefault        sdk.Dec
 	RegisterOpenDomainMultiplier sdk.Dec
 	// TransferDomain
-	TransferDomainClosed sdk.Dec
-	TransferDomainOpen   sdk.Dec
+	TransferClosedDomain sdk.Dec
+	TransferOpenDomain   sdk.Dec
 	// RenewDomain
 	RenewOpenDomain sdk.Dec
 }
@@ -95,7 +94,6 @@ func (f *Fees) SetDefaults(denom string) {
 		AddAccountCertificate:        defaultFeeParameter,
 		DelAccountCertificate:        defaultFeeParameter,
 		SetAccountMetadata:           defaultFeeParameter,
-		RegisterDomain:               defaultFeeParameter,
 		RegisterDomain1:              defaultFeeParameter,
 		RegisterDomain2:              defaultFeeParameter,
 		RegisterDomain3:              defaultFeeParameter,
@@ -103,8 +101,8 @@ func (f *Fees) SetDefaults(denom string) {
 		RegisterDomain5:              defaultFeeParameter,
 		RegisterDomainDefault:        defaultFeeParameter,
 		RegisterOpenDomainMultiplier: sdk.NewDec(2),
-		TransferDomainClosed:         defaultFeeParameter,
-		TransferDomainOpen:           defaultFeeParameter,
+		TransferClosedDomain:         defaultFeeParameter,
+		TransferOpenDomain:           defaultFeeParameter,
 		RenewOpenDomain:              defaultFeeParameter,
 	}
 }
