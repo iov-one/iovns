@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/fatih/structs"
 )
@@ -15,34 +16,34 @@ func NewFees() *Fees {
 // processing different messages
 type Fees struct {
 	// FeeCoinDenom defines the denominator of the coin used to process fees
-	FeeCoinDenom string
-	FeeCoinPrice sdk.Dec
+	FeeCoinDenom string  `json:"fee_coin_denom"`
+	FeeCoinPrice sdk.Dec `json:"fee_coin_price"`
 	// DefaultFee is the parameter defining the default fee
-	DefaultFee sdk.Dec
+	DefaultFee sdk.Dec `json:"default_fee"`
 	// account fees
-	RegisterClosedAccount sdk.Dec
-	RegisterOpenAccount   sdk.Dec
-	TransferClosedAccount sdk.Dec
-	TransferOpenAccount   sdk.Dec
-	ReplaceAccountTargets sdk.Dec
-	AddAccountCertificate sdk.Dec
-	DelAccountCertificate sdk.Dec
-	SetAccountMetadata    sdk.Dec
+	RegisterAccountClosed sdk.Dec `json:"register_account_closed"`
+	RegisterAccountOpen   sdk.Dec `json:"register_account_open"`
+	TransferAccountClosed sdk.Dec `json:"transfer_account_closed"`
+	TransferAccountOpen   sdk.Dec `json:"transfer_account_open"`
+	ReplaceAccountTargets sdk.Dec `json:"replace_account_targets"`
+	AddAccountCertificate sdk.Dec `json:"add_account_certificate"`
+	DelAccountCertificate sdk.Dec `json:"del_account_certificate"`
+	SetAccountMetadata    sdk.Dec `json:"set_account_metadata"`
 	// domain fees
 	// Register domain
-	RegisterDomain               sdk.Dec
-	RegisterDomain1              sdk.Dec
-	RegisterDomain2              sdk.Dec
-	RegisterDomain3              sdk.Dec
-	RegisterDomain4              sdk.Dec
-	RegisterDomain5              sdk.Dec
-	RegisterDomainDefault        sdk.Dec
-	RegisterOpenDomainMultiplier sdk.Dec
+	RegisterDomain               sdk.Dec `json:"register_domain"`
+	RegisterDomain1              sdk.Dec `json:"register_domain_1"`
+	RegisterDomain2              sdk.Dec `json:"register_domain_2"`
+	RegisterDomain3              sdk.Dec `json:"register_domain_3"`
+	RegisterDomain4              sdk.Dec `json:"register_domain_4"`
+	RegisterDomain5              sdk.Dec `json:"register_domain_5"`
+	RegisterDomainDefault        sdk.Dec `json:"register_domain_default"`
+	RegisterOpenDomainMultiplier sdk.Dec `json:"register_open_domain_multiplier"`
 	// TransferDomain
-	TransferDomainClosed sdk.Dec
-	TransferDomainOpen   sdk.Dec
+	TransferDomainClosed sdk.Dec `json:"transfer_domain_closed"`
+	TransferDomainOpen   sdk.Dec `json:"transfer_domain_open"`
 	// RenewDomain
-	RenewOpenDomain sdk.Dec
+	RenewDomainOpen sdk.Dec `json:"renew_domain_open"`
 }
 
 func (f *Fees) Validate() error {
@@ -87,10 +88,10 @@ func (f *Fees) SetDefaults(denom string) {
 		FeeCoinDenom:                 denom,
 		FeeCoinPrice:                 sdk.NewDec(10),
 		DefaultFee:                   defaultFeeParameter,
-		RegisterClosedAccount:        defaultFeeParameter,
-		RegisterOpenAccount:          defaultFeeParameter,
-		TransferClosedAccount:        defaultFeeParameter,
-		TransferOpenAccount:          defaultFeeParameter,
+		RegisterAccountClosed:        defaultFeeParameter,
+		RegisterAccountOpen:          defaultFeeParameter,
+		TransferAccountClosed:        defaultFeeParameter,
+		TransferAccountOpen:          defaultFeeParameter,
 		ReplaceAccountTargets:        defaultFeeParameter,
 		AddAccountCertificate:        defaultFeeParameter,
 		DelAccountCertificate:        defaultFeeParameter,
@@ -105,6 +106,6 @@ func (f *Fees) SetDefaults(denom string) {
 		RegisterOpenDomainMultiplier: sdk.NewDec(2),
 		TransferDomainClosed:         defaultFeeParameter,
 		TransferDomainOpen:           defaultFeeParameter,
-		RenewOpenDomain:              defaultFeeParameter,
+		RenewDomainOpen:              defaultFeeParameter,
 	}
 }

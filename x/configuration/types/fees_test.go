@@ -1,8 +1,9 @@
 package types
 
 import (
-	"github.com/cosmos/cosmos-sdk/types"
 	"testing"
+
+	"github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestFees_Validate(t *testing.T) {
@@ -10,10 +11,10 @@ func TestFees_Validate(t *testing.T) {
 		FeeCoinDenom                 string
 		FeeCoinPrice                 types.Dec
 		DefaultFee                   types.Dec
-		RegisterClosedAccount        types.Dec
-		RegisterOpenAccount          types.Dec
-		TransferClosedAccount        types.Dec
-		TransferOpenAccount          types.Dec
+		RegisterAccountClosed        types.Dec
+		RegisterAccountOpen          types.Dec
+		TransferAccountClosed        types.Dec
+		TransferAccountOpen          types.Dec
 		ReplaceAccountTargets        types.Dec
 		AddAccountCertificate        types.Dec
 		DelAccountCertificate        types.Dec
@@ -28,7 +29,7 @@ func TestFees_Validate(t *testing.T) {
 		RegisterOpenDomainMultiplier types.Dec
 		TransferDomainClosed         types.Dec
 		TransferDomainOpen           types.Dec
-		RenewOpenDomain              types.Dec
+		RenewDomainOpen              types.Dec
 	}
 	tests := []struct {
 		name    string
@@ -56,10 +57,10 @@ func TestFees_Validate(t *testing.T) {
 				FeeCoinDenom:                 tt.fields.FeeCoinDenom,
 				FeeCoinPrice:                 tt.fields.FeeCoinPrice,
 				DefaultFee:                   tt.fields.DefaultFee,
-				RegisterClosedAccount:        tt.fields.RegisterClosedAccount,
-				RegisterOpenAccount:          tt.fields.RegisterOpenAccount,
-				TransferClosedAccount:        tt.fields.TransferClosedAccount,
-				TransferOpenAccount:          tt.fields.TransferOpenAccount,
+				RegisterAccountClosed:        tt.fields.RegisterAccountClosed,
+				RegisterAccountOpen:          tt.fields.RegisterAccountOpen,
+				TransferAccountClosed:        tt.fields.TransferAccountClosed,
+				TransferAccountOpen:          tt.fields.TransferAccountOpen,
 				ReplaceAccountTargets:        tt.fields.ReplaceAccountTargets,
 				AddAccountCertificate:        tt.fields.AddAccountCertificate,
 				DelAccountCertificate:        tt.fields.DelAccountCertificate,
@@ -74,7 +75,7 @@ func TestFees_Validate(t *testing.T) {
 				RegisterOpenDomainMultiplier: tt.fields.RegisterOpenDomainMultiplier,
 				TransferDomainClosed:         tt.fields.TransferDomainClosed,
 				TransferDomainOpen:           tt.fields.TransferDomainOpen,
-				RenewOpenDomain:              tt.fields.RenewOpenDomain,
+				RenewDomainOpen:              tt.fields.RenewDomainOpen,
 			}
 			if err := f.Validate(); (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)

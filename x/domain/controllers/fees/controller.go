@@ -70,14 +70,14 @@ func (f feeApplier) transferDomain() sdk.Dec {
 
 func (f feeApplier) renewDomain() sdk.Dec {
 	if f.domain.Type == types.OpenDomain {
-		return f.moduleFees.RenewOpenDomain
+		return f.moduleFees.RenewDomainOpen
 	}
 	var accountN int64
 	f.k.GetAccountsInDomain(f.ctx, f.domain.Name, func(_ []byte) bool {
 		accountN++
 		return true
 	})
-	fee := f.moduleFees.RegisterClosedAccount
+	fee := f.moduleFees.RegisterAccountClosed
 	fee.MulInt64(accountN)
 	return fee
 }
@@ -85,9 +85,9 @@ func (f feeApplier) renewDomain() sdk.Dec {
 func (f feeApplier) registerAccount() sdk.Dec {
 	switch f.domain.Type {
 	case types.OpenDomain:
-		return f.moduleFees.RegisterOpenAccount
+		return f.moduleFees.RegisterAccountOpen
 	case types.ClosedDomain:
-		return f.moduleFees.RegisterClosedAccount
+		return f.moduleFees.RegisterAccountClosed
 	}
 	return f.moduleFees.DefaultFee
 }
@@ -95,9 +95,9 @@ func (f feeApplier) registerAccount() sdk.Dec {
 func (f feeApplier) transferAccount() sdk.Dec {
 	switch f.domain.Type {
 	case types.ClosedDomain:
-		return f.moduleFees.TransferClosedAccount
+		return f.moduleFees.TransferAccountClosed
 	case types.OpenDomain:
-		return f.moduleFees.TransferOpenAccount
+		return f.moduleFees.TransferAccountOpen
 	}
 	return f.moduleFees.DefaultFee
 }
@@ -105,9 +105,9 @@ func (f feeApplier) transferAccount() sdk.Dec {
 func (f feeApplier) renewAccount() sdk.Dec {
 	switch f.domain.Type {
 	case types.OpenDomain:
-		return f.moduleFees.RegisterOpenAccount
+		return f.moduleFees.RegisterAccountOpen
 	case types.ClosedDomain:
-		return f.moduleFees.RegisterClosedAccount
+		return f.moduleFees.RegisterAccountClosed
 	}
 	return f.moduleFees.DefaultFee
 }
