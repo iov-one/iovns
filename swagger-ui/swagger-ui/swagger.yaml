@@ -10,6 +10,8 @@ tags:
     description: Tendermint APIs, such as query blocks, transactions and validatorset
   - name: Domain
     description: Domain name related functionalities
+  - name: Configuration
+    description: IOVNS configuration related functionalities
   - name: Auth
     description: Authenticate accounts
   - name: Bank
@@ -1906,7 +1908,7 @@ paths:
         name: denomination
         description: Coin denomination
         required: true
-        example: uatom
+        example: uiov
         schema:
           type: string
     get:
@@ -1944,6 +1946,36 @@ paths:
                 $ref: "#/components/schemas/Domain"
         "400":
           description: Domain not found
+        "500":
+          description: Internal Server Error
+  "/configuration/query/configuration":
+    post:
+      summary: Get current configuration
+      tags:
+        - Configuration
+      responses:
+        "200":
+          description: Configuration resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Configuration"
+        "400":
+          description: Configuration not found
+        "500":
+          description: Internal Server Error
+  "/configuration/query/fees":
+    post:
+      summary: Get current fees
+      tags:
+        - Configuration
+      responses:
+        "200":
+          description: Fees resolved successfully
+          content:
+            application/json:
+        "400":
+          description: Configuration not found
         "500":
           description: Internal Server Error
   "/domain/query/accountsInDomain":
@@ -2958,3 +2990,33 @@ components:
           type: array
           $ref: "#/components/schemas/Address"
           description: Blockchain address
+    Configuration:
+      type: object
+      properties:
+        configurer:
+          $ref: "#/components/schemas/Address"
+          description: Configuration owner
+        validDomainName:
+          type: string
+        validAccountNAme:
+          type: string
+        validBlockchainID:
+          type: string
+        domainRenewalPeriod:
+          type: number
+        domainRenewalCountMax:
+          type: number
+        domainGracePeriod:
+          type: number
+        accountRenewalPeriod:
+          type: number
+        accountRenewalCountMax:
+          type: number
+        blockchainTargetMax:
+          type: number
+        certificateSizeMax:
+          type: number
+        certificateCountMax:
+          type: number
+        metadataSizeMax:
+          type: number
