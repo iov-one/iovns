@@ -484,10 +484,11 @@ func getCmdDelAccountCerts(cdc *codec.Codec) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				var c json.RawMessage
-				if err := json.Unmarshal(cfb, &c); err != nil {
+				var j json.RawMessage
+				if err := json.Unmarshal(cfb, &j); err != nil {
 					return nil
 				}
+				c = j
 			}
 			feePayerStr, err := cmd.Flags().GetString("fee-payer")
 			if err != nil {

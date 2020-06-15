@@ -2,6 +2,8 @@
 
 ## HEAD
 
+- Add cli tests
+
 ## v0.4.1
 
 - Enable gitian on travis builds

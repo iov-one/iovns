@@ -32,8 +32,8 @@ func handleUpdateFees(ctx sdk.Context, msg types.MsgUpdateFees, k Keeper) (*sdk.
 
 func handleUpdateConfig(ctx sdk.Context, msg types.MsgUpdateConfig, k Keeper) (*sdk.Result, error) {
 	configurer := k.GetConfigurer(ctx)
-	if !configurer.Equals(msg.Configurer) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update configuration", msg.Configurer)
+	if !configurer.Equals(msg.Signer) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update configuration", msg.Signer)
 	}
 	// if allowed update configuration
 	k.SetConfig(ctx, msg.NewConfiguration)
