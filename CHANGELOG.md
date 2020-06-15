@@ -4,6 +4,7 @@
 
 - Add cli tests
 - Resolve account by starname functionality
+- Normalize fee parameter names
 
 ## v0.4.1
 
