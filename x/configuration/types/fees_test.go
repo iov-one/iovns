@@ -10,7 +10,7 @@ func TestFees_Validate(t *testing.T) {
 	type fields struct {
 		FeeCoinDenom                 string
 		FeeCoinPrice                 types.Dec
-		DefaultFee                   types.Dec
+		FeeDefault                   types.Dec
 		RegisterAccountClosed        types.Dec
 		RegisterAccountOpen          types.Dec
 		TransferAccountClosed        types.Dec
@@ -55,7 +55,7 @@ func TestFees_Validate(t *testing.T) {
 			f := &Fees{
 				FeeCoinDenom:                 tt.fields.FeeCoinDenom,
 				FeeCoinPrice:                 tt.fields.FeeCoinPrice,
-				DefaultFee:                   tt.fields.DefaultFee,
+				FeeDefault:                   tt.fields.FeeDefault,
 				RegisterAccountClosed:        tt.fields.RegisterAccountClosed,
 				RegisterAccountOpen:          tt.fields.RegisterAccountOpen,
 				TransferAccountClosed:        tt.fields.TransferAccountClosed,

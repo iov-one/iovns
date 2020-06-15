@@ -8,7 +8,7 @@
           "Fees": {
             "fee_coin_denom": "iov",
             "fee_coin_price": "10.000000000000000000",
-            "default_fee": "1.000000000000000000",
+            "fee_default": "1.000000000000000000",
             "register_account_closed": "1.000000000000000000",
             "register_account_open": "1.000000000000000000",
             "transfer_account_closed": "1.000000000000000000",

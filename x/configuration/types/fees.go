@@ -18,8 +18,8 @@ type Fees struct {
 	// FeeCoinDenom defines the denominator of the coin used to process fees
 	FeeCoinDenom string  `json:"fee_coin_denom"`
 	FeeCoinPrice sdk.Dec `json:"fee_coin_price"`
-	// DefaultFee is the parameter defining the default fee
-	DefaultFee sdk.Dec `json:"default_fee"`
+	// FeeDefault is the parameter defining the default fee
+	FeeDefault sdk.Dec `json:"fee_default"`
 	// account fees
 	RegisterAccountClosed sdk.Dec `json:"register_account_closed"`
 	RegisterAccountOpen   sdk.Dec `json:"register_account_open"`
@@ -86,7 +86,7 @@ func (f *Fees) SetDefaults(denom string) {
 	*f = Fees{
 		FeeCoinDenom:                 denom,
 		FeeCoinPrice:                 sdk.NewDec(10),
-		DefaultFee:                   defaultFeeParameter,
+		FeeDefault:                   defaultFeeParameter,
 		RegisterAccountClosed:        defaultFeeParameter,
 		RegisterAccountOpen:          defaultFeeParameter,
 		TransferAccountClosed:        defaultFeeParameter,

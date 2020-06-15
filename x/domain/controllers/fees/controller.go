@@ -65,7 +65,7 @@ func (f feeApplier) transferDomain() sdk.Dec {
 	case types.ClosedDomain:
 		return f.moduleFees.TransferDomainClosed
 	}
-	return f.moduleFees.DefaultFee
+	return f.moduleFees.FeeDefault
 }
 
 func (f feeApplier) renewDomain() sdk.Dec {
@@ -89,7 +89,7 @@ func (f feeApplier) registerAccount() sdk.Dec {
 	case types.ClosedDomain:
 		return f.moduleFees.RegisterAccountClosed
 	}
-	return f.moduleFees.DefaultFee
+	return f.moduleFees.FeeDefault
 }
 
 func (f feeApplier) transferAccount() sdk.Dec {
@@ -99,7 +99,7 @@ func (f feeApplier) transferAccount() sdk.Dec {
 	case types.OpenDomain:
 		return f.moduleFees.TransferAccountOpen
 	}
-	return f.moduleFees.DefaultFee
+	return f.moduleFees.FeeDefault
 }
 
 func (f feeApplier) renewAccount() sdk.Dec {
@@ -109,7 +109,7 @@ func (f feeApplier) renewAccount() sdk.Dec {
 	case types.ClosedDomain:
 		return f.moduleFees.RegisterAccountClosed
 	}
-	return f.moduleFees.DefaultFee
+	return f.moduleFees.FeeDefault
 }
 
 func (f feeApplier) replaceTargets() sdk.Dec {
@@ -129,7 +129,7 @@ func (f feeApplier) setMetadata() sdk.Dec {
 }
 
 func (f feeApplier) defaultFee() sdk.Dec {
-	return f.moduleFees.DefaultFee
+	return f.moduleFees.FeeDefault
 }
 
 func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
@@ -171,8 +171,8 @@ func (f feeApplier) GetFee(msg sdk.Msg) sdk.Coin {
 	// get fee amount
 	feeAmount = toPay.TruncateInt()
 	// if expected fee is lower than default fee then set the default fee as current fee
-	if feeAmount.LT(f.moduleFees.DefaultFee.TruncateInt()) {
-		feeAmount = f.moduleFees.DefaultFee.TruncateInt()
+	if feeAmount.LT(f.moduleFees.FeeDefault.TruncateInt()) {
+		feeAmount = f.moduleFees.FeeDefault.TruncateInt()
 	}
 	// generate coins to pay
 	coinsToPay := sdk.NewCoin(coinDenom, feeAmount)
