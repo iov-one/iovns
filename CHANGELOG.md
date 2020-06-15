@@ -4,6 +4,7 @@
 
 - Add cli tests
 - Fix domain query responses
+- Normalize fee parameter names
 
 ## v0.4.1
 
