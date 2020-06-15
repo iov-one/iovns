@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -398,6 +399,8 @@ type QueryResolveAccount struct {
 	Domain string `json:"domain"`
 	// Name is the name of the account
 	Name string `json:"name"`
+	// Starname is the representation of an account in domain*name format
+	Starname string `json:"starname"`
 }
 
 // Use is a placeholder
@@ -417,6 +420,23 @@ func (q *QueryResolveAccount) Handler() QueryHandlerFunc {
 
 // Validate implements iovns.QueryHandler
 func (q *QueryResolveAccount) Validate() error {
+	if q.Starname != "" && (q.Domain != "" || q.Name != "") {
+		return types.ErrProvideStarnameOrDomainName
+	}
+
+	if q.Starname != "" {
+		if !strings.Contains(q.Starname, string(iovns.Separator)) {
+			return types.ErrStarnameNotContainSep
+		}
+		sname := strings.Split(q.Starname, string(iovns.Separator))
+		if len(sname) != 2 {
+			return types.ErrStarnameMultipleSeparator
+		}
+		q.Name = sname[0]
+		q.Domain = sname[1]
+		q.Starname = ""
+	}
+
 	if q.Domain == "" {
 		return sdkerrors.Wrapf(types.ErrInvalidDomainName, "empty")
 	}

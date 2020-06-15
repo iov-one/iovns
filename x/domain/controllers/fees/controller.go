@@ -65,19 +65,19 @@ func (f feeApplier) transferDomain() sdk.Dec {
 	case types.ClosedDomain:
 		return f.moduleFees.TransferClosedDomain
 	}
-	return f.moduleFees.DefaultFee
+	return f.moduleFees.FeeDefault
 }
 
 func (f feeApplier) renewDomain() sdk.Dec {
 	if f.domain.Type == types.OpenDomain {
-		return f.moduleFees.RenewOpenDomain
+		return f.moduleFees.RenewDomainOpen
 	}
 	var accountN int64
 	f.k.GetAccountsInDomain(f.ctx, f.domain.Name, func(_ []byte) bool {
 		accountN++
 		return true
 	})
-	fee := f.moduleFees.RegisterClosedAccount
+	fee := f.moduleFees.RegisterAccountClosed
 	fee.MulInt64(accountN)
 	return fee
 }
@@ -85,31 +85,31 @@ func (f feeApplier) renewDomain() sdk.Dec {
 func (f feeApplier) registerAccount() sdk.Dec {
 	switch f.domain.Type {
 	case types.OpenDomain:
-		return f.moduleFees.RegisterOpenAccount
+		return f.moduleFees.RegisterAccountOpen
 	case types.ClosedDomain:
-		return f.moduleFees.RegisterClosedAccount
+		return f.moduleFees.RegisterAccountClosed
 	}
-	return f.moduleFees.DefaultFee
+	return f.moduleFees.FeeDefault
 }
 
 func (f feeApplier) transferAccount() sdk.Dec {
 	switch f.domain.Type {
 	case types.ClosedDomain:
-		return f.moduleFees.TransferClosedAccount
+		return f.moduleFees.TransferAccountClosed
 	case types.OpenDomain:
-		return f.moduleFees.TransferOpenAccount
+		return f.moduleFees.TransferAccountOpen
 	}
-	return f.moduleFees.DefaultFee
+	return f.moduleFees.FeeDefault
 }
 
 func (f feeApplier) renewAccount() sdk.Dec {
 	switch f.domain.Type {
 	case types.OpenDomain:
-		return f.moduleFees.RegisterOpenAccount
+		return f.moduleFees.RegisterAccountOpen
 	case types.ClosedDomain:
-		return f.moduleFees.RegisterClosedAccount
+		return f.moduleFees.RegisterAccountClosed
 	}
-	return f.moduleFees.DefaultFee
+	return f.moduleFees.FeeDefault
 }
 
 func (f feeApplier) replaceTargets() sdk.Dec {
@@ -129,7 +129,7 @@ func (f feeApplier) setMetadata() sdk.Dec {
 }
 
 func (f feeApplier) defaultFee() sdk.Dec {
-	return f.moduleFees.DefaultFee
+	return f.moduleFees.FeeDefault
 }
 
 func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
@@ -171,8 +171,8 @@ func (f feeApplier) GetFee(msg sdk.Msg) sdk.Coin {
 	// get fee amount
 	feeAmount = toPay.TruncateInt()
 	// if expected fee is lower than default fee then set the default fee as current fee
-	if feeAmount.LT(f.moduleFees.DefaultFee.TruncateInt()) {
-		feeAmount = f.moduleFees.DefaultFee.TruncateInt()
+	if feeAmount.LT(f.moduleFees.FeeDefault.TruncateInt()) {
+		feeAmount = f.moduleFees.FeeDefault.TruncateInt()
 	}
 	// generate coins to pay
 	coinsToPay := sdk.NewCoin(coinDenom, feeAmount)

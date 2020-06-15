@@ -44,24 +44,24 @@ func DefaultGenesisState() GenesisState {
 	// set default configs
 	config := types.Config{
 		Configurer:             owner,
-		ValidDomainName:        "^(.*?)?",
-		ValidAccountName:       "^(.*?)?",
-		ValidBlockchainID:      "^(.*?)?",
-		ValidBlockchainAddress: "^(.*?)?",
-		DomainRenewalPeriod:    86400,
-		DomainRenewalCountMax:  86400,
-		DomainGracePeriod:      86400,
-		AccountRenewalPeriod:   86400,
-		AccountRenewalCountMax: 86400,
-		AccountGracePeriod:     86400,
-		BlockchainTargetMax:    86400,
-		CertificateSizeMax:     86400,
-		CertificateCountMax:    86400,
+		ValidDomainName:        "^[-_a-z0-9]{4,16}$",
+		ValidAccountName:       "[-_\\.a-z0-9]{1,64}$",
+		ValidBlockchainID:      "[-a-z0-9A-Z:]+$",
+		ValidBlockchainAddress: "^[a-z0-9A-Z]+$",
+		DomainRenewalPeriod:    300000000000,
+		DomainRenewalCountMax:  2,
+		DomainGracePeriod:      60000000000,
+		AccountRenewalPeriod:   180000000000,
+		AccountRenewalCountMax: 3,
+		AccountGracePeriod:     60000000000,
+		BlockchainTargetMax:    3,
+		CertificateSizeMax:     10000,
+		CertificateCountMax:    3,
 		MetadataSizeMax:        86400,
 	}
 	// set fees
 	// add domain module fees
-	feeCoinDenom := "iov" // set coin denom used for fees
+	feeCoinDenom := "tiov" // set coin denom used for fees
 	// generate new fees
 	fees := types.NewFees()
 	// set default fees

@@ -2,7 +2,14 @@
 
 ## HEAD
 
+- Add configuration module rest features
+
+## v0.4.2
+
 - Add cli tests
+- Fix domain query responses
+- Resolve account by starname functionality
+- Normalize fee parameter names
 
 ## v0.4.1
 
