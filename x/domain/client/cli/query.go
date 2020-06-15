@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -106,7 +107,7 @@ func getQueryDomainAccounts(modulePath string, cdc *codec.Codec) *cobra.Command 
 			}
 			// get query path
 			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryResolveDomainResponse))
+			return processQueryCmd(cdc, path, q, new(keeper.QueryAccountsInDomainResponse))
 		},
 	}
 	// add flags
@@ -148,7 +149,7 @@ func getQueryOwnerAccount(modulePath string, cdc *codec.Codec) *cobra.Command {
 			}
 			// get query path
 			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryResolveDomainResponse))
+			return processQueryCmd(cdc, path, q, new(keeper.QueryAccountsFromOwnerResponse))
 		},
 	}
 	// add flags
@@ -190,7 +191,7 @@ func getQueryOwnerDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
 			}
 			// get query path
 			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryResolveDomainResponse))
+			return processQueryCmd(cdc, path, q, new(keeper.QueryDomainsFromOwnerResponse))
 		},
 	}
 	// add flags
@@ -225,7 +226,7 @@ func getQueryResolveAccount(modulePath string, cdc *codec.Codec) *cobra.Command 
 			}
 			// get query path
 			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryResolveDomainResponse))
+			return processQueryCmd(cdc, path, q, new(keeper.QueryResolveAccountResponse))
 		},
 	}
 	// add flags

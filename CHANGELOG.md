@@ -3,6 +3,7 @@
 ## HEAD
 
 - Add cli tests
+- Fix domain query responses
 
 ## v0.4.1
 
