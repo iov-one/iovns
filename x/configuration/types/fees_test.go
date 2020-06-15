@@ -19,7 +19,6 @@ func TestFees_Validate(t *testing.T) {
 		AddAccountCertificate        types.Dec
 		DelAccountCertificate        types.Dec
 		SetAccountMetadata           types.Dec
-		RegisterDomain               types.Dec
 		RegisterDomain1              types.Dec
 		RegisterDomain2              types.Dec
 		RegisterDomain3              types.Dec
@@ -65,7 +64,6 @@ func TestFees_Validate(t *testing.T) {
 				AddAccountCertificate:        tt.fields.AddAccountCertificate,
 				DelAccountCertificate:        tt.fields.DelAccountCertificate,
 				SetAccountMetadata:           tt.fields.SetAccountMetadata,
-				RegisterDomain:               tt.fields.RegisterDomain,
 				RegisterDomain1:              tt.fields.RegisterDomain1,
 				RegisterDomain2:              tt.fields.RegisterDomain2,
 				RegisterDomain3:              tt.fields.RegisterDomain3,

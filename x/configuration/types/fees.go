@@ -31,7 +31,6 @@ type Fees struct {
 	SetAccountMetadata    sdk.Dec `json:"set_account_metadata"`
 	// domain fees
 	// Register domain
-	RegisterDomain               sdk.Dec `json:"register_domain"`
 	RegisterDomain1              sdk.Dec `json:"register_domain_1"`
 	RegisterDomain2              sdk.Dec `json:"register_domain_2"`
 	RegisterDomain3              sdk.Dec `json:"register_domain_3"`
@@ -96,7 +95,6 @@ func (f *Fees) SetDefaults(denom string) {
 		AddAccountCertificate:        defaultFeeParameter,
 		DelAccountCertificate:        defaultFeeParameter,
 		SetAccountMetadata:           defaultFeeParameter,
-		RegisterDomain:               defaultFeeParameter,
 		RegisterDomain1:              defaultFeeParameter,
 		RegisterDomain2:              defaultFeeParameter,
 		RegisterDomain3:              defaultFeeParameter,
