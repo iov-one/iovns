@@ -3,6 +3,7 @@
 ## HEAD
 
 - Add cli tests
+- Resolve account by starname functionality
 
 ## v0.4.1
 
