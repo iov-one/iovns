@@ -24,16 +24,16 @@ iovnscli keys add dp
 iovnscli keys add ok
 
 # give the accounts some money
-iovnsd add-genesis-account $(iovnscli keys show fd -a) 1000000000iov
-iovnsd add-genesis-account $(iovnscli keys show dp -a) 1000000000iov
-iovnsd add-genesis-account $(iovnscli keys show ok -a) 1000000000iov
+iovnsd add-genesis-account $(iovnscli keys show fd -a) 1000000000tiov
+iovnsd add-genesis-account $(iovnscli keys show dp -a) 1000000000tiov
+iovnsd add-genesis-account $(iovnscli keys show ok -a) 1000000000tiov
 
 # save configs for the daemon
-iovnsd gentx --name fd --keyring-backend test --amount 10000000iov
+iovnsd gentx --name fd --keyring-backend test --amount 10000000tiov
 
 # input genTx to the genesis file
 iovnsd collect-gentxs
 # verify genesis file is fine
 iovnsd validate-genesis
 
-sed -i 's/stake/iov/g' ~/.iovnsd/config/genesis.json
+sed -i 's/stake/tiov/g' ~/.iovnsd/config/genesis.json
