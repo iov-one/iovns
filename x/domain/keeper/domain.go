@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -59,7 +58,7 @@ func (k Keeper) SetDomain(ctx sdk.Context, domain types.Domain) {
 }
 
 // IterateAllDomains will return an iterator for all the domain keys
-// present in the KVStore, it's callers duty to close the iterator.
+// present in the KVStore.
 func (k Keeper) IterateAllDomains(ctx sdk.Context) []types.Domain {
 	store := domainStore(ctx.KVStore(k.storeKey))
 	iterator := store.Iterator(nil, nil)
