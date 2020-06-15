@@ -2,6 +2,8 @@
 
 ## HEAD
 
+- Add configuration module rest features
+
 ## v0.4.2
 
 - Add cli tests

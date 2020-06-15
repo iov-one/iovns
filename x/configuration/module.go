@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/gorilla/mux"
 	"github.com/iov-one/iovns/x/configuration/client/cli"
+	"github.com/iov-one/iovns/x/configuration/client/rest"
 	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -39,7 +40,7 @@ func (AppModuleBasic) ValidateGenesis(b json.RawMessage) (err error) {
 }
 
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, router *mux.Router) {
-	// TODO fill
+	rest.RegisterRoutes(ctx, router, types.ModuleName, AvailableQueries())
 }
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	return cli.GetTxCmd(types.StoreKey, cdc)
