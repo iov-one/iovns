@@ -125,6 +125,67 @@ func Test_queryResolveAccountHandler(t *testing.T) {
 				Owner:  bobAddr,
 			}},
 		},
+		"success starname": {
+			BeforeTest: func(t *testing.T, ctx sdk.Context, k Keeper) {
+				k.CreateAccount(ctx, types.Account{
+					Domain: "test",
+					Name:   "1",
+					Owner:  bobAddr,
+				})
+			},
+			Request: &QueryResolveAccount{
+				Starname: "1*test",
+				Name:     "",
+				Domain:   "",
+			},
+			Handler: queryResolveAccountHandler,
+			WantErr: nil,
+			PtrExpectedResponse: &QueryResolveAccountResponse{Account: types.Account{
+				Domain: "test",
+				Name:   "1",
+				Owner:  bobAddr,
+			}},
+		},
+		"failure provide only one param starname": {
+			Request: &QueryResolveAccount{
+				Domain:   "test",
+				Name:     "1",
+				Starname: "1*test",
+			},
+			Handler: queryResolveAccountHandler,
+			WantErr: types.ErrProvideStarnameOrDomainName,
+		},
+		"failure provide only one param starname 2": {
+			Request: &QueryResolveAccount{
+				Domain:   "test",
+				Name:     "",
+				Starname: "1*test",
+			},
+			Handler: queryResolveAccountHandler,
+			WantErr: types.ErrProvideStarnameOrDomainName,
+		},
+		"failure provide only one param starname 3": {
+			Request: &QueryResolveAccount{
+				Name:     "test",
+				Starname: "1*test",
+			},
+			Handler: queryResolveAccountHandler,
+			WantErr: types.ErrProvideStarnameOrDomainName,
+		},
+		"starname must contain separator": {
+			Request: &QueryResolveAccount{
+				Starname: "1test",
+			},
+			Handler: queryResolveAccountHandler,
+			WantErr: types.ErrStarnameNotContainSep,
+		},
+		"starname must contain single separator": {
+			Request: &QueryResolveAccount{
+				Starname: "1*te*st",
+			},
+			Handler: queryResolveAccountHandler,
+			WantErr: types.ErrStarnameMultipleSeparator,
+		},
 	}
 	runQueryTests(t, testCases)
 }

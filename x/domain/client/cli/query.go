@@ -205,7 +205,7 @@ func getQueryOwnerDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
 func getQueryResolveAccount(modulePath string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "resolve-account",
-		Short: "resolve an account",
+		Short: "resolve an account, provide either starname or name/domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
 			domain, err := cmd.Flags().GetString("domain")
@@ -216,10 +216,15 @@ func getQueryResolveAccount(modulePath string, cdc *codec.Codec) *cobra.Command 
 			if err != nil {
 				return err
 			}
+			starname, err := cmd.Flags().GetString("starname")
+			if err != nil {
+				return err
+			}
 			// get query & validate
 			q := keeper.QueryResolveAccount{
-				Domain: domain,
-				Name:   name,
+				Domain:   domain,
+				Name:     name,
+				Starname: starname,
 			}
 			if err = q.Validate(); err != nil {
 				return err
@@ -230,6 +235,7 @@ func getQueryResolveAccount(modulePath string, cdc *codec.Codec) *cobra.Command 
 		},
 	}
 	// add flags
+	cmd.Flags().String("starname", "", "the starname representation of the account")
 	cmd.Flags().String("domain", "", "the domain name of the account")
 	cmd.Flags().String("name", "", "the name of the account you want to resolve")
 	// return cmd
