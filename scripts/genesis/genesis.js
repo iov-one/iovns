@@ -119,7 +119,7 @@ const main = async () => {
             evidence: [
             ],
             params: {
-               max_evidence_age: "120000000000"
+               max_evidence_age: "1814400000000000"
             }
          },
          genutil: {
@@ -152,7 +152,7 @@ const main = async () => {
          slashing: {
             params: {
                downtime_jail_duration: "600000000000",
-               max_evidence_age: "120000000000",
+               max_evidence_age: "1814400000000000",
                min_signed_per_window: "0.500000000000000000",
                signed_blocks_window: "10000",
                slash_fraction_double_sign: "0.050000000000000000",
