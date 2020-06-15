@@ -3,6 +3,7 @@
 ## HEAD
 
 - Add cli tests
+- Normalize fee parameter names
 
 ## v0.4.1
 
