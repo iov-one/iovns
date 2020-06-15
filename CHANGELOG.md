@@ -2,6 +2,8 @@
 
 ## HEAD
 
+## v0.4.2
+
 - Add cli tests
 - Fix domain query responses
 - Resolve account by starname functionality
