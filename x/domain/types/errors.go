@@ -87,3 +87,14 @@ var ErrClosedDomainAccExpire = sdkerrors.Register(ModuleName, 26, "accounts in c
 
 // ErrMaxRenewExceeded is returned when max renew time exceeded
 var ErrMaxRenewExceeded = sdkerrors.Register(ModuleName, 27, "max renew exceeded")
+
+// ----------- QUERY ----------
+
+// ErrProvideStarnameOrDomainName is returned when both domain/name and starname provided
+var ErrProvideStarnameOrDomainName = sdkerrors.Register(ModuleName, 28, "provide either starname or domain/name")
+
+// ErrStarnameNotContainSep is returned when provided starname does not contain separator
+var ErrStarnameNotContainSep = sdkerrors.Register(ModuleName, 29, "starname does not contain separator")
+
+// ErrStarnameMultipleSeparator returned when provided starname contains more than one separator
+var ErrStarnameMultipleSeparator = sdkerrors.Register(ModuleName, 30, "starname should contain single separator")
