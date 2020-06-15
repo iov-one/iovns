@@ -3,6 +3,7 @@
 ## HEAD
 
 - Add cli tests
+- Fix domain query responses
 - Resolve account by starname functionality
 - Normalize fee parameter names
 
