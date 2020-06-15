@@ -1,7 +1,7 @@
 # Changelog 
 
 ## HEAD
-
+- split keeper functionality in two objects (account executor, domain executor)
 - Add configuration module rest features
 
 ## v0.4.2
