@@ -7,14 +7,14 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-// Domain defines the domain keeper executor
+// Domain defines the prefixedStore keeper executor
 type Domain struct {
 	domain *types.Domain
 	ctx    sdk.Context
 	k      keeper.Keeper
 }
 
-// NewDomain returns is domain's constructor
+// NewDomain returns is prefixedStore's constructor
 func NewDomain(ctx sdk.Context, k keeper.Keeper, dom types.Domain) *Domain {
 	return &Domain{
 		ctx:    ctx,
@@ -23,42 +23,42 @@ func NewDomain(ctx sdk.Context, k keeper.Keeper, dom types.Domain) *Domain {
 	}
 }
 
-// Renew renews a domain based on the configuration
+// Renew renews a prefixedStore based on the configuration
 func (d *Domain) Renew() {
 	if d.domain == nil {
-		panic("cannot execute renew state change on non present domain")
+		panic("cannot execute renew state change on non present prefixedStore")
 	}
 	// get configuration
 	renewDuration := d.k.ConfigurationKeeper.GetDomainRenewDuration(d.ctx)
-	// update domain valid until
+	// update prefixedStore valid until
 	d.domain.ValidUntil = iovns.TimeToSeconds(
-		iovns.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
+		iovns.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(prefixedStore.ValidUntil) + renew duration
 	)
-	// set domain
+	// set prefixedStore
 	d.k.SetDomain(d.ctx, *d.domain)
 }
 
-// Delete deletes a domain from the kvstore
+// Delete deletes a prefixedStore from the kvstore
 func (d *Domain) Delete() {
 	if d.domain == nil {
-		panic("cannot execute delete state change on non present domain")
+		panic("cannot execute delete state change on non present prefixedStore")
 	}
 	d.k.DeleteDomain(d.ctx, d.domain.Name)
 }
 
-// Transferrer returns a domain transfer function based on the transfer flag
+// Transferrer returns a prefixedStore transfer function based on the transfer flag
 func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) func() {
 	if d.domain == nil {
-		panic("cannot execute transfer state on non defined domain")
+		panic("cannot execute transfer state on non defined prefixedStore")
 	}
 	return func() {
-		// transfer domain
+		// transfer prefixedStore
 		d.k.TransferDomainOwnership(d.ctx, *d.domain, newOwner)
-		// transfer accounts of the domain based on the transfer flag
+		// transfer accounts of the prefixedStore based on the transfer flag
 		switch flag {
-		// reset none is simply skipped as empty account is already transferred during domain transfer
+		// reset none is simply skipped as empty account is already transferred during prefixedStore transfer
 		case types.ResetNone:
-		// transfer flush, deletes all domain accounts except the empty one
+		// transfer flush, deletes all prefixedStore accounts except the empty one
 		case types.TransferFlush:
 			d.k.FlushDomain(d.ctx, *d.domain)
 		// transfer owned transfers only accounts owned by the old owner
@@ -68,10 +68,10 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) func
 	}
 }
 
-// Create creates a new domain
+// Create creates a new prefixedStore
 func (d *Domain) Create() {
 	if d.domain == nil {
-		panic("cannot create non specified domain")
+		panic("cannot create non specified prefixedStore")
 	}
 	d.k.CreateDomain(d.ctx, *d.domain)
 }

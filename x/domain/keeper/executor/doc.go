@@ -1,2 +1,2 @@
-// Package executor implements wrappers around domain keeper
+// Package executor implements wrappers around prefixedStore keeper
 package executor
