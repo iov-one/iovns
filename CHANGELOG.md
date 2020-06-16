@@ -3,6 +3,7 @@
 ## HEAD
 
 - Add configuration module rest features
+- Sync swagger ui with recent changes
 
 ## v0.4.2
 
