@@ -58,10 +58,11 @@ type accountStore struct {
 	idxStore indexStore
 }
 
-func newAccountStore(ctx sdk.Context, key sdk.StoreKey) accountStore {
+func newAccountStore(ctx sdk.Context, key sdk.StoreKey, cdc *codec.Codec) accountStore {
 	return accountStore{
 		store:    prefix.NewStore(ctx.KVStore(key), AccountStorePrefix),
 		idxStore: newIndexStore(ctx, key),
+		cdc:      cdc,
 	}
 }
 
