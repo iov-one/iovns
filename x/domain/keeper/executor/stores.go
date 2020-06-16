@@ -111,14 +111,15 @@ func (a accountStore) index(account types.Account) {
 	// index targets
 	for _, trg := range account.Targets {
 		if trg.ID == "" || trg.Address == "" {
-			trgStore, err := a.idxStore.targetToAccount(trg)
-			if err != nil {
-				panic(fmt.Sprintf("unable to create index store for target %+v: %s", trg, err))
-			}
-			err = trgStore.Set(account)
-			if err != nil {
-				panic(fmt.Sprintf("unable to set account %+v: %s", account, err))
-			}
+			continue
+		}
+		trgStore, err := a.idxStore.targetToAccount(trg)
+		if err != nil {
+			panic(fmt.Sprintf("unable to create index store for target %+v: %s", trg, err))
+		}
+		err = trgStore.Set(account)
+		if err != nil {
+			panic(fmt.Sprintf("unable to set account %+v: %s", account, err))
 		}
 	}
 	// index owner to account
@@ -137,14 +138,15 @@ func (a accountStore) unindex(account types.Account) {
 	// index targets
 	for _, trg := range account.Targets {
 		if trg.ID == "" || trg.Address == "" {
-			trgStore, err := a.idxStore.targetToAccount(trg)
-			if err != nil {
-				panic(fmt.Sprintf("unable to create index store for target %+v: %s", trg, err))
-			}
-			err = trgStore.Delete(account)
-			if err != nil {
-				panic(fmt.Sprintf("unable to remove account %+v: %s", account, err))
-			}
+			continue
+		}
+		trgStore, err := a.idxStore.targetToAccount(trg)
+		if err != nil {
+			panic(fmt.Sprintf("unable to create index store for target %+v: %s", trg, err))
+		}
+		err = trgStore.Delete(account)
+		if err != nil {
+			panic(fmt.Sprintf("unable to remove account %+v: %s", account, err))
 		}
 	}
 	// index owner to account
