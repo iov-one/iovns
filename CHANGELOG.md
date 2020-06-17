@@ -4,6 +4,8 @@
 
 - Add configuration module rest features
 - Sync swagger ui with recent changes
+- Rename resolve-domain to domain-info, resolve-account to resolve
+- Alias iovnscli domain to iovnscli starname
 
 ## v0.4.2
 
