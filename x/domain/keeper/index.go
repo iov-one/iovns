@@ -52,7 +52,7 @@ func (k Keeper) mapTargetToAccount(ctx sdk.Context, account types.Account, targe
 			continue
 		}
 		// otherwise map target to given account
-		store, err := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+		store, err := blockchainTargetIndexedStore(ctx.KVStore(k.StoreKey), target)
 		if err != nil {
 			return err
 		}
@@ -70,7 +70,7 @@ func (k Keeper) unmapTargetToAccount(ctx sdk.Context, account types.Account, tar
 		if target.ID == "" || target.Address == "" {
 			continue
 		}
-		store, err := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+		store, err := blockchainTargetIndexedStore(ctx.KVStore(k.StoreKey), target)
 		if err != nil {
 			return err
 		}
@@ -82,7 +82,7 @@ func (k Keeper) unmapTargetToAccount(ctx sdk.Context, account types.Account, tar
 }
 
 func (k Keeper) iterateBlockchainTargetsAccounts(ctx sdk.Context, target types.BlockchainAddress, do func(key []byte) bool) error {
-	store, err := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+	store, err := blockchainTargetIndexedStore(ctx.KVStore(k.StoreKey), target)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (k Keeper) iterateBlockchainTargetsAccounts(ctx sdk.Context, target types.B
 
 func (k Keeper) unmapAccountToOwner(ctx sdk.Context, account types.Account) error {
 	// get store
-	store, err := ownerToAccountIndexStore(ctx.KVStore(k.storeKey), account.Owner)
+	store, err := ownerToAccountIndexStore(ctx.KVStore(k.StoreKey), account.Owner)
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func (k Keeper) unmapAccountToOwner(ctx sdk.Context, account types.Account) erro
 // mapAccountToOwner maps accounts to an owner
 func (k Keeper) mapAccountToOwner(ctx sdk.Context, account types.Account) error {
 	// get store
-	store, err := ownerToAccountIndexStore(ctx.KVStore(k.storeKey), account.Owner)
+	store, err := ownerToAccountIndexStore(ctx.KVStore(k.StoreKey), account.Owner)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func (k Keeper) mapAccountToOwner(ctx sdk.Context, account types.Account) error 
 
 func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress, do func(key []byte) bool) error {
 	// get store
-	store, err := ownerToAccountIndexStore(ctx.KVStore(k.storeKey), address)
+	store, err := ownerToAccountIndexStore(ctx.KVStore(k.StoreKey), address)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func (k Keeper) iterAccountToOwner(ctx sdk.Context, address sdk.AccAddress, do f
 
 func (k Keeper) mapDomainToOwner(ctx sdk.Context, domain types.Domain) error {
 	// get index store
-	store, err := ownerToDomainIndexStore(ctx.KVStore(k.storeKey), domain.Admin)
+	store, err := ownerToDomainIndexStore(ctx.KVStore(k.StoreKey), domain.Admin)
 	if err != nil {
 		return err
 	}
@@ -146,7 +146,7 @@ func (k Keeper) mapDomainToOwner(ctx sdk.Context, domain types.Domain) error {
 
 func (k Keeper) unmapDomainToOwner(ctx sdk.Context, domain types.Domain) error {
 	// get store
-	store, err := ownerToDomainIndexStore(ctx.KVStore(k.storeKey), domain.Admin)
+	store, err := ownerToDomainIndexStore(ctx.KVStore(k.StoreKey), domain.Admin)
 	if err != nil {
 		return err
 	}
@@ -163,7 +163,7 @@ func (k Keeper) unmapDomainToOwner(ctx sdk.Context, domain types.Domain) error {
 // and returns the unique keys
 func (k Keeper) iterDomainToOwner(ctx sdk.Context, address sdk.AccAddress, do func(key []byte) bool) error {
 	// get store
-	store, err := ownerToDomainIndexStore(ctx.KVStore(k.storeKey), address)
+	store, err := ownerToDomainIndexStore(ctx.KVStore(k.StoreKey), address)
 	if err != nil {
 		return err
 	}
