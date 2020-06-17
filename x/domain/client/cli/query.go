@@ -22,6 +22,7 @@ func GetQueryCmd(moduleQueryPath string, cdc *codec.Codec) *cobra.Command {
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
+		Aliases:                    []string{"starname"},
 	}
 	domainQueryCmd.AddCommand(
 		flags.GetCommands(
@@ -54,7 +55,7 @@ func processQueryCmd(cdc *codec.Codec, path string, q interface{}, _ interface{}
 
 func getQueryResolveDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "resolve-domain",
+		Use:   "domain-info",
 		Short: "resolve a domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
@@ -204,7 +205,7 @@ func getQueryOwnerDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
 
 func getQueryResolveAccount(modulePath string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "resolve-account",
+		Use:   "resolve",
 		Short: "resolve an account, provide either starname or name/domain",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
