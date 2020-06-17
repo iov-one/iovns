@@ -22,6 +22,7 @@ func GetQueryCmd(moduleQueryPath string, cdc *codec.Codec) *cobra.Command {
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,
+		Aliases:                    []string{"starname"},
 	}
 	domainQueryCmd.AddCommand(
 		flags.GetCommands(
