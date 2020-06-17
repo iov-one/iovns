@@ -1,7 +1,7 @@
 # Changelog 
 
 ## HEAD 
-
+- fix: iovnscli get config
 ## v0.4.3
 
 - Add configuration module rest features
