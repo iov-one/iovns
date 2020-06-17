@@ -34,7 +34,7 @@ var txRoutesList = map[string]func(cliContext context.CLIContext) http.HandlerFu
 // accept only post request with json codec
 func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string) {
 	for route, handler := range txRoutesList {
-		path := fmt.Sprintf("%s/tx/%s", storeName, route)
+		path := fmt.Sprintf("/%s/tx/%s", storeName, route)
 		r.HandleFunc(path, handler(cliCtx))
 	}
 }
