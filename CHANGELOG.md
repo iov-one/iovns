@@ -4,6 +4,7 @@
 
 - Add configuration module rest features
 - Sync swagger ui with recent changes
+- Change account target blockchain id in genesis to blockhain_id
 
 ## v0.4.2
 
