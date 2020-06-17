@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"github.com/iov-one/iovns"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -46,7 +47,10 @@ func getCmdQueryConfig(route string, cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			var jsonResp types.QueryConfigResponse
-			cdc.MustUnmarshalJSON(resp, &jsonResp)
+			err = iovns.DefaultQueryDecode(resp, &jsonResp)
+			if err != nil {
+				return err
+			}
 			return cliCtx.PrintOutput(jsonResp)
 		},
 	}
@@ -65,7 +69,10 @@ func getCmdQueryFees(route string, cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			var jsonResp types.QueryFeesResponse
-			cdc.MustUnmarshalJSON(resp, &jsonResp)
+			err = iovns.DefaultQueryDecode(resp, &jsonResp)
+			if err != nil {
+				return err
+			}
 			return cliCtx.PrintOutput(jsonResp)
 		},
 	}
