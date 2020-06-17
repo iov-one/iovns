@@ -186,7 +186,7 @@ const main = async () => {
                annual_provisions: "0.000000000000000000"
             },
             params: {
-               blocks_per_year: "105192",
+               blocks_per_year: "5259600", // assume 6 blocks per second since create_empty_blocks=false is broken
                "//note": "goal_bonded cannot be 0: module=consensus err='division by zero'",
                goal_bonded: "0.000000000000000001",
                inflation_max: "0.0000000000000000",
