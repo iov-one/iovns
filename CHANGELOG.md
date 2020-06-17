@@ -1,6 +1,8 @@
 # Changelog 
 
-## HEAD
+## HEAD 
+
+## v0.4.3
 
 - Add configuration module rest features
 - Sync swagger ui with recent changes
