@@ -26,7 +26,7 @@
 // For this same reason we can not have index keys containing the separator, and as a drastic measure keys containing it
 // are base64 encoded to guarantee the isolation and safety of the index.
 //
-// Indexes save values, those values are identified as Indexed, because they have the ability to turn themselves into
+// SecondaryKeys save values, those values are identified as Indexed, because they have the ability to turn themselves into
 // unique byte keys, the package index provides some basic packing functionality.
 // The mentioned values must also possess the ability to uniquely identify themselves back from this unique key.
 package index

@@ -9,8 +9,8 @@ import (
 	"github.com/iov-one/iovns/tutils"
 )
 
-var indexPrefix = []byte{0x03}
-var objectPrefix = []byte{0x00}
+var indexPrefix = []byte{0x01}
+var objectPrefix = []byte{0x02}
 
 // Store defines a crud object store
 // the store creates two sub-stores
@@ -43,7 +43,7 @@ func NewStore(ctx sdk.Context, key sdk.StoreKey, cdc *codec.Codec, uniquePrefix 
 func (s Store) Create(o Object) {
 	// index then create
 	s.index(o)
-	key := o.Key()
+	key := o.PrimaryKey()
 	s.objects.Set(key, s.cdc.MustMarshalBinaryBare(o))
 }
 
@@ -59,14 +59,42 @@ func (s Store) Read(key []byte, o Object) (ok bool) {
 	return true
 }
 
+// ReadFromIndex gets the first primary key of the given object from the index
+func (s Store) ReadFromIndex(index SecondaryKey, o Object) (ok bool) {
+	var primaryKey []byte
+	s.IterateIndex(index, func(key []byte) bool {
+		primaryKey = key
+		return false
+	})
+	if primaryKey == nil {
+		return false
+	}
+	ok = s.Read(primaryKey, o)
+	if !ok {
+		panic("key found in index but not on store")
+	}
+	return
+}
+
+func (s Store) IterateIndex(index SecondaryKey, do func(key []byte) bool) {
+	indexStore := prefix.NewStore(s.indexes, index.StorePrefix())
+	iterator := sdk.KVStorePrefixIterator(indexStore, index.Key())
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		if primaryKey := iterator.Key(); !do(primaryKey) {
+			return
+		}
+	}
+}
+
 // Update updates the given Object in the objects store
 // after clearing the indexes and reapplying them based on the
 // new update.
 // To achieve so a zeroed copy of Object is created which is used to
 // unmarshal the old object contents which is necessary for the un-indexing.
 func (s Store) Update(o Object) {
-	key := o.Key()
-	// get old copy of the object bytes
+	key := o.PrimaryKey()
+	// get old copy of the object marshalValue
 	oldObjBytes := s.objects.Get(key)
 	if oldObjBytes == nil {
 		panic("trying to update a non existing object")
@@ -85,7 +113,7 @@ func (s Store) Update(o Object) {
 // clearing its indexes.
 func (s Store) Delete(o Object) {
 	s.unindex(o)
-	s.objects.Delete(o.Key())
+	s.objects.Delete(o.PrimaryKey())
 }
 
 // unindex removes the indexes values related to the given object
@@ -110,8 +138,8 @@ func (s Store) index(o Object) {
 
 // opIndex does operations on indexes given an object and a function to process indexed objects
 func (s Store) opIndex(o Object, op func(idx index.Store, obj index.Indexed)) {
-	for _, idx := range o.Indexes() {
-		indx, err := index.NewIndexedStore(s.indexes, idx.Prefix, o)
+	for _, idx := range o.SecondaryKeys() {
+		indx, err := index.NewIndexedStore(s.indexes, idx.Prefix, nil)
 		if err != nil {
 			panic(fmt.Sprintf("unable to index object: %s", err))
 		}
@@ -130,10 +158,14 @@ type Index struct {
 
 // Object defines an object in which we can do crud operations
 type Object interface {
-	// Key returns the unique key of the object
+	// PrimaryKey returns the unique key of the object
+	PrimaryKey() []byte
+	// SecondaryKeys returns the secondary keys used to index the object
+	SecondaryKeys() []Index
+}
+
+// SecondaryKey defines a secondary key for the object
+type SecondaryKey interface {
 	Key() []byte
-	// Indexes returns the indexes of the object
-	Indexes() []Index
-	// An Object should implement index.Indexer which is used only in case indexing is done in the object
-	index.Indexer
+	StorePrefix() []byte
 }
