@@ -1,7 +1,10 @@
 # Changelog 
 
 ## HEAD 
+
 - fix: iovnscli get config
+- REST: rename /domain/ query path to /starname/
+
 ## v0.4.3
 
 - Add configuration module rest features

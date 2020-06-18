@@ -8,8 +8,8 @@ tags:
     description: Search, encode, or broadcast transactions.
   - name: Tendermint RPC
     description: Tendermint APIs, such as query blocks, transactions and validatorset
-  - name: Domain
-    description: Domain name related functionalities
+  - name: Starname
+    description: Starname related functionalities
   - name: Configuration
     description: IOVNS configuration related functionalities
   - name: Auth
@@ -1926,7 +1926,7 @@ paths:
           description: Invalid coin denomination
         "500":
           description: Internal Server Error
-  "/domain/query/resolveDomain":
+  "/starname/query/domainInfo":
     post:
       summary: Resolve a domain
       requestBody:
@@ -1936,7 +1936,7 @@ paths:
               $ref: "#/components/requestBodies/ResolveDomainQueryBody"
         description: Resolve domain query
       tags:
-        - Domain
+        - Starname
       responses:
         "200":
           description: Domain resolved successfully
@@ -1978,7 +1978,7 @@ paths:
           description: Configuration not found
         "500":
           description: Internal Server Error
-  "/domain/query/accountsInDomain":
+  "/starname/query/accountsInDomain":
     post:
       summary: Returns all the accounts registered under a domain
       requestBody:
@@ -1988,7 +1988,7 @@ paths:
               $ref: "#/components/requestBodies/ResolveAccountsInDomainQueryBody"
         description: Resolve accouts in domain query
       tags:
-        - Domain
+        - Starname
       responses:
         "200":
           description: Accounts resolved successfully
@@ -2000,7 +2000,7 @@ paths:
           description: Accounts or domain not found
         "500":
           description: Internal Server Error
-  "/domain/query/accountsFromOwner":
+  "/starname/query/accountsFromOwner":
     post:
       summary: Returns all the accounts owned by a given address
       requestBody:
@@ -2010,7 +2010,7 @@ paths:
               $ref: "#/components/requestBodies/ResolveAccountsFromOwnerQueryBody"
         description: Resolve accounts owned by an address
       tags:
-        - Domain
+        - Starname
       responses:
         "200":
           description: Accounts resolved successfully
@@ -2022,7 +2022,7 @@ paths:
           description: Accounts, domain or owner not found
         "500":
           description: Internal Server Error
-  "/domain/query/domainsFromOwner":
+  "/starname/query/domainsFromOwner":
     post:
       summary: Returns all the domains owned by a given address
       requestBody:
@@ -2032,7 +2032,7 @@ paths:
               $ref: "#/components/requestBodies/ResolveDomainsFromOwnerQueryBody"
         description: Resolve domains owned by an address
       tags:
-        - Domain
+        - Starname
       responses:
         "200":
           description: Domains resolved successfully
@@ -2044,7 +2044,7 @@ paths:
           description: domain or owner not found
         "500":
           description: Internal Server Error
-  "/domain/query/resolveAccount":
+  "/starname/query/resolve":
     post:
       summary: Resolves an account
       requestBody:
@@ -2054,7 +2054,7 @@ paths:
               $ref: "#/components/requestBodies/ResolveAccountQueryBody"
         description: Resolve an account
       tags:
-        - Domain
+        - Starname
       responses:
         "200":
           description: Account resolved successfully
