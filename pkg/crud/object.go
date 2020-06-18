@@ -3,10 +3,12 @@ package crud
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"github.com/iov-one/iovns/tutils"
 	"math"
 	"reflect"
+	"strings"
 )
 
 const TagName = "crud"
@@ -27,10 +29,10 @@ func inspect(o interface{}) {
 	// primaryKey, secondaryKeys := getKeys(v)
 }
 
-func getKeys(v reflect.Value) ([]byte, [][]byte) {
+func getKeys(v reflect.Value) (key, []key) {
 	typ := v.Type()
-	var primaryKey []byte
-	var secondaryKeys [][]byte
+	var primaryKey key
+	var secondaryKeys []key
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 		// TODO check if type implements indexer interface
@@ -38,15 +40,42 @@ func getKeys(v reflect.Value) ([]byte, [][]byte) {
 		if field.Anonymous {
 			continue
 		}
+		// get field value
+		fieldValue := v.FieldByName(field.Name)
 		// check field type by tags
-		_, ok1 := field.Tag.Lookup(PrimaryKeyTag)
-		_, ok2 := field.Tag.Lookup(SecondaryKeyTag)
-		if ok1 && ok2 {
-			panic(fmt.Sprintf("crud: field %s in type %s is both primary and secondary key", field.Name, field.Type.Name()))
+		tag, ok := field.Tag.Lookup(TagName)
+		// if tag is missing then no indexing is required
+		if !ok {
+			continue
 		}
-		if ok1 {
-			primaryKey = marshalValue(v.FieldByName(field.Name))
+		// check tag type
+		split := strings.Split(tag, ",")
+		switch split[0] {
+		// check if primary key or secondary key
+		case PrimaryKeyTag:
+			// check if a primary key was already specified
+			if primaryKey.value != nil {
+				panic("crud: only one primary key can be specified for each object")
+			}
+			valueBytes := marshalValue(fieldValue)
+			primaryKey = key{
+				prefix: []byte{0x0},
+				value:  valueBytes,
+			}
+		case SecondaryKeyTag:
+			prefix, err := hex.DecodeString(split[1])
+			if err != nil {
+				panic("crud: invalid hex prefix in key")
+			}
+			secondaryKey := key{
+				prefix: prefix,
+				value:  marshalValue(fieldValue),
+			}
+			secondaryKeys = append(secondaryKeys, secondaryKey)
 		}
+	}
+	if primaryKey.value == nil {
+		panic(fmt.Sprintf("crud: no primary key specified in type: %T", v.Interface()))
 	}
 	return primaryKey, secondaryKeys
 }
@@ -113,7 +142,10 @@ func marshalSlice(v reflect.Value) []byte {
 	panic(fmt.Sprintf("crud: only slice types allowed are byte ones, got: %T", v.Interface()))
 }
 
-type secondaryKey struct {
-	key    []byte
+// key defines a database key
+// adapted for key value stores
+// that use byte prefixing
+type key struct {
 	prefix []byte
+	value  []byte
 }
