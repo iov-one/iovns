@@ -11,7 +11,8 @@ const (
 	// IndexStoreKey defines the store key used to store indexing information
 	IndexStoreKey = ModuleName + "index"
 	// RouterKey defines the path used to interact with the domain module
-	RouterKey = ModuleName
+	RouterKey    = ModuleName
+	QuerierAlias = "starname"
 	// QuerierRoute defines the query path used to interact with the domain module
 	QuerierRoute = ModuleName
 	// DefaultParamSpace defines the key for the default param space

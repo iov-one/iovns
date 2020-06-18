@@ -2,6 +2,7 @@ package domain
 
 import (
 	"encoding/json"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -47,7 +48,7 @@ func (AppModuleBasic) ValidateGenesis(bz json.RawMessage) error {
 
 // Register rest routes
 func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, rtr *mux.Router) {
-	rest.RegisterRoutes(ctx, rtr, types.ModuleName, keeper.AvailableQueries())
+	rest.RegisterRoutes(ctx, rtr, types.QuerierAlias, types.ModuleName, keeper.AvailableQueries())
 }
 
 // Get the root query command of this module

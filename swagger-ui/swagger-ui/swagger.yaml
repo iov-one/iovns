@@ -1926,7 +1926,7 @@ paths:
           description: Invalid coin denomination
         "500":
           description: Internal Server Error
-  "/domain/query/resolveDomain":
+  "/starname/query/resolveDomain":
     post:
       summary: Resolve a domain
       requestBody:
@@ -1978,7 +1978,7 @@ paths:
           description: Configuration not found
         "500":
           description: Internal Server Error
-  "/domain/query/accountsInDomain":
+  "/starname/query/accountsInDomain":
     post:
       summary: Returns all the accounts registered under a domain
       requestBody:
@@ -2000,7 +2000,7 @@ paths:
           description: Accounts or domain not found
         "500":
           description: Internal Server Error
-  "/domain/query/accountsFromOwner":
+  "/starname/query/accountsFromOwner":
     post:
       summary: Returns all the accounts owned by a given address
       requestBody:
@@ -2022,7 +2022,7 @@ paths:
           description: Accounts, domain or owner not found
         "500":
           description: Internal Server Error
-  "/domain/query/domainsFromOwner":
+  "/starname/query/domainsFromOwner":
     post:
       summary: Returns all the domains owned by a given address
       requestBody:
@@ -2044,7 +2044,7 @@ paths:
           description: domain or owner not found
         "500":
           description: Internal Server Error
-  "/domain/query/resolveAccount":
+  "/starname/query/resolveAccount":
     post:
       summary: Resolves an account
       requestBody:
