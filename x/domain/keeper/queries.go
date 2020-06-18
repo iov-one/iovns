@@ -445,7 +445,7 @@ func (q *QueryResolveAccount) Validate() error {
 
 // QueryPath implements iovns.QueryHandler
 func (q *QueryResolveAccount) QueryPath() string {
-	return "resolveAccount"
+	return "resolve"
 }
 
 // QueryResolveAccountResponse is the response
@@ -503,7 +503,7 @@ func (q *QueryResolveDomain) Handler() QueryHandlerFunc {
 
 // QueryPath implements iovns.QueryHandler
 func (q *QueryResolveDomain) QueryPath() string {
-	return "resolveDomain"
+	return "domainInfo"
 }
 
 // Validate implements iovns.QueryHandler
