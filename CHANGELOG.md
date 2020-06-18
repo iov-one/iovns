@@ -1,9 +1,10 @@
-# Changelog 
+# Changelog
 
-## HEAD 
+## HEAD
 
 - fix: iovnscli get config
 - REST: rename /domain/ query path to /starname/
+- REST: rename FromOwner to WithOwner
 
 ## v0.4.3
 
@@ -73,7 +74,7 @@
 
 ## v0.2.4
 
-- domain grace period is time.duration now 
+- domain grace period is time.duration now
 - refactor configuration module to be used with multisig wallets
 - allow empty account name on msg.Validate()
 - enable fees for all domain module handlers
@@ -85,7 +86,7 @@
 
 ### Breaking changes
 
-- configuration struct signature in genesis file changed 
+- configuration struct signature in genesis file changed
 
 ## 0.2.3
 
@@ -93,7 +94,7 @@
 - add resolve certificates
 - add resolve blockchain targets
 - add generalized indexing strategy
-- abstract indexing 
+- abstract indexing
 - iovnscli: accept certificate as file
 
 ### Breaking changes

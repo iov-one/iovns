@@ -21,8 +21,8 @@ func AvailableQueries() []iovns.QueryHandler {
 		&QueryAccountsInDomain{},
 		&QueryResolveDomain{},
 		&QueryResolveAccount{},
-		&QueryAccountsFromOwner{},
-		&QueryDomainsFromOwner{},
+		&QueryAccountsWithOwner{},
+		&QueryDomainsWithOwner{},
 		&QueryTargetAccounts{},
 	}
 	return queries
@@ -168,9 +168,9 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	return respBytes, nil
 }
 
-// QueryAccountsFromOwner queries all the accounts
+// QueryAccountsWithOwner queries all the accounts
 // owned by a certain sdk.AccAddress
-type QueryAccountsFromOwner struct {
+type QueryAccountsWithOwner struct {
 	// Owner is the owner of the accounts
 	Owner sdk.AccAddress `json:"owner"`
 	// ResultsPerPage is the number of results returned in each page
@@ -180,27 +180,27 @@ type QueryAccountsFromOwner struct {
 }
 
 // Use is a placeholder
-func (q *QueryAccountsFromOwner) Use() string {
+func (q *QueryAccountsWithOwner) Use() string {
 	return "owner-accounts"
 }
 
 // Description is a placeholder
-func (q *QueryAccountsFromOwner) Description() string {
+func (q *QueryAccountsWithOwner) Description() string {
 	return "gets all the accounts owned by a given address"
 }
 
 // Handler implements local queryHandler
-func (q *QueryAccountsFromOwner) Handler() QueryHandlerFunc {
-	return queryAccountsFromOwnerHandler
+func (q *QueryAccountsWithOwner) Handler() QueryHandlerFunc {
+	return queryAccountsWithOwnerHandler
 }
 
 // QueryPath implements iovns.QueryHandler
-func (q *QueryAccountsFromOwner) QueryPath() string {
-	return "accountsFromOwner"
+func (q *QueryAccountsWithOwner) QueryPath() string {
+	return "accountsWithOwner"
 }
 
 // Validate implements iovns.QueryHandler
-func (q *QueryAccountsFromOwner) Validate() error {
+func (q *QueryAccountsWithOwner) Validate() error {
 	if q.Owner == nil {
 		return sdkerrors.Wrapf(types.ErrInvalidOwner, "empty")
 	}
@@ -213,17 +213,17 @@ func (q *QueryAccountsFromOwner) Validate() error {
 	return nil
 }
 
-// QueryAccountsFromOwnerResponse is the response model
-// returned by QueryAccountsFromOwner
-type QueryAccountsFromOwnerResponse struct {
+// QueryAccountsWithOwnerResponse is the response model
+// returned by QueryAccountsWithOwner
+type QueryAccountsWithOwnerResponse struct {
 	// Accounts is a slice containing the accounts
 	// returned by the query
 	Accounts []types.Account `json:"accounts"`
 }
 
-// queryAccountsFromOwnerHandler gets all the accounts related to an account address
-func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	query := new(QueryAccountsFromOwner)
+// queryAccountsWithOwnerHandler gets all the accounts related to an account address
+func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	query := new(QueryAccountsWithOwner)
 	err := iovns.DefaultQueryDecode(req.Data, query)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
@@ -257,7 +257,7 @@ func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 	}
 	// check if there are any keys
 	if len(keys) == 0 {
-		respBytes, err := iovns.DefaultQueryEncode(QueryAccountsFromOwnerResponse{})
+		respBytes, err := iovns.DefaultQueryEncode(QueryAccountsWithOwnerResponse{})
 		if err != nil {
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 		}
@@ -276,16 +276,16 @@ func queryAccountsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 		accounts = append(accounts, account)
 	}
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryAccountsFromOwnerResponse{Accounts: accounts})
+	respBytes, err := iovns.DefaultQueryEncode(QueryAccountsWithOwnerResponse{Accounts: accounts})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	return respBytes, nil
 }
 
-// QueryDomainsFromOwner is the request model used
+// QueryDomainsWithOwner is the request model used
 // to query domains owned by a sdk.AccAddress
-type QueryDomainsFromOwner struct {
+type QueryDomainsWithOwner struct {
 	// Owner is the address of the owner of the domains
 	Owner sdk.AccAddress `json:"owner"`
 	// ResultsPerPage is the number of results displayed in a page
@@ -295,27 +295,27 @@ type QueryDomainsFromOwner struct {
 }
 
 // Use is a placeholder
-func (q *QueryDomainsFromOwner) Use() string {
+func (q *QueryDomainsWithOwner) Use() string {
 	return "owner-domains"
 }
 
 // Description is a placeholder
-func (q *QueryDomainsFromOwner) Description() string {
+func (q *QueryDomainsWithOwner) Description() string {
 	return "gets all the domains owned by the given address"
 }
 
 // Handler implements the local queryHandler
-func (q *QueryDomainsFromOwner) Handler() QueryHandlerFunc {
-	return queryDomainsFromOwnerHandler
+func (q *QueryDomainsWithOwner) Handler() QueryHandlerFunc {
+	return queryDomainsWithOwnerHandler
 }
 
 // QueryPath implements iovns.QueryHandler
-func (q *QueryDomainsFromOwner) QueryPath() string {
-	return "domainsFromOwner"
+func (q *QueryDomainsWithOwner) QueryPath() string {
+	return "domainsWithOwner"
 }
 
 // Validate implements iovns.QueryHandler
-func (q *QueryDomainsFromOwner) Validate() error {
+func (q *QueryDomainsWithOwner) Validate() error {
 	if q.Owner == nil {
 		return sdkerrors.Wrapf(types.ErrInvalidOwner, "empty")
 	}
@@ -328,17 +328,17 @@ func (q *QueryDomainsFromOwner) Validate() error {
 	return nil
 }
 
-// QueryDomainsFromOwnerResponse is the response
-// returned by the QueryDomainsFromOwner query
-type QueryDomainsFromOwnerResponse struct {
+// QueryDomainsWithOwnerResponse is the response
+// returned by the QueryDomainsWithOwner query
+type QueryDomainsWithOwnerResponse struct {
 	// Domains is a slice of the domains
 	// found by the query
 	Domains []types.Domain
 }
 
-// queryDomainsFromOwnerHandler is the query handler used to get all the domains owned by an sdk.AccAddress
-func queryDomainsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	query := new(QueryDomainsFromOwner)
+// queryDomainsWithOwnerHandler is the query handler used to get all the domains owned by an sdk.AccAddress
+func queryDomainsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	query := new(QueryDomainsWithOwner)
 	err := iovns.DefaultQueryDecode(req.Data, query)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
@@ -385,7 +385,7 @@ func queryDomainsFromOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		domain, _ := k.GetDomain(ctx, indexedDomain.Name)
 		domains = append(domains, domain)
 	}
-	respBytes, err := iovns.DefaultQueryEncode(QueryDomainsFromOwnerResponse{Domains: domains})
+	respBytes, err := iovns.DefaultQueryEncode(QueryDomainsWithOwnerResponse{Domains: domains})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}

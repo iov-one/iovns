@@ -51,7 +51,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 	runQueryTests(t, testCases)
 }
 
-func Test_queryGetAccountsFromOwner(t *testing.T) {
+func Test_queryGetAccountsWithOwner(t *testing.T) {
 
 	testCases := map[string]subTest{
 		"success": {
@@ -60,14 +60,14 @@ func Test_queryGetAccountsFromOwner(t *testing.T) {
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "1", Owner: aliceAddr})
 				k.CreateAccount(ctx, types.Account{Domain: "test", Name: "2", Owner: aliceAddr})
 			},
-			Request: &QueryAccountsFromOwner{
+			Request: &QueryAccountsWithOwner{
 				Owner:          aliceAddr,
 				ResultsPerPage: 0,
 				Offset:         0,
 			},
-			Handler: queryAccountsFromOwnerHandler,
+			Handler: queryAccountsWithOwnerHandler,
 			WantErr: nil,
-			PtrExpectedResponse: &QueryAccountsFromOwnerResponse{
+			PtrExpectedResponse: &QueryAccountsWithOwnerResponse{
 				Accounts: []types.Account{
 					{Domain: "test", Name: "1", Owner: aliceAddr},
 					{Domain: "test", Name: "2", Owner: aliceAddr},
@@ -78,21 +78,21 @@ func Test_queryGetAccountsFromOwner(t *testing.T) {
 	runQueryTests(t, testCases)
 }
 
-func Test_queryGetDomainsFromOwner(t *testing.T) {
+func Test_queryGetDomainsWithOwner(t *testing.T) {
 	testCases := map[string]subTest{
 		"success": {
 			BeforeTest: func(t *testing.T, ctx sdk.Context, k Keeper) {
 				k.CreateDomain(ctx, types.Domain{Name: "test", Admin: aliceAddr})
 				k.CreateDomain(ctx, types.Domain{Name: "test2", Admin: aliceAddr})
 			},
-			Request: &QueryDomainsFromOwner{
+			Request: &QueryDomainsWithOwner{
 				Owner:          aliceAddr,
 				ResultsPerPage: 0,
 				Offset:         0,
 			},
-			Handler: queryDomainsFromOwnerHandler,
+			Handler: queryDomainsWithOwnerHandler,
 			WantErr: nil,
-			PtrExpectedResponse: &QueryDomainsFromOwnerResponse{
+			PtrExpectedResponse: &QueryDomainsWithOwnerResponse{
 				Domains: []types.Domain{
 					{Name: "test", Admin: aliceAddr},
 					{Name: "test2", Admin: aliceAddr},
