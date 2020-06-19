@@ -140,7 +140,7 @@ func getQueryOwnerAccount(modulePath string, cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// get query & validate
-			q := keeper.QueryAccountsFromOwner{
+			q := keeper.QueryAccountsWithOwner{
 				Owner:          accAddress,
 				ResultsPerPage: rpp,
 				Offset:         offset,
@@ -150,7 +150,7 @@ func getQueryOwnerAccount(modulePath string, cdc *codec.Codec) *cobra.Command {
 			}
 			// get query path
 			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryAccountsFromOwnerResponse))
+			return processQueryCmd(cdc, path, q, new(keeper.QueryAccountsWithOwnerResponse))
 		},
 	}
 	// add flags
@@ -182,7 +182,7 @@ func getQueryOwnerDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			// get query & validate
-			q := keeper.QueryDomainsFromOwner{
+			q := keeper.QueryDomainsWithOwner{
 				Owner:          accAddress,
 				ResultsPerPage: rpp,
 				Offset:         offset,
@@ -192,7 +192,7 @@ func getQueryOwnerDomain(modulePath string, cdc *codec.Codec) *cobra.Command {
 			}
 			// get query path
 			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryDomainsFromOwnerResponse))
+			return processQueryCmd(cdc, path, q, new(keeper.QueryDomainsWithOwnerResponse))
 		},
 	}
 	// add flags

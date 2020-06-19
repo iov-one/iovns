@@ -2000,14 +2000,14 @@ paths:
           description: Accounts or domain not found
         "500":
           description: Internal Server Error
-  "/starname/query/accountsFromOwner":
+  "/starname/query/accountsWithOwner":
     post:
       summary: Returns all the accounts owned by a given address
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/requestBodies/ResolveAccountsFromOwnerQueryBody"
+              $ref: "#/components/requestBodies/ResolveAccountsWithOwnerQueryBody"
         description: Resolve accounts owned by an address
       tags:
         - Starname
@@ -2022,14 +2022,14 @@ paths:
           description: Accounts, domain or owner not found
         "500":
           description: Internal Server Error
-  "/starname/query/domainsFromOwner":
+  "/starname/query/domainsWithOwner":
     post:
       summary: Returns all the domains owned by a given address
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/requestBodies/ResolveDomainsFromOwnerQueryBody"
+              $ref: "#/components/requestBodies/ResolveDomainsWithOwnerQueryBody"
         description: Resolve domains owned by an address
       tags:
         - Starname
@@ -2097,7 +2097,7 @@ components:
           type: number
           example: 1
           description: Page number
-    ResolveAccountsFromOwnerQueryBody:
+    ResolveAccountsWithOwnerQueryBody:
       type: object
       properties:
         owner:
@@ -2111,7 +2111,7 @@ components:
           type: number
           example: 1
           description: Page number
-    ResolveDomainsFromOwnerQueryBody:
+    ResolveDomainsWithOwnerQueryBody:
       type: object
       properties:
         owner:
