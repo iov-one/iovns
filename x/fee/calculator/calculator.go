@@ -1,24 +1,20 @@
-package fees
+package calculator
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/domain"
 	"github.com/iov-one/iovns/x/domain/types"
+	"github.com/iov-one/iovns/x/fee"
 )
 
-// Keeper defines the behaviour of the keeper, it's here just to avoid import cycling
-type Keeper interface {
-	GetAccountsInDomain(ctx sdk.Context, name string, do func(k []byte) bool)
-}
-
-// Controller defines the fee controller behaviour
+// Calculator defines the fee calculator behaviour
 // exists only in order to avoid devs creating a fee
-// controller without using the constructor feunction
-type Controller interface {
+// calculator without using the constructor feunction
+type Calculator interface {
 	GetFee(msg sdk.Msg) sdk.Coin
 }
 
-func NewController(ctx sdk.Context, k Keeper, fees *configuration.Fees, domain types.Domain) Controller {
+func NewCalculator(ctx sdk.Context, k domain.Keeper, fees *fee.Fees, domain types.Domain) Calculator {
 	return feeApplier{
 		moduleFees: *fees,
 		ctx:        ctx,
@@ -28,9 +24,9 @@ func NewController(ctx sdk.Context, k Keeper, fees *configuration.Fees, domain t
 }
 
 type feeApplier struct {
-	moduleFees configuration.Fees
+	moduleFees fee.Fees
 	ctx        sdk.Context
-	k          Keeper
+	k          domain.Keeper
 	domain     types.Domain
 }
 

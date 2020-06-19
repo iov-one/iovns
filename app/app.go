@@ -2,10 +2,12 @@ package app
 
 import (
 	"encoding/json"
-	"github.com/iov-one/iovns/x/configuration"
-	"github.com/iov-one/iovns/x/domain"
 	"io"
 	"os"
+
+	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/domain"
+	"github.com/iov-one/iovns/x/fee"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -63,6 +65,7 @@ var (
 		evidence.AppModuleBasic{},
 		// iovns modules
 		configuration.AppModuleBasic{},
+		fee.AppModuleBasic{},
 		domain.AppModuleBasic{},
 	)
 
@@ -120,6 +123,7 @@ type NameService struct {
 	// iovns keepers
 	configurationKeeper configuration.Keeper
 	domainKeeper        domain.Keeper
+	feeKeeper           fee.Keeper
 	// Module Manager
 	mm *module.Manager
 
@@ -148,7 +152,7 @@ func NewNameService(
 		supply.StoreKey, mint.StoreKey, distr.StoreKey, slashing.StoreKey,
 		gov.StoreKey, params.StoreKey, evidence.StoreKey, upgrade.StoreKey,
 		// iovns store keys
-		configuration.StoreKey,
+		configuration.StoreKey, fee.StoreKey,
 		domain.DomainStoreKey, domain.AccountStoreKey, domain.IndexStoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
@@ -178,6 +182,7 @@ func NewNameService(
 	app.subspaces[evidence.ModuleName] = app.paramsKeeper.Subspace(evidence.DefaultParamspace)
 	// iovns subspaces
 	app.subspaces[configuration.ModuleName] = app.paramsKeeper.Subspace(configuration.DefaultParamSpace)
+	app.subspaces[fee.ModuleName] = app.paramsKeeper.Subspace(fee.DefaultParamSpace)
 	app.subspaces[domain.ModuleName] = app.paramsKeeper.Subspace(domain.DefaultParamSpace)
 
 	// The AccountKeeper handles address -> account lookups
@@ -283,11 +288,19 @@ func NewNameService(
 		app.subspaces[configuration.ModuleName],
 	)
 
+	// configuration keeper
+	app.feeKeeper = fee.NewKeeper(
+		app.cdc,
+		keys[fee.StoreKey],
+		app.configurationKeeper,
+		app.subspaces[fee.ModuleName],
+	)
 	// domain keeper
 	app.domainKeeper = domain.NewKeeper(
 		app.cdc,
 		keys[domain.DomainStoreKey],
 		app.configurationKeeper,
+		app.feeKeeper,
 		app.supplyKeeper,
 		app.subspaces[domain.ModuleName],
 	)
@@ -307,6 +320,7 @@ func NewNameService(
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		// iovns modules
 		configuration.NewAppModule(app.configurationKeeper),
+		fee.NewAppModule(app.feeKeeper),
 		domain.NewAppModule(app.domainKeeper),
 		// iovns modules - end
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
@@ -333,6 +347,7 @@ func NewNameService(
 		mint.ModuleName,
 		// iovns module start
 		configuration.ModuleName,
+		fee.ModuleName,
 		domain.ModuleName,
 		// iovns module end
 		supply.ModuleName,

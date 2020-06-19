@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/iov-one/iovns/x/fee"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
@@ -26,8 +28,6 @@ type SupplyKeeper interface {
 
 // ConfigurationKeeper defines the behaviour of the configuration state checks
 type ConfigurationKeeper interface {
-	// GetFees gets the fees
-	GetFees(ctx sdk.Context) *configuration.Fees
 	// GetConfiguration returns the configuration
 	GetConfiguration(ctx sdk.Context) configuration.Config
 	// IsOwner returns if the provided address is an owner or not
@@ -41,11 +41,17 @@ type ConfigurationKeeper interface {
 	GetDomainGracePeriod(ctx sdk.Context) time.Duration
 }
 
+type FeeKeeper interface {
+	// GetFees gets the fees
+	GetFees(ctx sdk.Context) *fee.Fees
+}
+
 // Keeper of the domain store
 // TODO split this keeper in sub-struct in order to avoid possible mistakes with keys and not clutter the exposed methods
 type Keeper struct {
 	// external keepers
 	ConfigurationKeeper ConfigurationKeeper
+	FeeKeeper           FeeKeeper
 	SupplyKeeper        SupplyKeeper
 	// default fields
 	storeKey   sdk.StoreKey // contains the store key for the domain module
@@ -54,11 +60,12 @@ type Keeper struct {
 }
 
 // NewKeeper creates aliceAddr domain keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, paramspace ParamSubspace) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, feeKeeper FeeKeeper, supply SupplyKeeper, paramspace ParamSubspace) Keeper {
 	keeper := Keeper{
 		storeKey:            storeKey,
 		cdc:                 cdc,
 		ConfigurationKeeper: configKeeper,
+		FeeKeeper:           feeKeeper,
 		SupplyKeeper:        supply,
 		paramspace:          paramspace,
 	}
