@@ -1,6 +1,8 @@
 package crud
 
 import (
+	"bytes"
+	"encoding/base64"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -9,6 +11,8 @@ import (
 
 var indexPrefix = []byte{0x01}
 var objectPrefix = []byte{0x02}
+
+const ReservedSeparator = 0xFF
 
 // Store defines a crud object store
 // the store creates two sub-stores
@@ -147,6 +151,7 @@ func (s Store) index(primaryKey PrimaryKey, secondaryKeys []SecondaryKey) {
 // opIndex does operations on indexes given an object and a function to process indexed objects
 func (s Store) opIndex(secondaryKeys []SecondaryKey, do func(s sdk.KVStore) bool) {
 	for _, sk := range secondaryKeys {
+		fixSecondaryKey(&sk)
 		// move into the prefixed store of the index
 		store := prefix.NewStore(s.indexes, sk.StorePrefix)
 		// move into the prefixed store of the index value, the index is hence a set
@@ -174,4 +179,27 @@ type SecondaryKey struct {
 	Key []byte
 	// StorePrefix is the prefix of the index, necessary to divide one index from another
 	StorePrefix []byte
+}
+
+// Index defines a type which returns a secondary key
+// it's used for indexing of custom types not supported
+// by the CRUD store
+type Index interface {
+	SecondaryKey() SecondaryKey
+}
+
+// fixSecondaryKey encodes key value which contains the reserved separator by base64-encoding them
+// this is necessary because we're dealing with a prefixed KVStore which, if we iterate, is going to
+// iterate over bytes contained in a key, so if we assume we have:
+// KeyA = [0x1]
+// KeyB = [0x1, 0x2]
+// during iteration, in case we wanted to iterate over KeyA only we'd end up in KeyB domain too because
+// KeyB starts with KeyA, so to avoid this we put a full stop separator which we know other keys can not contain
+func fixSecondaryKey(sk *SecondaryKey) {
+	if bytes.Contains(sk.Key, []byte{ReservedSeparator}) {
+		dst := make([]byte, base64.RawStdEncoding.EncodedLen(len(sk.Key)))
+		base64.RawStdEncoding.Encode(dst, sk.Key)
+		sk.Key = dst
+	}
+	sk.Key = append(sk.Key, ReservedSeparator)
 }

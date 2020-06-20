@@ -2,11 +2,9 @@ package crud
 
 import (
 	"bytes"
-	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"github.com/iov-one/iovns/tutils"
-	"math"
 	"reflect"
 	"strings"
 )
@@ -17,7 +15,12 @@ const SecondaryKeyTag = "secondaryKey"
 const PrimaryKeyPrefix = 0x0
 
 func inspect(o interface{}) (primaryKey PrimaryKey, secondaryKey []SecondaryKey, err error) {
-	// TODO check if type implements object
+	// check if type implements object interface
+	if object, ok := o.(Object); ok {
+		primaryKey = object.PrimaryKey()
+		secondaryKey = object.SecondaryKeys()
+		return
+	}
 	v := reflect.ValueOf(o)
 	if v.Kind() != reflect.Ptr {
 		err = fmt.Errorf("crud: pointer expected")
@@ -37,13 +40,24 @@ func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryK
 	typ := v.Type()
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
-		// TODO check if type implements indexer interface
 		// ignore unexported fields
 		if field.Anonymous {
 			continue
 		}
 		// get field value
 		fieldValue := v.FieldByName(field.Name)
+		// check if type implements Index interface
+		if index, ok := fieldValue.Interface().(Index); ok {
+			sk := index.SecondaryKey()
+			err = isValidSecondaryKey(sk)
+			if err != nil {
+				err = fmt.Errorf("crud: invalid secondary key in field %s on type %T: %w", field.Name, typ.Name(), err)
+				return
+			}
+			// append
+			secondaryKeys = append(secondaryKeys, sk)
+		}
+		// check if type implements
 		// check field type by tags
 		tag, ok := field.Tag.Lookup(TagName)
 		// if tag is missing then no indexing is required
@@ -63,18 +77,19 @@ func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryK
 			valueBytes := marshalValue(fieldValue)
 			primaryKey = valueBytes
 		case SecondaryKeyTag:
-			prefix, err := hex.DecodeString(split[1])
+			var prefix []byte
+			prefix, err = hex.DecodeString(split[1])
 			if err != nil {
 				err = fmt.Errorf("crud: invalid hex prefix in secondary key in field %s on type %T", field.Name, typ.Name())
-				return
-			}
-			if bytes.Equal(prefix, []byte{PrimaryKeyPrefix}) {
-				err = fmt.Errorf("crud: secondary key can not use primary key prefix in field %s on type %T", field.Name, typ.Name())
 				return
 			}
 			secondaryKey := SecondaryKey{
 				StorePrefix: prefix,
 				Key:         marshalValue(fieldValue),
+			}
+			err = isValidSecondaryKey(secondaryKey)
+			if err != nil {
+				err = fmt.Errorf("crud: invalid secondary key in field %s on type %T: %w", field.Name, typ.Name(), err)
 			}
 			secondaryKeys = append(secondaryKeys, secondaryKey)
 		}
@@ -89,12 +104,6 @@ func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryK
 var typesToBytes = map[reflect.Kind]func(v reflect.Value) []byte{
 	reflect.String: func(v reflect.Value) []byte {
 		return []byte(v.Interface().(string))
-	},
-	reflect.Float64: func(v reflect.Value) []byte {
-		f64 := v.Interface().(float64)
-		var buf []byte
-		binary.LittleEndian.PutUint64(buf[:], math.Float64bits(f64))
-		return buf
 	},
 }
 
@@ -136,4 +145,12 @@ func marshalSlice(v reflect.Value) []byte {
 	}
 	// todo check if it implements Indexable interface
 	panic(fmt.Sprintf("crud: only slice types allowed are byte ones, got: %T", v.Interface()))
+}
+
+func isValidSecondaryKey(sk SecondaryKey) (err error) {
+	if bytes.Equal(sk.StorePrefix, []byte{PrimaryKeyPrefix}) {
+		err = fmt.Errorf("secondary key store prefix contains reserved primary key prefix")
+		return
+	}
+	return
 }
