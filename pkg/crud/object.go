@@ -14,25 +14,27 @@ import (
 const TagName = "crud"
 const PrimaryKeyTag = "primaryKey"
 const SecondaryKeyTag = "secondaryKey"
+const PrimaryKeyPrefix = 0x0
 
-func inspect(o interface{}) {
+func inspect(o interface{}) (primaryKey PrimaryKey, secondaryKey []SecondaryKey, err error) {
 	// TODO check if type implements object
 	v := reflect.ValueOf(o)
 	if v.Kind() != reflect.Ptr {
-		panic("crud: pointer expected")
+		err = fmt.Errorf("crud: pointer expected")
+		return
 	}
 	v = tutils.UnderlyingValue(v)
 	if v.Kind() != reflect.Struct {
-		panic("crud: pointer to struct expected")
+		err = fmt.Errorf("crud: pointer to struct expected")
+		return
 	}
 	// find primary keys and secondary keys
-	// primaryKey, secondaryKeys := getKeys(v)
+	primaryKey, secondaryKey, err = getKeys(v)
+	return
 }
 
-func getKeys(v reflect.Value) (key, []key) {
+func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryKey, err error) {
 	typ := v.Type()
-	var primaryKey key
-	var secondaryKeys []key
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 		// TODO check if type implements indexer interface
@@ -54,30 +56,34 @@ func getKeys(v reflect.Value) (key, []key) {
 		// check if primary key or secondary key
 		case PrimaryKeyTag:
 			// check if a primary key was already specified
-			if primaryKey.value != nil {
-				panic("crud: only one primary key can be specified for each object")
+			if primaryKey != nil {
+				err = fmt.Errorf("crud: only one primary key can be specified for each object")
+				return
 			}
 			valueBytes := marshalValue(fieldValue)
-			primaryKey = key{
-				prefix: []byte{0x0},
-				value:  valueBytes,
-			}
+			primaryKey = valueBytes
 		case SecondaryKeyTag:
 			prefix, err := hex.DecodeString(split[1])
 			if err != nil {
-				panic("crud: invalid hex prefix in key")
+				err = fmt.Errorf("crud: invalid hex prefix in secondary key in field %s on type %T", field.Name, typ.Name())
+				return
 			}
-			secondaryKey := key{
-				prefix: prefix,
-				value:  marshalValue(fieldValue),
+			if bytes.Equal(prefix, []byte{PrimaryKeyPrefix}) {
+				err = fmt.Errorf("crud: secondary key can not use primary key prefix in field %s on type %T", field.Name, typ.Name())
+				return
+			}
+			secondaryKey := SecondaryKey{
+				StorePrefix: prefix,
+				Key:         marshalValue(fieldValue),
 			}
 			secondaryKeys = append(secondaryKeys, secondaryKey)
 		}
 	}
-	if primaryKey.value == nil {
-		panic(fmt.Sprintf("crud: no primary key specified in type: %T", v.Interface()))
+	if primaryKey == nil {
+		err = fmt.Errorf("crud: no primary key specified in type: %T", v.Interface())
+		return
 	}
-	return primaryKey, secondaryKeys
+	return
 }
 
 var typesToBytes = map[reflect.Kind]func(v reflect.Value) []byte{
@@ -105,17 +111,6 @@ var notAllowedIndexType = map[reflect.Kind]struct{}{
 	reflect.Ptr:           {},
 }
 
-// typeToBytes converts an arbitrary type to bytes
-func typeToBytes(v reflect.Value) []byte {
-	i := v.Interface()
-	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.LittleEndian, i)
-	if err != nil {
-		panic(fmt.Errorf("crud: unable to set type %T to bytes: %w", i, err))
-	}
-	return buf.Bytes()
-}
-
 // marshalValue gets marshalValue from reflect.Value
 func marshalValue(v reflect.Value) []byte {
 	v = tutils.UnderlyingValue(v)
@@ -130,7 +125,7 @@ func marshalValue(v reflect.Value) []byte {
 	// now index based on type
 	marshaler, ok := typesToBytes[kind]
 	if !ok {
-		return typeToBytes(v)
+		panic("crud: value of type %s cannot be marshaled to bytes")
 	}
 	return marshaler(v)
 }
@@ -139,13 +134,6 @@ func marshalSlice(v reflect.Value) []byte {
 	if b, ok := v.Interface().([]byte); ok {
 		return b
 	}
+	// todo check if it implements Indexable interface
 	panic(fmt.Sprintf("crud: only slice types allowed are byte ones, got: %T", v.Interface()))
-}
-
-// key defines a database key
-// adapted for key value stores
-// that use byte prefixing
-type key struct {
-	prefix []byte
-	value  []byte
 }

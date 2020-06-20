@@ -31,3 +31,18 @@ func Test_marshalSlice(t *testing.T) {
 
 	})
 }
+
+func Test_getKeys(t *testing.T) {
+	type obj struct {
+		PK string `crud:"primaryKey"`
+		SK string `crud:"secondaryKey,01"`
+	}
+	pk, sk, err := getKeys(reflect.ValueOf(obj{
+		PK: "test1",
+		SK: "test2",
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("%#v %#v", pk, sk)
+}

@@ -1,11 +1,9 @@
 package crud
 
 import (
-	"fmt"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/pkg/index"
 	"github.com/iov-one/iovns/tutils"
 )
 
@@ -40,11 +38,18 @@ func NewStore(ctx sdk.Context, key sdk.StoreKey, cdc *codec.Codec, uniquePrefix 
 }
 
 // Create creates a new object in the object store and writes its indexes
-func (s Store) Create(o Object) {
-	// index then create
-	s.index(o)
-	key := o.PrimaryKey()
-	s.objects.Set(key, s.cdc.MustMarshalBinaryBare(o))
+func (s Store) Create(o interface{}) {
+	// inspect
+	primaryKey, secondaryKeys, err := inspect(o)
+	if err != nil {
+		panic(err)
+	}
+	// marshal object
+	objectBytes := s.cdc.MustMarshalBinaryBare(o)
+	// save object to object store using its primary key
+	s.objects.Set(primaryKey, objectBytes)
+	// generate indexes
+	s.index(primaryKey, secondaryKeys)
 }
 
 // Read reads in the object store and returns false if the object is not found
@@ -61,8 +66,8 @@ func (s Store) Read(key []byte, o Object) (ok bool) {
 
 // ReadFromIndex gets the first primary key of the given object from the index
 func (s Store) ReadFromIndex(index SecondaryKey, o Object) (ok bool) {
-	var primaryKey []byte
-	s.IterateIndex(index, func(key []byte) bool {
+	var primaryKey PrimaryKey
+	s.IterateIndex(index, func(key PrimaryKey) bool {
 		primaryKey = key
 		return false
 	})
@@ -76,9 +81,9 @@ func (s Store) ReadFromIndex(index SecondaryKey, o Object) (ok bool) {
 	return
 }
 
-func (s Store) IterateIndex(index SecondaryKey, do func(key []byte) bool) {
-	indexStore := prefix.NewStore(s.indexes, index.StorePrefix())
-	iterator := sdk.KVStorePrefixIterator(indexStore, index.Key())
+func (s Store) IterateIndex(index SecondaryKey, do func(key PrimaryKey) bool) {
+	indexStore := prefix.NewStore(s.indexes, index.StorePrefix)
+	iterator := sdk.KVStorePrefixIterator(indexStore, index.Key)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		if primaryKey := iterator.Key(); !do(primaryKey) {
@@ -92,10 +97,13 @@ func (s Store) IterateIndex(index SecondaryKey, do func(key []byte) bool) {
 // new update.
 // To achieve so a zeroed copy of Object is created which is used to
 // unmarshal the old object contents which is necessary for the un-indexing.
-func (s Store) Update(o Object) {
-	key := o.PrimaryKey()
+func (s Store) Update(o interface{}) {
+	primaryKey, secondaryKeys, err := inspect(o)
+	if err != nil {
+		panic(err)
+	}
 	// get old copy of the object marshalValue
-	oldObjBytes := s.objects.Get(key)
+	oldObjBytes := s.objects.Get(primaryKey)
 	if oldObjBytes == nil {
 		panic("trying to update a non existing object")
 	}
@@ -104,68 +112,66 @@ func (s Store) Update(o Object) {
 	// unmarshal
 	s.cdc.MustUnmarshalBinaryBare(oldObjBytes, objCopy)
 	// remove old indexes
-	s.unindex(objCopy.(Object))
+	s.unindex(primaryKey, secondaryKeys)
 	// update object
-	s.objects.Set(key, s.cdc.MustMarshalBinaryBare(o))
+	s.objects.Set(primaryKey, s.cdc.MustMarshalBinaryBare(o))
 }
 
 // Delete deletes an object from the object store after
 // clearing its indexes.
-func (s Store) Delete(o Object) {
-	s.unindex(o)
-	s.objects.Delete(o.PrimaryKey())
+func (s Store) Delete(o interface{}) {
+	primaryKey, secondaryKey, err := inspect(o)
+	if err != nil {
+		panic(err)
+	}
+	s.unindex(primaryKey, secondaryKey)
+	s.objects.Delete(primaryKey)
 }
 
 // unindex removes the indexes values related to the given object
-func (s Store) unindex(o Object) {
-	s.opIndex(o, func(idx index.Store, obj index.Indexed) {
-		err := idx.Delete(obj)
-		if err != nil {
-			panic(err)
-		}
+func (s Store) unindex(primaryKey PrimaryKey, secondaryKeys []SecondaryKey) {
+	s.opIndex(secondaryKeys, func(s sdk.KVStore) bool {
+		s.Delete(primaryKey)
+		return false
 	})
 }
 
-// index indexes the values related to the object
-func (s Store) index(o Object) {
-	s.opIndex(o, func(idx index.Store, obj index.Indexed) {
-		err := idx.Set(obj)
-		if err != nil {
-			panic(err)
-		}
+// index indexes the secondary key values related to the object
+func (s Store) index(primaryKey PrimaryKey, secondaryKeys []SecondaryKey) {
+	s.opIndex(secondaryKeys, func(s sdk.KVStore) bool {
+		s.Set(primaryKey, []byte{})
+		return true
 	})
 }
 
 // opIndex does operations on indexes given an object and a function to process indexed objects
-func (s Store) opIndex(o Object, op func(idx index.Store, obj index.Indexed)) {
-	for _, idx := range o.SecondaryKeys() {
-		indx, err := index.NewIndexedStore(s.indexes, idx.Prefix, nil)
-		if err != nil {
-			panic(fmt.Sprintf("unable to index object: %s", err))
+func (s Store) opIndex(secondaryKeys []SecondaryKey, do func(s sdk.KVStore) bool) {
+	for _, sk := range secondaryKeys {
+		// move into the prefixed store of the index
+		store := prefix.NewStore(s.indexes, sk.StorePrefix)
+		// move into the prefixed store of the index value, the index is hence a set
+		store = prefix.NewStore(store, sk.Key)
+		if !do(store) {
+			break
 		}
-		op(indx, idx.Indexed)
 	}
-}
-
-// Index defines a simple index which consists of index and indexed object
-type Index struct {
-	// Prefix is the unique prefix for the index
-	// CONTRACT: this must be constant across different objects of the same type
-	Prefix []byte
-	// Indexed defines the object that has to be indexed
-	Indexed index.Indexed
 }
 
 // Object defines an object in which we can do crud operations
 type Object interface {
 	// PrimaryKey returns the unique key of the object
-	PrimaryKey() []byte
+	PrimaryKey() PrimaryKey
 	// SecondaryKeys returns the secondary keys used to index the object
-	SecondaryKeys() []Index
+	SecondaryKeys() []SecondaryKey
 }
 
+// PrimaryKey defines a primary key, which is a secondary key, under the hood, but with a fixed 0x0 prefix
+type PrimaryKey []byte
+
 // SecondaryKey defines a secondary key for the object
-type SecondaryKey interface {
-	Key() []byte
-	StorePrefix() []byte
+type SecondaryKey struct {
+	// Key is the byte key which identifies the byte key prefix used to iterate of the index of the secondary key
+	Key []byte
+	// StorePrefix is the prefix of the index, necessary to divide one index from another
+	StorePrefix []byte
 }
