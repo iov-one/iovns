@@ -5,6 +5,7 @@
 - fix: iovnscli get config
 - REST: rename /domain/ query path to /starname/
 - REST: rename FromOwner to WithOwner
+- Rename BlockchainAddress.ID in json to asset_class_id and address to asset_receiver_address
 
 ## v0.4.3
 

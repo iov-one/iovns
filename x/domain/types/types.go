@@ -135,9 +135,9 @@ func (a *Account) Unpack(key []byte) error {
 // BlockchainAddress defines an address coming from different DLTs
 type BlockchainAddress struct {
 	// ID defines a blockchain ID
-	ID string `json:"blockchain_id"`
+	ID string `json:"asset_class_id"`
 	// Address is the blockchain address
-	Address string `json:"address"`
+	Address string `json:"asset_receiver_address"`
 }
 
 // Index implements Indexer and packs the

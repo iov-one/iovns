@@ -2982,14 +2982,14 @@ components:
     Target:
       type: object
       properties:
-        id:
+        assetClassID:
           type: string
           example: cosmos-hub-1
-          description: Blockchain ID
-        address:
+          description: Asset class ID
+        assetReceiveraddress:
           type: array
           $ref: "#/components/schemas/Address"
-          description: Blockchain address
+          description: Asset receiver address
     Configuration:
       type: object
       properties:
