@@ -56,7 +56,12 @@ func Benchmark_inspect(b *testing.B) {
 
 func Benchmark_getKeys(b *testing.B) {
 	type cmplx struct {
-		PK string `crud:"primaryKey"`
+		PK  string `crud:"primaryKey"`
+		SK1 string `crud:"secondaryKey,01"`
+		SK2 string `crud:"secondaryKey,02"`
+		SK3 string `crud:"secondaryKey,03"`
+		SK4 string `crud:"secondaryKey,04"`
+		SK5 string `crud:"secondaryKey,05"`
 	}
 	x := &cmplx{
 		PK:  "1",
