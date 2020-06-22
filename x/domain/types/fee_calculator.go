@@ -56,10 +56,6 @@ func (fc FeeCalculator) CalculateFee(msg fee.ProductMsg) (sdk.Coin, error) {
 }
 
 func (m *MsgAddAccountCertificates) CalculateFee(calc FeeCalculator) (sdk.Dec, error) {
-	// formulate fee seed
-	f := calc.k.FeeKeeper.GetFeeSeed(calc.ctx, m.Type())
-
-	return f, nil
 }
 
 func (m *MsgDeleteAccountCertificate) CalculateFee(calculator FeeCalculator) (sdk.Dec, error) {
@@ -78,8 +74,29 @@ func (m *MsgRegisterAccount) CalculateFee(calculator FeeCalculator) (sdk.Dec, er
 	panic("implement me")
 }
 
+/* CONTRACT
+Required fee seeds
+- register_domain(1-6)
+- register_open_domain_multiplier
+*/
 func (m *MsgRegisterDomain) CalculateFee(calculator FeeCalculator) (sdk.Dec, error) {
-	panic("implement me")
+	var seedID string
+	level := len(calculator.domain.Name)
+	switch level {
+	case 1, 2, 3, 4, 5, 6:
+		seedID = snakeCaseAppend(m.Type(), string(level))
+	default:
+		seedID = snakeCaseAppend(m.Type(), "default")
+	}
+
+	feeSeed := calculator.k.FeeKeeper.GetFeeSeed(calculator.ctx, seedID)
+	var fee sdk.Dec
+	// if domain is open then we multiply
+	if calculator.domain.Type == OpenDomain {
+		multiplier := calculator.k.FeeKeeper.GetFeeSeed(calculator.ctx, "register_open_domain_multiplier")
+		fee = sdk.Dec(feeSeed).Mul(sdk.Dec(multiplier))
+	}
+	return fee, nil
 }
 
 func (m *MsgRenewAccount) CalculateFee(calculator FeeCalculator) (sdk.Dec, error) {
