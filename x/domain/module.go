@@ -12,6 +12,7 @@ import (
 	"github.com/iov-one/iovns/x/domain/client/rest"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
+	"github.com/iov-one/iovns/x/fee"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -62,16 +63,18 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 // NewAppModule creates a new AppModule Object
-func NewAppModule(k Keeper) AppModule {
+func NewAppModule(k Keeper, c fee.CollectorI) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
+		feeCollector:   c,
 	}
 }
 
 type AppModule struct {
 	AppModuleBasic
-	keeper Keeper
+	keeper       Keeper
+	feeCollector fee.CollectorI
 }
 
 func (AppModule) Name() string {
@@ -85,7 +88,7 @@ func (am AppModule) Route() string {
 }
 
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return NewHandler(am.keeper, am.feeCollector)
 }
 func (am AppModule) QuerierRoute() string {
 	return types.QuerierRoute

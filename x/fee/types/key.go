@@ -16,4 +16,13 @@ const (
 	// since the fee params are only one
 	// this is the only key we will need
 	FeeKey = "fee"
+
+	FeeCoinPriceKey = "fee_coin_price_key"
+	FeeCoinDenom    = "fee_coin_denom"
+	FeeDefault      = "fee_default"
+)
+
+var (
+	// DomainStorePrefix is the prefix used to define the prefixed store containing domain data
+	FeeStorePrefix = []byte{0x00}
 )

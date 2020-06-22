@@ -292,7 +292,7 @@ func NewNameService(
 	app.feeKeeper = fee.NewKeeper(
 		app.cdc,
 		keys[fee.StoreKey],
-		app.configurationKeeper,
+		app.supplyKeeper,
 		app.subspaces[fee.ModuleName],
 	)
 	// domain keeper
@@ -306,6 +306,8 @@ func NewNameService(
 	)
 	// iovns keepers - end
 
+	// fee collector
+	feeCollector := fee.NewCollector(app.feeKeeper)
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
 	app.mm = module.NewManager(
@@ -321,7 +323,7 @@ func NewNameService(
 		// iovns modules
 		configuration.NewAppModule(app.configurationKeeper),
 		fee.NewAppModule(app.feeKeeper),
-		domain.NewAppModule(app.domainKeeper),
+		domain.NewAppModule(app.domainKeeper, feeCollector),
 		// iovns modules - end
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),

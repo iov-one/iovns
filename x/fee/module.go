@@ -131,7 +131,9 @@ func (am AppModule) ExportGenesis(ctx sdk.Context) json.RawMessage {
 }
 
 // BeginBlock returns the begin blocker for the fee module.
-func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {}
+func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
+
+}
 
 // EndBlock returns the end blocker for the fee module. It returns no validator
 // updates.

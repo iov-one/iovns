@@ -3,12 +3,8 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
+	fee "github.com/iov-one/iovns/x/fee/types"
 )
-
-type MsgWithFeePayer interface {
-	sdk.Msg
-	FeePayer() sdk.AccAddress
-}
 
 // MsgAddAccountCertificates is the message used
 // when a user wants to add new certificates
@@ -25,7 +21,7 @@ type MsgAddAccountCertificates struct {
 	FeePayerAddr   sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgAddAccountCertificates)(nil)
+var _ fee.ProductMsg = (*MsgAddAccountCertificates)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgAddAccountCertificates) FeePayer() sdk.AccAddress {
@@ -88,7 +84,7 @@ type MsgDeleteAccountCertificate struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteAccountCertificate)(nil)
+var _ fee.ProductMsg = (*MsgDeleteAccountCertificate)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) FeePayer() sdk.AccAddress {
@@ -148,7 +144,7 @@ type MsgDeleteAccount struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteAccount)(nil)
+var _ fee.ProductMsg = (*MsgDeleteAccount)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgDeleteAccount) FeePayer() sdk.AccAddress {
@@ -205,7 +201,11 @@ type MsgDeleteDomain struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteDomain)(nil)
+var _ fee.ProductMsg = (*MsgDeleteDomain)(nil)
+
+func (m *MsgDeleteDomain) FeeCalculationFunc() (*fee.Params, error) {
+	return nil, fee.ErrDefaultFee
+}
 
 // Route implements sdk.Msg
 func (m *MsgDeleteDomain) FeePayer() sdk.AccAddress {
@@ -269,7 +269,7 @@ type MsgRegisterAccount struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgRegisterAccount)(nil)
+var _ fee.ProductMsg = (*MsgRegisterAccount)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgRegisterAccount) FeePayer() sdk.AccAddress {
@@ -330,7 +330,7 @@ type MsgRegisterDomain struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgRegisterDomain)(nil)
+var _ fee.ProductMsg = (*MsgRegisterDomain)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgRegisterDomain) FeePayer() sdk.AccAddress {
@@ -388,7 +388,7 @@ type MsgRenewAccount struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgRenewAccount)(nil)
+var _ fee.ProductMsg = (*MsgRenewAccount)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgRenewAccount) FeePayer() sdk.AccAddress {
@@ -440,7 +440,7 @@ type MsgRenewDomain struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgRenewDomain)(nil)
+var _ fee.ProductMsg = (*MsgRenewDomain)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgRenewDomain) FeePayer() sdk.AccAddress {
@@ -497,7 +497,7 @@ type MsgReplaceAccountTargets struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgReplaceAccountTargets)(nil)
+var _ fee.ProductMsg = (*MsgReplaceAccountTargets)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgReplaceAccountTargets) FeePayer() sdk.AccAddress {
@@ -560,7 +560,7 @@ type MsgReplaceAccountMetadata struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgReplaceAccountMetadata)(nil)
+var _ fee.ProductMsg = (*MsgReplaceAccountMetadata)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgReplaceAccountMetadata) FeePayer() sdk.AccAddress {
@@ -624,7 +624,7 @@ type MsgTransferAccount struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgTransferAccount)(nil)
+var _ fee.ProductMsg = (*MsgTransferAccount)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgTransferAccount) FeePayer() sdk.AccAddress {
@@ -700,7 +700,7 @@ type MsgTransferDomain struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgTransferDomain)(nil)
+var _ fee.ProductMsg = (*MsgTransferDomain)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgTransferDomain) FeePayer() sdk.AccAddress {
@@ -753,4 +753,12 @@ func (m *MsgTransferDomain) GetSigners() []sdk.AccAddress {
 	} else {
 		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
+}
+
+func snakeCaseAppend(args ...string) string {
+	var str string
+	for _, a := range args {
+		str = a + "_"
+	}
+	return str
 }

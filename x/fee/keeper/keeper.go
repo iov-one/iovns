@@ -2,12 +2,14 @@ package keeper
 
 import (
 	"fmt"
-	"time"
+
+	"github.com/cosmos/cosmos-sdk/x/auth"
+
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
-	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/fee/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
@@ -16,36 +18,25 @@ import (
 type ParamSubspace interface {
 }
 
-// ConfigurationKeeper defines the behaviour of the configuration state checks
-type ConfigurationKeeper interface {
-	// GetConfiguration returns the configuration
-	GetConfiguration(ctx sdk.Context) configuration.Config
-	// IsOwner returns if the provided address is an owner or not
-	IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool
-	// GetValidDomainNameRegexp returns the regular expression that aliceAddr domain name must match
-	// in order to be valid
-	GetValidDomainNameRegexp(ctx sdk.Context) string
-	// GetDomainRenewDuration returns the default duration of aliceAddr domain renewal
-	GetDomainRenewDuration(ctx sdk.Context) time.Duration
-	// GetDomainGracePeriod returns the grace period duration
-	GetDomainGracePeriod(ctx sdk.Context) time.Duration
+type SupplyKeeper interface {
+	SendCoinsFromAccountToModule(ctx sdk.Context, addr sdk.AccAddress, moduleName string, coins sdk.Coins) error
 }
 
 // Keeper is the key value store handler for the configuration module
 type Keeper struct {
-	ConfigurationKeeper ConfigurationKeeper
-	storeKey            sdk.StoreKey
-	cdc                 *codec.Codec
-	paramspace          ParamSubspace
+	supplyKeeper SupplyKeeper
+	storeKey     sdk.StoreKey
+	cdc          *codec.Codec
+	paramspace   ParamSubspace
 }
 
 // NewKeeper is Keeper constructor
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, configKeeper ConfigurationKeeper, paramspace params.Subspace) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, supplyKeeper SupplyKeeper, paramspace params.Subspace) Keeper {
 	return Keeper{
-		ConfigurationKeeper: configKeeper,
-		storeKey:            key,
-		cdc:                 cdc,
-		paramspace:          paramspace,
+		supplyKeeper: supplyKeeper,
+		storeKey:     key,
+		cdc:          cdc,
+		paramspace:   paramspace,
 	}
 }
 
@@ -54,19 +45,48 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf(types.ModuleName))
 }
 
-// GetFees returns the network fees
-func (k Keeper) GetFees(ctx sdk.Context) *types.Fees {
-	store := ctx.KVStore(k.storeKey)
-	value := store.Get([]byte(types.FeeKey))
-	if value == nil {
-		panic("no length fees set")
-	}
-	var fees = new(types.Fees)
-	k.cdc.MustUnmarshalBinaryBare(value, fees)
-	return fees
+func feeStore(store sdk.KVStore) sdk.KVStore {
+	return prefix.NewStore(store, types.FeeStorePrefix)
 }
 
-func (k Keeper) SetFees(ctx sdk.Context, fees *types.Fees) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(types.FeeKey), k.cdc.MustMarshalBinaryBare(fees))
+func (k Keeper) CollectFee(ctx sdk.Context, fee sdk.Coin, addr sdk.AccAddress) error {
+	return k.supplyKeeper.SendCoinsFromAccountToModule(ctx, addr, auth.FeeCollectorName, sdk.NewCoins(fee))
+}
+
+// GetFees returns the network fees
+func (k Keeper) GetFeeSeed(ctx sdk.Context, id string) types.FeeSeed {
+	store := feeStore(ctx.KVStore(k.storeKey))
+	value := store.Get([]byte(id))
+	var d types.FeeSeed
+	k.cdc.MustUnmarshalBinaryBare(value, &d)
+	return d
+}
+
+func (k Keeper) GetFeeCoinPrice(ctx sdk.Context) sdk.Dec {
+	store := feeStore(ctx.KVStore(k.storeKey))
+	value := store.Get([]byte(types.FeeCoinPriceKey))
+	var d sdk.Dec
+	k.cdc.MustUnmarshalBinaryBare(value, &d)
+	return d
+}
+
+func (k Keeper) GetFeeCoinDenom(ctx sdk.Context) string {
+	store := feeStore(ctx.KVStore(k.storeKey))
+	value := store.Get([]byte(types.FeeCoinDenom))
+	var cd string
+	k.cdc.MustUnmarshalBinaryBare(value, &cd)
+	return cd
+}
+
+func (k Keeper) GetDefaultFee(ctx sdk.Context) sdk.Dec {
+	store := feeStore(ctx.KVStore(k.storeKey))
+	value := store.Get([]byte(types.FeeDefault))
+	var d sdk.Dec
+	k.cdc.MustUnmarshalBinaryBare(value, &d)
+	return d
+}
+
+func (k Keeper) SetFee(ctx sdk.Context, id string, fees *types.FeeSeed) {
+	store := feeStore(ctx.KVStore(k.storeKey))
+	store.Set([]byte(id), k.cdc.MustMarshalBinaryBare(fees))
 }

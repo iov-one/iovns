@@ -4,8 +4,15 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/fatih/structs"
 )
+
+type Params struct {
+	// ID is the fee parameter identifier
+	ID string
+}
+
+// ControllerFunc is the function signature used by account controllers
+type FeeFunc func(ctx sdk.Context, msg ProductMsg) (sdk.Dec, error)
 
 func NewFees() *Fees {
 	return &Fees{}
@@ -14,61 +21,17 @@ func NewFees() *Fees {
 // Fees contains different type of fees
 // to calculate coins to detract when
 // processing different messages
-type Fees struct {
-	// FeeCoinDenom defines the denominator of the coin used to process fees
-	FeeCoinDenom string  `json:"fee_coin_denom"`
-	FeeCoinPrice sdk.Dec `json:"fee_coin_price"`
-	// FeeDefault is the parameter defining the default fee
-	FeeDefault sdk.Dec `json:"fee_default"`
-	// account fees
-	RegisterAccountClosed sdk.Dec `json:"register_account_closed"`
-	RegisterAccountOpen   sdk.Dec `json:"register_account_open"`
-	TransferAccountClosed sdk.Dec `json:"transfer_account_closed"`
-	TransferAccountOpen   sdk.Dec `json:"transfer_account_open"`
-	ReplaceAccountTargets sdk.Dec `json:"replace_account_targets"`
-	AddAccountCertificate sdk.Dec `json:"add_account_certificate"`
-	DelAccountCertificate sdk.Dec `json:"del_account_certificate"`
-	SetAccountMetadata    sdk.Dec `json:"set_account_metadata"`
-	// domain fees
-	// Register domain
-	RegisterDomain1              sdk.Dec `json:"register_domain_1"`
-	RegisterDomain2              sdk.Dec `json:"register_domain_2"`
-	RegisterDomain3              sdk.Dec `json:"register_domain_3"`
-	RegisterDomain4              sdk.Dec `json:"register_domain_4"`
-	RegisterDomain5              sdk.Dec `json:"register_domain_5"`
-	RegisterDomainDefault        sdk.Dec `json:"register_domain_default"`
-	RegisterOpenDomainMultiplier sdk.Dec `json:"register_open_domain_multiplier"`
-	// TransferDomain
-	TransferDomainClosed sdk.Dec `json:"transfer_domain_closed"`
-	TransferDomainOpen   sdk.Dec `json:"transfer_domain_open"`
-	// RenewDomain
-	RenewDomainOpen sdk.Dec `json:"renew_domain_open"`
-}
+type FeeSeed sdk.Dec
 
-func (f *Fees) Validate() error {
-	if f == nil {
-		return fmt.Errorf("fees is nil")
+func (f FeeSeed) Validate() error {
+	if f.IsNil() {
+		return fmt.Errorf("nil dec in id %s", f.ID)
 	}
-	m := structs.New(f)
-	for _, field := range m.Fields() {
-		switch fee := field.Value().(type) {
-		case sdk.Dec:
-			if fee.IsNil() {
-				return fmt.Errorf("nil dec in field %s", field.Name())
-			}
-			if fee.IsZero() {
-				return fmt.Errorf("zero dec in field %s", field.Name())
-			}
-			if fee.IsNegative() {
-				return fmt.Errorf("negative dec in field %s", field.Name())
-			}
-		case string:
-			if err := sdk.ValidateDenom(fee); err != nil {
-				return fmt.Errorf("invalid coin denom in field %s: %s", field.Name(), fee)
-			}
-		default:
-			panic(fmt.Sprintf("invalid type: %T", fee))
-		}
+	if f.Amount.IsZero() {
+		return fmt.Errorf("zero dec in id %s", f.ID)
+	}
+	if f.Amount.IsNegative() {
+		return fmt.Errorf("negative dec in id %s", f.ID)
 	}
 	return nil
 }
