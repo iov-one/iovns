@@ -28,6 +28,54 @@ func (t TestIndex) SecondaryKey() SecondaryKey {
 	return SecondaryKey{StorePrefix: []byte{0x1}, Key: []byte("key")}
 }
 
+func Benchmark_inspect(b *testing.B) {
+	type cmplx struct {
+		PK  string `crud:"primaryKey"`
+		SK1 string `crud:"secondaryKey,01"`
+		SK2 string `crud:"secondaryKey,02"`
+		SK3 string `crud:"secondaryKey,03"`
+		SK4 string `crud:"secondaryKey,04"`
+		SK5 string `crud:"secondaryKey,05"`
+	}
+	x := &cmplx{
+		PK:  "1",
+		SK1: "2",
+		SK2: "3",
+		SK3: "4",
+		SK4: "5",
+		SK5: "6",
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _, err := inspect(x)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func Benchmark_getKeys(b *testing.B) {
+	type cmplx struct {
+		PK string `crud:"primaryKey"`
+	}
+	x := &cmplx{
+		PK:  "1",
+		SK1: "2",
+		SK2: "3",
+		SK3: "4",
+		SK4: "5",
+		SK5: "6",
+	}
+	v := reflect.ValueOf(x).Elem()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _, err := getKeys(v)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 func Test_inspect(t *testing.T) {
 	t.Run("not a pointer", func(t *testing.T) {
 		_, _, err := inspect(0)
