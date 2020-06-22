@@ -3,37 +3,86 @@ package crud
 import (
 	"bytes"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"github.com/iov-one/iovns/tutils"
 	"reflect"
 	"strings"
 )
 
+// TagName is the tag used to marshal crud types
 const TagName = "crud"
+
+// PrimaryKeyTag is the tag used to define a primary key
 const PrimaryKeyTag = "primaryKey"
+
+// SecondarKeyTag is the value used to define a secondary key in a tag
 const SecondaryKeyTag = "secondaryKey"
+
+// PrimaryKeyPrefix
 const PrimaryKeyPrefix = 0x0
 
-func inspect(o interface{}) (primaryKey PrimaryKey, secondaryKey []SecondaryKey, err error) {
+// these errors exist for testing purposes
+var errNotAPointer = errors.New("crud: not a pointer")
+var errPointerToStruct = errors.New("crud: pointer to struct expected")
+var errIsPrimaryKeyPrefix = errors.New("secondary key store prefix equals to reserved primary key prefix")
+var errMultiplePrimaryKeys = errors.New("only one primary key is allowed in each type")
+var errNoPrimaryKey = errors.New("no primary key specified in type")
+var errEmptyKey = errors.New("provided key is empty")
+var errDuplicateKey = errors.New("duplicate key in same prefix")
+var errNotallowedKind = errors.New("kind is not allowed")
+
+func inspect(o interface{}) (primaryKey PrimaryKey, secondaryKeys []SecondaryKey, err error) {
 	// check if type implements object interface
 	if object, ok := o.(Object); ok {
 		primaryKey = object.PrimaryKey()
-		secondaryKey = object.SecondaryKeys()
+		secondaryKeys = object.SecondaryKeys()
 		return
 	}
 	v := reflect.ValueOf(o)
 	if v.Kind() != reflect.Ptr {
-		err = fmt.Errorf("crud: pointer expected")
+		err = errNotAPointer
 		return
 	}
 	v = tutils.UnderlyingValue(v)
 	if v.Kind() != reflect.Struct {
-		err = fmt.Errorf("crud: pointer to struct expected")
+		err = errPointerToStruct
 		return
 	}
 	// find primary keys and secondary keys
-	primaryKey, secondaryKey, err = getKeys(v)
+	primaryKey, secondaryKeys, err = getKeys(v)
+	if err != nil {
+		err = fmt.Errorf("crud: %w", err)
+		return
+	}
+	err = validateKeys(primaryKey, secondaryKeys)
+	if err != nil {
+		err = fmt.Errorf("crud: %w", err)
+		return
+	}
 	return
+}
+
+func validateKeys(pk PrimaryKey, sk []SecondaryKey) error {
+	// check if pk is empty
+	if len(pk) == 0 {
+		return fmt.Errorf("primary key: %w", errEmptyKey)
+	}
+	// check if secondary keys are valid
+	var keySet = make(map[string]struct{}, len(sk)) // maps the concatenation of sk.Key and sk.StorePrefix to check for dups
+
+	for _, key := range sk {
+		var keyString = string(append(key.StorePrefix, key.Key...))
+		if _, ok := keySet[keyString]; ok {
+			return fmt.Errorf("prefix %x with key %x: %w", key.StorePrefix, key.Key, errDuplicateKey)
+		}
+		err := isValidSecondaryKey(key)
+		if err != nil {
+			return err
+		}
+		keySet[keyString] = struct{}{}
+	}
+	return nil
 }
 
 func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryKey, err error) {
@@ -47,17 +96,19 @@ func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryK
 		// get field value
 		fieldValue := v.FieldByName(field.Name)
 		// check if type implements Index interface
-		if index, ok := fieldValue.Interface().(Index); ok {
+		iface := fieldValue.Interface()
+		if index, ok := iface.(Index); ok {
 			sk := index.SecondaryKey()
-			err = isValidSecondaryKey(sk)
-			if err != nil {
-				err = fmt.Errorf("crud: invalid secondary key in field %s on type %T: %w", field.Name, typ.Name(), err)
-				return
-			}
 			// append
 			secondaryKeys = append(secondaryKeys, sk)
 		}
-		// check if type implements
+		// check if type is a slice and type implements indexable
+		if indexes, ok := iface.([]Index); ok {
+			for _, index := range indexes {
+				sk := index.SecondaryKey()
+				secondaryKeys = append(secondaryKeys, sk)
+			}
+		}
 		// check field type by tags
 		tag, ok := field.Tag.Lookup(TagName)
 		// if tag is missing then no indexing is required
@@ -71,39 +122,48 @@ func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryK
 		case PrimaryKeyTag:
 			// check if a primary key was already specified
 			if primaryKey != nil {
-				err = fmt.Errorf("crud: only one primary key can be specified for each object")
+				err = fmt.Errorf("%w: %s", errMultiplePrimaryKeys, typ.String())
 				return
 			}
-			valueBytes := marshalValue(fieldValue)
+			var valueBytes []byte
+			valueBytes, err = marshalValue(fieldValue)
+			if err != nil {
+				return
+			}
 			primaryKey = valueBytes
 		case SecondaryKeyTag:
 			var prefix []byte
 			prefix, err = hex.DecodeString(split[1])
 			if err != nil {
-				err = fmt.Errorf("crud: invalid hex prefix in secondary key in field %s on type %T", field.Name, typ.Name())
+				err = fmt.Errorf("invalid hex prefix in secondary key in field %s on type %T", field.Name, v.Interface())
+				return
+			}
+			var valueBytes []byte
+			valueBytes, err = marshalValue(fieldValue)
+			if err != nil {
 				return
 			}
 			secondaryKey := SecondaryKey{
 				StorePrefix: prefix,
-				Key:         marshalValue(fieldValue),
+				Key:         valueBytes,
 			}
 			err = isValidSecondaryKey(secondaryKey)
 			if err != nil {
-				err = fmt.Errorf("crud: invalid secondary key in field %s on type %T: %w", field.Name, typ.Name(), err)
+				err = fmt.Errorf("invalid secondary key in field %s on type %T: %w", field.Name, v.Interface(), err)
 			}
 			secondaryKeys = append(secondaryKeys, secondaryKey)
 		}
 	}
 	if primaryKey == nil {
-		err = fmt.Errorf("crud: no primary key specified in type: %T", v.Interface())
+		err = fmt.Errorf("%w: %T", errNoPrimaryKey, v.Interface())
 		return
 	}
 	return
 }
 
-var typesToBytes = map[reflect.Kind]func(v reflect.Value) []byte{
-	reflect.String: func(v reflect.Value) []byte {
-		return []byte(v.Interface().(string))
+var typesToBytes = map[reflect.Kind]func(v reflect.Value) ([]byte, error){
+	reflect.String: func(v reflect.Value) ([]byte, error) {
+		return []byte(v.Interface().(string)), nil
 	},
 }
 
@@ -121,7 +181,7 @@ var notAllowedIndexType = map[reflect.Kind]struct{}{
 }
 
 // marshalValue gets marshalValue from reflect.Value
-func marshalValue(v reflect.Value) []byte {
+func marshalValue(v reflect.Value) ([]byte, error) {
 	v = tutils.UnderlyingValue(v)
 	// check if forbidden type
 	kind := v.Kind()
@@ -129,28 +189,29 @@ func marshalValue(v reflect.Value) []byte {
 		return marshalSlice(v)
 	}
 	if _, ok := notAllowedIndexType[kind]; ok {
-		panic(fmt.Sprintf("crud: value of type %s cannot be turned into a byte key", kind))
+		return nil, fmt.Errorf("value of type %s cannot be turned into a byte key", kind)
 	}
 	// now index based on type
 	marshaler, ok := typesToBytes[kind]
 	if !ok {
-		panic("crud: value of type %s cannot be marshaled to bytes")
+		return nil, fmt.Errorf("value of type %s cannot be marshaled to bytes", v.Type().String())
 	}
 	return marshaler(v)
 }
 
-func marshalSlice(v reflect.Value) []byte {
+func marshalSlice(v reflect.Value) ([]byte, error) {
 	if b, ok := v.Interface().([]byte); ok {
-		return b
+		return b, nil
 	}
-	// todo check if it implements Indexable interface
-	panic(fmt.Sprintf("crud: only slice types allowed are byte ones, got: %T", v.Interface()))
+	return nil, fmt.Errorf("only slice types allowed are byte ones, got: %T", v.Interface())
 }
 
 func isValidSecondaryKey(sk SecondaryKey) (err error) {
 	if bytes.Equal(sk.StorePrefix, []byte{PrimaryKeyPrefix}) {
-		err = fmt.Errorf("secondary key store prefix contains reserved primary key prefix")
-		return
+		return errIsPrimaryKeyPrefix
+	}
+	if len(sk.Key) == 0 {
+		return errEmptyKey
 	}
 	return
 }
