@@ -656,6 +656,17 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 					return
 				}
 			}
+			brokerStr, err := cmd.Flags().GetString("broker")
+			if err != nil {
+				return err
+			}
+			var broker sdk.AccAddress
+			if brokerStr != "" {
+				broker, err = sdk.AccAddressFromBech32(brokerStr)
+				if err != nil {
+					return
+				}
+			}
 			// build msg
 			msg := &types.MsgRegisterAccount{
 				Domain:       domain,
@@ -663,6 +674,7 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 				Owner:        ownerAddr,
 				Registerer:   cliCtx.GetFromAddress(),
 				FeePayerAddr: feePayer,
+				Broker:       broker,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -676,6 +688,7 @@ func getCmdRegisterAccount(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("name", "", "the name of your account")
 	cmd.Flags().String("owner", "", "the address of the owner, if no owner provided signer is the owner")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().String("broker", "", "address of the broker, optional")
 	return cmd
 }
 
@@ -711,11 +724,22 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 					return
 				}
 			}
+			brokerStr, err := cmd.Flags().GetString("broker")
+			if err != nil {
+				return err
+			}
+			var broker sdk.AccAddress
+			if brokerStr != "" {
+				broker, err = sdk.AccAddressFromBech32(brokerStr)
+				if err != nil {
+					return
+				}
+			}
 			msg := &types.MsgRegisterDomain{
 				Name:         domain,
 				Admin:        cliCtx.GetFromAddress(),
 				DomainType:   types.DomainType(dType),
-				Broker:       nil,
+				Broker:       broker,
 				FeePayerAddr: feePayer,
 			}
 			// check if valid
@@ -731,6 +755,7 @@ func getCmdRegisterDomain(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("domain", "", "name of the domain you want to register")
 	cmd.Flags().String("type", types.ClosedDomain, "type of the domain")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
+	cmd.Flags().String("broker", "", "address of the broker, optional")
 	return cmd
 }
 
