@@ -40,7 +40,7 @@ const main = async () => {
               account_grace_period: 30 * 24 * 60 * 60 + "000000000", // (ab)use javascript
               account_renew_count_max: 2,
               account_renew_period: 365.25 * 24 * 60 * 60 + "000000000",
-              blockchain_target_max: 16,
+              blockchain_target_max: 10, // https://internetofvalues.slack.com/archives/GPYCU2AJJ/p1592563251000500
               certificate_count_max: 16,
               certificate_size_max: "1024",
               configurer: "star1 IOV SAS", // TODO
@@ -48,9 +48,9 @@ const main = async () => {
               domain_renew_count_max: 2,
               domain_renew_period: 365.25 * 24 * 60 * 60 + "000000000",
               metadata_size_max: "1024",
-              valid_account_name: "[-_\\.a-z0-9]{1,64}$",
+              valid_account_name: "^[-_.a-z0-9]{1,64}$",
               valid_blockchain_address: "^[a-z0-9A-Z]+$",
-              valid_blockchain_id: "[-a-z0-9A-Z:]+$",
+              valid_blockchain_id: "^[-a-z0-9A-Z:]+$",
               valid_domain_name: "^[-_a-z0-9]{4,16}$",
             },
             fees: {
