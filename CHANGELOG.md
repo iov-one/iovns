@@ -5,6 +5,7 @@
 - fix: iovnscli get config
 - REST: rename /domain/ query path to /starname/
 - REST: rename FromOwner to WithOwner
+- CLI: Add broker field to registerDomain and registerAccount
 
 ## v0.4.3
 
