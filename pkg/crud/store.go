@@ -59,7 +59,7 @@ func (s Store) Create(o interface{}) {
 // Read reads in the object store and returns false if the object is not found
 // if it is found then the binary is unmarshalled into the Object.
 // CONTRACT: Object must be a pointer for the unmarshalling to take effect.
-func (s Store) Read(key []byte, o Object) (ok bool) {
+func (s Store) Read(key []byte, o interface{}) (ok bool) {
 	v := s.objects.Get(key)
 	if v == nil {
 		return
@@ -69,7 +69,7 @@ func (s Store) Read(key []byte, o Object) (ok bool) {
 }
 
 // ReadFromIndex gets the first primary key of the given object from the index
-func (s Store) ReadFromIndex(index SecondaryKey, o Object) (ok bool) {
+func (s Store) ReadFromIndex(index SecondaryKey, o interface{}) (ok bool) {
 	var primaryKey PrimaryKey
 	s.IterateIndex(index, func(key PrimaryKey) bool {
 		primaryKey = key
