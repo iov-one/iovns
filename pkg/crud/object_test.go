@@ -22,9 +22,9 @@ func (t testObject) SecondaryKeys() []SecondaryKey {
 	}
 }
 
-type testIndex struct{}
+type TestIndex struct{}
 
-func (t testIndex) SecondaryKey() SecondaryKey {
+func (t TestIndex) SecondaryKey() SecondaryKey {
 	return SecondaryKey{StorePrefix: []byte{0x1}, Key: []byte("key")}
 }
 
@@ -138,6 +138,37 @@ func Test_getKeys(t *testing.T) {
 		if err == nil {
 			t.Fatal("error expected")
 		}
+	})
+	t.Run("with index type", func(t *testing.T) {
+		type obj struct {
+			PK string `crud:"primaryKey"`
+			SK TestIndex
+		}
+		pk, sk, err := getKeys(reflect.ValueOf(&obj{
+			PK: "pk",
+			SK: TestIndex{},
+		}).Elem())
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Log()
+		t.Logf("%#v, %#v", pk, sk)
+	})
+	t.Run("with index slice type", func(t *testing.T) {
+		type obj struct {
+			PK string `crud:"primaryKey"`
+			SK []TestIndex
+		}
+		pk, sk, err := getKeys(reflect.ValueOf(&obj{
+			PK: "pk",
+			SK: []TestIndex{
+				{}, {},
+			},
+		}).Elem())
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Logf("%#v, %#v", pk, sk)
 	})
 }
 

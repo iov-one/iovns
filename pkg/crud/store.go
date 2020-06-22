@@ -10,7 +10,7 @@ import (
 )
 
 var indexPrefix = []byte{0x01}
-var objectPrefix = []byte{0x02}
+var objectPrefix = []byte{0x00}
 
 const ReservedSeparator = 0xFF
 

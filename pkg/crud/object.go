@@ -30,7 +30,7 @@ var errMultiplePrimaryKeys = errors.New("only one primary key is allowed in each
 var errNoPrimaryKey = errors.New("no primary key specified in type")
 var errEmptyKey = errors.New("provided key is empty")
 var errDuplicateKey = errors.New("duplicate key in same prefix")
-var errNotallowedKind = errors.New("kind is not allowed")
+var errNotAllowedKind = errors.New("kind is not allowed")
 
 func inspect(o interface{}) (primaryKey PrimaryKey, secondaryKeys []SecondaryKey, err error) {
 	// check if type implements object interface
@@ -97,14 +97,19 @@ func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryK
 		fieldValue := v.FieldByName(field.Name)
 		// check if type implements Index interface
 		iface := fieldValue.Interface()
+		// check if type inherently implements Index
 		if index, ok := iface.(Index); ok {
 			sk := index.SecondaryKey()
 			// append
 			secondaryKeys = append(secondaryKeys, sk)
-		}
-		// check if type is a slice and type implements indexable
-		if indexes, ok := iface.([]Index); ok {
-			for _, index := range indexes {
+			// check if slice and if every single element implements index
+		} else if fieldValue.Kind() == reflect.Slice {
+			slLen := fieldValue.Len()
+			for i := 0; i < slLen; i++ {
+				index, ok := fieldValue.Index(i).Interface().(Index)
+				if !ok {
+					continue
+				}
 				sk := index.SecondaryKey()
 				secondaryKeys = append(secondaryKeys, sk)
 			}
