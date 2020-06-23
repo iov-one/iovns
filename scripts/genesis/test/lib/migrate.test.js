@@ -1018,7 +1018,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( config.account_grace_period ).toEqual( "60000000000" );
       expect( config.account_renew_count_max ).toEqual( 2 );
       expect( config.account_renew_period ).toEqual( "180000000000" );
-      expect( config.blockchain_target_max ).toEqual( 3 );
+      expect( config.blockchain_target_max ).toEqual( 10 );
       expect( config.certificate_count_max ).toEqual( 3 );
       expect( config.certificate_size_max ).toEqual( "1000" );
       expect( config.domain_grace_period ).toEqual( "60000000000" );
@@ -1052,15 +1052,76 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
    it( `Should patch iov-mainnet-2.`, async () => {
       const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
-      const previous = [].concat( genesisCopy.app_state.auth.accounts );
 
       genesisCopy.chain_id = "iov-mainnet-2";
+      genesisCopy.app_state.auth.accounts.push( {
+         "//alias": "cond:multisig/usage/0000000000000006",
+         "//id": "Custodian of missing star1 accounts",
+         "//iov1": "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc",
+         "//no star1 iov14qk7zrz2ewhdmy7cjj68sk6jn3rst4vd7u930y": [
+            122534,
+            "misang*iov"
+         ],
+         "//no star1 iov1jq8z8xl9tqdwjsp44gtkd2c5rpq33e556kg0ft": [
+            700666,
+            "charlief*iov"
+         ],
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": 0,
+            "address": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
+            "coins": [
+               {
+                  "//IOV": 1.000123,
+                  "amount": "73262964",
+                  "denom": "uvoi"
+               }
+            ],
+            "public_key": "",
+            "sequence": 0
+         }
+      } );
+      genesisCopy.app_state.domain.accounts.push( {
+         "//iov1": "iov14qk7zrz2ewhdmy7cjj68sk6jn3rst4vd7u930y",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "misang",
+         "owner": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
+         "targets": null,
+         "valid_until": "1609415999"
+      },
+      {
+         "//iov1": "iov1jq8z8xl9tqdwjsp44gtkd2c5rpq33e556kg0ft",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "charlief",
+         "owner": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
+         "targets": null,
+         "valid_until": "1609415999"
+      } );
+
+      const accounts0 = [].concat( genesisCopy.app_state.auth.accounts );
+      const starnames0 = [].concat( genesisCopy.app_state.domain.accounts );
+      const custodian0 = JSON.parse( JSON.stringify( accounts0.find( account => account["//id"] == "Custodian of missing star1 accounts" ) ) );
 
       patchMainnet( genesisCopy );
 
-      const current = genesisCopy.app_state.auth.accounts;
+      expect( genesisCopy.app_state.auth.accounts.length ).toEqual( accounts0.length + 1 );
+      expect( genesisCopy.app_state.domain.accounts.length ).toEqual( starnames0.length );
 
-      expect( current.length ).not.toEqual( previous.length );
+      const custodian = genesisCopy.app_state.auth.accounts.find( account => account["//id"] == "Custodian of missing star1 accounts" );
+      const charliefAmount = 700666 * 1e6;
+      const charliestar1 = "star1k9ktkefsdxtydga262re596agdklwjmrf9et90";
+      const charlief = genesisCopy.app_state.auth.accounts.find( account => account.value.address == charliestar1 );
+      const charliefiov = genesisCopy.app_state.domain.accounts.find( account => account.owner == charliestar1 );
+
+      expect( custodian.value.coins[0].amount ).toEqual( String( +custodian0.value.coins[0].amount - charliefAmount ) );
+      expect( charlief.value.coins[0].amount ).toEqual( String( charliefAmount ) );
+      expect( charliefiov ).toBeTruthy();
    } );
 
    it( `Should migrate.`, async () => {

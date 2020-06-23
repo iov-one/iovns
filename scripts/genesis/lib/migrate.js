@@ -543,7 +543,7 @@ export const patchGalaxynet = genesis => {
    config.account_grace_period = 1 * 60 + "000000000"; // (ab)use javascript
    config.account_renew_count_max = 2;
    config.account_renew_period = 3 * 60 + "000000000";
-   config.blockchain_target_max = 3;
+   config.blockchain_target_max = 10;
    config.certificate_count_max = 3;
    config.certificate_size_max = "1000";
    config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg";
@@ -574,7 +574,47 @@ export const patchGalaxynet = genesis => {
 export const patchMainnet = genesis => {
    if ( genesis.chain_id != "iov-mainnet-2" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iov-mainnet-2.` );
 
-   // TODO
+   const custodian = genesis.app_state.auth.accounts.find( account => account["//id"] == "Custodian of missing star1 accounts" );
+   const lostKeys = {
+      iov1jq8z8xl9tqdwjsp44gtkd2c5rpq33e556kg0ft: {
+         star1: "star1k9ktkefsdxtydga262re596agdklwjmrf9et90",
+         id: 2033,
+      },
+      // TODO
+      //iov14qk7zrz2ewhdmy7cjj68sk6jn3rst4vd7u930y: {
+      //   star1: "",
+      //   id: 2046,
+      //},
+   };
+
+   Object.keys( lostKeys ).forEach( iov1 => {
+      const recover = custodian[`//no star1 ${iov1}`];
+      const iov = recover[0];
+      const amount = 1.e6 * iov;
+      const address = lostKeys[iov1].star1;
+      const id = lostKeys[iov1].id;
+      const [ name, domain ] = recover[1].split( "*" );
+
+      // remove custody of tokens
+      delete( custodian[`//no star1 ${iov1}`] );
+      custodian.value.coins[0].amount = String( +custodian.value.coins[0].amount - amount );
+
+      // remove custody of starname
+      const starname = genesis.app_state.domain.accounts.find( account => account.domain == domain && account.name == name );
+      if ( !starname ) throw new Error( `Starname doesn't exist for ${recover[1]}!` );
+      starname.owner = address;
+
+      // create and add account
+      if ( genesis.app_state.auth.accounts.find( account => account["//iov1"] == iov1 ) ) throw new Error( `Account for ${iov1} already exists!` );
+      const account = createAccount( { address, amount, id, iov, iov1 } );
+      genesis.app_state.auth.accounts.push( account );
+   } );
+
+   const getAmount = account => {
+      return +account.value.coins[0];
+   };
+
+   genesis.app_state.auth.accounts = genesis.app_state.auth.accounts.sort( ( a, b ) => getAmount( b ) - getAmount( a ) );
 }
 
 /**
