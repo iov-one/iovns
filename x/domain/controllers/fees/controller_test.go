@@ -10,53 +10,170 @@ import (
 )
 
 func Test_FeeApplier(t *testing.T) {
-	dec1, err := sdk.NewDecFromStr("0.000001000000000000")
-	if err != nil {
-		t.Fatal(err)
-	}
-	dec2, err := sdk.NewDecFromStr("572.332205500000000000")
-	if err != nil {
-		t.Fatal(err)
-	}
-	dec3, err := sdk.NewDecFromStr("0.572332205500000100")
-	if err != nil {
-		t.Fatal(err)
-	}
-	expect, err := sdk.NewDecFromStr("572332205")
-	if err != nil {
-		t.Fatal(err)
+	fee := configuration.Fees{
+		FeeCoinDenom:                 "tiov",
+		FeeCoinPrice:                 sdk.NewDec(2),
+		FeeDefault:                   sdk.NewDec(2),
+		RegisterAccountClosed:        sdk.NewDec(4),
+		RegisterAccountOpen:          sdk.NewDec(6),
+		TransferAccountClosed:        sdk.NewDec(8),
+		TransferAccountOpen:          sdk.NewDec(10),
+		ReplaceAccountTargets:        sdk.NewDec(12),
+		AddAccountCertificate:        sdk.NewDec(14),
+		DelAccountCertificate:        sdk.NewDec(16),
+		SetAccountMetadata:           sdk.NewDec(18),
+		RegisterDomain1:              sdk.NewDec(20),
+		RegisterDomain2:              sdk.NewDec(22),
+		RegisterDomain3:              sdk.NewDec(24),
+		RegisterDomain4:              sdk.NewDec(26),
+		RegisterDomain5:              sdk.NewDec(28),
+		RegisterDomainDefault:        sdk.NewDec(30),
+		RegisterOpenDomainMultiplier: sdk.NewDec(2),
+		TransferDomainClosed:         sdk.NewDec(34),
+		TransferDomainOpen:           sdk.NewDec(36),
+		RenewDomainOpen:              sdk.NewDec(28),
 	}
 	cases := map[string]struct {
-		FeeConfig   *configuration.Fees
 		Msg         sdk.Msg
 		Domain      types.Domain
 		ExpectedFee sdk.Dec
 	}{
-		"register open domain length 5 coin price 5": {
-			FeeConfig: &configuration.Fees{
-				FeeCoinDenom:    "tiov",
-				FeeCoinPrice:    dec1,
-				RegisterDomain5: dec2,
-				FeeDefault:      dec3,
-			},
-			Msg: &types.MsgRegisterDomain{
-				Name:       "test1",
-				DomainType: types.ClosedDomain,
-			},
+		"register closed domain 5": {
+			Msg: &types.MsgRegisterDomain{},
 			Domain: types.Domain{
 				Name: "test1",
 			},
-			ExpectedFee: expect,
+			ExpectedFee: sdk.NewDec(14),
+		},
+		"register closed domain 4": {
+			Msg: &types.MsgRegisterDomain{},
+			Domain: types.Domain{
+				Name: "test",
+			},
+			ExpectedFee: sdk.NewDec(13),
+		},
+		"register closed domain 3": {
+			Msg: &types.MsgRegisterDomain{},
+			Domain: types.Domain{
+				Name: "tes",
+			},
+			ExpectedFee: sdk.NewDec(12),
+		},
+		"register closed domain 2": {
+			Msg: &types.MsgRegisterDomain{},
+			Domain: types.Domain{
+				Name: "te",
+			},
+			ExpectedFee: sdk.NewDec(11),
+		},
+		"register closed domain 1": {
+			Msg: &types.MsgRegisterDomain{},
+			Domain: types.Domain{
+				Name: "t",
+			},
+			ExpectedFee: sdk.NewDec(10),
+		},
+		"register open domain 5": {
+			Msg: &types.MsgRegisterDomain{},
+			Domain: types.Domain{
+				Name: "test1",
+				Type: types.OpenDomain,
+			},
+			ExpectedFee: sdk.NewDec(28),
+		},
+		"register open domain default": {
+			Msg: &types.MsgRegisterDomain{},
+			Domain: types.Domain{
+				Name: "test12",
+				Type: types.ClosedDomain,
+			},
+			ExpectedFee: sdk.NewDec(15),
+		},
+		"transfer domain open": {
+			Msg:         &types.MsgTransferDomain{},
+			Domain:      types.Domain{Type: types.OpenDomain},
+			ExpectedFee: sdk.NewDec(18),
+		},
+		"transfer domain closed": {
+			Msg:         &types.MsgTransferDomain{},
+			Domain:      types.Domain{Type: types.ClosedDomain},
+			ExpectedFee: sdk.NewDec(17),
+		},
+		"set metadata": {
+			Msg:         &types.MsgReplaceAccountMetadata{},
+			ExpectedFee: sdk.NewDec(9),
+		},
+		"delete certs": {
+			Msg:         &types.MsgDeleteAccountCertificate{},
+			ExpectedFee: sdk.NewDec(8),
+		},
+		"add certs": {
+			Msg:         &types.MsgAddAccountCertificates{},
+			ExpectedFee: sdk.NewDec(7),
+		},
+		"replace targets": {
+			Msg:         &types.MsgReplaceAccountTargets{},
+			ExpectedFee: sdk.NewDec(6),
+		},
+		"transfer account closed": {
+			Msg:         &types.MsgTransferAccount{},
+			Domain:      types.Domain{Type: types.ClosedDomain},
+			ExpectedFee: sdk.NewDec(4),
+		},
+		"transfer account open": {
+			Msg:         &types.MsgTransferAccount{},
+			Domain:      types.Domain{Type: types.OpenDomain},
+			ExpectedFee: sdk.NewDec(5),
+		},
+		"register account open": {
+			Msg:         &types.MsgRegisterAccount{},
+			Domain:      types.Domain{Type: types.OpenDomain},
+			ExpectedFee: sdk.NewDec(3),
+		},
+		"register account closed": {
+			Msg:         &types.MsgRegisterAccount{},
+			Domain:      types.Domain{Type: types.ClosedDomain},
+			ExpectedFee: sdk.NewDec(2),
+		},
+		"renew account closed": {
+			Msg:         &types.MsgRenewAccount{},
+			Domain:      types.Domain{Type: types.ClosedDomain},
+			ExpectedFee: sdk.NewDec(2),
+		},
+		"renew account open": {
+			Msg:         &types.MsgRenewAccount{},
+			Domain:      types.Domain{Type: types.OpenDomain},
+			ExpectedFee: sdk.NewDec(3),
+		},
+		"renew domain open": {
+			Msg:         &types.MsgRenewDomain{},
+			Domain:      types.Domain{Type: types.OpenDomain},
+			ExpectedFee: sdk.NewDec(14),
+		},
+		"renew domain closed": {
+			Msg:         &types.MsgRenewDomain{},
+			Domain:      types.Domain{Type: types.ClosedDomain, Name: "renew"},
+			ExpectedFee: sdk.NewDec(6), // it's three accounts-> "", "1", "2"; so 4/2*3=6
+		},
+		"use default fee": {
+			Msg:         &types.MsgRenewDomain{},
+			Domain:      types.Domain{Type: types.ClosedDomain, Name: "not exists"}, // since it does not exist, the fee is 0
+			ExpectedFee: sdk.NewDec(1),
 		},
 	}
+	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	k.CreateDomain(ctx, types.Domain{Name: "renew", Admin: keeper.AliceKey})
+	k.CreateAccount(ctx, types.Account{Domain: "renew", Name: "1", Owner: keeper.AliceKey})
+	k.CreateAccount(ctx, types.Account{Domain: "renew", Name: "2", Owner: keeper.AliceKey})
 
-	for _, c := range cases {
-		k, ctx, _ := keeper.NewTestKeeper(t, true)
-		k.ConfigurationKeeper.(keeper.ConfigurationSetter).SetFees(ctx, c.FeeConfig)
-		ctrl := NewController(ctx, k, c.Domain)
-		got := ctrl.GetFee(c.Msg)
-		if !got.Amount.Equal(expect.RoundInt()) {
-			t.Fatalf("expected fee: %s, got %s", c.ExpectedFee, got.Amount)
-		}
+	k.ConfigurationKeeper.(keeper.ConfigurationSetter).SetFees(ctx, &fee)
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			ctrl := NewController(ctx, k, c.Domain)
+			got := ctrl.GetFee(c.Msg)
+			if !got.Amount.Equal(c.ExpectedFee.RoundInt()) {
+				t.Fatalf("expected fee: %s, got %s", c.ExpectedFee, got.Amount)
+			}
+		})
 	}
 }

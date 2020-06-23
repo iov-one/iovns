@@ -50,7 +50,7 @@ func (f feeApplier) registerDomain() sdk.Dec {
 	}
 	// if domain is open then we multiply
 	if f.domain.Type == types.OpenDomain {
-		registerDomainFee.Mul(f.moduleFees.RegisterOpenDomainMultiplier)
+		registerDomainFee = registerDomainFee.Mul(f.moduleFees.RegisterOpenDomainMultiplier)
 	}
 	return registerDomainFee
 }
@@ -75,7 +75,7 @@ func (f feeApplier) renewDomain() sdk.Dec {
 		return true
 	})
 	fee := f.moduleFees.RegisterAccountClosed
-	fee.MulInt64(accountN)
+	fee = fee.MulInt64(accountN)
 	return fee
 }
 
@@ -147,6 +147,8 @@ func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 		return f.replaceTargets()
 	case *types.MsgDeleteAccountCertificate:
 		return f.delCert()
+	case *types.MsgAddAccountCertificates:
+		return f.addCert()
 	case *types.MsgReplaceAccountMetadata:
 		return f.setMetadata()
 	default:
