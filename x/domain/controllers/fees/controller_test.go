@@ -10,24 +10,43 @@ import (
 )
 
 func Test_FeeApplier(t *testing.T) {
+	dec1, err := sdk.NewDecFromStr("0.000001000000000000")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dec2, err := sdk.NewDecFromStr("572.332205500000000000")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dec3, err := sdk.NewDecFromStr("0.572332205500000100")
+	if err != nil {
+		t.Fatal(err)
+	}
+	expect, err := sdk.NewDecFromStr("572332205")
+	if err != nil {
+		t.Fatal(err)
+	}
 	cases := map[string]struct {
 		FeeConfig   *configuration.Fees
 		Msg         sdk.Msg
 		Domain      types.Domain
-		ExpectedFee sdk.Int
+		ExpectedFee sdk.Dec
 	}{
-		"register open domain length 5 coin price 1": {
+		"register open domain length 5 coin price 5": {
 			FeeConfig: &configuration.Fees{
 				FeeCoinDenom:    "tiov",
-				FeeCoinPrice:    sdk.NewDec(1),
-				RegisterDomain5: sdk.NewDec(5),
-				FeeDefault:      sdk.NewDec(4),
+				FeeCoinPrice:    dec1,
+				RegisterDomain5: dec2,
+				FeeDefault:      dec3,
 			},
 			Msg: &types.MsgRegisterDomain{
 				Name:       "test1",
-				DomainType: types.OpenDomain,
+				DomainType: types.ClosedDomain,
 			},
-			ExpectedFee: sdk.NewInt(1),
+			Domain: types.Domain{
+				Name: "test1",
+			},
+			ExpectedFee: expect,
 		},
 	}
 
@@ -36,9 +55,8 @@ func Test_FeeApplier(t *testing.T) {
 		k.ConfigurationKeeper.(keeper.ConfigurationSetter).SetFees(ctx, c.FeeConfig)
 		ctrl := NewController(ctx, k, c.Domain)
 		got := ctrl.GetFee(c.Msg)
-		if got.Amount != c.ExpectedFee {
+		if got.Amount.Int64() != c.ExpectedFee.Int64() {
 			t.Fatalf("expected fee: %s, got %s", c.ExpectedFee, got.Amount)
 		}
-
 	}
 }

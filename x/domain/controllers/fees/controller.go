@@ -158,8 +158,6 @@ func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 func (f feeApplier) GetFee(msg sdk.Msg) sdk.Coin {
 	// get current price
 	currentPrice := f.moduleFees.FeeCoinPrice
-	// get coin denom
-	coinDenom := f.moduleFees.FeeCoinDenom
 	// get fee parameter
 	fee := f.getFeeParam(msg)
 	// if fee is smaller than default fee, use default fee
@@ -172,6 +170,8 @@ func (f feeApplier) GetFee(msg sdk.Msg) sdk.Coin {
 	// get fee amount
 	feeAmount = toPay.TruncateInt()
 
+	// get coin denom
+	coinDenom := f.moduleFees.FeeCoinDenom
 	// generate coins to pay
 	coinsToPay := sdk.NewCoin(coinDenom, feeAmount)
 	return coinsToPay
