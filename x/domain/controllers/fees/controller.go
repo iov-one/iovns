@@ -9,7 +9,7 @@ import (
 
 // Controller defines the fee controller behaviour
 // exists only in order to avoid devs creating a fee
-// controller without using the constructor feunction
+// controller without using the constructor function
 type Controller interface {
 	GetFee(msg sdk.Msg) sdk.Coin
 }
@@ -169,7 +169,6 @@ func (f feeApplier) GetFee(msg sdk.Msg) sdk.Coin {
 	var feeAmount sdk.Int
 	// get fee amount
 	feeAmount = toPay.TruncateInt()
-
 	// get coin denom
 	coinDenom := f.moduleFees.FeeCoinDenom
 	// generate coins to pay

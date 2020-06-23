@@ -55,7 +55,7 @@ func Test_FeeApplier(t *testing.T) {
 		k.ConfigurationKeeper.(keeper.ConfigurationSetter).SetFees(ctx, c.FeeConfig)
 		ctrl := NewController(ctx, k, c.Domain)
 		got := ctrl.GetFee(c.Msg)
-		if got.Amount.Int64() != c.ExpectedFee.Int64() {
+		if !got.Amount.Equal(expect.RoundInt()) {
 			t.Fatalf("expected fee: %s, got %s", c.ExpectedFee, got.Amount)
 		}
 	}
