@@ -9,12 +9,21 @@ import (
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
+// decFromStr is a helper to convert string decimals such as 0.12311 easily
+func decFromStr(str string) sdk.Dec {
+	dec, err := sdk.NewDecFromStr(str)
+	if err != nil {
+		panic(err)
+	}
+	return dec
+}
+
 func Test_FeeApplier(t *testing.T) {
 	fee := configuration.Fees{
 		FeeCoinDenom:                 "tiov",
-		FeeCoinPrice:                 sdk.NewDec(2),
-		FeeDefault:                   sdk.NewDec(2),
-		RegisterAccountClosed:        sdk.NewDec(4),
+		FeeCoinPrice:                 decFromStr("2"),
+		FeeDefault:                   decFromStr("2"),
+		RegisterAccountClosed:        decFromStr("4"),
 		RegisterAccountOpen:          sdk.NewDec(6),
 		TransferAccountClosed:        sdk.NewDec(8),
 		TransferAccountOpen:          sdk.NewDec(10),
