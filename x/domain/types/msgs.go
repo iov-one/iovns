@@ -3,12 +3,8 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
+	fee "github.com/iov-one/iovns/x/fee/types"
 )
-
-type MsgWithFeePayer interface {
-	sdk.Msg
-	FeePayer() sdk.AccAddress
-}
 
 // MsgAddAccountCertificates is the message used
 // when a user wants to add new certificates
@@ -25,7 +21,7 @@ type MsgAddAccountCertificates struct {
 	FeePayerAddr   sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgAddAccountCertificates)(nil)
+var _ fee.ProductMsg = (*MsgAddAccountCertificates)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgAddAccountCertificates) FeePayer() sdk.AccAddress {
@@ -33,6 +29,10 @@ func (m *MsgAddAccountCertificates) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Owner
+}
+
+func (m *MsgAddAccountCertificates) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -88,7 +88,7 @@ type MsgDeleteAccountCertificate struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteAccountCertificate)(nil)
+var _ fee.ProductMsg = (*MsgDeleteAccountCertificate)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) FeePayer() sdk.AccAddress {
@@ -96,6 +96,10 @@ func (m *MsgDeleteAccountCertificate) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Owner
+}
+
+func (m *MsgDeleteAccountCertificate) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -148,7 +152,11 @@ type MsgDeleteAccount struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteAccount)(nil)
+var _ fee.ProductMsg = (*MsgDeleteAccount)(nil)
+
+func (m *MsgDeleteAccount) FeeSeedPrefix() string {
+	return m.Type()
+}
 
 // Route implements sdk.Msg
 func (m *MsgDeleteAccount) FeePayer() sdk.AccAddress {
@@ -205,7 +213,11 @@ type MsgDeleteDomain struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgDeleteDomain)(nil)
+var _ fee.ProductMsg = (*MsgDeleteDomain)(nil)
+
+func (m *MsgDeleteDomain) FeeSeedPrefix() string {
+	return m.Type()
+}
 
 // Route implements sdk.Msg
 func (m *MsgDeleteDomain) FeePayer() sdk.AccAddress {
@@ -269,7 +281,11 @@ type MsgRegisterAccount struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgRegisterAccount)(nil)
+var _ fee.ProductMsg = (*MsgRegisterAccount)(nil)
+
+func (m *MsgRegisterAccount) FeeSeedPrefix() string {
+	return m.Type()
+}
 
 // Route implements sdk.Msg
 func (m *MsgRegisterAccount) FeePayer() sdk.AccAddress {
@@ -330,7 +346,7 @@ type MsgRegisterDomain struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgRegisterDomain)(nil)
+var _ fee.ProductMsg = (*MsgRegisterDomain)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgRegisterDomain) FeePayer() sdk.AccAddress {
@@ -338,6 +354,10 @@ func (m *MsgRegisterDomain) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Admin
+}
+
+func (m *MsgRegisterDomain) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -388,7 +408,7 @@ type MsgRenewAccount struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgRenewAccount)(nil)
+var _ fee.ProductMsg = (*MsgRenewAccount)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgRenewAccount) FeePayer() sdk.AccAddress {
@@ -396,6 +416,10 @@ func (m *MsgRenewAccount) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Signer
+}
+
+func (m *MsgRenewAccount) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -440,7 +464,7 @@ type MsgRenewDomain struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgRenewDomain)(nil)
+var _ fee.ProductMsg = (*MsgRenewDomain)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgRenewDomain) FeePayer() sdk.AccAddress {
@@ -448,6 +472,10 @@ func (m *MsgRenewDomain) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Signer
+}
+
+func (m *MsgRenewDomain) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -497,7 +525,7 @@ type MsgReplaceAccountTargets struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgReplaceAccountTargets)(nil)
+var _ fee.ProductMsg = (*MsgReplaceAccountTargets)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgReplaceAccountTargets) FeePayer() sdk.AccAddress {
@@ -505,6 +533,10 @@ func (m *MsgReplaceAccountTargets) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Owner
+}
+
+func (m *MsgReplaceAccountTargets) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -560,7 +592,7 @@ type MsgReplaceAccountMetadata struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgReplaceAccountMetadata)(nil)
+var _ fee.ProductMsg = (*MsgReplaceAccountMetadata)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgReplaceAccountMetadata) FeePayer() sdk.AccAddress {
@@ -568,6 +600,10 @@ func (m *MsgReplaceAccountMetadata) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Owner
+}
+
+func (m *MsgReplaceAccountMetadata) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -624,7 +660,7 @@ type MsgTransferAccount struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgTransferAccount)(nil)
+var _ fee.ProductMsg = (*MsgTransferAccount)(nil)
 
 // Route implements sdk.Msg
 func (m *MsgTransferAccount) FeePayer() sdk.AccAddress {
@@ -632,6 +668,10 @@ func (m *MsgTransferAccount) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Owner
+}
+
+func (m *MsgTransferAccount) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -700,7 +740,11 @@ type MsgTransferDomain struct {
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgTransferDomain)(nil)
+var _ fee.ProductMsg = (*MsgTransferDomain)(nil)
+
+func (m *MsgTransferDomain) FeeSeedPrefix() string {
+	return m.Type()
+}
 
 // Route implements sdk.Msg
 func (m *MsgTransferDomain) FeePayer() sdk.AccAddress {

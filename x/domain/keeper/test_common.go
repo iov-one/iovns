@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"testing"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -9,12 +12,11 @@ import (
 	"github.com/iov-one/iovns/x/configuration"
 	confCdc "github.com/iov-one/iovns/x/configuration/types"
 	"github.com/iov-one/iovns/x/domain/types"
+	"github.com/iov-one/iovns/x/fee"
 	"github.com/stretchr/testify/require"
 	tmtypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tendermint/tm-db"
-	"testing"
-	"time"
+	db "github.com/tendermint/tm-db"
 )
 
 // NewTestCodec generates aliceAddr mock codec for keeper module
@@ -28,7 +30,8 @@ func NewTestCodec() *codec.Codec {
 }
 
 type Mocks struct {
-	Supply *mock.SupplyKeeperMock
+	FeeCollector *mock.FeeCollectorMock
+	Supply       *mock.SupplyKeeperMock
 }
 
 // NewTestKeeper generates aliceAddr keeper and aliceAddr context from it
@@ -40,6 +43,7 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	ms := store.NewCommitMultiStore(mdb)
 	// generate store keys
 	configurationStoreKey := sdk.NewKVStoreKey(configuration.StoreKey) // configuration module store key
+	feeStoreKey := sdk.NewKVStoreKey(fee.StoreKey)                     // configuration module store key
 	domainStoreKey := sdk.NewKVStoreKey(types.AccountStoreKey)         // domain module store key
 	// generate sub store for each module referenced by the keeper
 	ms.MountStoreWithDB(configurationStoreKey, sdk.StoreTypeIAVL, mdb) // mount configuration module
@@ -50,10 +54,12 @@ func NewTestKeeper(t testing.TB, isCheckTx bool) (Keeper, sdk.Context, *Mocks) {
 	mocks := new(Mocks)
 	// create mock supply keeper
 	mocks.Supply = mock.NewSupplyKeeper()
+	mocks.FeeCollector = mock.NewFeeCollector()
 	// create config keeper
 	confKeeper := configuration.NewKeeper(cdc, configurationStoreKey, subspace.NewSubspace(cdc, nil, nil, "test"))
+	feeKeeper := fee.NewKeeper(cdc, feeStoreKey, mocks.Supply.Mock(), subspace.NewSubspace(cdc, nil, nil, "test"))
 	// create context
 	ctx := sdk.NewContext(ms, tmtypes.Header{Time: time.Now()}, isCheckTx, log.NewNopLogger())
 	// create domain.Keeper
-	return NewKeeper(cdc, domainStoreKey, confKeeper, mocks.Supply.Mock(), nil), ctx, mocks
+	return NewKeeper(cdc, domainStoreKey, confKeeper, feeKeeper, nil), ctx, mocks
 }

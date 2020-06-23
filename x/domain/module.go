@@ -3,6 +3,8 @@ package domain
 import (
 	"encoding/json"
 
+	fee "github.com/iov-one/iovns/x/fee/types"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -62,16 +64,18 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 // NewAppModule creates a new AppModule Object
-func NewAppModule(k Keeper) AppModule {
+func NewAppModule(k Keeper, c fee.Collector) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
+		feeCollector:   c,
 	}
 }
 
 type AppModule struct {
 	AppModuleBasic
-	keeper Keeper
+	keeper       Keeper
+	feeCollector fee.Collector
 }
 
 func (AppModule) Name() string {
@@ -85,7 +89,7 @@ func (am AppModule) Route() string {
 }
 
 func (am AppModule) NewHandler() sdk.Handler {
-	return NewHandler(am.keeper)
+	return NewHandler(am.keeper, am.feeCollector)
 }
 func (am AppModule) QuerierRoute() string {
 	return types.QuerierRoute

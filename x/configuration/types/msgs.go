@@ -30,31 +30,3 @@ func (m MsgUpdateConfig) GetSignBytes() []byte { return sdk.MustSortJSON(ModuleC
 
 // GetSigners implements sdk.Msg
 func (m MsgUpdateConfig) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Signer} }
-
-type MsgUpdateFees struct {
-	Fees       *Fees
-	Configurer sdk.AccAddress
-}
-
-func (m MsgUpdateFees) Route() string {
-	return RouterKey
-}
-
-func (m MsgUpdateFees) Type() string {
-	return "update_fees"
-}
-
-func (m MsgUpdateFees) ValidateBasic() error {
-	if m.Configurer.Empty() {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "signer is missing")
-	}
-	// check if fees are valid
-	if err := m.Fees.Validate(); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
-	}
-	return nil
-}
-
-func (m MsgUpdateFees) GetSignBytes() []byte { return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m)) }
-
-func (m MsgUpdateFees) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Configurer} }

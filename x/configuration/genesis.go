@@ -10,14 +10,12 @@ import (
 // the state when it needs to be exported.
 type GenesisState struct {
 	Config types.Config `json:"config"`
-	Fees   *types.Fees  `json:"fees"`
 }
 
 // NewGenesisState is GenesisState constructor
-func NewGenesisState(conf types.Config, fees *types.Fees) GenesisState {
+func NewGenesisState(conf types.Config) GenesisState {
 	return GenesisState{
 		Config: conf,
-		Fees:   fees,
 	}
 }
 
@@ -25,9 +23,6 @@ func NewGenesisState(conf types.Config, fees *types.Fees) GenesisState {
 func ValidateGenesis(data GenesisState) error {
 	conf := data.Config
 	if err := conf.Validate(); err != nil {
-		return err
-	}
-	if err := data.Fees.Validate(); err != nil {
 		return err
 	}
 	return nil
@@ -59,30 +54,19 @@ func DefaultGenesisState() GenesisState {
 		CertificateCountMax:    3,
 		MetadataSizeMax:        86400,
 	}
-	// set fees
-	// add domain module fees
-	feeCoinDenom := "tiov" // set coin denom used for fees
-	// generate new fees
-	fees := types.NewFees()
-	// set default fees
-	fees.SetDefaults(feeCoinDenom)
-	// return genesis
 	return GenesisState{
 		Config: config,
-		Fees:   fees,
 	}
 }
 
 // InitGenesis sets the initial state of the configuration module
 func InitGenesis(ctx sdk.Context, k Keeper, data GenesisState) {
 	k.SetConfig(ctx, data.Config)
-	k.SetFees(ctx, data.Fees)
 }
 
 // ExportGenesis saves the state of the configuration module
 func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
 	return GenesisState{
 		Config: k.GetConfiguration(ctx),
-		Fees:   k.GetFees(ctx),
 	}
 }

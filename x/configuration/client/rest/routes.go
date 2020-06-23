@@ -16,7 +16,6 @@ import (
 // // that return the bytes to sign to send a request that modifies state to the domain module
 var txRoutesList = map[string]func(cliContext context.CLIContext) http.HandlerFunc{
 	"updateConfig": updateConfigHandler,
-	"updateFees":   updateFeesHandler,
 }
 
 // registerTxRoutes registers all the transaction routes to the router

@@ -1,11 +1,12 @@
 package configuration
 
-import "github.com/iov-one/iovns/x/configuration/types"
+import (
+	"github.com/iov-one/iovns/x/configuration/types"
+)
 
 // alias for types
 type (
 	Config = types.Config // Config aliases types.Config
-	Fees   = types.Fees   // Fees aliases types.Fees
 )
 
 // alias for consts
@@ -16,10 +17,4 @@ const (
 	QueryConfig       = types.QueryConfig  // QueryConfig aliases types.QueryConfig
 	StoreKey          = types.StoreKey     // StoreKey aliases types.StoreKey
 	DefaultParamSpace = types.DefaultParamSpace
-)
-
-// function aliases
-
-var (
-	NewFees = types.NewFees // NewFees aliases types.NewFees
 )

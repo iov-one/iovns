@@ -1,4 +1,4 @@
-package configuration
+package keeper
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/x/fee/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -15,7 +16,7 @@ type QueryHandlerFunc func(ctx sdk.Context, path []string, query abci.RequestQue
 // AvailableQueries returns the list of available queries in the module
 func AvailableQueries() []iovns.QueryHandler {
 	queries := []iovns.QueryHandler{
-		&QueryConfiguration{},
+		&QueryFees{},
 	}
 	return queries
 }
@@ -62,39 +63,38 @@ func NewQuerier(k Keeper) sdk.Querier {
 	}
 }
 
-type QueryConfiguration struct{}
+type QueryFees struct{}
 
-func (q *QueryConfiguration) Use() string {
-	return "query-config"
+func (q *QueryFees) Use() string {
+	return "query-fees"
 }
 
-func (q *QueryConfiguration) Description() string {
-	return "return the current configuration"
+func (q *QueryFees) Description() string {
+	return "return the current fees"
 }
 
-func (q *QueryConfiguration) Handler() QueryHandlerFunc {
-	return queryConfigurationHandler
+func (q *QueryFees) Handler() QueryHandlerFunc {
+	return queryFeeConfigurationHandler
 }
 
-func (q *QueryConfiguration) Validate() error {
+func (q *QueryFees) Validate() error {
 	return nil
 }
 
-func (q *QueryConfiguration) QueryPath() string {
-	return "configuration"
+func (q *QueryFees) QueryPath() string {
+	return types.QueryFeeConfiguration
 }
 
-// queryAccountsInDomainHandler returns all accounts in aliceAddr domain
-func queryConfigurationHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	cfg := k.GetConfiguration(ctx)
+func queryFeeConfigurationHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	cfg := k.GetFeeConfiguration(ctx)
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryConfigurationResponse{Config: cfg})
+	respBytes, err := iovns.DefaultQueryEncode(QueryFeesResponse{Fees: cfg})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
 	return respBytes, nil
 }
 
-type QueryConfigurationResponse struct {
-	Config Config `json:"configuration"`
+type QueryFeesResponse struct {
+	Fees types.FeeConfiguration `json:"fees"`
 }
