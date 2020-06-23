@@ -6,6 +6,7 @@
 - REST: rename /domain/ query path to /starname/
 - REST: rename FromOwner to WithOwner
 - CLI: Add broker field to registerDomain and registerAccount
+- FIX: fix fee deduct and improve tests
 
 ## v0.4.3
 
