@@ -164,6 +164,10 @@ func Test_FeeApplier(t *testing.T) {
 			Domain:      types.Domain{Type: types.ClosedDomain, Name: "renew"},
 			ExpectedFee: sdk.NewDec(6), // it's three accounts-> "", "1", "2"; so 4/2*3=6
 		},
+		"default fee unknown message": {
+			Msg:         &keeper.DullMsg{},
+			ExpectedFee: sdk.NewDec(1),
+		},
 		"use default fee": {
 			Msg:         &types.MsgRenewDomain{},
 			Domain:      types.Domain{Type: types.ClosedDomain, Name: "not exists"}, // since it does not exist, the fee is 0

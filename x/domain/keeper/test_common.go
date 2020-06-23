@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"testing"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,10 +15,38 @@ import (
 	"github.com/stretchr/testify/require"
 	tmtypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
-	"github.com/tendermint/tm-db"
-	"testing"
-	"time"
+	db "github.com/tendermint/tm-db"
 )
+
+type DullMsg struct {
+	signer sdk.AccAddress
+}
+
+func (m *DullMsg) FeePayer() sdk.AccAddress {
+	return m.signer
+}
+
+func (m *DullMsg) Route() string {
+	return "dull"
+}
+
+func (m *DullMsg) Type() string {
+	return "dull_msg"
+}
+
+func (m *DullMsg) ValidateBasic() error {
+	return nil
+}
+
+// GetSignBytes implements sdk.Msg
+func (m *DullMsg) GetSignBytes() []byte {
+	return nil
+}
+
+// GetSigners implements sdk.Msg
+func (m *DullMsg) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{m.signer}
+}
 
 // NewTestCodec generates aliceAddr mock codec for keeper module
 func NewTestCodec() *codec.Codec {
