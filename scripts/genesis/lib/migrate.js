@@ -368,6 +368,22 @@ export const patchGalaxynet = genesis => {
    // add other test accounts
    const accounts = [
       {
+         "//name": "bojack",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star1z6rhjmdh2e9s6lvfzfwrh8a3kjuuy58y74l29t",
+            "coins": [
+               {
+                  "denom": "uiov",
+                  "amount": "1000000000000000"
+               }
+            ],
+            "public_key": "",
+            "account_number": 0,
+            "sequence": 0
+         }
+      },
+      {
          "//name": "faucet",
          "type": "cosmos-sdk/Account",
          "value": {
