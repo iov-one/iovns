@@ -2,6 +2,7 @@ package domain
 
 import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/iov-one/iovns/x/domain/controllers/fees"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/domain/controllers/domain"
@@ -16,8 +17,10 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 		return nil, err
 	}
 	// operation is allowed
+	feeCtrl := fees.NewController(ctx, k, c.Domain())
+	fee := feeCtrl.GetFee(msg)
 	// collect fees
-	err := k.CollectFees(ctx, msg, c.Domain())
+	err := k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
@@ -42,9 +45,10 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 		Type:       msg.DomainType,
 		Broker:     msg.Broker,
 	}
+	feeCtrl := fees.NewController(ctx, k, d)
+	fee := feeCtrl.GetFee(msg)
 	// collect fees
-	err = k.CollectFees(ctx, msg, d)
-	if err != nil {
+	if err := k.CollectFees(ctx, msg, fee); err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// save domain
@@ -60,8 +64,10 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 	if err != nil {
 		return nil, err
 	}
+	feeCtrl := fees.NewController(ctx, k, c.Domain())
+	fee := feeCtrl.GetFee(msg)
 	// collect fees
-	err = k.CollectFees(ctx, msg, c.Domain())
+	err = k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
@@ -83,8 +89,10 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 	if err != nil {
 		return nil, err
 	}
+	feeCtrl := fees.NewController(ctx, k, c.Domain())
+	fee := feeCtrl.GetFee(msg)
 	// collect fees
-	err = k.CollectFees(ctx, msg, c.Domain())
+	err = k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
