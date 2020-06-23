@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/iov-one/iovns/x/fee"
+	fee "github.com/iov-one/iovns/x/fee/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -12,12 +12,12 @@ import (
 )
 
 // NewHandler builds the tx requests handler for the domain module
-func NewHandler(k Keeper, feeCollector fee.CollectorI) sdk.Handler {
+func NewHandler(k Keeper, feeCollector fee.Collector) sdk.Handler {
 	f := func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
 		// domain handlers
 		case *types.MsgRegisterDomain:
-			return handleMsgRegisterDomain(ctx, k, calculator, msg)
+			return handleMsgRegisterDomain(ctx, k, feeCollector, msg)
 		case *types.MsgRenewDomain:
 			return handlerMsgRenewDomain(ctx, k, msg)
 		case *types.MsgDeleteDomain:

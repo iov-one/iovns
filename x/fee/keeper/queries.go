@@ -74,7 +74,7 @@ func (q *QueryFees) Description() string {
 }
 
 func (q *QueryFees) Handler() QueryHandlerFunc {
-	return queryFeesHandler
+	return queryFeeConfigurationHandler
 }
 
 func (q *QueryFees) Validate() error {
@@ -85,10 +85,10 @@ func (q *QueryFees) QueryPath() string {
 	return "fees"
 }
 
-func queryFeesHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	fees := k.GetFees(ctx)
+func queryFeeConfigurationHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	cfg := k.GetFeeConfiguration(ctx)
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryFeesResponse{Fees: *fees})
+	respBytes, err := iovns.DefaultQueryEncode(QueryFeesResponse{Fees: cfg})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -96,5 +96,5 @@ func queryFeesHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keep
 }
 
 type QueryFeesResponse struct {
-	Fees types.Fees `json:"fees"`
+	Fees types.FeeConfiguration `json:"fees"`
 }

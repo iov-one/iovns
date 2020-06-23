@@ -323,6 +323,7 @@ func NewNameService(
 		// iovns modules
 		configuration.NewAppModule(app.configurationKeeper),
 		fee.NewAppModule(app.feeKeeper),
+		// TODO figure out how to inject init chainer project out of msgs
 		domain.NewAppModule(app.domainKeeper, feeCollector),
 		// iovns modules - end
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),

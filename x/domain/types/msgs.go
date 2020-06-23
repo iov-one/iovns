@@ -755,7 +755,7 @@ func (m *MsgTransferDomain) GetSigners() []sdk.AccAddress {
 	}
 }
 
-func snakeCaseAppend(args ...string) string {
+func buildSeedID(args ...string) string {
 	var str string
 	for _, a := range args {
 		str = a + "_"

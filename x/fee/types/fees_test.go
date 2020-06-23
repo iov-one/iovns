@@ -8,27 +8,9 @@ import (
 
 func TestFees_Validate(t *testing.T) {
 	type fields struct {
-		FeeCoinDenom                 string
-		FeeCoinPrice                 types.Dec
-		FeeDefault                   types.Dec
-		RegisterAccountClosed        types.Dec
-		RegisterAccountOpen          types.Dec
-		TransferAccountClosed        types.Dec
-		TransferAccountOpen          types.Dec
-		ReplaceAccountTargets        types.Dec
-		AddAccountCertificate        types.Dec
-		DelAccountCertificate        types.Dec
-		SetAccountMetadata           types.Dec
-		RegisterDomain1              types.Dec
-		RegisterDomain2              types.Dec
-		RegisterDomain3              types.Dec
-		RegisterDomain4              types.Dec
-		RegisterDomain5              types.Dec
-		RegisterDomainDefault        types.Dec
-		RegisterOpenDomainMultiplier types.Dec
-		TransferDomainClosed         types.Dec
-		TransferDomainOpen           types.Dec
-		RenewDomainOpen              types.Dec
+		FeeCoinDenom string
+		FeeCoinPrice types.Dec
+		FeeDefault   types.Dec
 	}
 	tests := []struct {
 		name    string
@@ -38,7 +20,7 @@ func TestFees_Validate(t *testing.T) {
 		{
 			name: "success",
 			fields: func() fields {
-				fees := NewFees()
+				fees := NewFeeConfiguration()
 				fees.SetDefaults("test")
 				return fields(*fees)
 			}(),
@@ -52,7 +34,7 @@ func TestFees_Validate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			f := &Fees{
+			f := &FeeConfiguration{
 				FeeCoinDenom:                 tt.fields.FeeCoinDenom,
 				FeeCoinPrice:                 tt.fields.FeeCoinPrice,
 				FeeDefault:                   tt.fields.FeeDefault,

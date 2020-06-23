@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	types2 "github.com/iov-one/iovns/x/fee/types"
+	fee "github.com/iov-one/iovns/x/fee/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -42,10 +42,8 @@ type ConfigurationKeeper interface {
 }
 
 type FeeKeeper interface {
-	GetFeeSeed(ctx sdk.Context, id string) types2.FeeSeed
-	GetFeeCoinPrice(ctx sdk.Context) sdk.Dec
-	GetDefaultFee(ctx sdk.Context) sdk.Dec
-	GetFeeCoinDenom(ctx sdk.Context) string
+	GetFeeSeed(ctx sdk.Context, id string) *fee.FeeSeed
+	GetFeeParams(ctx sdk.Context) fee.FeeParamaters
 }
 
 // Keeper of the domain store

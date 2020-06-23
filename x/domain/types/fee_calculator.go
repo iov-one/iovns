@@ -8,8 +8,8 @@ import (
 
 type FeeCalculator struct {
 	fee.Calculator
-	account *Account
-	domain  *Domain
+	account Account
+	domain  Domain
 
 	ctx sdk.Context
 	k   keeper.Keeper
@@ -23,12 +23,12 @@ func NewFeeCalculator(ctx sdk.Context, k keeper.Keeper) *FeeCalculator {
 }
 
 func (fc *FeeCalculator) WithDomain(domain Domain) *FeeCalculator {
-	fc.domain = &domain
+	fc.domain = domain
 	return fc
 }
 
 func (fc *FeeCalculator) WithAccount(account Account) *FeeCalculator {
-	fc.account = &account
+	fc.account = account
 	return fc
 }
 
@@ -38,20 +38,20 @@ func (fc FeeCalculator) CalculateFee(msg fee.ProductMsg) (sdk.Coin, error) {
 	if err != nil {
 		return sdk.Coin{}, err
 	}
+	feeParams := fc.k.FeeKeeper.GetFeeParams(fc.ctx)
 	// get current price
-	currentPrice := fc.k.FeeKeeper.GetFeeCoinPrice(fc.ctx)
+	currentPrice := feeParams.FeeCoinPrice
 	toPay := currentPrice.Quo(f)
 	var feeAmount sdk.Int
 	// get fee amount
 	feeAmount = toPay.TruncateInt()
-	defaultFee := fc.k.FeeKeeper.GetDefaultFee(fc.ctx)
+	defaultFee := feeParams.FeeDefault
 	// if expected fee is lower than default fee then set the default fee as current fee
 	if feeAmount.LT(defaultFee.TruncateInt()) {
 		feeAmount = defaultFee.TruncateInt()
 	}
-	coinDenom := fc.k.FeeKeeper.GetFeeCoinDenom(fc.ctx)
 	// generate coins to pay
-	coinsToPay := sdk.NewCoin(coinDenom, feeAmount)
+	coinsToPay := sdk.NewCoin(feeParams.FeeCoinDenom, feeAmount)
 	return coinsToPay, nil
 }
 
@@ -76,7 +76,7 @@ func (m *MsgRegisterAccount) CalculateFee(calculator FeeCalculator) (sdk.Dec, er
 
 /* CONTRACT
 Required fee seeds
-- register_domain(1-6)
+- register_domain_1-6
 - register_open_domain_multiplier
 */
 func (m *MsgRegisterDomain) CalculateFee(calculator FeeCalculator) (sdk.Dec, error) {
@@ -84,9 +84,9 @@ func (m *MsgRegisterDomain) CalculateFee(calculator FeeCalculator) (sdk.Dec, err
 	level := len(calculator.domain.Name)
 	switch level {
 	case 1, 2, 3, 4, 5, 6:
-		seedID = snakeCaseAppend(m.Type(), string(level))
+		seedID = buildSeedID(m.Type(), string(level))
 	default:
-		seedID = snakeCaseAppend(m.Type(), "default")
+		seedID = buildSeedID(m.Type(), "default")
 	}
 
 	feeSeed := calculator.k.FeeKeeper.GetFeeSeed(calculator.ctx, seedID)
@@ -94,7 +94,7 @@ func (m *MsgRegisterDomain) CalculateFee(calculator FeeCalculator) (sdk.Dec, err
 	// if domain is open then we multiply
 	if calculator.domain.Type == OpenDomain {
 		multiplier := calculator.k.FeeKeeper.GetFeeSeed(calculator.ctx, "register_open_domain_multiplier")
-		fee = sdk.Dec(feeSeed).Mul(sdk.Dec(multiplier))
+		fee = feeSeed.Amount.Mul(multiplier.Amount)
 	}
 	return fee, nil
 }

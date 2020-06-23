@@ -2,7 +2,7 @@ package domain
 
 import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns/x/fee"
+	types2 "github.com/iov-one/iovns/x/fee/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/domain/controllers/domain"
@@ -29,7 +29,7 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 }
 
 // handleMsgRegisterDomain handles the domain registration process
-func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, collector fee.CollectorI, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
+func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, collector types2.Collector, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
 	c := domain.NewController(ctx, k, msg.Name)
 	err = c.Validate(domain.MustNotExist, domain.ValidName)
 	if err != nil {
@@ -46,10 +46,11 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, collector fee.CollectorI
 	// calculate fees
 	calc := types.NewFeeCalculator(ctx, k).WithDomain(d)
 	f, err := calc.CalculateFee(msg)
-	// collect fees
-	err = collector.CollectFee(ctx, f, msg.FeePayer())
-
 	if err != nil {
+		return nil, sdkerrors.Wrap(err, "unable to calculate fee")
+	}
+	// collect fees
+	if err := collector.CollectFee(ctx, f, msg.FeePayer()); err != nil {
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// save domain

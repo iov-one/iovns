@@ -14,7 +14,7 @@ type GenesisState struct {
 }
 
 // NewGenesisState is GenesisState constructor
-func NewGenesisState(conf types.Config, fees *feeTypes.Fees) GenesisState {
+func NewGenesisState(conf types.Config, fees *feeTypes.FeeConfiguration) GenesisState {
 	return GenesisState{
 		Config: conf,
 	}

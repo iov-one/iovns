@@ -3,6 +3,8 @@ package domain
 import (
 	"encoding/json"
 
+	fee "github.com/iov-one/iovns/x/fee/types"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,7 +14,6 @@ import (
 	"github.com/iov-one/iovns/x/domain/client/rest"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
-	"github.com/iov-one/iovns/x/fee"
 	"github.com/spf13/cobra"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -63,7 +64,7 @@ func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 // NewAppModule creates a new AppModule Object
-func NewAppModule(k Keeper, c fee.CollectorI) AppModule {
+func NewAppModule(k Keeper, c fee.Collector) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{},
 		keeper:         k,
@@ -74,7 +75,7 @@ func NewAppModule(k Keeper, c fee.CollectorI) AppModule {
 type AppModule struct {
 	AppModuleBasic
 	keeper       Keeper
-	feeCollector fee.CollectorI
+	feeCollector fee.Collector
 }
 
 func (AppModule) Name() string {

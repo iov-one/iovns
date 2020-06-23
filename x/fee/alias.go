@@ -11,10 +11,6 @@ const (
 	StoreKey          = types.StoreKey // StoreKey aliases types.StoreKey
 )
 
-type (
-	Fees = types.Fees
-)
-
 // aliasing for types
 type (
 	Keeper = keeper.Keeper

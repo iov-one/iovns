@@ -21,7 +21,7 @@ func TestSnakeCaseAppend(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
-		r := snakeCaseAppend(c.Args...)
+		r := buildSeedID(c.Args...)
 		if c.Expected != r {
 			t.Fatalf("expected %s got %s", c.Expected, r)
 		}

@@ -23,5 +23,5 @@ const (
 // function aliases
 
 var (
-	NewFees = feeTypes.NewFees // NewFees aliases types.NewFees
+	NewFees = feeTypes.NewFeeConfiguration // NewFeeConfiguration aliases types.NewFeeConfiguration
 )

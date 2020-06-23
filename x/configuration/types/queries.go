@@ -10,5 +10,5 @@ type QueryConfigResponse struct {
 }
 
 type QueryFeesResponse struct {
-	Fees *types.Fees `json:"fees"`
+	Fees *types.FeeConfiguration `json:"fees"`
 }

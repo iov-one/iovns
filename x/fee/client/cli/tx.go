@@ -30,16 +30,16 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 
 	feeTxCmd.AddCommand(flags.PostCommands(
-		getCmdUpdateFees(cdc),
+		getCmdUpdateFeeConfiguration(cdc),
 	)...)
 
 	return feeTxCmd
 }
 
-func getCmdUpdateFees(cdc *codec.Codec) *cobra.Command {
+func getCmdUpdateFeeConfiguration(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-fees",
-		Short: "update fees using a file",
+		Use:   "update-fee-config",
+		Short: "update fees configuration using a file",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -54,12 +54,12 @@ func getCmdUpdateFees(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("unable to open fee file: %s", err)
 			}
 			defer f.Close()
-			newFees := new(types.Fees)
+			newFees := new(types.FeeConfiguration)
 			err = json.NewDecoder(f).Decode(newFees)
 			if err != nil {
 				return err
 			}
-			msg := types.MsgUpdateFees{
+			msg := types.MsgUpdateConfiguration{
 				Fees:       newFees,
 				Configurer: cliCtx.GetFromAddress(),
 			}

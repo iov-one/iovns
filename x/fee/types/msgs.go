@@ -5,20 +5,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-type MsgUpdateFees struct {
-	Fees       *Fees
+type MsgUpdateConfiguration struct {
+	Fees       *FeeConfiguration
 	Configurer sdk.AccAddress
 }
 
-func (m MsgUpdateFees) Route() string {
+func (m MsgUpdateConfiguration) Route() string {
 	return RouterKey
 }
 
-func (m MsgUpdateFees) Type() string {
+func (m MsgUpdateConfiguration) Type() string {
 	return "update_fees"
 }
 
-func (m MsgUpdateFees) ValidateBasic() error {
+func (m MsgUpdateConfiguration) ValidateBasic() error {
 	if m.Configurer.Empty() {
 		return errors.Wrapf(errors.ErrInvalidRequest, "signer is missing")
 	}
@@ -29,8 +29,8 @@ func (m MsgUpdateFees) ValidateBasic() error {
 	return nil
 }
 
-func (m MsgUpdateFees) GetSignBytes() []byte {
+func (m MsgUpdateConfiguration) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
-func (m MsgUpdateFees) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Configurer} }
+func (m MsgUpdateConfiguration) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Configurer} }
