@@ -57,7 +57,7 @@ const main = async () => {
                add_account_certificate: "100",
                del_account_certificate: "0.5",
                fee_coin_denom: "uiov",
-               fee_coin_price: "0.00000001",
+               fee_coin_price: "0.000001",
                fee_default: "0.5", // the fee for messages that don't explicitly have a fee
                register_account_closed: "0.5",
                register_account_open: "10",
