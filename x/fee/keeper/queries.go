@@ -82,7 +82,7 @@ func (q *QueryFees) Validate() error {
 }
 
 func (q *QueryFees) QueryPath() string {
-	return "fees"
+	return types.QueryFeeConfiguration
 }
 
 func queryFeeConfigurationHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {

@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/fatih/structs"
-	"github.com/iov-one/iovns/x/fee/contracts"
 	"github.com/iov-one/iovns/x/fee/keeper"
 	"github.com/iov-one/iovns/x/fee/types"
 )
@@ -30,7 +29,7 @@ func ValidateGenesis(data GenesisState) error {
 		return err
 	}
 	sds := structs.Map(data.Fees.FeeSeeds)
-	for _, a := range contracts.ContractFeeSeeds {
+	for _, a := range types.ContractFeeSeeds {
 		if _, ok := sds[a.ID]; !ok {
 			return fmt.Errorf("contract fee seed %s does not exist in genesis file", a.ID)
 		}
@@ -54,11 +53,7 @@ func DefaultGenesisState() GenesisState {
 
 // InitGenesis sets the initial state of the configuration module
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, data GenesisState) {
-	k.SetFeeConfigurer(ctx, data.Fees.FeeConfigurer)
-	k.SetFeeParameters(ctx, data.Fees.FeeParamaters)
-	for _, fs := range data.Fees.FeeSeeds {
-		k.SetFeeSeed(ctx, fs)
-	}
+	k.SetFeeConfiguration(ctx, *data.Fees)
 }
 
 // ExportGenesis saves the state of the configuration module

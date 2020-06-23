@@ -18,6 +18,9 @@ const (
 	FeeKey = "fee"
 )
 
+// QueryFeeConfiguration is the route key used to query fees data
+const QueryFeeConfiguration = "fee-configuration"
+
 var (
 	// DomainStorePrefix is the prefix used to define the prefixed store containing domain data
 	FeeSeedPrefix    = []byte{0x00}

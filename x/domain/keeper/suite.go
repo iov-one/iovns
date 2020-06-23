@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	fee "github.com/iov-one/iovns/x/fee/types"
+
 	"github.com/iov-one/iovns/tutils"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -52,10 +54,10 @@ func RunTests(t *testing.T, tests map[string]SubTest) {
 			return nil
 		})
 		// set default fees
-		setFees := domainKeeper.ConfigurationKeeper.(ConfigurationSetter).SetFees
-		fees := configuration.NewFees()
+		setFees := SetFeeConfigurationSetter(domainKeeper.FeeKeeper)
+		fees := fee.NewFeeConfiguration()
 		fees.SetDefaults("testcoin")
-		setFees(ctx, fees)
+		setFees.SetFeeConfiguration(ctx, *fees)
 		// run sub SubTest
 		t.Run(name, func(t *testing.T) {
 			// run before SubTest
@@ -92,7 +94,6 @@ func RunTests(t *testing.T, tests map[string]SubTest) {
 // in test cases we expose this method
 type ConfigurationSetter interface {
 	SetConfig(ctx types.Context, config configuration.Config)
-	SetFees(ctx types.Context, fees *configuration.Fees)
 }
 
 // getConfigSetter exposes the configurationSetter interface
@@ -102,6 +103,18 @@ type ConfigurationSetter interface {
 func GetConfigSetter(keeper ConfigurationKeeper) ConfigurationSetter {
 	// check if the configuration keeper is also a config setter
 	configSetter, ok := keeper.(ConfigurationSetter)
+	if !ok {
+		panic(fmt.Sprintf("cannot cast configuration keeper to configuration setter: got uncastable type: %T", keeper))
+	}
+	return configSetter
+}
+
+type FeeConfigurationSetter interface {
+	SetFeeConfiguration(ctx types.Context, feeConfig fee.FeeConfiguration)
+}
+
+func SetFeeConfigurationSetter(keeper FeeKeeper) FeeConfigurationSetter {
+	configSetter, ok := keeper.(FeeConfigurationSetter)
 	if !ok {
 		panic(fmt.Sprintf("cannot cast configuration keeper to configuration setter: got uncastable type: %T", keeper))
 	}

@@ -17,9 +17,6 @@ const (
 // QueryConfig is the route key used to query configuration data
 const QueryConfig = "configuration"
 
-// QueryFees is the route key used to query fees data
-const QueryFees = "fees"
-
 const (
 	// ConfigKey defines the key used for the configuration
 	// since the configuration is only one the key will always be one

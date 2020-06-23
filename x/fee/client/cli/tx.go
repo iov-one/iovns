@@ -54,14 +54,14 @@ func getCmdUpdateFeeConfiguration(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("unable to open fee file: %s", err)
 			}
 			defer f.Close()
-			newFees := new(types.FeeConfiguration)
-			err = json.NewDecoder(f).Decode(newFees)
+			newFeeConfiguration := new(types.FeeConfiguration)
+			err = json.NewDecoder(f).Decode(newFeeConfiguration)
 			if err != nil {
 				return err
 			}
-			msg := types.MsgUpdateConfiguration{
-				Fees:       newFees,
-				Configurer: cliCtx.GetFromAddress(),
+			msg := types.MsgUpdateFeeConfiguration{
+				NewFeeConfiguration: newFeeConfiguration,
+				Signer:              cliCtx.GetFromAddress(),
 			}
 			if err := msg.ValidateBasic(); err != nil {
 				return fmt.Errorf("invalid tx: %w", err)

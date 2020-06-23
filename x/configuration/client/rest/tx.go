@@ -40,18 +40,3 @@ func updateConfigHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
 	}
 }
-
-type updateFees struct {
-	BaseReq rest.BaseReq   `json:"base_req"`
-	Message *MsgUpdateFees `json:"message"`
-}
-
-func updateFeesHandler(cliCtx context.CLIContext) http.HandlerFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
-		var req updateFees
-		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
-			return
-		}
-		handleTxRequest(cliCtx, req.BaseReq, req.Message, writer)
-	}
-}

@@ -3,7 +3,6 @@ package configuration
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration/types"
-	feeTypes "github.com/iov-one/iovns/x/fee/types"
 )
 
 // GenesisState is used to unmarshal the genesis state
@@ -14,7 +13,7 @@ type GenesisState struct {
 }
 
 // NewGenesisState is GenesisState constructor
-func NewGenesisState(conf types.Config, fees *feeTypes.FeeConfiguration) GenesisState {
+func NewGenesisState(conf types.Config) GenesisState {
 	return GenesisState{
 		Config: conf,
 	}

@@ -301,7 +301,6 @@ func NewNameService(
 		keys[domain.DomainStoreKey],
 		app.configurationKeeper,
 		app.feeKeeper,
-		app.supplyKeeper,
 		app.subspaces[domain.ModuleName],
 	)
 	// iovns keepers - end

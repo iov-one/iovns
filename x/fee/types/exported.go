@@ -5,8 +5,8 @@ import (
 )
 
 type ProductFee interface {
-	CalculateFee(calculator Calculator) (sdk.Dec, error)
 	FeePayer() sdk.AccAddress
+	FeeSeedPrefix() string
 }
 
 type ProductMsg interface {

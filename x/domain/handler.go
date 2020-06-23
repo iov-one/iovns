@@ -19,28 +19,28 @@ func NewHandler(k Keeper, feeCollector fee.Collector) sdk.Handler {
 		case *types.MsgRegisterDomain:
 			return handleMsgRegisterDomain(ctx, k, feeCollector, msg)
 		case *types.MsgRenewDomain:
-			return handlerMsgRenewDomain(ctx, k, msg)
+			return handlerMsgRenewDomain(ctx, k, feeCollector, msg)
 		case *types.MsgDeleteDomain:
-			return handlerMsgDeleteDomain(ctx, k, msg)
+			return handlerMsgDeleteDomain(ctx, k, feeCollector, msg)
 		case *types.MsgTransferDomain:
-			return handlerMsgTransferDomain(ctx, k, msg)
+			return handlerMsgTransferDomain(ctx, k, feeCollector, msg)
 		// account handlers
 		case *types.MsgRegisterAccount:
-			return handleMsgRegisterAccount(ctx, k, msg)
+			return handleMsgRegisterAccount(ctx, k, feeCollector, msg)
 		case *types.MsgRenewAccount:
-			return handlerMsgRenewAccount(ctx, k, msg)
+			return handlerMsgRenewAccount(ctx, k, feeCollector, msg)
 		case *types.MsgAddAccountCertificates:
-			return handlerMsgAddAccountCertificates(ctx, k, msg)
+			return handlerMsgAddAccountCertificates(ctx, k, feeCollector, msg)
 		case *types.MsgDeleteAccountCertificate:
-			return handlerMsgDeleteAccountCertificate(ctx, k, msg)
+			return handlerMsgDeleteAccountCertificate(ctx, k, feeCollector, msg)
 		case *types.MsgDeleteAccount:
-			return handlerMsgDeleteAccount(ctx, k, msg)
+			return handlerMsgDeleteAccount(ctx, k, feeCollector, msg)
 		case *types.MsgReplaceAccountTargets:
-			return handlerMsgReplaceAccountTargets(ctx, k, msg)
+			return handlerMsgReplaceAccountTargets(ctx, k, feeCollector, msg)
 		case *types.MsgTransferAccount:
-			return handlerMsgTransferAccount(ctx, k, msg)
+			return handlerMsgTransferAccount(ctx, k, feeCollector, msg)
 		case *types.MsgReplaceAccountMetadata:
-			return handlerMsgReplaceAccountMetadata(ctx, k, msg)
+			return handlerMsgReplaceAccountMetadata(ctx, k, feeCollector, msg)
 		default:
 			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("unregonized request: %T", msg))
 		}

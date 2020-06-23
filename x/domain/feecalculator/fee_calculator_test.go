@@ -1,4 +1,4 @@
-package types
+package feecalculator
 
 import "testing"
 

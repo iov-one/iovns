@@ -52,7 +52,6 @@ type Keeper struct {
 	// external keepers
 	ConfigurationKeeper ConfigurationKeeper
 	FeeKeeper           FeeKeeper
-	SupplyKeeper        SupplyKeeper
 	// default fields
 	storeKey   sdk.StoreKey // contains the store key for the domain module
 	cdc        *codec.Codec
@@ -60,13 +59,12 @@ type Keeper struct {
 }
 
 // NewKeeper creates aliceAddr domain keeper
-func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, feeKeeper FeeKeeper, supply SupplyKeeper, paramspace ParamSubspace) Keeper {
+func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, feeKeeper FeeKeeper, paramspace ParamSubspace) Keeper {
 	keeper := Keeper{
 		storeKey:            storeKey,
 		cdc:                 cdc,
 		ConfigurationKeeper: configKeeper,
 		FeeKeeper:           feeKeeper,
-		SupplyKeeper:        supply,
 		paramspace:          paramspace,
 	}
 	return keeper

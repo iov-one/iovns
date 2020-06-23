@@ -31,6 +31,10 @@ func (m *MsgAddAccountCertificates) FeePayer() sdk.AccAddress {
 	return m.Owner
 }
 
+func (m *MsgAddAccountCertificates) FeeSeedPrefix() string {
+	return m.Type()
+}
+
 // Route implements sdk.Msg
 func (m *MsgAddAccountCertificates) Route() string {
 	return RouterKey
@@ -94,6 +98,10 @@ func (m *MsgDeleteAccountCertificate) FeePayer() sdk.AccAddress {
 	return m.Owner
 }
 
+func (m *MsgDeleteAccountCertificate) FeeSeedPrefix() string {
+	return m.Type()
+}
+
 // Route implements sdk.Msg
 func (m *MsgDeleteAccountCertificate) Route() string {
 	return RouterKey
@@ -145,6 +153,10 @@ type MsgDeleteAccount struct {
 }
 
 var _ fee.ProductMsg = (*MsgDeleteAccount)(nil)
+
+func (m *MsgDeleteAccount) FeeSeedPrefix() string {
+	return m.Type()
+}
 
 // Route implements sdk.Msg
 func (m *MsgDeleteAccount) FeePayer() sdk.AccAddress {
@@ -203,8 +215,8 @@ type MsgDeleteDomain struct {
 
 var _ fee.ProductMsg = (*MsgDeleteDomain)(nil)
 
-func (m *MsgDeleteDomain) FeeCalculationFunc() (*fee.Params, error) {
-	return nil, fee.ErrDefaultFee
+func (m *MsgDeleteDomain) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -270,6 +282,10 @@ type MsgRegisterAccount struct {
 }
 
 var _ fee.ProductMsg = (*MsgRegisterAccount)(nil)
+
+func (m *MsgRegisterAccount) FeeSeedPrefix() string {
+	return m.Type()
+}
 
 // Route implements sdk.Msg
 func (m *MsgRegisterAccount) FeePayer() sdk.AccAddress {
@@ -340,6 +356,10 @@ func (m *MsgRegisterDomain) FeePayer() sdk.AccAddress {
 	return m.Admin
 }
 
+func (m *MsgRegisterDomain) FeeSeedPrefix() string {
+	return m.Type()
+}
+
 // Route implements sdk.Msg
 func (m *MsgRegisterDomain) Route() string {
 	return RouterKey
@@ -398,6 +418,10 @@ func (m *MsgRenewAccount) FeePayer() sdk.AccAddress {
 	return m.Signer
 }
 
+func (m *MsgRenewAccount) FeeSeedPrefix() string {
+	return m.Type()
+}
+
 // Route implements sdk.Msg
 func (m *MsgRenewAccount) Route() string {
 	return RouterKey
@@ -448,6 +472,10 @@ func (m *MsgRenewDomain) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Signer
+}
+
+func (m *MsgRenewDomain) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -505,6 +533,10 @@ func (m *MsgReplaceAccountTargets) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Owner
+}
+
+func (m *MsgReplaceAccountTargets) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -570,6 +602,10 @@ func (m *MsgReplaceAccountMetadata) FeePayer() sdk.AccAddress {
 	return m.Owner
 }
 
+func (m *MsgReplaceAccountMetadata) FeeSeedPrefix() string {
+	return m.Type()
+}
+
 // Route implements sdk.Msg
 func (m *MsgReplaceAccountMetadata) Route() string {
 	return RouterKey
@@ -632,6 +668,10 @@ func (m *MsgTransferAccount) FeePayer() sdk.AccAddress {
 		return m.FeePayerAddr
 	}
 	return m.Owner
+}
+
+func (m *MsgTransferAccount) FeeSeedPrefix() string {
+	return m.Type()
 }
 
 // Route implements sdk.Msg
@@ -702,6 +742,10 @@ type MsgTransferDomain struct {
 
 var _ fee.ProductMsg = (*MsgTransferDomain)(nil)
 
+func (m *MsgTransferDomain) FeeSeedPrefix() string {
+	return m.Type()
+}
+
 // Route implements sdk.Msg
 func (m *MsgTransferDomain) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
@@ -753,12 +797,4 @@ func (m *MsgTransferDomain) GetSigners() []sdk.AccAddress {
 	} else {
 		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
-}
-
-func buildSeedID(args ...string) string {
-	var str string
-	for _, a := range args {
-		str = a + "_"
-	}
-	return str
 }

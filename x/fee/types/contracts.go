@@ -1,16 +1,15 @@
-package contracts
+package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/fee/types"
 )
 
 // CONTRACT
 // ContractFeeSeeds are seeds that will be used during genesis validation
-var ContractFeeSeeds = []types.FeeSeed{
-	{ID: "add_account_certificate", Amount: sdk.NewDec(0.5)},
-	{ID: "del_account_certificate", Amount: sdk.NewDec(0.5)},
-	{ID: "register_account_closed", Amount: sdk.NewDec(0.5)},
+var ContractFeeSeeds = []FeeSeed{
+	//{ID: "add_account_certificate", Amount: sdk.NewDec(0.5)},
+	//{ID: "del_account_certificate", Amount: sdk.NewDec(0.5)},
+	//{ID: "register_account_closed", Amount: sdk.NewDec(0.5)},
 	{ID: "register_account_open", Amount: sdk.NewDec(10)},
 	{ID: "register_domain_1", Amount: sdk.NewDec(10000)},
 	{ID: "register_domain_2", Amount: sdk.NewDec(5000)},

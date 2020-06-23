@@ -3,10 +3,8 @@ package types
 import (
 	"fmt"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns/x/fee/contracts"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 type FeeSeed struct {
@@ -59,7 +57,7 @@ func (fp FeeParamaters) Validate() error {
 // FeeConfiguration is the modules representation in the genesis
 type FeeConfiguration struct {
 	FeeConfigurer sdk.AccAddress `json:"fee_configurer"`
-	FeeParamaters FeeParamaters  `json:"fee_parameters"`
+	FeeParameters FeeParamaters  `json:"fee_parameters"`
 	FeeSeeds      []FeeSeed      `json:"fee_seeds"`
 }
 
@@ -67,7 +65,7 @@ func (f FeeConfiguration) Validate() error {
 	if f.FeeConfigurer.Empty() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "no configurer specified")
 	}
-	if err := f.FeeParamaters.Validate(); err != nil {
+	if err := f.FeeParameters.Validate(); err != nil {
 		return err
 	}
 	for _, fee := range f.FeeSeeds {
@@ -92,11 +90,11 @@ func (f *FeeConfiguration) SetDefaults(denom string) {
 		panic("cannot set default fees for nil fees")
 	}
 	*f = FeeConfiguration{
-		FeeParamaters: FeeParamaters{
+		FeeParameters: FeeParamaters{
 			FeeCoinDenom: denom,
 			FeeCoinPrice: sdk.NewDec(1),
 			FeeDefault:   sdk.NewDec(1),
 		},
-		FeeSeeds: contracts.ContractFeeSeeds,
+		FeeSeeds: ContractFeeSeeds,
 	}
 }

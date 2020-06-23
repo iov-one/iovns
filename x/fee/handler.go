@@ -11,19 +11,23 @@ import (
 func NewHandler(k keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
 		switch msg := msg.(type) {
-		case types.MsgUpdateConfiguration:
-			return handleUpdateFees(ctx, msg, k)
+		case types.MsgUpdateFeeConfiguration:
+			return handleUpdateConfiguration(ctx, msg, k)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "unknown request")
 		}
 	}
 }
 
-func handleUpdateFees(ctx sdk.Context, msg types.MsgUpdateConfiguration, k keeper.Keeper) (*sdk.Result, error) {
-	configurer := k.ConfigurationKeeper.GetConfiguration(ctx).Configurer
-	if !configurer.Equals(msg.Configurer) {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update fees", msg.Configurer)
+func handleUpdateConfiguration(ctx sdk.Context, msg types.MsgUpdateFeeConfiguration, k keeper.Keeper) (*sdk.Result, error) {
+	configurer := k.GetFeeConfigurer(ctx)
+	if !configurer.Equals(msg.Signer) {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update fees", msg.Signer)
 	}
-	k.SetFees(ctx, msg.Fees)
+	k.SetFeeConfigurer(ctx, msg.NewFeeConfiguration.FeeConfigurer)
+	k.SetFeeParameters(ctx, msg.NewFeeConfiguration.FeeParameters)
+	for _, fs := range msg.NewFeeConfiguration.FeeSeeds {
+		k.SetFeeSeed(ctx, fs)
+	}
 	return &sdk.Result{}, nil
 }

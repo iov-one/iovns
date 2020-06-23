@@ -92,7 +92,7 @@ func (k Keeper) GetFeeConfiguration(ctx sdk.Context) types.FeeConfiguration {
 	feeParams := k.GetFeeParams(ctx)
 	return types.FeeConfiguration{
 		FeeConfigurer: feeCfgr,
-		FeeParamaters: feeParams,
+		FeeParameters: feeParams,
 		FeeSeeds:      feeSeeds,
 	}
 }
@@ -126,4 +126,12 @@ func (k Keeper) GetFeeConfigurer(ctx sdk.Context) sdk.AccAddress {
 func (k Keeper) SetFeeConfigurer(ctx sdk.Context, cfgr sdk.AccAddress) {
 	store := k.feeStore(ctx)
 	store.Set(types.FeeConfigurerKey, k.cdc.MustMarshalBinaryBare(cfgr))
+}
+
+func (k Keeper) SetFeeConfiguration(ctx sdk.Context, data types.FeeConfiguration) {
+	k.SetFeeConfigurer(ctx, data.FeeConfigurer)
+	k.SetFeeParameters(ctx, data.FeeParameters)
+	for _, fs := range data.FeeSeeds {
+		k.SetFeeSeed(ctx, fs)
+	}
 }
