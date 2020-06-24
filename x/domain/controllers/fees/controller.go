@@ -109,8 +109,8 @@ func (f feeApplier) renewAccount() sdk.Dec {
 	return f.moduleFees.FeeDefault
 }
 
-func (f feeApplier) replaceTargets() sdk.Dec {
-	return f.moduleFees.ReplaceAccountTargets
+func (f feeApplier) replaceResources() sdk.Dec {
+	return f.moduleFees.ReplaceAccountResources
 }
 
 func (f feeApplier) addCert() sdk.Dec {
@@ -143,8 +143,8 @@ func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 		return f.transferAccount()
 	case *types.MsgRenewAccount:
 		return f.renewAccount()
-	case *types.MsgReplaceAccountTargets:
-		return f.replaceTargets()
+	case *types.MsgReplaceAccountResources:
+		return f.replaceResources()
 	case *types.MsgDeleteAccountCertificate:
 		return f.delCert()
 	case *types.MsgAddAccountCertificates:

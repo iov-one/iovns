@@ -325,34 +325,34 @@ func (a *Account) deletableBy(addr sdk.AccAddress) error {
 	return nil
 }
 
-// ValidTargets verifies that the provided targets are valid for the account
-func ValidTargets(targets []types.BlockchainAddress) ControllerFunc {
+// ValidResources verifies that the provided resources are valid for the account
+func ValidResources(resources []types.Resource) ControllerFunc {
 	return func(ctrl *Account) error {
-		return ctrl.validTargets(targets)
+		return ctrl.validResources(resources)
 	}
 }
 
-// validTargets validates different blockchain targets address and ID
-func (a *Account) validTargets(targets []types.BlockchainAddress) error {
+// validResources validates different resources
+func (a *Account) validResources(resources []types.Resource) error {
 	a.requireConfiguration()
-	validBlockchainID := regexp.MustCompile(a.conf.ValidBlockchainID)
-	validBlockchainAddress := regexp.MustCompile(a.conf.ValidBlockchainAddress)
-	// create blockchain targets set to identify duplicates
-	sets := make(map[string]struct{}, len(targets))
-	// iterate over targets to check their validity
-	for _, target := range targets {
-		// check if blockchain ID was already specified
-		if _, ok := sets[target.ID]; ok {
-			return sdkerrors.Wrapf(types.ErrInvalidBlockchainTarget, "duplicate blockchain ID %s", target.ID)
+	validBlockchainID := regexp.MustCompile(a.conf.ValidResourceURI)
+	validBlockchainAddress := regexp.MustCompile(a.conf.ValidResourceContent)
+	// create blockchain resources set to identify duplicates
+	sets := make(map[string]struct{}, len(resources))
+	// iterate over resources to check their validity
+	for _, resource := range resources {
+		// check if blockchain URI was already specified
+		if _, ok := sets[resource.URI]; ok {
+			return sdkerrors.Wrapf(types.ErrInvalidResource, "duplicate blockchain URI %s", resource.URI)
 		}
-		sets[target.ID] = struct{}{}
+		sets[resource.URI] = struct{}{}
 		// is blockchain id valid?
-		if !validBlockchainID.MatchString(target.ID) {
-			return sdkerrors.Wrapf(types.ErrInvalidBlockchainTarget, "%s is not a valid blockchain ID", target.ID)
+		if !validBlockchainID.MatchString(resource.URI) {
+			return sdkerrors.Wrapf(types.ErrInvalidResource, "%s is not a valid blockchain URI", resource.URI)
 		}
 		// is blockchain address valid?
-		if !validBlockchainAddress.MatchString(target.Address) {
-			return sdkerrors.Wrapf(types.ErrInvalidBlockchainTarget, "%s is not a valid blockchain address", target.Address)
+		if !validBlockchainAddress.MatchString(resource.Resource) {
+			return sdkerrors.Wrapf(types.ErrInvalidResource, "%s is not a valid blockchain address", resource.Resource)
 		}
 	}
 	// success
@@ -432,19 +432,19 @@ func (a *Account) gracePeriodFinished() error {
 }
 
 // ResettableBy checks if the account attributes resettable by the provided address
-func BlockchainTargetLimitNotExceeded(targets []types.BlockchainAddress) ControllerFunc {
+func ResourceLimitNotExceeded(resources []types.Resource) ControllerFunc {
 	return func(ctrl *Account) error {
-		return ctrl.blockchainTargetLimitNotExceeded(targets)
+		return ctrl.blockchainResourceLimitNotExceeded(resources)
 	}
 }
 
-func (a *Account) blockchainTargetLimitNotExceeded(targets []types.BlockchainAddress) error {
+func (a *Account) blockchainResourceLimitNotExceeded(resources []types.Resource) error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check is not allowed on a non existing account")
 	}
 	a.requireConfiguration()
-	if uint32(len(targets)) > a.conf.BlockchainTargetMax {
-		return sdkerrors.Wrapf(types.ErrBlockchainTargetLimitExceeded, "blockchain target limit: %d", a.conf.BlockchainTargetMax)
+	if uint32(len(resources)) > a.conf.BlockchainResourcesMax {
+		return sdkerrors.Wrapf(types.ErrResourceLimitExceeded, "resource limit: %d", a.conf.BlockchainResourcesMax)
 	}
 	return nil
 }

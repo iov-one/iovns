@@ -27,7 +27,7 @@ func Test_FeeApplier(t *testing.T) {
 		RegisterAccountOpen:          sdk.NewDec(6),
 		TransferAccountClosed:        sdk.NewDec(8),
 		TransferAccountOpen:          sdk.NewDec(10),
-		ReplaceAccountTargets:        sdk.NewDec(12),
+		ReplaceAccountResources:      sdk.NewDec(12),
 		AddAccountCertificate:        sdk.NewDec(14),
 		DelAccountCertificate:        sdk.NewDec(16),
 		SetAccountMetadata:           sdk.NewDec(18),
@@ -120,8 +120,8 @@ func Test_FeeApplier(t *testing.T) {
 			Msg:         &types.MsgAddAccountCertificates{},
 			ExpectedFee: sdk.NewDec(7),
 		},
-		"replace targets": {
-			Msg:         &types.MsgReplaceAccountTargets{},
+		"replace resources": {
+			Msg:         &types.MsgReplaceAccountResources{},
 			ExpectedFee: sdk.NewDec(6),
 		},
 		"transfer account closed": {

@@ -34,8 +34,8 @@ var ErrInvalidOwner = sdkerrors.Register(ModuleName, 8, "invalid owner")
 // ErrInvalidAccountName is returned when the account name does not match the required standards
 var ErrInvalidAccountName = sdkerrors.Register(ModuleName, 9, "invalid account name")
 
-// ErrInvalidBlockchainTarget is returned when provided blockchain target is not valid
-var ErrInvalidBlockchainTarget = sdkerrors.Register(ModuleName, 10, "blockchain target provided is not valid")
+// ErrInvalidResource is returned when provided resource is not valid
+var ErrInvalidResource = sdkerrors.Register(ModuleName, 10, "blockchain resource provided is not valid")
 
 // ErrDomainExpired is returned when actions are performed on expired domains
 var ErrDomainExpired = sdkerrors.Register(ModuleName, 11, "domain has expired")
@@ -70,8 +70,8 @@ var ErrOpEmptyAcc = sdkerrors.Register(ModuleName, 20, "account name provided ca
 // ErrAccountGracePeriodNotFinished is returned when actions are performed on not expired domains
 var ErrAccountGracePeriodNotFinished = sdkerrors.Register(ModuleName, 21, "account grace period has not finished")
 
-// ErrBlockchainTargetLimit exceeded is returned when blockchain target limit is exceeded
-var ErrBlockchainTargetLimitExceeded = sdkerrors.Register(ModuleName, 22, "blockchain target limit exceeded")
+// ErrResourceLimitExceeded is returned when resource limit is exceeded
+var ErrResourceLimitExceeded = sdkerrors.Register(ModuleName, 22, "blockchain resource limit exceeded")
 
 // ErrCertificateSizeExceeded is returned when certificate size exceeded
 var ErrCertificateSizeExceeded = sdkerrors.Register(ModuleName, 23, "certificate size exceeded")

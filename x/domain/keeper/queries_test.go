@@ -209,47 +209,47 @@ func Test_queryResolveDomainHandler(t *testing.T) {
 	runQueryTests(t, testCases)
 }
 
-func Test_queryTargetAccountsHandler(t *testing.T) {
+func Test_queryResourceAccountsHandler(t *testing.T) {
 	testCases := map[string]subTest{
 		"success": {
 			BeforeTest: func(t *testing.T, ctx sdk.Context, k Keeper) {
-				target := types.BlockchainAddress{
-					ID:      "id-1",
-					Address: "addr-1",
+				resource := types.Resource{
+					URI:      "id-1",
+					Resource: "addr-1",
 				}
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "1",
 					Owner:      bobAddr,
 					ValidUntil: 0,
-					Targets:    []types.BlockchainAddress{target},
+					Resources:  []types.Resource{resource},
 				})
 				k.CreateAccount(ctx, types.Account{
 					Domain:     "test",
 					Name:       "2",
 					Owner:      bobAddr,
 					ValidUntil: 0,
-					Targets:    []types.BlockchainAddress{target},
+					Resources:  []types.Resource{resource},
 				})
 			},
-			Request: &QueryTargetAccounts{
-				Target: types.BlockchainAddress{
-					ID:      "id-1",
-					Address: "addr-1",
+			Request: &QueryResolveResource{
+				Resource: types.Resource{
+					URI:      "id-1",
+					Resource: "addr-1",
 				},
 			},
-			Handler: queryTargetAccountsHandler,
+			Handler: queryResourceAccountHandler,
 			WantErr: nil,
-			PtrExpectedResponse: &QueryTargetAccountsResponse{
+			PtrExpectedResponse: &QueryResolveResourceResponse{
 				Accounts: []types.Account{
 					{
 						Domain:     "test",
 						Name:       "1",
 						Owner:      bobAddr,
 						ValidUntil: 0,
-						Targets: []types.BlockchainAddress{{
-							ID:      "id-1",
-							Address: "addr-1",
+						Resources: []types.Resource{{
+							URI:      "id-1",
+							Resource: "addr-1",
 						}},
 					},
 					{
@@ -257,9 +257,9 @@ func Test_queryTargetAccountsHandler(t *testing.T) {
 						Name:       "2",
 						Owner:      bobAddr,
 						ValidUntil: 0,
-						Targets: []types.BlockchainAddress{{
-							ID:      "id-1",
-							Address: "addr-1",
+						Resources: []types.Resource{{
+							URI:      "id-1",
+							Resource: "addr-1",
 						}},
 					},
 				}},

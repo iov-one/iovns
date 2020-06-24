@@ -38,8 +38,8 @@ func (k Keeper) CreateAccount(ctx sdk.Context, account types.Account) {
 	if err != nil {
 		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
 	}
-	// map targets to account
-	err = k.mapTargetToAccount(ctx, account, account.Targets...)
+	// map resources to account
+	err = k.mapResourceToAccount(ctx, account, account.Resources...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
@@ -68,8 +68,8 @@ func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 	if err != nil {
 		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
 	}
-	// unmap targets to account
-	err = k.unmapTargetToAccount(ctx, account, account.Targets...)
+	// unmap resources to account
+	err = k.unmapResourcesToAccount(ctx, account, account.Resources...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
 	}
@@ -92,22 +92,22 @@ func (k Keeper) GetAccountsInDomain(ctx sdk.Context, domainName string, do func(
 	return
 }
 
-// TransferAccount transfers the account to aliceAddr new owner after resetting certificates and targets
+// TransferAccount transfers the account to aliceAddr new owner after resetting certificates and resources
 func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner sdk.AccAddress) {
 	// unmap account to owner
 	err := k.unmapAccountToOwner(ctx, account)
 	if err != nil {
 		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
 	}
-	// unmap account targets
-	err = k.unmapTargetToAccount(ctx, account, account.Targets...)
+	// unmap account resources
+	err = k.unmapResourcesToAccount(ctx, account, account.Resources...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 	// update account
 	account.Owner = newOwner   // transfer owner
 	account.Certificates = nil // remove certs
-	account.Targets = nil      // remove targets
+	account.Resources = nil    // remove resources
 	// save account
 	k.SetAccount(ctx, account)
 	// map account to new owner
@@ -115,8 +115,8 @@ func (k Keeper) TransferAccount(ctx sdk.Context, account types.Account, newOwner
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
-	// map accounts new targets
-	err = k.mapTargetToAccount(ctx, account, account.Targets...)
+	// map accounts new resources
+	err = k.mapResourceToAccount(ctx, account, account.Resources...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
@@ -129,15 +129,15 @@ func (k Keeper) TransferAccountWithReset(ctx sdk.Context, account types.Account,
 	if err != nil {
 		panic(fmt.Errorf("indexing error (%#v): %w", account, err))
 	}
-	// unmap account targets
-	err = k.unmapTargetToAccount(ctx, account, account.Targets...)
+	// unmap account resources
+	err = k.unmapResourcesToAccount(ctx, account, account.Resources...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
 	if reset {
 		// update account
 		account.Certificates = nil
-		account.Targets = nil
+		account.Resources = nil
 		account.MetadataURI = ""
 	}
 	account.Owner = newOwner // transfer owner
@@ -148,8 +148,8 @@ func (k Keeper) TransferAccountWithReset(ctx sdk.Context, account types.Account,
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
-	// map accounts new targets
-	err = k.mapTargetToAccount(ctx, account, account.Targets...)
+	// map accounts new resources
+	err = k.mapResourceToAccount(ctx, account, account.Resources...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
@@ -181,19 +181,19 @@ func (k Keeper) RenewAccount(ctx sdk.Context, account *types.Account, accountRen
 	k.SetAccount(ctx, *account)
 }
 
-// ReplaceAccountTargets updates an account targets
-func (k Keeper) ReplaceAccountTargets(ctx sdk.Context, account types.Account, targets []types.BlockchainAddress) {
-	// unmap old targets
-	err := k.unmapTargetToAccount(ctx, account, account.Targets...)
+// ReplaceAccountResources updates an account resources
+func (k Keeper) ReplaceAccountResources(ctx sdk.Context, account types.Account, resources []types.Resource) {
+	// unmap old resources
+	err := k.unmapResourcesToAccount(ctx, account, account.Resources...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}
-	// replace targets
-	account.Targets = targets
+	// replace resources
+	account.Resources = resources
 	// update account
 	k.SetAccount(ctx, account)
-	// map new targets
-	err = k.mapTargetToAccount(ctx, account, targets...)
+	// map new resources
+	err = k.mapResourceToAccount(ctx, account, resources...)
 	if err != nil {
 		panic(fmt.Errorf("indexing error: (%#v): %w", account, err))
 	}

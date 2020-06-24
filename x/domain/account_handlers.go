@@ -122,7 +122,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 	if err := accountCtrl.Validate(
 		account.ValidName,
 		account.MustNotExist,
-		account.ValidTargets(msg.Targets),
+		account.ValidResources(msg.Resources),
 		account.RegistrableBy(msg.Registerer),
 	); err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 		Domain:       msg.Domain,
 		Name:         msg.Name,
 		Owner:        msg.Owner,
-		Targets:      msg.Targets,
+		Resources:    msg.Resources,
 		Certificates: nil,
 		Broker:       msg.Broker,
 	}
@@ -191,8 +191,8 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 	return &sdk.Result{}, nil
 }
 
-// handlerMsgReplaceAccountTargets replaces account targets
-func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *types.MsgReplaceAccountTargets) (*sdk.Result, error) {
+// handlerMsgReplaceAccountResources replaces account resources
+func handlerMsgReplaceAccountResources(ctx sdk.Context, k keeper.Keeper, msg *types.MsgReplaceAccountResources) (*sdk.Result, error) {
 	// perform domain checks
 	domainCtrl := domain.NewController(ctx, k, msg.Domain)
 	if err := domainCtrl.Validate(domain.MustExist, domain.NotExpired); err != nil {
@@ -204,8 +204,8 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 		account.MustExist,
 		account.NotExpired,
 		account.Owner(msg.Owner),
-		account.ValidTargets(msg.NewTargets),
-		account.BlockchainTargetLimitNotExceeded(msg.NewTargets),
+		account.ValidResources(msg.NewResources),
+		account.ResourceLimitNotExceeded(msg.NewResources),
 	); err != nil {
 		return nil, err
 	}
@@ -216,8 +216,8 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
-	// replace targets replaces accounts targets
-	k.ReplaceAccountTargets(ctx, accountCtrl.Account(), msg.NewTargets)
+	// replace accounts resources
+	k.ReplaceAccountResources(ctx, accountCtrl.Account(), msg.NewResources)
 	// success; TODO emit any useful event?
 	return &sdk.Result{}, nil
 }
@@ -253,7 +253,7 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *typ
 }
 
 // handlerMsgTransferAccount transfers account to a new owner
-// after clearing targets and certificates
+// after clearing resources and certificates
 func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferAccount) (*sdk.Result, error) {
 	// perform domain checks
 	domainCtrl := domain.NewController(ctx, k, msg.Domain)

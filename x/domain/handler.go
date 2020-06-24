@@ -33,8 +33,8 @@ func NewHandler(k Keeper) sdk.Handler {
 			return handlerMsgDeleteAccountCertificate(ctx, k, msg)
 		case *types.MsgDeleteAccount:
 			return handlerMsgDeleteAccount(ctx, k, msg)
-		case *types.MsgReplaceAccountTargets:
-			return handlerMsgReplaceAccountTargets(ctx, k, msg)
+		case *types.MsgReplaceAccountResources:
+			return handlerMsgReplaceAccountResources(ctx, k, msg)
 		case *types.MsgTransferAccount:
 			return handlerMsgTransferAccount(ctx, k, msg)
 		case *types.MsgReplaceAccountMetadata:

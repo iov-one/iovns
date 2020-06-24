@@ -23,7 +23,7 @@ func AvailableQueries() []iovns.QueryHandler {
 		&QueryResolveAccount{},
 		&QueryAccountsWithOwner{},
 		&QueryDomainsWithOwner{},
-		&QueryTargetAccounts{},
+		&QueryResolveResource{},
 	}
 	return queries
 }
@@ -543,10 +543,10 @@ func queryResolveDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuer
 	return respBytes, nil
 }
 
-//  QueryTargetAccounts gets accounts from a target
-type QueryTargetAccounts struct {
-	// Target is the blockchain target we want to query
-	Target types.BlockchainAddress `json:"target"`
+//  QueryResolveResource gets accounts from a resource
+type QueryResolveResource struct {
+	// Resource is the resource we want to query
+	Resource types.Resource `json:"resource"`
 	// ResultsPerPage is the number of results displayed in a page
 	ResultsPerPage int `json:"results_per_page"`
 	// Offset is the page number
@@ -554,16 +554,16 @@ type QueryTargetAccounts struct {
 }
 
 // QueryPath implements iovns.QueryHandler
-func (q *QueryTargetAccounts) QueryPath() string {
-	return "targetAccounts"
+func (q *QueryResolveResource) QueryPath() string {
+	return "resourceAccounts"
 }
 
-func (q *QueryTargetAccounts) Validate() error {
-	if q.Target.Address == "" {
-		return sdkerrors.Wrapf(types.ErrInvalidBlockchainTarget, "empty address")
+func (q *QueryResolveResource) Validate() error {
+	if q.Resource.Resource == "" {
+		return sdkerrors.Wrapf(types.ErrInvalidResource, "empty address")
 	}
-	if q.Target.ID == "" {
-		return sdkerrors.Wrapf(types.ErrInvalidBlockchainTarget, "empty ID")
+	if q.Resource.URI == "" {
+		return sdkerrors.Wrapf(types.ErrInvalidResource, "empty URI")
 	}
 	if q.ResultsPerPage == 0 {
 		q.ResultsPerPage = 100
@@ -575,17 +575,17 @@ func (q *QueryTargetAccounts) Validate() error {
 	return nil
 }
 
-func (q *QueryTargetAccounts) Handler() QueryHandlerFunc {
-	return queryTargetAccountsHandler
+func (q *QueryResolveResource) Handler() QueryHandlerFunc {
+	return queryResourceAccountHandler
 }
 
-// QueryTargetAccountsResponse is the response returned by query target
-type QueryTargetAccountsResponse struct {
+// QueryResolveResourceResponse is the response returned by query resource
+type QueryResolveResourceResponse struct {
 	Accounts []types.Account `json:"accounts"`
 }
 
-func queryTargetAccountsHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
-	q := new(QueryTargetAccounts)
+func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
+	q := new(QueryResolveResource)
 	// decode query
 	err := iovns.DefaultQueryDecode(req.Data, q)
 	if err != nil {
@@ -614,7 +614,7 @@ func queryTargetAccountsHandler(ctx sdk.Context, _ []string, req abci.RequestQue
 		return true
 	}
 	// fill keys
-	err = k.iterateBlockchainTargetsAccounts(ctx, q.Target, do)
+	err = k.iterateResourceAccounts(ctx, q.Resource, do)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
 	}
@@ -631,7 +631,7 @@ func queryTargetAccountsHandler(ctx sdk.Context, _ []string, req abci.RequestQue
 		accounts = append(accounts, account)
 	}
 	// return response
-	b, err := iovns.DefaultQueryEncode(QueryTargetAccountsResponse{Accounts: accounts})
+	b, err := iovns.DefaultQueryEncode(QueryResolveResourceResponse{Accounts: accounts})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}

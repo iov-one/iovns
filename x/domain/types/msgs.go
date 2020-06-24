@@ -262,8 +262,8 @@ type MsgRegisterAccount struct {
 	Owner sdk.AccAddress `json:"owner"`
 	// Registerer is the user who registers this account
 	Registerer sdk.AccAddress `json:"registerer"`
-	// Targets are the blockchain addresses of the account
-	Targets []BlockchainAddress `json:"targets"`
+	// Resources are the blockchain addresses of the account
+	Resources []Resource `json:"resources"`
 	// Broker is the account that facilitated the transaction
 	Broker       sdk.AccAddress `json:"broker"`
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
@@ -482,25 +482,25 @@ func (m *MsgRenewDomain) GetSigners() []sdk.AccAddress {
 	}
 }
 
-// MsgReplaceAccountTargets is the request model
-// used to renew blockchain addresses associated
+// MsgReplaceAccountResources is the request model
+// used to renew resources associated
 // with an account
-type MsgReplaceAccountTargets struct {
+type MsgReplaceAccountResources struct {
 	// Domain is the domain name of the account
 	Domain string `json:"domain"`
 	// Name is the name of the account
 	Name string `json:"name"`
-	// NewTargets are the new blockchain addresses
-	NewTargets []BlockchainAddress `json:"new_targets"`
+	// NewResources are the new resources
+	NewResources []Resource `json:"new_resources"`
 	// Owner is the owner of the account
 	Owner        sdk.AccAddress `json:"owner"`
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
-var _ MsgWithFeePayer = (*MsgReplaceAccountTargets)(nil)
+var _ MsgWithFeePayer = (*MsgReplaceAccountResources)(nil)
 
 // Route implements sdk.Msg
-func (m *MsgReplaceAccountTargets) FeePayer() sdk.AccAddress {
+func (m *MsgReplaceAccountResources) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
 	}
@@ -508,36 +508,36 @@ func (m *MsgReplaceAccountTargets) FeePayer() sdk.AccAddress {
 }
 
 // Route implements sdk.Msg
-func (m *MsgReplaceAccountTargets) Route() string {
+func (m *MsgReplaceAccountResources) Route() string {
 	return RouterKey
 }
 
 // Type implements sdk.Msg
-func (m *MsgReplaceAccountTargets) Type() string {
-	return "replace_account_targets"
+func (m *MsgReplaceAccountResources) Type() string {
+	return "replace_account_resources"
 }
 
 // ValidateBasic implements sdk.Msg
-func (m *MsgReplaceAccountTargets) ValidateBasic() error {
+func (m *MsgReplaceAccountResources) ValidateBasic() error {
 	if m.Domain == "" {
 		return errors.Wrap(ErrInvalidDomainName, "empty")
 	}
 	if m.Owner == nil {
 		return errors.Wrap(ErrInvalidOwner, "empty")
 	}
-	if len(m.NewTargets) == 0 {
-		return errors.Wrap(ErrInvalidRequest, "empty blockchain targets")
+	if len(m.NewResources) == 0 {
+		return errors.Wrap(ErrInvalidRequest, "empty resources")
 	}
 	return nil
 }
 
 // GetSignBytes implements sdk.Msg
-func (m *MsgReplaceAccountTargets) GetSignBytes() []byte {
+func (m *MsgReplaceAccountResources) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Msg
-func (m *MsgReplaceAccountTargets) GetSigners() []sdk.AccAddress {
+func (m *MsgReplaceAccountResources) GetSigners() []sdk.AccAddress {
 	if m.FeePayerAddr.Empty() {
 		return []sdk.AccAddress{m.Owner}
 	} else {

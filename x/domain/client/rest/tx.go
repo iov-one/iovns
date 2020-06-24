@@ -162,16 +162,16 @@ func renewDomainHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	}
 }
 
-// replaceAccountTargets is the request model for replaceAccountTargets
-type replaceAccountTargets struct {
-	BaseReq rest.BaseReq                    `json:"base_req"`
-	Message *types.MsgReplaceAccountTargets `json:"message"`
+// replaceAccountResources is the request model for replaceAccountResources
+type replaceAccountResources struct {
+	BaseReq rest.BaseReq                      `json:"base_req"`
+	Message *types.MsgReplaceAccountResources `json:"message"`
 }
 
-// replaceAccountTargets builds the transaction to sign to replace account targets
-func replaceAccountTargetsHandler(cliCtx context.CLIContext) http.HandlerFunc {
+// replaceAccountResources builds the transaction to sign to replace account resources
+func replaceAccountResourcesHandler(cliCtx context.CLIContext) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		var req replaceAccountTargets
+		var req replaceAccountResources
 		if !rest.ReadRESTReq(writer, request, cliCtx.Codec, &req) {
 			return
 		}

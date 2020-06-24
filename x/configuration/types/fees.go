@@ -21,14 +21,14 @@ type Fees struct {
 	// FeeDefault is the parameter defining the default fee
 	FeeDefault sdk.Dec `json:"fee_default"`
 	// account fees
-	RegisterAccountClosed sdk.Dec `json:"register_account_closed"`
-	RegisterAccountOpen   sdk.Dec `json:"register_account_open"`
-	TransferAccountClosed sdk.Dec `json:"transfer_account_closed"`
-	TransferAccountOpen   sdk.Dec `json:"transfer_account_open"`
-	ReplaceAccountTargets sdk.Dec `json:"replace_account_targets"`
-	AddAccountCertificate sdk.Dec `json:"add_account_certificate"`
-	DelAccountCertificate sdk.Dec `json:"del_account_certificate"`
-	SetAccountMetadata    sdk.Dec `json:"set_account_metadata"`
+	RegisterAccountClosed   sdk.Dec `json:"register_account_closed"`
+	RegisterAccountOpen     sdk.Dec `json:"register_account_open"`
+	TransferAccountClosed   sdk.Dec `json:"transfer_account_closed"`
+	TransferAccountOpen     sdk.Dec `json:"transfer_account_open"`
+	ReplaceAccountResources sdk.Dec `json:"replace_account_resources"`
+	AddAccountCertificate   sdk.Dec `json:"add_account_certificate"`
+	DelAccountCertificate   sdk.Dec `json:"del_account_certificate"`
+	SetAccountMetadata      sdk.Dec `json:"set_account_metadata"`
 	// domain fees
 	// Register domain
 	RegisterDomain1              sdk.Dec `json:"register_domain_1"`
@@ -91,7 +91,7 @@ func (f *Fees) SetDefaults(denom string) {
 		RegisterAccountOpen:          defaultFeeParameter,
 		TransferAccountClosed:        defaultFeeParameter,
 		TransferAccountOpen:          defaultFeeParameter,
-		ReplaceAccountTargets:        defaultFeeParameter,
+		ReplaceAccountResources:      defaultFeeParameter,
 		AddAccountCertificate:        defaultFeeParameter,
 		DelAccountCertificate:        defaultFeeParameter,
 		SetAccountMetadata:           defaultFeeParameter,
