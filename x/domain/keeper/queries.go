@@ -560,7 +560,7 @@ func (q *QueryResolveResource) QueryPath() string {
 
 func (q *QueryResolveResource) Validate() error {
 	if q.Resource.Resource == "" {
-		return sdkerrors.Wrapf(types.ErrInvalidResource, "empty address")
+		return sdkerrors.Wrapf(types.ErrInvalidResource, "empty resource")
 	}
 	if q.Resource.URI == "" {
 		return sdkerrors.Wrapf(types.ErrInvalidResource, "empty URI")

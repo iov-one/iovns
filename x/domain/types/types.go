@@ -136,7 +136,7 @@ func (a *Account) Unpack(key []byte) error {
 type Resource struct {
 	// URI defines the ID of the resource
 	URI string `json:"uri"`
-	// Resource defines the content of the resource
+	// Resource is the resource
 	Resource string `json:"resource"`
 }
 

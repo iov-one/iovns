@@ -284,7 +284,7 @@ func getQueryResourcesAccount(modulePath string, cdc *codec.Codec) *cobra.Comman
 	}
 	// add flags
 	cmd.Flags().String("uri", "", "the resource uri")
-	cmd.Flags().String("resource", "", "resource content")
+	cmd.Flags().String("resource", "", "resource")
 	cmd.Flags().Int("offset", 1, "the page offset")
 	cmd.Flags().Int("rpp", 100, "results per page")
 	// return cmd

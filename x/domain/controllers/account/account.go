@@ -337,22 +337,22 @@ func (a *Account) validResources(resources []types.Resource) error {
 	a.requireConfiguration()
 	validBlockchainID := regexp.MustCompile(a.conf.ValidResourceURI)
 	validBlockchainAddress := regexp.MustCompile(a.conf.ValidResourceContent)
-	// create blockchain resources set to identify duplicates
+	// create resources set to identify duplicates
 	sets := make(map[string]struct{}, len(resources))
 	// iterate over resources to check their validity
 	for _, resource := range resources {
-		// check if blockchain URI was already specified
+		// check if URI was already specified
 		if _, ok := sets[resource.URI]; ok {
-			return sdkerrors.Wrapf(types.ErrInvalidResource, "duplicate blockchain URI %s", resource.URI)
+			return sdkerrors.Wrapf(types.ErrInvalidResource, "duplicate URI %s", resource.URI)
 		}
 		sets[resource.URI] = struct{}{}
-		// is blockchain id valid?
+		// is uri valid?
 		if !validBlockchainID.MatchString(resource.URI) {
-			return sdkerrors.Wrapf(types.ErrInvalidResource, "%s is not a valid blockchain URI", resource.URI)
+			return sdkerrors.Wrapf(types.ErrInvalidResource, "%s is not a valid URI", resource.URI)
 		}
-		// is blockchain address valid?
+		// is resource valid?
 		if !validBlockchainAddress.MatchString(resource.Resource) {
-			return sdkerrors.Wrapf(types.ErrInvalidResource, "%s is not a valid blockchain address", resource.Resource)
+			return sdkerrors.Wrapf(types.ErrInvalidResource, "%s is not a valid resource", resource.Resource)
 		}
 	}
 	// success

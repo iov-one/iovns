@@ -1193,7 +1193,7 @@ func Test_OpenDomain_handleMsgRegisterAccount(t *testing.T) {
 
 func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 	testCases := map[string]keeper.SubTest{
-		"fail invalid blockchain resources address": {
+		"fail resource": {
 			TestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 
@@ -1232,7 +1232,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
-		"fail invalid blockchain resources id": {
+		"fail invalid uri": {
 			TestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
@@ -1312,7 +1312,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 		},
 		"fail domain name does not exist": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// set regexp match nothing in blockchain resources
+				// set regexp match nothing in resources
 				// get set config function
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				// set configs with a domain regexp that matches nothing
@@ -1345,7 +1345,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 		"fail only owner of domain with superuser can register accounts": {
 			TestBlockTime: 1,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// set regexp match nothing in blockchain resources
+				// set regexp match nothing in resources
 				// get set config function
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				// set configs with a domain regexp that matches nothing
@@ -1385,7 +1385,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 		},
 		"fail domain has expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// set regexp match nothing in blockchain resources
+				// set regexp match nothing in resources
 				// get set config function
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				// set configs with a domain regexp that matches nothing
@@ -1425,7 +1425,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 		},
 		"fail account exists": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// set regexp match nothing in blockchain resources
+				// set regexp match nothing in resources
 				// get set config function
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				// set configs with a domain regexp that matches nothing
@@ -1475,7 +1475,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 		},
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				// set regexp match nothing in blockchain resources
+				// set regexp match nothing in resources
 				// get set config function
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				// set configs with a domain regexp that matches nothing
@@ -1827,7 +1827,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				}
 			},
 		},
-		"blockchain resource limit exceeded": {
+		"resource limit exceeded": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
