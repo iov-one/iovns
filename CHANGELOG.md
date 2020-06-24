@@ -7,6 +7,7 @@
 - REST: rename FromOwner to WithOwner
 - CLI: Add broker field to registerDomain and registerAccount
 - FIX: fix fee deduct and improve tests
+- FIX: TransferDomain flushes empty account content
 
 ## v0.4.3
 
