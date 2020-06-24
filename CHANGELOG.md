@@ -1,7 +1,7 @@
 # Changelog
 
 ## HEAD
-
+- BREAKING: rename targets to resource
 - fix: iovnscli get config
 - REST: rename /domain/ query path to /starname/
 - REST: rename FromOwner to WithOwner
