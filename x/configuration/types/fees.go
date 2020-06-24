@@ -79,13 +79,13 @@ func (f *Fees) SetDefaults(denom string) {
 	if err := sdk.ValidateDenom(denom); err != nil {
 		panic(fmt.Errorf("invalid coin denom %s: %w", denom, err))
 	}
-	defaultFeeParameter := sdk.NewDec(1)
+	defaultFeeParameter := sdk.NewDecFromInt(sdk.NewInt(10))
 	if f == nil {
 		panic("cannot set default fees for nil fees")
 	}
 	*f = Fees{
 		FeeCoinDenom:                 denom,
-		FeeCoinPrice:                 sdk.NewDec(10),
+		FeeCoinPrice:                 sdk.NewDecFromInt(sdk.NewInt(10)),
 		FeeDefault:                   defaultFeeParameter,
 		RegisterAccountClosed:        defaultFeeParameter,
 		RegisterAccountOpen:          defaultFeeParameter,

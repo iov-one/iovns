@@ -3,22 +3,19 @@ package fees
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 )
 
-// Keeper defines the behaviour of the keeper, it's here just to avoid import cycling
-type Keeper interface {
-	GetAccountsInDomain(ctx sdk.Context, name string, do func(k []byte) bool)
-}
-
 // Controller defines the fee controller behaviour
 // exists only in order to avoid devs creating a fee
-// controller without using the constructor feunction
+// controller without using the constructor function
 type Controller interface {
 	GetFee(msg sdk.Msg) sdk.Coin
 }
 
-func NewController(ctx sdk.Context, k Keeper, fees *configuration.Fees, domain types.Domain) Controller {
+func NewController(ctx sdk.Context, k keeper.Keeper, domain types.Domain) Controller {
+	fees := k.ConfigurationKeeper.GetFees(ctx)
 	return feeApplier{
 		moduleFees: *fees,
 		ctx:        ctx,
@@ -30,7 +27,7 @@ func NewController(ctx sdk.Context, k Keeper, fees *configuration.Fees, domain t
 type feeApplier struct {
 	moduleFees configuration.Fees
 	ctx        sdk.Context
-	k          Keeper
+	k          keeper.Keeper
 	domain     types.Domain
 }
 
@@ -53,7 +50,7 @@ func (f feeApplier) registerDomain() sdk.Dec {
 	}
 	// if domain is open then we multiply
 	if f.domain.Type == types.OpenDomain {
-		registerDomainFee.Mul(f.moduleFees.RegisterOpenDomainMultiplier)
+		registerDomainFee = registerDomainFee.Mul(f.moduleFees.RegisterOpenDomainMultiplier)
 	}
 	return registerDomainFee
 }
@@ -78,7 +75,7 @@ func (f feeApplier) renewDomain() sdk.Dec {
 		return true
 	})
 	fee := f.moduleFees.RegisterAccountClosed
-	fee.MulInt64(accountN)
+	fee = fee.MulInt64(accountN)
 	return fee
 }
 
@@ -150,6 +147,8 @@ func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 		return f.replaceTargets()
 	case *types.MsgDeleteAccountCertificate:
 		return f.delCert()
+	case *types.MsgAddAccountCertificates:
+		return f.addCert()
 	case *types.MsgReplaceAccountMetadata:
 		return f.setMetadata()
 	default:
@@ -161,19 +160,19 @@ func (f feeApplier) getFeeParam(msg sdk.Msg) sdk.Dec {
 func (f feeApplier) GetFee(msg sdk.Msg) sdk.Coin {
 	// get current price
 	currentPrice := f.moduleFees.FeeCoinPrice
-	// get coin denom
-	coinDenom := f.moduleFees.FeeCoinDenom
 	// get fee parameter
-	param := f.getFeeParam(msg)
-	// calculate the quotient between current price and parameter
-	toPay := currentPrice.Quo(param)
+	fee := f.getFeeParam(msg)
+	// if fee is smaller than default fee, use default fee
+	if fee.LT(f.defaultFee()) {
+		fee = f.defaultFee()
+	}
+	// divide fee with current price
+	toPay := fee.Quo(currentPrice)
 	var feeAmount sdk.Int
 	// get fee amount
 	feeAmount = toPay.TruncateInt()
-	// if expected fee is lower than default fee then set the default fee as current fee
-	if feeAmount.LT(f.moduleFees.FeeDefault.TruncateInt()) {
-		feeAmount = f.moduleFees.FeeDefault.TruncateInt()
-	}
+	// get coin denom
+	coinDenom := f.moduleFees.FeeCoinDenom
 	// generate coins to pay
 	coinsToPay := sdk.NewCoin(coinDenom, feeAmount)
 	return coinsToPay

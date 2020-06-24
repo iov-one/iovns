@@ -2,6 +2,7 @@ package domain
 
 import (
 	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/x/domain/controllers/fees"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -32,8 +33,10 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *typ
 	); err != nil {
 		return nil, err
 	}
+	feeCtrl := fees.NewController(ctx, k, domainCtrl.Domain())
+	fee := feeCtrl.GetFee(msg)
 	// collect fees
-	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
@@ -63,7 +66,10 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *t
 	); err != nil {
 		return nil, err
 	}
-	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
+	feeCtrl := fees.NewController(ctx, k, domainCtrl.Domain())
+	fee := feeCtrl.GetFee(msg)
+	// collect fees
+	err := k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -87,7 +93,10 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 		return nil, err
 	}
 	// collect fees
-	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
+	feeCtrl := fees.NewController(ctx, k, domainCtrl.Domain())
+	fee := feeCtrl.GetFee(msg)
+	// collect fees
+	err := k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -133,8 +142,10 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 	case types.OpenDomain:
 		a.ValidUntil = ctx.BlockTime().Add(conf.AccountRenewalPeriod).Unix()
 	}
-
-	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
+	feeCtrl := fees.NewController(ctx, k, domainCtrl.Domain())
+	fee := feeCtrl.GetFee(msg)
+	// collect fees
+	err := k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -156,8 +167,10 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 		account.MaxRenewNotExceeded); err != nil {
 		return nil, err
 	}
+	feeCtrl := fees.NewController(ctx, k, domainCtrl.Domain())
+	fee := feeCtrl.GetFee(msg)
 	// collect fees
-	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -196,8 +209,10 @@ func handlerMsgReplaceAccountTargets(ctx sdk.Context, k keeper.Keeper, msg *type
 	); err != nil {
 		return nil, err
 	}
+	feeCtrl := fees.NewController(ctx, k, domainCtrl.Domain())
+	fee := feeCtrl.GetFee(msg)
 	// collect fees
-	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
+	err := k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -224,7 +239,10 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *typ
 		return nil, err
 	}
 	// collect fees
-	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
+	feeCtrl := fees.NewController(ctx, k, domainCtrl.Domain())
+	fee := feeCtrl.GetFee(msg)
+	// collect fees
+	err := k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
@@ -258,7 +276,10 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 	}
 
 	// collect fees
-	err := k.CollectFees(ctx, msg, domainCtrl.Domain())
+	feeCtrl := fees.NewController(ctx, k, domainCtrl.Domain())
+	fee := feeCtrl.GetFee(msg)
+	// collect fees
+	err := k.CollectFees(ctx, msg, fee)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
