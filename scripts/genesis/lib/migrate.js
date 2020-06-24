@@ -567,7 +567,29 @@ export const patchGalaxynet = genesis => {
    genesis.app_state.auth.accounts.forEach( account => account.value.coins[0].denom = "uvoi" );
    genesis.app_state.mint.params.mint_denom = "uvoi";
    genesis.app_state.staking.params.bond_denom = "uvoi";
-   genesis.app_state.configuration.fees.fee_coin_denom = "uvoi";
+   genesis.app_state.configuration.fees = { // https://internetofvalues.slack.com/archives/GPYCU2AJJ/p1593018862011300?thread_ts=1593017152.004100&cid=GPYCU2AJJ
+      "fee_coin_denom": "uvoi",
+      "fee_coin_price": "0.0000001",
+      "fee_default": "0.500000000000000000",
+      "register_account_closed": "0.500000000000000000",
+      "register_account_open": "0.500000000000000000",
+      "transfer_account_closed": "0.500000000000000000",
+      "transfer_account_open": "10.000000000000000000",
+      "replace_account_targets": "1.000000000000000000",
+      "add_account_certificate": "50.000000000000000000",
+      "del_account_certificate": "10.000000000000000000",
+      "set_account_metadata": "15.000000000000000000",
+      "register_domain_1": "1000.000000000000000000",
+      "register_domain_2": "500.000000000000000000",
+      "register_domain_3": "200.000000000000000000",
+      "register_domain_4": "100.000000000000000000",
+      "register_domain_5": "50.000000000000000000",
+      "register_domain_default": "25.000000000000000000",
+      "register_open_domain_multiplier": "10.00000000000000000",
+      "transfer_domain_closed": "12.500000000000000000",
+      "transfer_domain_open": "125.000000000000000000",
+      "renew_domain_open": "12345.000000000000000000",
+   };
 }
 
 /**
