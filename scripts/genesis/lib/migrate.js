@@ -360,29 +360,15 @@ export const patchJestnet = genesis => {
 export const patchGalaxynet = genesis => {
    if ( genesis.chain_id != "iovns-galaxynet" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iovns-galaxynet.` );
 
-   // make dave rich for testing
+   // make dave and bojack rich for testing
    const dave = genesis.app_state.auth.accounts.find( account => account.value.address == "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
+   const bojack = genesis.app_state.auth.accounts.find( account => account.value.address == "star1z6rhjmdh2e9s6lvfzfwrh8a3kjuuy58y74l29t" );
 
    if ( dave ) dave.value.coins[0].amount = "1000000000000000";
+   if ( bojack ) bojack.value.coins[0].amount = "1000000000000000";
 
    // add other test accounts
    const accounts = [
-      {
-         "//name": "bojack",
-         "type": "cosmos-sdk/Account",
-         "value": {
-            "address": "star1z6rhjmdh2e9s6lvfzfwrh8a3kjuuy58y74l29t",
-            "coins": [
-               {
-                  "denom": "uiov",
-                  "amount": "1000000000000000"
-               }
-            ],
-            "public_key": "",
-            "account_number": 0,
-            "sequence": 0
-         }
-      },
       {
          "//name": "faucet",
          "type": "cosmos-sdk/Account",
