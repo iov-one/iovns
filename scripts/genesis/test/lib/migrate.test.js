@@ -1048,6 +1048,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( escrow.value.coins[0].denom ).toEqual( "uvoi" );
       expect( genesisCopy.app_state.mint.params.mint_denom ).toEqual( "uvoi" );
       expect( genesisCopy.app_state.staking.params.bond_denom ).toEqual( "uvoi" );
+      expect( genesisCopy.app_state.configuration.fees.fee_coin_denom ).toEqual( "uvoi" );
    } );
 
    it( `Should patch iov-mainnet-2.`, async () => {
