@@ -623,6 +623,11 @@ export const patchMainnet = genesis => {
          id: 2046,
       },
    };
+   const boughtOffChain = {
+      iov12gd6weg7py6vs7ujn22h82422arek8cxzhe85p: {
+         star1: "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt",
+      },
+   };
 
    Object.keys( lostKeys ).forEach( iov1 => {
       const recover = custodian[`//no star1 ${iov1}`];
@@ -645,6 +650,20 @@ export const patchMainnet = genesis => {
       if ( genesis.app_state.auth.accounts.find( account => account["//iov1"] == iov1 ) ) throw new Error( `Account for ${iov1} already exists!` );
       const account = createAccount( { address, amount, id, iov, iov1 } );
       genesis.app_state.auth.accounts.push( account );
+   } );
+
+   Object.keys( boughtOffChain ).forEach( iov1 => {
+      const address = boughtOffChain[iov1].star1;
+      const names = custodian[`//no star1 ${iov1}`];
+
+      delete( custodian[`//no star1 ${iov1}`] );
+
+      // remove custody of starname
+      names.forEach( name => {
+         const starname = genesis.app_state.domain.domains.find( domain => domain.name == name );
+         if ( !starname ) throw new Error( `Domain doesn't exist for ${name}!` );
+         starname.owner = address;
+      } );
    } );
 
    const getAmount = account => {
