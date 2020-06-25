@@ -84,3 +84,73 @@ func TestKeeper_CreateDomain(t *testing.T) {
 		}
 	})
 }
+
+func TestKeeper_FlushDomain(t *testing.T) {
+	k, ctx, _ := NewTestKeeper(t, true)
+	ctx.WithBlockTime(time.Unix(0, 0))
+	// create mock domains
+	closedDomain := types.Domain{
+		Name:       "closed",
+		Admin:      AliceKey,
+		ValidUntil: 1,
+		Type:       types.ClosedDomain,
+		Broker:     nil,
+	}
+	closedAcc := types.Account{
+		Domain: closedDomain.Name,
+		Name:   "test",
+		Owner:  AliceKey,
+	}
+	openDomain := types.Domain{
+		Name:       "open",
+		Admin:      AliceKey,
+		ValidUntil: 1,
+		Type:       types.OpenDomain,
+		Broker:     nil,
+	}
+	openAccount := types.Account{
+		Domain: openDomain.Name,
+		Name:   "test",
+		Owner:  AliceKey,
+	}
+	k.CreateDomain(ctx, closedDomain)
+	k.CreateAccount(ctx, closedAcc)
+	k.CreateDomain(ctx, openDomain)
+	k.CreateAccount(ctx, openAccount)
+	t.Run(closedDomain.Name, func(t *testing.T) {
+		k.FlushDomain(ctx, closedDomain)
+		var accs [][]byte
+		k.GetAccountsInDomain(ctx, closedDomain.Name, func(key []byte) bool {
+			accs = append(accs, key)
+			return true
+		})
+		if len(accs) != 1 {
+			t.Fatal("domain not flushed")
+		}
+		acc, ok := k.GetAccount(ctx, closedAcc.Domain, types.EmptyAccountName)
+		if !ok {
+			t.Fatal("empty account flushed")
+		}
+		if acc.Broker != nil || acc.MetadataURI != "" || acc.Targets != nil {
+			t.Fatalf("empty account content not flushed %v", acc)
+		}
+	})
+	t.Run(openDomain.Name, func(t *testing.T) {
+		k.FlushDomain(ctx, openDomain)
+		var accs [][]byte
+		k.GetAccountsInDomain(ctx, openDomain.Name, func(key []byte) bool {
+			accs = append(accs, key)
+			return true
+		})
+		if len(accs) != 1 {
+			t.Fatal("domain not flushed")
+		}
+		acc, ok := k.GetAccount(ctx, openAccount.Domain, types.EmptyAccountName)
+		if !ok {
+			t.Fatal("empty account flushed")
+		}
+		if acc.Broker != nil || acc.MetadataURI != "" || acc.Targets != nil {
+			t.Fatalf("empty account content not flushed %v", acc)
+		}
+	})
+}

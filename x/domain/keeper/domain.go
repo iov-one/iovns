@@ -135,10 +135,16 @@ func (k Keeper) FlushDomain(ctx sdk.Context, domain types.Domain) {
 	// delete each account
 	for _, accountKey := range accountKeys {
 		accountName := accountKeyToString(accountKey)
-		if accountName == types.EmptyAccountName {
-			continue
+		if accountName != types.EmptyAccountName {
+			k.DeleteAccount(ctx, domain.Name, accountName)
+		} else {
+			// flush empty account content
+			acc, _ := k.GetAccount(ctx, domain.Name, accountName)
+			acc.Targets = nil
+			acc.Broker = nil
+			acc.MetadataURI = ""
+			k.SetAccount(ctx, acc)
 		}
-		k.DeleteAccount(ctx, domain.Name, accountName)
 	}
 }
 
