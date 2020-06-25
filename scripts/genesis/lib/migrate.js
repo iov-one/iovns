@@ -600,10 +600,14 @@ export const patchMainnet = genesis => {
    if ( genesis.chain_id != "iov-mainnet-2" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iov-mainnet-2.` );
 
    const custodian = genesis.app_state.auth.accounts.find( account => account["//id"] == "Custodian of missing star1 accounts" );
-   const lostKeys = {
+   const lostKeys = { // lost keys/ledger firmware upgraded
       iov1jq8z8xl9tqdwjsp44gtkd2c5rpq33e556kg0ft: {
          star1: "star1k9ktkefsdxtydga262re596agdklwjmrf9et90",
          id: 2033,
+      },
+      iov153n95ekuw9rxfhzspgarqjdwnadmvdt0chcjs4: {
+         star1: "star1keaxspy5rgw84azg5w640pp8zdla72ra0n5xh2",
+         id: 2024,
       },
       // TODO
       //iov14qk7zrz2ewhdmy7cjj68sk6jn3rst4vd7u930y: {

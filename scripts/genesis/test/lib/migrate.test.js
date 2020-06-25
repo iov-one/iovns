@@ -1009,7 +1009,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( w3.value.address ).toEqual( "star1aj9qqrftdqussgpnq6lqj08gwy6ysppf53c8e9" );
 
       expect( dave.value.coins[0].amount ).not.toEqual( poor.value.coins[0].amount );
-      expect( dave.value.coins[0].amount ).toEqual( "1000000000000000" );
+      expect( dave.value.coins[0].amount ).toEqual( "1000000000000" );
 
       const config = genesisCopy.app_state.configuration.config;
 
@@ -1067,6 +1067,10 @@ describe( "Tests ../../lib/migrate.js.", () => {
             700666,
             "charlief*iov"
          ],
+         "//no star1 iov153n95ekuw9rxfhzspgarqjdwnadmvdt0chcjs4": [
+            1111111,
+            "gillesd*iov"
+         ],
          "type": "cosmos-sdk/Account",
          "value": {
             "account_number": 0,
@@ -1103,6 +1107,17 @@ describe( "Tests ../../lib/migrate.js.", () => {
          "owner": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
          "targets": null,
          "valid_until": "1609415999"
+      },
+      {
+         "//iov1": "iov1jq8z8xl9tqdwjsp44gtkd2c5rpq33e556kg0ft",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "gillesd",
+         "owner": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
+         "targets": null,
+         "valid_until": "1609415999"
       } );
 
       const accounts0 = [].concat( genesisCopy.app_state.auth.accounts );
@@ -1111,7 +1126,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       patchMainnet( genesisCopy );
 
-      expect( genesisCopy.app_state.auth.accounts.length ).toEqual( accounts0.length + 1 );
+      expect( genesisCopy.app_state.auth.accounts.length ).toEqual( accounts0.length + 2 );
       expect( genesisCopy.app_state.domain.accounts.length ).toEqual( starnames0.length );
 
       const custodian = genesisCopy.app_state.auth.accounts.find( account => account["//id"] == "Custodian of missing star1 accounts" );
@@ -1119,10 +1134,16 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const charliestar1 = "star1k9ktkefsdxtydga262re596agdklwjmrf9et90";
       const charlief = genesisCopy.app_state.auth.accounts.find( account => account.value.address == charliestar1 );
       const charliefiov = genesisCopy.app_state.domain.accounts.find( account => account.owner == charliestar1 );
+      const gillesdAmount = 1111111 * 1e6;
+      const gillesdtar1 = "star1keaxspy5rgw84azg5w640pp8zdla72ra0n5xh2";
+      const gillesd = genesisCopy.app_state.auth.accounts.find( account => account.value.address == gillesdtar1 );
+      const gillesdiov = genesisCopy.app_state.domain.accounts.find( account => account.owner == gillesdtar1 );
 
-      expect( custodian.value.coins[0].amount ).toEqual( String( +custodian0.value.coins[0].amount - charliefAmount ) );
+      expect( custodian.value.coins[0].amount ).toEqual( String( +custodian0.value.coins[0].amount - charliefAmount - gillesdAmount ) );
       expect( charlief.value.coins[0].amount ).toEqual( String( charliefAmount ) );
       expect( charliefiov ).toBeTruthy();
+      expect( gillesd.value.coins[0].amount ).toEqual( String( gillesdAmount ) );
+      expect( gillesdiov ).toBeTruthy();
    } );
 
    it( `Should migrate.`, async () => {
