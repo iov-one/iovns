@@ -37,7 +37,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 		getCmdAddAccountCerts(cdc),
 		getCmdTransferAccount(cdc),
 		getCmdTransferDomain(cdc),
-		getCmdReplaceAccountTargets(cdc),
+		getmCmdReplaceAccountResources(cdc),
 		getCmdDelDomain(cdc),
 		getCmdDelAccount(cdc),
 		getCmdRenewDomain(cdc),
@@ -183,10 +183,10 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func getCmdReplaceAccountTargets(cdc *codec.Codec) *cobra.Command {
+func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "replace-targets",
-		Short: "replace account targets",
+		Use:   "replace-resources",
+		Short: "replace account resources",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -200,19 +200,19 @@ func getCmdReplaceAccountTargets(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return
 			}
-			targetsPath, err := cmd.Flags().GetString("src")
+			resourcesPath, err := cmd.Flags().GetString("src")
 			if err != nil {
 				return err
 			}
-			// open targets file
-			f, err := os.Open(targetsPath)
+			// open resources file
+			f, err := os.Open(resourcesPath)
 			if err != nil {
 				return err
 			}
 			defer f.Close()
-			// unmarshal targets
-			var targets []types.BlockchainAddress
-			err = json.NewDecoder(f).Decode(&targets)
+			// unmarshal resources
+			var resources []types.Resource
+			err = json.NewDecoder(f).Decode(&resources)
 			if err != nil {
 				return
 			}
@@ -228,10 +228,10 @@ func getCmdReplaceAccountTargets(cdc *codec.Codec) *cobra.Command {
 				}
 			}
 			// build msg
-			msg := &types.MsgReplaceAccountTargets{
+			msg := &types.MsgReplaceAccountResources{
 				Domain:       domain,
 				Name:         name,
-				NewTargets:   targets,
+				NewResources: resources,
 				Owner:        cliCtx.GetFromAddress(),
 				FeePayerAddr: feePayer,
 			}
@@ -245,8 +245,8 @@ func getCmdReplaceAccountTargets(cdc *codec.Codec) *cobra.Command {
 	}
 	// add flags
 	cmd.Flags().String("domain", "", "the domain name of account")
-	cmd.Flags().String("name", "", "the name of the account whose targets you want to replace")
-	cmd.Flags().String("src", "targets.json", "the file containing the new targets in json format")
+	cmd.Flags().String("name", "", "the name of the account whose resources you want to replace")
+	cmd.Flags().String("src", "resources.json", "the file containing the new resources in json format")
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	// return cmd
 	return cmd
@@ -808,7 +808,7 @@ func getCmdSetAccountMetadata(cdc *codec.Codec) *cobra.Command {
 	}
 	// add flags
 	cmd.Flags().String("domain", "", "the domain name of account")
-	cmd.Flags().String("name", "", "the name of the account whose targets you want to replace")
+	cmd.Flags().String("name", "", "the name of the account whose resources you want to replace")
 	cmd.Flags().String("metadata", "", "the new metadata URI, leave empty to unset")
 	cmd.Flags().String("fee_payer", "", "address of the fee payer, optional")
 	// return cmd

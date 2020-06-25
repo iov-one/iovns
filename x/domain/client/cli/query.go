@@ -31,7 +31,7 @@ func GetQueryCmd(moduleQueryPath string, cdc *codec.Codec) *cobra.Command {
 			getQueryDomainAccounts(moduleQueryPath, cdc),
 			getQueryOwnerAccount(moduleQueryPath, cdc),
 			getQueryOwnerDomain(moduleQueryPath, cdc),
-			getQueryTargetAccounts(moduleQueryPath, cdc),
+			getQueryResourcesAccount(moduleQueryPath, cdc),
 		)...,
 	)
 	return domainQueryCmd
@@ -243,17 +243,17 @@ func getQueryResolveAccount(modulePath string, cdc *codec.Codec) *cobra.Command 
 	return cmd
 }
 
-func getQueryTargetAccounts(modulePath string, cdc *codec.Codec) *cobra.Command {
+func getQueryResourcesAccount(modulePath string, cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "resolve-target",
-		Short: "resolves a blockchain target into accounts",
+		Use:   "resolve-resource",
+		Short: "resolves a resource into accounts",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			// get flags
-			id, err := cmd.Flags().GetString("blockchain-id")
+			id, err := cmd.Flags().GetString("uri")
 			if err != nil {
 				return err
 			}
-			addr, err := cmd.Flags().GetString("blockchain-address")
+			addr, err := cmd.Flags().GetString("resource")
 			if err != nil {
 				return err
 			}
@@ -266,10 +266,10 @@ func getQueryTargetAccounts(modulePath string, cdc *codec.Codec) *cobra.Command 
 				return err
 			}
 			// get query & validate
-			q := keeper.QueryTargetAccounts{
-				Target: types.BlockchainAddress{
-					ID:      id,
-					Address: addr,
+			q := keeper.QueryResolveResource{
+				Resource: types.Resource{
+					URI:      id,
+					Resource: addr,
 				},
 				ResultsPerPage: rpp,
 				Offset:         offset,
@@ -279,12 +279,12 @@ func getQueryTargetAccounts(modulePath string, cdc *codec.Codec) *cobra.Command 
 			}
 			// get query path
 			path := fmt.Sprintf("custom/%s/%s", modulePath, q.QueryPath())
-			return processQueryCmd(cdc, path, q, new(keeper.QueryTargetAccountsResponse))
+			return processQueryCmd(cdc, path, q, new(keeper.QueryResolveResourceResponse))
 		},
 	}
 	// add flags
-	cmd.Flags().String("blockchain-id", "", "the blockchain id")
-	cmd.Flags().String("blockchain-address", "", "blockchain address")
+	cmd.Flags().String("uri", "", "the resource uri")
+	cmd.Flags().String("resource", "", "resource")
 	cmd.Flags().Int("offset", 1, "the page offset")
 	cmd.Flags().Int("rpp", 100, "results per page")
 	// return cmd

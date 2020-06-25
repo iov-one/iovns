@@ -15,7 +15,7 @@ func TestFees_Validate(t *testing.T) {
 		RegisterAccountOpen          types.Dec
 		TransferAccountClosed        types.Dec
 		TransferAccountOpen          types.Dec
-		ReplaceAccountTargets        types.Dec
+		ReplaceAccountResources      types.Dec
 		AddAccountCertificate        types.Dec
 		DelAccountCertificate        types.Dec
 		SetAccountMetadata           types.Dec
@@ -60,7 +60,7 @@ func TestFees_Validate(t *testing.T) {
 				RegisterAccountOpen:          tt.fields.RegisterAccountOpen,
 				TransferAccountClosed:        tt.fields.TransferAccountClosed,
 				TransferAccountOpen:          tt.fields.TransferAccountOpen,
-				ReplaceAccountTargets:        tt.fields.ReplaceAccountTargets,
+				ReplaceAccountResources:      tt.fields.ReplaceAccountResources,
 				AddAccountCertificate:        tt.fields.AddAccountCertificate,
 				DelAccountCertificate:        tt.fields.DelAccountCertificate,
 				SetAccountMetadata:           tt.fields.SetAccountMetadata,

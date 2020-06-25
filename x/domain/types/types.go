@@ -84,8 +84,8 @@ type Account struct {
 	Owner sdk.AccAddress `json:"owner"`
 	// ValidUntil defines a unix timestamp of the expiration of the account
 	ValidUntil int64 `json:"valid_until"`
-	// Targets is the list of blockchain addresses this account belongs to
-	Targets []BlockchainAddress `json:"targets"`
+	// Resources is the list of resources an account resolves to
+	Resources []Resource `json:"resources"`
 	// Certificates contains the list of certificates to identify the account owner
 	Certificates []Certificate `json:"certificates"`
 	// Broker can be empty
@@ -132,19 +132,19 @@ func (a *Account) Unpack(key []byte) error {
 	return nil
 }
 
-// BlockchainAddress defines an address coming from different DLTs
-type BlockchainAddress struct {
-	// ID defines a blockchain ID
-	ID string `json:"blockchain_id"`
-	// Address is the blockchain address
-	Address string `json:"address"`
+// Resource defines a resource an account can resolve to
+type Resource struct {
+	// URI defines the ID of the resource
+	URI string `json:"uri"`
+	// Resource is the resource
+	Resource string `json:"resource"`
 }
 
 // Index implements Indexer and packs the
-// blockchain address into an index key using
-// its blockchain ID and address
-func (b BlockchainAddress) Index() ([]byte, error) {
-	return index.PackBytes([][]byte{[]byte(b.ID), []byte(b.Address)})
+// resource into an index key using
+// its URI and Resource
+func (b Resource) Index() ([]byte, error) {
+	return index.PackBytes([][]byte{[]byte(b.URI), []byte(b.Resource)})
 }
 
 // Certificate defines a certificate

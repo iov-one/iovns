@@ -40,7 +40,7 @@ func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
 		Name:         "",
 		Owner:        domain.Admin,
 		ValidUntil:   types.MaxValidUntil,
-		Targets:      nil,
+		Resources:    nil,
 		Certificates: nil,
 		Broker:       nil,
 	}

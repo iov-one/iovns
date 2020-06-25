@@ -127,7 +127,7 @@ func Test_domainIndexing(t *testing.T) {
 	}
 }
 
-func Test_targetsIndexing(t *testing.T) {
+func Test_resourceIndexing(t *testing.T) {
 	accMatch := func(acc1, acc2 types.Account) error {
 		if acc1.Name != acc2.Name {
 			return fmt.Errorf("name mismatch: %s <-> %s", acc1.Name, acc2.Name)
@@ -143,29 +143,29 @@ func Test_targetsIndexing(t *testing.T) {
 		return true
 	}
 	k, ctx, _ := NewTestKeeper(t, true)
-	// create one target
-	targetA := types.BlockchainAddress{
-		ID:      "t1",
-		Address: "1",
+	// create one resource
+	resourceA := types.Resource{
+		URI:      "t1",
+		Resource: "1",
 	}
-	targetB := types.BlockchainAddress{
-		ID:      "t2",
-		Address: "2",
+	resourceB := types.Resource{
+		URI:      "t2",
+		Resource: "2",
 	}
 	// create one account
 	accountA := types.Account{
 		Domain: "test",
 		Name:   "1",
-		Targets: []types.BlockchainAddress{
-			targetA,
-			targetB,
+		Resources: []types.Resource{
+			resourceA,
+			resourceB,
 		},
 		Owner: aliceAddr,
 	}
 	// insert account
 	k.CreateAccount(ctx, accountA)
-	// iterate targets
-	err := k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	// iterate resources
+	err := k.iterateResourceAccounts(ctx, resourceA, do)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -185,18 +185,18 @@ func Test_targetsIndexing(t *testing.T) {
 	// DeleteAccount
 	accountKeys = nil
 	k.DeleteAccount(ctx, accountA.Domain, accountA.Name)
-	err = k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	err = k.iterateResourceAccounts(ctx, resourceA, do)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(accountKeys) != 0 {
 		t.Fatalf("no key expected, got: %d", len(accountKeys))
 	}
-	// ReplaceAccountTargets
+	// ReplaceAccountResources
 	accountKeys = nil
 	k.CreateAccount(ctx, accountA)
-	k.ReplaceAccountTargets(ctx, accountA, []types.BlockchainAddress{targetB})
-	err = k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	k.ReplaceAccountResources(ctx, accountA, []types.Resource{resourceB})
+	err = k.iterateResourceAccounts(ctx, resourceA, do)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -204,7 +204,7 @@ func Test_targetsIndexing(t *testing.T) {
 		t.Fatalf("no key expected, got: %d", len(accountKeys))
 	}
 	accountKeys = nil
-	err = k.iterateBlockchainTargetsAccounts(ctx, targetB, do)
+	err = k.iterateResourceAccounts(ctx, resourceB, do)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -218,8 +218,8 @@ func Test_targetsIndexing(t *testing.T) {
 	accountKeys = nil
 	accountA, _ = k.GetAccount(ctx, accountA.Domain, accountA.Name) // edited the account before, so update it
 	k.TransferAccount(ctx, accountA, bobAddr)
-	// check if targetA is associated with any account
-	err = k.iterateBlockchainTargetsAccounts(ctx, targetA, do)
+	// check if resourceA is associated with any account
+	err = k.iterateResourceAccounts(ctx, resourceA, do)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -13,8 +13,8 @@ var ownerToAccountPrefix = []byte{0x04}
 // ownerToDomainPrefix is the prefix that matches owners to domains
 var ownerToDomainPrefix = []byte{0x05}
 
-// blockchainTargetsPrefix is the prefix used to index targets to account
-var blockchainTargetsPrefix = []byte{0x06}
+// resourcesPrefix is the prefix used to index resources to account
+var resourcesPrefix = []byte{0x06}
 
 // ownerToDomainIndexStore returns the store that indexes all the domains owned by an sdk.AccAddress
 func ownerToDomainIndexStore(kvstore sdk.KVStore, addr sdk.AccAddress) (index.Store, error) {
@@ -39,20 +39,20 @@ func ownerToAccountIndexStore(kvstore sdk.KVStore, addr sdk.AccAddress) (index.S
 	return index.NewAddressIndex(indexPrefixedStore, ownerToAccountPrefix, addr)
 }
 
-// blockchainTargetIndexedStore returns the store used to index blockchain targets
-func blockchainTargetIndexedStore(store sdk.KVStore, target types.BlockchainAddress) (index.Store, error) {
+// resourcesIndexStore returns the store used to index accounts resources
+func resourcesIndexStore(store sdk.KVStore, resource types.Resource) (index.Store, error) {
 	prefixedIndexStore := indexStore(store)
-	return index.NewIndexedStore(prefixedIndexStore, blockchainTargetsPrefix, target)
+	return index.NewIndexedStore(prefixedIndexStore, resourcesPrefix, resource)
 }
 
-func (k Keeper) mapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) error {
-	for _, target := range targets {
-		// if targets are empty ignore
-		if target.Address == "" || target.ID == "" {
+func (k Keeper) mapResourceToAccount(ctx sdk.Context, account types.Account, resources ...types.Resource) error {
+	for _, resource := range resources {
+		// if resources are empty ignore
+		if resource.Resource == "" || resource.URI == "" {
 			continue
 		}
-		// otherwise map target to given account
-		store, err := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+		// otherwise map resource to given account
+		store, err := resourcesIndexStore(ctx.KVStore(k.storeKey), resource)
 		if err != nil {
 			return err
 		}
@@ -64,13 +64,13 @@ func (k Keeper) mapTargetToAccount(ctx sdk.Context, account types.Account, targe
 	return nil
 }
 
-func (k Keeper) unmapTargetToAccount(ctx sdk.Context, account types.Account, targets ...types.BlockchainAddress) error {
-	for _, target := range targets {
-		// if targets are empty then ignore the process
-		if target.ID == "" || target.Address == "" {
+func (k Keeper) unmapResourcesToAccount(ctx sdk.Context, account types.Account, resources ...types.Resource) error {
+	for _, resource := range resources {
+		// if resources are empty then ignore the process
+		if resource.URI == "" || resource.Resource == "" {
 			continue
 		}
-		store, err := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+		store, err := resourcesIndexStore(ctx.KVStore(k.storeKey), resource)
 		if err != nil {
 			return err
 		}
@@ -81,8 +81,8 @@ func (k Keeper) unmapTargetToAccount(ctx sdk.Context, account types.Account, tar
 	return nil
 }
 
-func (k Keeper) iterateBlockchainTargetsAccounts(ctx sdk.Context, target types.BlockchainAddress, do func(key []byte) bool) error {
-	store, err := blockchainTargetIndexedStore(ctx.KVStore(k.storeKey), target)
+func (k Keeper) iterateResourceAccounts(ctx sdk.Context, resource types.Resource, do func(key []byte) bool) error {
+	store, err := resourcesIndexStore(ctx.KVStore(k.storeKey), resource)
 	if err != nil {
 		return err
 	}

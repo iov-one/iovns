@@ -133,19 +133,19 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			if validAccountName != defaultRegex {
 				config.ValidAccountName = validAccountName
 			}
-			validBlockchainID, err := cmd.Flags().GetString("valid-blockchain-id")
+			validURI, err := cmd.Flags().GetString("valid-uri")
 			if err != nil {
 				return err
 			}
-			if validBlockchainID != defaultRegex {
-				config.ValidBlockchainID = validBlockchainID
+			if validURI != defaultRegex {
+				config.ValidURI = validURI
 			}
-			validBlockchainAddress, err := cmd.Flags().GetString("valid-blockchain-address")
+			validResource, err := cmd.Flags().GetString("valid-resource")
 			if err != nil {
 				return err
 			}
-			if validBlockchainAddress != defaultRegex {
-				config.ValidBlockchainAddress = validBlockchainAddress
+			if validResource != defaultRegex {
+				config.ValidResource = validResource
 			}
 			domainRenew, err := cmd.Flags().GetDuration("domain-renew-period")
 			if err != nil {
@@ -189,12 +189,12 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			if accountGracePeriod != defaultDuration {
 				config.AccountGracePeriod = accountGracePeriod
 			}
-			blockchainTargetMax, err := cmd.Flags().GetUint32("blockchain-target-max")
+			resourceMax, err := cmd.Flags().GetUint32("resource-max")
 			if err != nil {
 				return err
 			}
-			if blockchainTargetMax != defaultNumber {
-				config.BlockchainTargetMax = blockchainTargetMax
+			if resourceMax != defaultNumber {
+				config.ResourcesMax = resourceMax
 			}
 			certificateSizeMax, err := cmd.Flags().GetUint64("certificate-size-max")
 			if err != nil {
@@ -239,8 +239,8 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("configurer", "", "new configuration owner")
 	cmd.Flags().String("valid-domain-name", defaultRegex, "regexp that determines if domain name is valid or not")
 	cmd.Flags().String("valid-account-name", defaultRegex, "regexp that determines if account name is valid or not")
-	cmd.Flags().String("valid-blockchain-id", defaultRegex, "regexp that determines if blockchain id is valid or not")
-	cmd.Flags().String("valid-blockchain-address", defaultRegex, "regexp that determines if blockchain address is valid or not")
+	cmd.Flags().String("valid-uri", defaultRegex, "regexp that determines if uri is valid or not")
+	cmd.Flags().String("valid-resource", defaultRegex, "regexp that determines if resource is valid or not")
 
 	cmd.Flags().Duration("domain-renew-period", defaultDuration, "domain renewal duration in seconds before expiration")
 	cmd.Flags().Uint32("domain-renew-count-max", uint32(defaultNumber), "maximum number of applicable domain renewals")
@@ -250,7 +250,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().Uint32("account-renew-count-max", uint32(defaultNumber), "maximum number of applicable account renewals")
 	cmd.Flags().Duration("account-grace-period", defaultDuration, "account grace period duration in seconds")
 
-	cmd.Flags().Uint32("blockchain-target-max", uint32(defaultNumber), "maximum number of blockchain targets could be saved under an account")
+	cmd.Flags().Uint32("resource-max", uint32(defaultNumber), "maximum number of resources could be saved under an account")
 	cmd.Flags().Uint64("certificate-size-max", uint64(defaultNumber), "maximum size of a certificate that could be saved under an account")
 	cmd.Flags().Uint32("certificate-count-max", uint32(defaultNumber), "maximum number of certificates that could be saved under an account")
 	cmd.Flags().Uint64("metadata-size-max", uint64(defaultNumber), "maximum size of metadata that could be saved under an account")

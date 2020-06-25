@@ -739,9 +739,9 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Name:       "1",
 					Owner:      keeper.AliceKey,
 					ValidUntil: 0,
-					Targets: []types.BlockchainAddress{{
-						ID:      "test",
-						Address: "test",
+					Resources: []types.Resource{{
+						URI:      "test",
+						Resource: "test",
 					}},
 					Certificates: []types.Certificate{[]byte("cert")},
 					Broker:       nil,
@@ -752,9 +752,9 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Name:       "2",
 					Owner:      keeper.AliceKey,
 					ValidUntil: 0,
-					Targets: []types.BlockchainAddress{{
-						ID:      "test",
-						Address: "test",
+					Resources: []types.Resource{{
+						URI:      "test",
+						Resource: "test",
 					}},
 					Certificates: []types.Certificate{[]byte("cert")},
 					Broker:       nil,

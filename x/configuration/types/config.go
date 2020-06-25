@@ -17,10 +17,10 @@ type Config struct {
 	ValidDomainName string `json:"valid_domain_name"`
 	// ValidAccountName defines a regexp that determines if an account name is valid or not
 	ValidAccountName string `json:"valid_account_name"`
-	// ValidBlockchainID defines a regexp that determines if a blockchain id is valid or not
-	ValidBlockchainID string `json:"valid_blockchain_id"`
-	// ValidBlockchainAddress determines a regexp for a valid blockchain address
-	ValidBlockchainAddress string `json:"valid_blockchain_address"`
+	// ValidURI defines a regexp that determines if resource uri is valid or not
+	ValidURI string `json:"valid_uri"`
+	// ValidResource determines a regexp for a resource content
+	ValidResource string `json:"valid_resource"`
 
 	// DomainRenewalPeriod defines the duration of the domain renewal period in seconds
 	DomainRenewalPeriod time.Duration `json:"domain_renew_period"`
@@ -35,8 +35,8 @@ type Config struct {
 	AccountRenewalCountMax uint32 `json:"account_renew_count_max"`
 	// DomainGracePeriod defines the grace period for a domain deletion in seconds
 	AccountGracePeriod time.Duration `json:"account_grace_period"`
-	// BlockchainTargetMax defines maximum number of blockchain targets could be saved under an account
-	BlockchainTargetMax uint32 `json:"blockchain_target_max"`
+	// ResourcesMax defines maximum number of resources could be saved under an account
+	ResourcesMax uint32 `json:"resources_max"`
 	// CertificateSizeMax defines maximum size of a certificate that could be saved under an account
 	CertificateSizeMax uint64 `json:"certificate_size_max"`
 	// CertificateCountMax defines maximum number of certificates that could be saved under an account
@@ -64,10 +64,10 @@ func (c Config) Validate() error {
 	if _, err := regexp.Compile(c.ValidAccountName); err != nil {
 		return err
 	}
-	if _, err := regexp.Compile(c.ValidBlockchainAddress); err != nil {
+	if _, err := regexp.Compile(c.ValidResource); err != nil {
 		return err
 	}
-	if _, err := regexp.Compile(c.ValidBlockchainID); err != nil {
+	if _, err := regexp.Compile(c.ValidURI); err != nil {
 		return err
 	}
 	if _, err := regexp.Compile(c.ValidDomainName); err != nil {
