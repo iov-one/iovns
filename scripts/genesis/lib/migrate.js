@@ -554,7 +554,7 @@ export const patchGalaxynet = genesis => {
    config.account_grace_period = 1 * 60 + "000000000"; // (ab)use javascript
    config.account_renew_count_max = 2;
    config.account_renew_period = 3 * 60 + "000000000";
-   config.resource_target_max = 10;
+   config.resources_max = 10;
    config.certificate_count_max = 3;
    config.certificate_size_max = "1000";
    config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg";

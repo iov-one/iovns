@@ -1018,7 +1018,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( config.account_grace_period ).toEqual( "60000000000" );
       expect( config.account_renew_count_max ).toEqual( 2 );
       expect( config.account_renew_period ).toEqual( "180000000000" );
-      expect( config.blockchain_target_max ).toEqual( 10 );
+      expect( config.resources_max ).toEqual( 10 );
       expect( config.certificate_count_max ).toEqual( 3 );
       expect( config.certificate_size_max ).toEqual( "1000" );
       expect( config.domain_grace_period ).toEqual( "60000000000" );
