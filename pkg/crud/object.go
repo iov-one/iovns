@@ -102,7 +102,7 @@ func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryK
 			sk := index.SecondaryKey()
 			// append
 			secondaryKeys = append(secondaryKeys, sk)
-			// check if slice and if every single element implements index
+			// check if slice and if some element implements index
 		} else if fieldValue.Kind() == reflect.Slice {
 			slLen := fieldValue.Len()
 			for i := 0; i < slLen; i++ {
@@ -151,10 +151,6 @@ func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryK
 			secondaryKey := SecondaryKey{
 				StorePrefix: prefix,
 				Key:         valueBytes,
-			}
-			err = isValidSecondaryKey(secondaryKey)
-			if err != nil {
-				err = fmt.Errorf("invalid secondary key in field %s on type %T: %w", field.Name, v.Interface(), err)
 			}
 			secondaryKeys = append(secondaryKeys, secondaryKey)
 		}

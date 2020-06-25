@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/tutils"
+	"reflect"
 )
 
 var indexPrefix = []byte{0x01}
@@ -66,6 +67,20 @@ func (s Store) Read(key []byte, o interface{}) (ok bool) {
 	}
 	s.cdc.MustUnmarshalBinaryBare(v, o)
 	return true
+}
+
+func (s Store) ReadFilter(filter interface{}, o interface{}) (ok bool) {
+	pk, sk, err := getKeys(reflect.ValueOf(filter))
+	if err != nil {
+		panic(err)
+	}
+	if pk != nil {
+		return s.Read(pk, o)
+	}
+	if len(sk) != 0 {
+		return s.ReadFromIndex(sk[0], o)
+	}
+	panic("no valid filter provided")
 }
 
 // ReadFromIndex gets the first primary key of the given object from the index
