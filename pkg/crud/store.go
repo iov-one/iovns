@@ -83,6 +83,22 @@ func (s Store) ReadFilter(filter interface{}, o interface{}) (ok bool) {
 	panic("no valid filter provided")
 }
 
+// IterateFilter takes care of iterating over an index given a filter
+func (s Store) IterateFilter(filter interface{}, do func(pk PrimaryKey) bool) {
+	pk, sk, err := getKeys(reflect.ValueOf(filter))
+	if err != nil {
+		panic(err)
+	}
+	if pk != nil {
+		panic("primary keys are not expected in index iterations")
+	}
+	if len(sk) != 0 {
+		s.IterateIndex(sk[0], do)
+		return
+	}
+	panic("no valid filter provided")
+}
+
 // ReadFromIndex gets the first primary key of the given object from the index
 func (s Store) ReadFromIndex(index SecondaryKey, o interface{}) (ok bool) {
 	var primaryKey PrimaryKey
