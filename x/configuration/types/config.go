@@ -19,8 +19,8 @@ type Config struct {
 	ValidAccountName string `json:"valid_account_name"`
 	// ValidResourceURI defines a regexp that determines if resource uri is valid or not
 	ValidResourceURI string `json:"valid_resource_uri"`
-	// ValidResourceContent determines a regexp for a resource content
-	ValidResourceContent string `json:"valid_resource"`
+	// ValidResource determines a regexp for a resource content
+	ValidResource string `json:"valid_resource"`
 
 	// DomainRenewalPeriod defines the duration of the domain renewal period in seconds
 	DomainRenewalPeriod time.Duration `json:"domain_renew_period"`
@@ -35,8 +35,8 @@ type Config struct {
 	AccountRenewalCountMax uint32 `json:"account_renew_count_max"`
 	// DomainGracePeriod defines the grace period for a domain deletion in seconds
 	AccountGracePeriod time.Duration `json:"account_grace_period"`
-	// BlockchainResourcesMax defines maximum number of resources could be saved under an account
-	BlockchainResourcesMax uint32 `json:"resources_max"`
+	// ResourcesMax defines maximum number of resources could be saved under an account
+	ResourcesMax uint32 `json:"resources_max"`
 	// CertificateSizeMax defines maximum size of a certificate that could be saved under an account
 	CertificateSizeMax uint64 `json:"certificate_size_max"`
 	// CertificateCountMax defines maximum number of certificates that could be saved under an account
@@ -64,7 +64,7 @@ func (c Config) Validate() error {
 	if _, err := regexp.Compile(c.ValidAccountName); err != nil {
 		return err
 	}
-	if _, err := regexp.Compile(c.ValidResourceContent); err != nil {
+	if _, err := regexp.Compile(c.ValidResource); err != nil {
 		return err
 	}
 	if _, err := regexp.Compile(c.ValidResourceURI); err != nil {

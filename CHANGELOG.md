@@ -1,7 +1,6 @@
 # Changelog
 
 ## HEAD
-- BREAKING: rename targets to resource
 - fix: iovnscli get config
 - REST: rename /domain/ query path to /starname/
 - REST: rename FromOwner to WithOwner
@@ -28,7 +27,7 @@
 - Enable gitian on travis builds
 
 ### Breaking changes
-
+- rename targets to resource
 - Implement fee payer functionality
 
 ## v0.4.0

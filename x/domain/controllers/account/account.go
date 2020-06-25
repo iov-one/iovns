@@ -335,8 +335,8 @@ func ValidResources(resources []types.Resource) ControllerFunc {
 // validResources validates different resources
 func (a *Account) validResources(resources []types.Resource) error {
 	a.requireConfiguration()
-	validBlockchainID := regexp.MustCompile(a.conf.ValidResourceURI)
-	validBlockchainAddress := regexp.MustCompile(a.conf.ValidResourceContent)
+	validURI := regexp.MustCompile(a.conf.ValidResourceURI)
+	validResource := regexp.MustCompile(a.conf.ValidResource)
 	// create resources set to identify duplicates
 	sets := make(map[string]struct{}, len(resources))
 	// iterate over resources to check their validity
@@ -347,11 +347,11 @@ func (a *Account) validResources(resources []types.Resource) error {
 		}
 		sets[resource.URI] = struct{}{}
 		// is uri valid?
-		if !validBlockchainID.MatchString(resource.URI) {
+		if !validURI.MatchString(resource.URI) {
 			return sdkerrors.Wrapf(types.ErrInvalidResource, "%s is not a valid URI", resource.URI)
 		}
 		// is resource valid?
-		if !validBlockchainAddress.MatchString(resource.Resource) {
+		if !validResource.MatchString(resource.Resource) {
 			return sdkerrors.Wrapf(types.ErrInvalidResource, "%s is not a valid resource", resource.Resource)
 		}
 	}
@@ -434,17 +434,17 @@ func (a *Account) gracePeriodFinished() error {
 // ResettableBy checks if the account attributes resettable by the provided address
 func ResourceLimitNotExceeded(resources []types.Resource) ControllerFunc {
 	return func(ctrl *Account) error {
-		return ctrl.blockchainResourceLimitNotExceeded(resources)
+		return ctrl.resourceLimitNotExceeded(resources)
 	}
 }
 
-func (a *Account) blockchainResourceLimitNotExceeded(resources []types.Resource) error {
+func (a *Account) resourceLimitNotExceeded(resources []types.Resource) error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check is not allowed on a non existing account")
 	}
 	a.requireConfiguration()
-	if uint32(len(resources)) > a.conf.BlockchainResourcesMax {
-		return sdkerrors.Wrapf(types.ErrResourceLimitExceeded, "resource limit: %d", a.conf.BlockchainResourcesMax)
+	if uint32(len(resources)) > a.conf.ResourcesMax {
+		return sdkerrors.Wrapf(types.ErrResourceLimitExceeded, "resource limit: %d", a.conf.ResourcesMax)
 	}
 	return nil
 }

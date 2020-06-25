@@ -133,19 +133,19 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			if validAccountName != defaultRegex {
 				config.ValidAccountName = validAccountName
 			}
-			validBlockchainID, err := cmd.Flags().GetString("valid-blockchain-id")
+			validURI, err := cmd.Flags().GetString("valid-uri")
 			if err != nil {
 				return err
 			}
-			if validBlockchainID != defaultRegex {
-				config.ValidResourceURI = validBlockchainID
+			if validURI != defaultRegex {
+				config.ValidResourceURI = validURI
 			}
-			validBlockchainAddress, err := cmd.Flags().GetString("valid-blockchain-address")
+			validResource, err := cmd.Flags().GetString("valid-resource")
 			if err != nil {
 				return err
 			}
-			if validBlockchainAddress != defaultRegex {
-				config.ValidResourceContent = validBlockchainAddress
+			if validResource != defaultRegex {
+				config.ValidResource = validResource
 			}
 			domainRenew, err := cmd.Flags().GetDuration("domain-renew-period")
 			if err != nil {
@@ -194,7 +194,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			if resourceMax != defaultNumber {
-				config.BlockchainResourcesMax = resourceMax
+				config.ResourcesMax = resourceMax
 			}
 			certificateSizeMax, err := cmd.Flags().GetUint64("certificate-size-max")
 			if err != nil {
@@ -239,8 +239,8 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String("configurer", "", "new configuration owner")
 	cmd.Flags().String("valid-domain-name", defaultRegex, "regexp that determines if domain name is valid or not")
 	cmd.Flags().String("valid-account-name", defaultRegex, "regexp that determines if account name is valid or not")
-	cmd.Flags().String("valid-blockchain-id", defaultRegex, "regexp that determines if blockchain id is valid or not")
-	cmd.Flags().String("valid-blockchain-address", defaultRegex, "regexp that determines if blockchain address is valid or not")
+	cmd.Flags().String("valid-uri", defaultRegex, "regexp that determines if uri is valid or not")
+	cmd.Flags().String("valid-resource", defaultRegex, "regexp that determines if resource is valid or not")
 
 	cmd.Flags().Duration("domain-renew-period", defaultDuration, "domain renewal duration in seconds before expiration")
 	cmd.Flags().Uint32("domain-renew-count-max", uint32(defaultNumber), "maximum number of applicable domain renewals")
