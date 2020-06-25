@@ -373,7 +373,7 @@ export const patchGalaxynet = genesis => {
          "//name": "faucet",
          "type": "cosmos-sdk/Account",
          "value": {
-            "address": "star13dq838nu0wmzvx8ge6z5upvu7uze3xlusnts5c",
+            "address": "star13hestkc5egttc2d7v4f0kcpxzlr5j0zhyq2jxh",
             "coins": [
                {
                   "denom": "uiov",
