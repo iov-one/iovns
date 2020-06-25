@@ -131,7 +131,7 @@ func TestKeeper_FlushDomain(t *testing.T) {
 		if !ok {
 			t.Fatal("empty account flushed")
 		}
-		if acc.Broker != nil || acc.MetadataURI != "" || acc.Targets != nil {
+		if acc.Broker != nil || acc.MetadataURI != "" || acc.Resources != nil {
 			t.Fatalf("empty account content not flushed %v", acc)
 		}
 	})
@@ -149,7 +149,7 @@ func TestKeeper_FlushDomain(t *testing.T) {
 		if !ok {
 			t.Fatal("empty account flushed")
 		}
-		if acc.Broker != nil || acc.MetadataURI != "" || acc.Targets != nil {
+		if acc.Broker != nil || acc.MetadataURI != "" || acc.Resources != nil {
 			t.Fatalf("empty account content not flushed %v", acc)
 		}
 	})

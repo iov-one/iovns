@@ -140,7 +140,7 @@ func (k Keeper) FlushDomain(ctx sdk.Context, domain types.Domain) {
 		} else {
 			// flush empty account content
 			acc, _ := k.GetAccount(ctx, domain.Name, accountName)
-			acc.Targets = nil
+			acc.Resources = nil
 			acc.Broker = nil
 			acc.MetadataURI = ""
 			k.SetAccount(ctx, acc)
