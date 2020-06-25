@@ -97,6 +97,15 @@ export const createAccount = ( args = {} ) => {
  * @param {Object} args - optional address, name
  */
 export const createStarname = ( args = {} ) => {
+   const resources = args.targets && args.targets.length ? args.targets : null;
+
+   resources && resources.forEach( target => { // convert target to resource
+      target.uri = target.blockchain_id;
+      target.resource = target.address;
+      delete( target.blockchain_id );
+      delete( target.address );
+   } );
+
    const template = {
       "broker": null,
       "certificates": null,
@@ -104,7 +113,7 @@ export const createStarname = ( args = {} ) => {
       "metadata_uri": "",
       "name": args.name || "",
       "owner": args.address || "",
-      "targets": args.targets && args.targets.length ? args.targets : null,
+      "resources": resources,
       "valid_until": String( Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60 ), // 1 year from now
    };
 
@@ -545,7 +554,7 @@ export const patchGalaxynet = genesis => {
    config.account_grace_period = 1 * 60 + "000000000"; // (ab)use javascript
    config.account_renew_count_max = 2;
    config.account_renew_period = 3 * 60 + "000000000";
-   config.blockchain_target_max = 10;
+   config.resource_target_max = 10;
    config.certificate_count_max = 3;
    config.certificate_size_max = "1000";
    config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg";
@@ -575,7 +584,7 @@ export const patchGalaxynet = genesis => {
       "register_account_open": "0.500000000000000000",
       "transfer_account_closed": "0.500000000000000000",
       "transfer_account_open": "10.000000000000000000",
-      "replace_account_targets": "1.000000000000000000",
+      "replace_account_resources": "1.000000000000000000",
       "add_account_certificate": "50.000000000000000000",
       "del_account_certificate": "10.000000000000000000",
       "set_account_metadata": "15.000000000000000000",
