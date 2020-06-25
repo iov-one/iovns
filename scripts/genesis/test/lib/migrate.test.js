@@ -1126,7 +1126,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       patchMainnet( genesisCopy );
 
-      expect( genesisCopy.app_state.auth.accounts.length ).toEqual( accounts0.length + 2 );
+      expect( genesisCopy.app_state.auth.accounts.length ).toEqual( accounts0.length + 3 ); // charlie, gilles, misang
       expect( genesisCopy.app_state.domain.accounts.length ).toEqual( starnames0.length );
 
       const custodian = genesisCopy.app_state.auth.accounts.find( account => account["//id"] == "Custodian of missing star1 accounts" );
@@ -1138,12 +1138,18 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const gillesdtar1 = "star1keaxspy5rgw84azg5w640pp8zdla72ra0n5xh2";
       const gillesd = genesisCopy.app_state.auth.accounts.find( account => account.value.address == gillesdtar1 );
       const gillesdiov = genesisCopy.app_state.domain.accounts.find( account => account.owner == gillesdtar1 );
+      const misangAmount = 122534 * 1e6;
+      const misangtar1 = "star1lgh6ekcnkufs4742qr5znvtlz4vglul9g2p6xl";
+      const misang = genesisCopy.app_state.auth.accounts.find( account => account.value.address == misangtar1 );
+      const misangiov = genesisCopy.app_state.domain.accounts.find( account => account.owner == misangtar1 );
 
-      expect( custodian.value.coins[0].amount ).toEqual( String( +custodian0.value.coins[0].amount - charliefAmount - gillesdAmount ) );
+      expect( custodian.value.coins[0].amount ).toEqual( String( +custodian0.value.coins[0].amount - charliefAmount - gillesdAmount - misangAmount ) );
       expect( charlief.value.coins[0].amount ).toEqual( String( charliefAmount ) );
       expect( charliefiov ).toBeTruthy();
       expect( gillesd.value.coins[0].amount ).toEqual( String( gillesdAmount ) );
       expect( gillesdiov ).toBeTruthy();
+      expect( misang.value.coins[0].amount ).toEqual( String( misangAmount ) );
+      expect( misangiov ).toBeTruthy();
    } );
 
    it( `Should migrate.`, async () => {
