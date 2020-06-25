@@ -17,8 +17,8 @@ type Config struct {
 	ValidDomainName string `json:"valid_domain_name"`
 	// ValidAccountName defines a regexp that determines if an account name is valid or not
 	ValidAccountName string `json:"valid_account_name"`
-	// ValidResourceURI defines a regexp that determines if resource uri is valid or not
-	ValidResourceURI string `json:"valid_resource_uri"`
+	// ValidURI defines a regexp that determines if resource uri is valid or not
+	ValidURI string `json:"valid_uri"`
 	// ValidResource determines a regexp for a resource content
 	ValidResource string `json:"valid_resource"`
 
@@ -67,7 +67,7 @@ func (c Config) Validate() error {
 	if _, err := regexp.Compile(c.ValidResource); err != nil {
 		return err
 	}
-	if _, err := regexp.Compile(c.ValidResourceURI); err != nil {
+	if _, err := regexp.Compile(c.ValidURI); err != nil {
 		return err
 	}
 	if _, err := regexp.Compile(c.ValidDomainName); err != nil {

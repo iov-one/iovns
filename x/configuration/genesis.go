@@ -46,7 +46,7 @@ func DefaultGenesisState() GenesisState {
 		Configurer:             owner,
 		ValidDomainName:        "^[-_a-z0-9]{4,16}$",
 		ValidAccountName:       "[-_\\.a-z0-9]{1,64}$",
-		ValidResourceURI:       "[-a-z0-9A-Z:]+$",
+		ValidURI:               "[-a-z0-9A-Z:]+$",
 		ValidResource:          "^[a-z0-9A-Z]+$",
 		DomainRenewalPeriod:    300000000000,
 		DomainRenewalCountMax:  2,

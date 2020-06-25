@@ -138,7 +138,7 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			if validURI != defaultRegex {
-				config.ValidResourceURI = validURI
+				config.ValidURI = validURI
 			}
 			validResource, err := cmd.Flags().GetString("valid-resource")
 			if err != nil {

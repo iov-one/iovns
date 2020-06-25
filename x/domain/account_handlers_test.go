@@ -712,7 +712,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					ValidResource:      keeper.RegexMatchNothing,
-					ValidResourceURI:   keeper.RegexMatchAll,
+					ValidURI:           keeper.RegexMatchAll,
 					AccountGracePeriod: 1000 * time.Second,
 				})
 				k.CreateDomain(ctx, types.Domain{
@@ -745,7 +745,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					ValidResource:       keeper.RegexMatchNothing,
-					ValidResourceURI:    keeper.RegexMatchAll,
+					ValidURI:            keeper.RegexMatchAll,
 					DomainRenewalPeriod: 10,
 				})
 				k.CreateDomain(ctx, types.Domain{
@@ -784,7 +784,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					ValidResource:      keeper.RegexMatchNothing,
-					ValidResourceURI:   keeper.RegexMatchAll,
+					ValidURI:           keeper.RegexMatchAll,
 					AccountGracePeriod: 10 * time.Second,
 				})
 				k.CreateDomain(ctx, types.Domain{
@@ -842,7 +842,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					ValidResource:      keeper.RegexMatchNothing,
-					ValidResourceURI:   keeper.RegexMatchAll,
+					ValidURI:           keeper.RegexMatchAll,
 					AccountGracePeriod: 10,
 				})
 				k.CreateDomain(ctx, types.Domain{
@@ -882,7 +882,7 @@ func Test_Open_handlerMsgDeleteAccount(t *testing.T) {
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					ValidResource:      keeper.RegexMatchNothing,
-					ValidResourceURI:   keeper.RegexMatchAll,
+					ValidURI:           keeper.RegexMatchAll,
 					AccountGracePeriod: 10,
 				})
 				k.CreateDomain(ctx, types.Domain{
@@ -1029,7 +1029,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
 					ValidResource:        keeper.RegexMatchNothing,
-					ValidResourceURI:     keeper.RegexMatchAll,
+					ValidURI:             keeper.RegexMatchAll,
 					DomainRenewalPeriod:  10,
 					AccountRenewalPeriod: 10,
 				})
@@ -1068,7 +1068,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
 					ValidResource:       keeper.RegexMatchNothing, // don't match anything
-					ValidResourceURI:    keeper.RegexMatchAll,     // match all
+					ValidURI:            keeper.RegexMatchAll,     // match all
 					DomainRenewalPeriod: 10,
 				})
 				// add a closed domain
@@ -1107,7 +1107,7 @@ func Test_ClosedDomain_handlerMsgRegisterAccount(t *testing.T) {
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
 					ValidResource:       keeper.RegexMatchNothing, // don't match anything
-					ValidResourceURI:    keeper.RegexMatchAll,     // match all
+					ValidURI:            keeper.RegexMatchAll,     // match all
 					DomainRenewalPeriod: 10,
 				})
 				// add a closed domain
@@ -1154,7 +1154,7 @@ func Test_OpenDomain_handleMsgRegisterAccount(t *testing.T) {
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
 					ValidResource:        keeper.RegexMatchNothing, // don't match anything
-					ValidResourceURI:     keeper.RegexMatchAll,     // match all
+					ValidURI:             keeper.RegexMatchAll,     // match all
 					DomainRenewalPeriod:  10 * time.Second,
 					AccountRenewalPeriod: 10 * time.Second,
 				})
@@ -1201,7 +1201,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
 					ValidResource:       keeper.RegexMatchNothing, // don't match anything
-					ValidResourceURI:    keeper.RegexMatchAll,     // match all
+					ValidURI:            keeper.RegexMatchAll,     // match all
 					DomainRenewalPeriod: 10,
 				})
 				// add a domain
@@ -1238,7 +1238,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
-					ValidResourceURI:    keeper.RegexMatchNothing, // don't match anything
+					ValidURI:            keeper.RegexMatchNothing, // don't match anything
 					ValidResource:       keeper.RegexMatchAll,     // match all
 					DomainRenewalPeriod: 10,
 				})
@@ -1278,7 +1278,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
 					ValidResource:       keeper.RegexMatchAll,     // match all
-					ValidResourceURI:    keeper.RegexMatchAll,     // match all
+					ValidURI:            keeper.RegexMatchAll,     // match all
 					ValidAccountName:    keeper.RegexMatchNothing, // match nothing
 					DomainRenewalPeriod: 10,
 				})
@@ -1318,7 +1318,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
 					ValidResource:       keeper.RegexMatchAll, // match all
-					ValidResourceURI:    keeper.RegexMatchAll, // match all
+					ValidURI:            keeper.RegexMatchAll, // match all
 					ValidAccountName:    keeper.RegexMatchAll, // match nothing
 					DomainRenewalPeriod: 10,
 				})
@@ -1351,7 +1351,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
 					ValidResource:       keeper.RegexMatchAll, // match all
-					ValidResourceURI:    keeper.RegexMatchAll, // match all
+					ValidURI:            keeper.RegexMatchAll, // match all
 					ValidAccountName:    keeper.RegexMatchAll, // match nothing
 					DomainRenewalPeriod: 10,
 				})
@@ -1391,7 +1391,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
 					ValidResource:       keeper.RegexMatchAll, // match all
-					ValidResourceURI:    keeper.RegexMatchAll, // match all
+					ValidURI:            keeper.RegexMatchAll, // match all
 					ValidAccountName:    keeper.RegexMatchAll, // match nothing
 					DomainRenewalPeriod: 10,
 				})
@@ -1431,7 +1431,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
 					ValidResource:       keeper.RegexMatchAll, // match all
-					ValidResourceURI:    keeper.RegexMatchAll, // match all
+					ValidURI:            keeper.RegexMatchAll, // match all
 					ValidAccountName:    keeper.RegexMatchAll, // match nothing
 					DomainRenewalPeriod: 10,
 				})
@@ -1481,7 +1481,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 				// set configs with a domain regexp that matches nothing
 				setConfig(ctx, configuration.Config{
 					ValidResource:       keeper.RegexMatchAll, // match all
-					ValidResourceURI:    keeper.RegexMatchAll, // match all
+					ValidURI:            keeper.RegexMatchAll, // match all
 					ValidAccountName:    keeper.RegexMatchAll, // match nothing
 					DomainRenewalPeriod: 10,
 				})
@@ -1697,9 +1697,9 @@ func Test_Closed_handlerMsgReplaceAccountResources(t *testing.T) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidResourceURI: keeper.RegexMatchAll,
-					ValidResource:    keeper.RegexMatchAll,
-					ResourcesMax:     5,
+					ValidURI:      keeper.RegexMatchAll,
+					ValidResource: keeper.RegexMatchAll,
+					ResourcesMax:  5,
 				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
@@ -1745,9 +1745,9 @@ func Test_Open_handlerMsgReplaceAccountResources(t *testing.T) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidResourceURI: keeper.RegexMatchAll,
-					ValidResource:    keeper.RegexMatchAll,
-					ResourcesMax:     3,
+					ValidURI:      keeper.RegexMatchAll,
+					ValidResource: keeper.RegexMatchAll,
+					ResourcesMax:  3,
 				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
@@ -1793,8 +1793,8 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidResourceURI: keeper.RegexMatchNothing,
-					ValidResource:    keeper.RegexMatchNothing,
+					ValidURI:      keeper.RegexMatchNothing,
+					ValidResource: keeper.RegexMatchNothing,
 				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
@@ -1832,9 +1832,9 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidResourceURI: keeper.RegexMatchAll,
-					ValidResource:    keeper.RegexMatchAll,
-					ResourcesMax:     2,
+					ValidURI:      keeper.RegexMatchAll,
+					ValidResource: keeper.RegexMatchAll,
+					ResourcesMax:  2,
 				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
@@ -1912,8 +1912,8 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidResourceURI: keeper.RegexMatchAll,
-					ValidResource:    keeper.RegexMatchAll,
+					ValidURI:      keeper.RegexMatchAll,
+					ValidResource: keeper.RegexMatchAll,
 				})
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1939,8 +1939,8 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidResourceURI: keeper.RegexMatchAll,
-					ValidResource:    keeper.RegexMatchAll,
+					ValidURI:      keeper.RegexMatchAll,
+					ValidResource: keeper.RegexMatchAll,
 				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
@@ -1970,8 +1970,8 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidResourceURI: keeper.RegexMatchAll,
-					ValidResource:    keeper.RegexMatchAll,
+					ValidURI:      keeper.RegexMatchAll,
+					ValidResource: keeper.RegexMatchAll,
 				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
@@ -2003,8 +2003,8 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidResourceURI: keeper.RegexMatchAll,
-					ValidResource:    keeper.RegexMatchAll,
+					ValidURI:      keeper.RegexMatchAll,
+					ValidResource: keeper.RegexMatchAll,
 				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{
@@ -2043,9 +2043,9 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// set config to match all
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					ValidResourceURI: keeper.RegexMatchAll,
-					ValidResource:    keeper.RegexMatchAll,
-					ResourcesMax:     5,
+					ValidURI:      keeper.RegexMatchAll,
+					ValidResource: keeper.RegexMatchAll,
+					ResourcesMax:  5,
 				})
 				// create domain
 				k.CreateDomain(ctx, types.Domain{

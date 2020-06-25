@@ -335,7 +335,7 @@ func ValidResources(resources []types.Resource) ControllerFunc {
 // validResources validates different resources
 func (a *Account) validResources(resources []types.Resource) error {
 	a.requireConfiguration()
-	validURI := regexp.MustCompile(a.conf.ValidResourceURI)
+	validURI := regexp.MustCompile(a.conf.ValidURI)
 	validResource := regexp.MustCompile(a.conf.ValidResource)
 	// create resources set to identify duplicates
 	sets := make(map[string]struct{}, len(resources))
