@@ -36,6 +36,7 @@ env:
     - VERSION=$(git describe --tags | sed 's/^v//')
     - COMMIT=$(git log -1 --format='%H')
     - IMAGE_NAME="iov1/iovns:${BUILD_VERSION}"
+    - FAUCET_IMAGE_NAME="iov1/iovns-faucet:${BUILD_VERSION}"
 
 script:
   - set -eo pipefail
@@ -53,12 +54,16 @@ script:
     ./contrib/gitian-build.sh linux ;
     mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
     docker build --pull --tag ${IMAGE_NAME} . ;
+    cd cmd/faucet && make build && docker build --pull --tag ${FAUCET_IMAGE_NAME} . ;
     fi;
 
     if [[ $release_latest == "yes" ]]; then
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
     docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:latest" ;
     docker push "iov1/iovns:latest";
+
+    docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:latest" ;
+    docker push "iov1/iovns-faucet:latest";
     docker logout;
     fi;
 
@@ -66,6 +71,8 @@ script:
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
     docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:$TRAVIS_TAG" ;
     docker push "iov1/iovns:$TRAVIS_TAG";
+    docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:$TRAVIS_TAG" ;
+    docker push "iov1/iovns-faucet:$TRAVIS_TAG";
     docker logout;
     fi;
     fi;

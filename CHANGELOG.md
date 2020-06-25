@@ -10,6 +10,7 @@
 - CLI: Add broker field to registerDomain and registerAccount
 - FIX: fix fee deduct and improve tests
 - FIX: TransferDomain flushes empty account content
+- Implement faucet
 
 ## v0.4.3
 
