@@ -2046,7 +2046,7 @@ paths:
           description: Internal Server Error
   "/starname/query/resolve":
     post:
-      summary: Resolves an account
+      summary: Resolves a starname
       requestBody:
         content:
           application/json:
