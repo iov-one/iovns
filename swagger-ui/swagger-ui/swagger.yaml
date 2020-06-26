@@ -1928,7 +1928,7 @@ paths:
           description: Internal Server Error
   "/starname/query/domainInfo":
     post:
-      summary: Resolve a domain
+      summary: Get information about a domain
       requestBody:
         content:
           application/json:
@@ -2128,12 +2128,9 @@ components:
     ResolveAccountQueryBody:
       type: object
       properties:
-        domain:
+        starname:
           type: string
-          description: Name of the domain
-        name:
-          type: string
-          description: Account name
+          description: Starname of the form "name*domain"
   securitySchemes:
     kms:
       type: http
