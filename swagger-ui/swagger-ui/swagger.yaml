@@ -2128,12 +2128,9 @@ components:
     ResolveAccountQueryBody:
       type: object
       properties:
-        domain:
+        starname:
           type: string
-          description: Name of the domain
-        name:
-          type: string
-          description: Account name
+          description: Starname of the form "name*domain"
   securitySchemes:
     kms:
       type: http
