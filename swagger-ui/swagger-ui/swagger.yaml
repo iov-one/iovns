@@ -1928,7 +1928,7 @@ paths:
           description: Internal Server Error
   "/starname/query/domainInfo":
     post:
-      summary: Resolve a domain
+      summary: Get information about a domain
       requestBody:
         content:
           application/json:
