@@ -75,6 +75,8 @@ func (d *Domain) Unpack(key []byte) error {
 }
 
 // Account defines an account that belongs to a domain
+// NOTE: It should not be confused with cosmos-sdk auth account
+// github.com/cosmos/cosmos-sdk/x/auth.Account
 type Account struct {
 	// Domain references the domain this account belongs to
 	Domain string `json:"domain"`
