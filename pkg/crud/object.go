@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/iov-one/iovns/tutils"
 	"reflect"
-	"strings"
 )
 
 // TagName is the tag used to marshal crud types
@@ -16,11 +15,10 @@ const TagName = "crud"
 // PrimaryKeyTag is the tag used to define a primary key
 const PrimaryKeyTag = "primaryKey"
 
-// SecondarKeyTag is the value used to define a secondary key in a tag
-const SecondaryKeyTag = "secondaryKey"
-
 // PrimaryKeyPrefix
 const PrimaryKeyPrefix = 0x0
+
+var primaryKeyPrefix = []byte{PrimaryKeyPrefix}
 
 // these errors exist for testing purposes
 var errNotAPointer = errors.New("crud: not a pointer")
@@ -31,30 +29,16 @@ var errNoPrimaryKey = errors.New("no primary key specified in type")
 var errEmptyKey = errors.New("provided key is empty")
 var errDuplicateKey = errors.New("duplicate key in same prefix")
 var errNotAllowedKind = errors.New("kind is not allowed")
+var errNotValidSliceType = errors.New("provided slice type is not valid")
 
 func inspect(o interface{}) (primaryKey PrimaryKey, secondaryKeys []SecondaryKey, err error) {
-	// check if type implements object interface
-	if object, ok := o.(Object); ok {
-		primaryKey = object.PrimaryKey()
-		secondaryKeys = object.SecondaryKeys()
-		return
-	}
-	v := reflect.ValueOf(o)
-	if v.Kind() != reflect.Ptr {
-		err = errNotAPointer
-		return
-	}
-	v = tutils.UnderlyingValue(v)
-	if v.Kind() != reflect.Struct {
-		err = errPointerToStruct
-		return
-	}
 	// find primary keys and secondary keys
-	primaryKey, secondaryKeys, err = getKeys(v)
+	primaryKey, secondaryKeys, err = getKeys(o)
 	if err != nil {
 		err = fmt.Errorf("crud: %w", err)
 		return
 	}
+	// validate
 	err = validateKeys(primaryKey, secondaryKeys)
 	if err != nil {
 		err = fmt.Errorf("crud: %w", err)
@@ -85,7 +69,19 @@ func validateKeys(pk PrimaryKey, sk []SecondaryKey) error {
 	return nil
 }
 
-func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryKey, err error) {
+func getKeys(o interface{}) (primaryKey PrimaryKey, secondaryKeys []SecondaryKey, err error) {
+	// check if type implements object interface
+	if object, ok := o.(Object); ok {
+		primaryKey = object.PrimaryKey()
+		secondaryKeys = object.SecondaryKeys()
+		return
+	}
+	v := reflect.ValueOf(o)
+	v = tutils.UnderlyingValue(v)
+	if v.Kind() != reflect.Struct {
+		err = errPointerToStruct
+		return
+	}
 	typ := v.Type()
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
@@ -93,71 +89,50 @@ func getKeys(v reflect.Value) (primaryKey PrimaryKey, secondaryKeys []SecondaryK
 		if field.Anonymous {
 			continue
 		}
-		// get field value
-		fieldValue := v.FieldByName(field.Name)
-		// check if type implements Index interface
-		iface := fieldValue.Interface()
-		// check if type inherently implements Index
-		if index, ok := iface.(Index); ok {
-			sk := index.SecondaryKey()
-			// append
-			secondaryKeys = append(secondaryKeys, sk)
-			// check if slice and if some element implements index
-		} else if fieldValue.Kind() == reflect.Slice {
-			slLen := fieldValue.Len()
-			for i := 0; i < slLen; i++ {
-				index, ok := fieldValue.Index(i).Interface().(Index)
-				if !ok {
-					continue
-				}
-				sk := index.SecondaryKey()
-				secondaryKeys = append(secondaryKeys, sk)
-			}
-		}
-		// check field type by tags
-		tag, ok := field.Tag.Lookup(TagName)
-		// if tag is missing then no indexing is required
+		// check if field must be parsed
+		tagValue, ok := field.Tag.Lookup(TagName)
+		// if tagValue is missing then no indexing is required
 		if !ok {
 			continue
 		}
-		// check tag type
-		split := strings.Split(tag, ",")
-		switch split[0] {
-		// check if primary key or secondary key
-		case PrimaryKeyTag:
-			// check if a primary key was already specified
-			if primaryKey != nil {
-				err = fmt.Errorf("%w: %s", errMultiplePrimaryKeys, typ.String())
-				return
-			}
-			var valueBytes []byte
-			valueBytes, err = marshalValue(fieldValue)
-			if err != nil {
-				return
-			}
-			primaryKey = valueBytes
-		case SecondaryKeyTag:
-			var prefix []byte
-			prefix, err = hex.DecodeString(split[1])
-			if err != nil {
-				err = fmt.Errorf("invalid hex prefix in secondary key in field %s on type %T", field.Name, v.Interface())
-				return
-			}
-			var valueBytes []byte
-			valueBytes, err = marshalValue(fieldValue)
-			if err != nil {
-				return
-			}
-			secondaryKey := SecondaryKey{
-				StorePrefix: prefix,
-				Key:         valueBytes,
-			}
-			secondaryKeys = append(secondaryKeys, secondaryKey)
+		// get prefix
+		var prefix []byte
+		prefix, err = getPrefixFromTag(tagValue)
+		if err != nil {
+			return
 		}
-	}
-	if primaryKey == nil {
-		err = fmt.Errorf("%w: %T", errNoPrimaryKey, v.Interface())
-		return
+		// get field value
+		fieldValue := v.FieldByName(field.Name)
+		var keys [][]byte
+		keys, err = marshal(fieldValue)
+		if err != nil {
+			return
+		}
+		if len(keys) == 0 {
+			continue
+		}
+
+		switch bytes.Equal(prefix, primaryKeyPrefix) {
+		case true:
+			if primaryKey != nil {
+				err = errMultiplePrimaryKeys
+				return
+			}
+			if len(keys) != 1 {
+				err = fmt.Errorf("unexpected number of byte keys")
+				return
+			}
+			primaryKey = keys[0]
+		default:
+			sks := make([]SecondaryKey, len(keys))
+			for i, key := range keys {
+				sks[i] = SecondaryKey{
+					Key:         key,
+					StorePrefix: prefix,
+				}
+			}
+			secondaryKeys = append(secondaryKeys, sks...)
+		}
 	}
 	return
 }
@@ -215,4 +190,68 @@ func isValidSecondaryKey(sk SecondaryKey) (err error) {
 		return errEmptyKey
 	}
 	return
+}
+
+type Hashable interface {
+	Hashes() [][]byte
+}
+
+func marshal(v reflect.Value) ([][]byte, error) {
+	kind := v.Kind()
+	// check if slice
+	if kind == reflect.Slice {
+		return marshalArray(v)
+	}
+	// check if type implements Hashable
+	i := v.Interface()
+	if hashable, ok := i.(Hashable); ok {
+		return hashable.Hashes(), nil
+	}
+	// otherwise if it does not implement the interface we need to automatically generate the hash
+	key, err := marshalValue(v)
+	if err != nil {
+		return nil, err
+	}
+	return [][]byte{key}, nil
+}
+
+func marshalArray(v reflect.Value) (keys [][]byte, err error) {
+	// check if array type implements interface
+	l := v.Len()
+	// no element to marshal
+	if l == 0 {
+		return nil, nil
+	}
+	// otherwise check if elements inside the slice implement Hashable interface
+	for i := 0; i < l; i++ {
+		obj := v.Index(i)
+		iface := obj.Interface()
+		hashable, ok := iface.(Hashable)
+		if !ok {
+			// technically we could 'break' here but if we want to support []interface{} in which some implement Hashable and some not then we have to continue
+			continue
+		}
+		keys = append(keys, hashable.Hashes()...)
+	}
+	// if length of keys is > 0 then we have already done the marshalling and we can quit
+	if len(keys) != 0 {
+		return
+	}
+	// otherwise keep going
+	iface := v.Interface()
+	if b, ok := iface.([]byte); ok {
+		keys = [][]byte{b}
+		return
+	}
+	// un-marshalable type
+	err = fmt.Errorf("%T: %w", iface, errNotValidSliceType)
+	return
+}
+
+// getPrefixFromTag returns the kv store prefix extracted from the tag
+func getPrefixFromTag(value string) ([]byte, error) {
+	if value == PrimaryKeyTag {
+		return primaryKeyPrefix, nil
+	}
+	return hex.DecodeString(value)
 }

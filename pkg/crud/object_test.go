@@ -3,6 +3,7 @@ package crud
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -24,18 +25,18 @@ func (t testObject) SecondaryKeys() []SecondaryKey {
 
 type TestIndex struct{}
 
-func (t TestIndex) SecondaryKey() SecondaryKey {
-	return SecondaryKey{StorePrefix: []byte{0x1}, Key: []byte("key")}
+func (t TestIndex) Hashes() [][]byte {
+	return [][]byte{[]byte("key")}
 }
 
 func Benchmark_inspect(b *testing.B) {
 	type cmplx struct {
 		PK  string `crud:"primaryKey"`
-		SK1 string `crud:"secondaryKey,01"`
-		SK2 string `crud:"secondaryKey,02"`
-		SK3 string `crud:"secondaryKey,03"`
-		SK4 string `crud:"secondaryKey,04"`
-		SK5 string `crud:"secondaryKey,05"`
+		SK1 string `crud:"01"`
+		SK2 string `crud:"02"`
+		SK3 string `crud:"03"`
+		SK4 string `crud:"04"`
+		SK5 string `crud:"05"`
 	}
 	x := &cmplx{
 		PK:  "1",
@@ -57,11 +58,11 @@ func Benchmark_inspect(b *testing.B) {
 func Benchmark_getKeys(b *testing.B) {
 	type cmplx struct {
 		PK  string `crud:"primaryKey"`
-		SK1 string `crud:"secondaryKey,01"`
-		SK2 string `crud:"secondaryKey,02"`
-		SK3 string `crud:"secondaryKey,03"`
-		SK4 string `crud:"secondaryKey,04"`
-		SK5 string `crud:"secondaryKey,05"`
+		SK1 string `crud:"01"`
+		SK2 string `crud:"02"`
+		SK3 string `crud:"03"`
+		SK4 string `crud:"04"`
+		SK5 string `crud:"05"`
 	}
 	x := &cmplx{
 		PK:  "1",
@@ -71,10 +72,9 @@ func Benchmark_getKeys(b *testing.B) {
 		SK4: "5",
 		SK5: "6",
 	}
-	v := reflect.ValueOf(x).Elem()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _, err := getKeys(v)
+		_, _, err := getKeys(x)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -82,31 +82,13 @@ func Benchmark_getKeys(b *testing.B) {
 }
 
 func Test_inspect(t *testing.T) {
-	t.Run("not a pointer", func(t *testing.T) {
-		_, _, err := inspect(0)
-		if !errors.Is(err, errNotAPointer) {
-			t.Fatalf("unexpected error: %s", err)
-		}
-	})
 	t.Run("not a struct", func(t *testing.T) {
 		_, _, err := inspect(new(int))
 		if !errors.Is(err, errPointerToStruct) {
 			t.Fatalf("unexpected error: %s", err)
 		}
 	})
-	t.Run("implements object", func(t *testing.T) {
-		obj := &testObject{}
-		pk, sk, err := inspect(obj)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if !reflect.DeepEqual(pk, obj.PrimaryKey()) {
-			t.Fatal("unexpected primary key")
-		}
-		if !reflect.DeepEqual(sk, obj.SecondaryKeys()) {
-			t.Fatal("unexpected secondary key")
-		}
-	})
+
 }
 func Test_marshalValue(t *testing.T) {
 	x := "hello"
@@ -114,7 +96,9 @@ func Test_marshalValue(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("%x", b)
+	if fmt.Sprintf("%x", b) != "68656c6c6f" {
+		t.Fatal(err)
+	}
 }
 
 func Test_marshalSlice(t *testing.T) {
@@ -142,86 +126,122 @@ func Test_getKeys(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		type obj struct {
 			PK string `crud:"primaryKey"`
-			SK string `crud:"secondaryKey,01"`
+			SK string `crud:"01"`
 		}
-		pk, sk, err := getKeys(reflect.ValueOf(obj{
+		pk, sk, err := getKeys(obj{
 			PK: "test1",
 			SK: "test2",
-		}))
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
-		t.Logf("%#v %#v", pk, sk)
+		expectedPk := PrimaryKey{0x74, 0x65, 0x73, 0x74, 0x31}
+		expectedSk := []SecondaryKey{
+			{Key: []uint8{0x74, 0x65, 0x73, 0x74, 0x32}, StorePrefix: []uint8{0x1}},
+		}
+		if !reflect.DeepEqual(expectedPk, pk) || !reflect.DeepEqual(expectedSk, sk) {
+			t.Fatal("unexpected output")
+		}
 	})
 	t.Run("multiple primary keys", func(t *testing.T) {
 		type obj struct {
 			PK  string `crud:"primaryKey"`
 			PK2 string `crud:"primaryKey"`
 		}
-		_, _, err := getKeys(reflect.ValueOf(obj{
+		_, _, err := getKeys(obj{
 			PK:  "test1",
 			PK2: "test2",
-		}))
+		})
 		if !errors.Is(err, errMultiplePrimaryKeys) {
 			t.Fatalf("unexpected error: %s", err)
 		}
 	})
-	t.Run("no primary key", func(t *testing.T) {
-		type obj struct {
-			SK  string `crud:"secondaryKey,02"`
-			SK2 string `crud:"secondaryKey,01"`
-		}
-		_, _, err := getKeys(reflect.ValueOf(obj{
-			SK:  "test1",
-			SK2: "test2",
-		}))
-		if !errors.Is(err, errNoPrimaryKey) {
-			t.Fatalf("unexpected error: %s", err)
-		}
-	})
+	/*
+		t.Run("no primary key", func(t *testing.T) {
+			type obj struct {
+				SK  string `crud:"secondaryKey,02"`
+				SK2 string `crud:"secondaryKey,01"`
+			}
+			_, _, err := getKeys(obj{
+				SK:  "test1",
+				SK2: "test2",
+			})
+			if !errors.Is(err, errNoPrimaryKey) {
+				t.Fatalf("unexpected error: %s", err)
+			}
+		})
+	*/
 	t.Run("invalid hex", func(t *testing.T) {
 		type obj struct {
 			PK string `crud:"primaryKey"`
-			SK string `crud:"secondaryKey,0x1"`
+			SK string `crud:"0x1"`
 		}
-		_, _, err := getKeys(reflect.ValueOf(obj{
+		_, _, err := getKeys(obj{
 			PK: "test1",
 			SK: "test2",
-		}))
+		})
 		if err == nil {
 			t.Fatal("error expected")
 		}
 	})
 	t.Run("with index type", func(t *testing.T) {
 		type obj struct {
-			PK string `crud:"primaryKey"`
-			SK TestIndex
+			PK string    `crud:"primaryKey"`
+			SK TestIndex `crud:"01"`
 		}
-		pk, sk, err := getKeys(reflect.ValueOf(&obj{
-			PK: "pk",
+		_, sk, err := getKeys(&obj{
 			SK: TestIndex{},
-		}).Elem())
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
-		t.Log()
-		t.Logf("%#v, %#v", pk, sk)
+		if !reflect.DeepEqual(sk[0], SecondaryKey{
+			Key:         []uint8{0x6b, 0x65, 0x79},
+			StorePrefix: []uint8{0x1},
+		}) {
+			t.Fatal("unexpected output")
+		}
 	})
 	t.Run("with index slice type", func(t *testing.T) {
 		type obj struct {
-			PK string `crud:"primaryKey"`
-			SK []TestIndex
+			PK string      `crud:"primaryKey"`
+			SK []TestIndex `crud:"01"`
 		}
-		pk, sk, err := getKeys(reflect.ValueOf(&obj{
+		_, sk, err := getKeys(&obj{
 			PK: "pk",
 			SK: []TestIndex{
 				{}, {},
 			},
-		}).Elem())
+		})
 		if err != nil {
 			t.Fatal(err)
 		}
-		t.Logf("%#v, %#v", pk, sk)
+		expected := []SecondaryKey{
+			{
+				Key:         []uint8{0x6b, 0x65, 0x79},
+				StorePrefix: []uint8{0x1},
+			},
+			{
+				Key:         []uint8{0x6b, 0x65, 0x79},
+				StorePrefix: []uint8{0x1},
+			},
+		}
+		if !reflect.DeepEqual(expected, sk) {
+			t.Fatal("unexpected output")
+		}
+	})
+	t.Run("implements object", func(t *testing.T) {
+		obj := &testObject{}
+		pk, sk, err := getKeys(obj)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(pk, obj.PrimaryKey()) {
+			t.Fatal("unexpected primary key")
+		}
+		if !reflect.DeepEqual(sk, obj.SecondaryKeys()) {
+			t.Fatal("unexpected secondary key")
+		}
 	})
 }
 

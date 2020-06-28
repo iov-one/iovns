@@ -11,7 +11,7 @@ func TestNewStore(t *testing.T) {
 
 type testStoreObject struct {
 	Primary   string `crud:"primaryKey"`
-	Secondary string `crud:"secondaryKey,01"`
+	Secondary string `crud:"01"`
 }
 
 func TestStore(t *testing.T) {

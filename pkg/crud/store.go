@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/tutils"
-	"reflect"
 )
 
 var indexPrefix = []byte{0x01}
@@ -70,7 +69,7 @@ func (s Store) Read(key []byte, o interface{}) (ok bool) {
 }
 
 func (s Store) ReadFilter(filter interface{}, o interface{}) (ok bool) {
-	pk, sk, err := getKeys(reflect.ValueOf(filter))
+	pk, sk, err := getKeys(filter)
 	if err != nil {
 		panic(err)
 	}
@@ -85,7 +84,7 @@ func (s Store) ReadFilter(filter interface{}, o interface{}) (ok bool) {
 
 // IterateFilter takes care of iterating over an index given a filter
 func (s Store) IterateFilter(filter interface{}, do func(pk PrimaryKey) bool) {
-	pk, sk, err := getKeys(reflect.ValueOf(filter))
+	pk, sk, err := getKeys(filter)
 	if err != nil {
 		panic(err)
 	}
@@ -210,13 +209,6 @@ type SecondaryKey struct {
 	Key []byte
 	// StorePrefix is the prefix of the index, necessary to divide one index from another
 	StorePrefix []byte
-}
-
-// Index defines a type which returns a secondary key
-// it's used for indexing of custom types not supported
-// by the CRUD store
-type Index interface {
-	SecondaryKey() SecondaryKey
 }
 
 // fixSecondaryKey encodes key value which contains the reserved separator by base64-encoding them
