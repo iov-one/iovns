@@ -10,6 +10,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/iov-one/iovns/x/domain"
+	coretypes "github.com/tendermint/tendermint/rpc/core/types"
+
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
@@ -21,7 +24,6 @@ type TendermintClient struct {
 	conn *websocket.Conn
 
 	stop chan struct{}
-
 	mu   sync.Mutex
 	resp map[string]chan<- *jsonrpcResponse
 }
@@ -106,7 +108,7 @@ func (c *TendermintClient) Do(method string, dest interface{}, args ...interface
 			"%d: %s",
 			resp.Error.Code, resp.Error.Message)
 	}
-	if err := json.Unmarshal(resp.Result, dest); err != nil {
+	if err := ModuleCdc.UnmarshalJSON(resp.Result, dest); err != nil {
 		return errors.Wrap(err, "cannot unmarshal result")
 	}
 	return nil
@@ -238,4 +240,25 @@ type TendermintBlock struct {
 	Time              time.Time
 	Transactions      []*auth.StdTx
 	TransactionHashes [][32]byte
+}
+
+func FetchGenesis(ctx context.Context, c *TendermintClient) (*domain.GenesisState, error) {
+	var result coretypes.ResultGenesis
+	if err := c.Do("genesis", &result); err != nil {
+		return nil, errors.Wrap(err, "query tendermint")
+	}
+	appState := result.Genesis.AppState
+	var st map[string]json.RawMessage
+	if err := json.Unmarshal(appState, &st); err != nil {
+		return nil, errors.Wrapf(err, "genesis parsing error")
+	}
+	domainModuleGen, ok := st[domain.ModuleName]
+	if !ok {
+		return nil, errors.New("cannot get domain module genesis data")
+	}
+	var genState domain.GenesisState
+	if err := ModuleCdc.UnmarshalJSON(domainModuleGen, &genState); err != nil {
+		return nil, errors.Wrapf(err, "genesis parsing error")
+	}
+	return &genState, nil
 }

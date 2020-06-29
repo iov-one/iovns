@@ -28,6 +28,9 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, hrp string) (ui
 	switch block, err := st.LatestBlock(ctx); {
 	case ErrNotFound.Is(err):
 		syncedHeight = 0
+		if err := st.InsertGenesis(ctx, tmc); err != nil {
+			return inserted, errors.Wrapf(err, "fetch genesis")
+		}
 	case err == nil:
 		syncedHeight = block.Height
 	default:
@@ -78,7 +81,6 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, hrp string) (ui
 				}
 				fee = fee.Add(c.Amount)
 			}
-
 			if err := routeMsgs(ctx, st, tx.Msgs); err != nil {
 				log.Error(errors.Wrapf(err, "height", c.Height))
 			}

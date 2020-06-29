@@ -2,6 +2,8 @@
 
 ## HEAD
 
+- Implement block-metrics
+
 ## v0.4.4
 
 - fix: iovnscli get config
