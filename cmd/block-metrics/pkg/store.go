@@ -53,6 +53,15 @@ func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomai
 	return err
 }
 
+func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAccount) error {
+	sqlStatement := `
+	UPDATE accounts 
+	SET owner = $1
+	WHERE domain = $2 AND name = $3`
+	_, err := st.db.ExecContext(ctx, sqlStatement, msg.NewOwner, msg.Domain, msg.Name)
+	return err
+}
+
 func (st *Store) RegisterAccount(ctx context.Context, msg *types.MsgRegisterAccount) (int64, error) {
 	var accountID int64
 
@@ -110,6 +119,72 @@ func (st *Store) ReplaceAccountResources(ctx context.Context, msg *types.MsgRepl
 	}
 
 	return resourceID, castPgErr(err)
+}
+
+func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgReplaceAccountMetadata) error {
+	tx, err := st.db.Begin()
+	if err != nil {
+		return castPgErr(err)
+	}
+
+	sqlStatement := `
+	UPDATE accounts 
+	SET metadata_uri = $1
+	WHERE domain = $2 AND name = $3`
+	_, err = st.db.ExecContext(ctx, sqlStatement, msg.NewMetadataURI, msg.Domain, msg.Name)
+	if err != nil {
+		return castPgErr(err)
+	}
+	if err := tx.Commit(); err != nil {
+		return castPgErr(err)
+	}
+
+	return castPgErr(err)
+}
+
+func (st *Store) AddAccountCertificates(ctx context.Context, msg *types.MsgAddAccountCertificates) (int64, error) {
+	var certID int64
+
+	sqlStatement := `SELECT id FROM accounts WHERE domain = $1 and name = $2;`
+	row := st.db.QueryRowContext(ctx, sqlStatement, msg.Domain, msg.Name)
+	var accountID int64
+	if err := row.Scan(&accountID); err != nil {
+		return accountID, castPgErr(err)
+	}
+
+	tx, err := st.db.Begin()
+	if err != nil {
+		return accountID, castPgErr(err)
+	}
+
+	_, err = tx.ExecContext(ctx, `
+		INSERT INTO account_certificates(account_id, certificate)
+		VALUES ($1, $2)
+	`, accountID, msg.NewCertificate)
+	if err != nil {
+		return accountID, wrapPgErr(err, "insert block")
+	}
+
+	if err := tx.Commit(); err != nil {
+		return accountID, castPgErr(err)
+	}
+
+	return certID, castPgErr(err)
+}
+
+func (st *Store) DeleteAccountCerts(ctx context.Context, msg *types.MsgDeleteAccountCertificate) error {
+	sqlStatement := `SELECT id FROM accounts WHERE domain = $1 and name = $2;`
+	row := st.db.QueryRowContext(ctx, sqlStatement, msg.Domain, msg.Name)
+	var accountID int64
+	if err := row.Scan(&accountID); err != nil {
+		return castPgErr(err)
+	}
+
+	sqlStatement = `
+		UPDATE account_certificates SET deleted_at = now() 
+		WHERE account_id = $1`
+	_, err := st.db.ExecContext(ctx, sqlStatement, accountID)
+	return err
 }
 
 func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount) error {

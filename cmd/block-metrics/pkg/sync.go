@@ -124,9 +124,25 @@ func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg) error {
 			if err := st.DeleteAccount(ctx, m); err != nil {
 				return errors.Wrapf(err, "delete account message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
+		case *types.MsgTransferAccount:
+			if err := st.TransferAccount(ctx, m); err != nil {
+				return errors.Wrapf(err, "transfer account message, domain name: %s, account name: %s", m.Domain, m.Name)
+			}
 		case *types.MsgReplaceAccountResources:
 			if _, err := st.ReplaceAccountResources(ctx, m); err != nil {
-				return errors.Wrapf(err, "replace account resources msg, domain name: %s, account name: %s", m.Domain, m.Name)
+				return errors.Wrapf(err, "replace account resources message, domain name: %s, account name: %s", m.Domain, m.Name)
+			}
+		case *types.MsgReplaceAccountMetadata:
+			if err := st.ReplaceAccountMetadata(ctx, m); err != nil {
+				return errors.Wrapf(err, "replace account metadata message, domain name: %s, account name: %s", m.Domain, m.Name)
+			}
+		case *types.MsgAddAccountCertificates:
+			if _, err := st.AddAccountCertificates(ctx, m); err != nil {
+				return errors.Wrapf(err, "add account certificates message, domain name: %s, account name: %s", m.Domain, m.Name)
+			}
+		case *types.MsgDeleteAccountCertificate:
+			if err := st.DeleteAccountCerts(ctx, m); err != nil {
+				return errors.Wrapf(err, "delete account certificates message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		}
 	}
