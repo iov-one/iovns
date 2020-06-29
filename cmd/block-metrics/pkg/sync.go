@@ -82,7 +82,7 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, hrp string) (ui
 				fee = fee.Add(c.Amount)
 			}
 			if err := routeMsgs(ctx, st, tx.Msgs); err != nil {
-				log.Error(errors.Wrapf(err, "height", c.Height))
+				log.Error(errors.Wrapf(err, "height %d", c.Height))
 			}
 		}
 
