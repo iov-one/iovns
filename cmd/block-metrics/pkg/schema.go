@@ -30,33 +30,11 @@ func EnsureSchema(pg *sql.DB) error {
 }
 
 var schema = `
-CREATE TABLE IF NOT EXISTS validators (
-	id BIGSERIAL PRIMARY KEY,
-	public_key BYTEA NOT NULL UNIQUE,
-	address BYTEA NOT NULL UNIQUE,
-	name TEXT,
-	memo TEXT
-);
-
----
-
 CREATE TABLE IF NOT EXISTS blocks (
 	block_height BIGINT NOT NULL PRIMARY KEY,
 	block_hash TEXT NOT NULL UNIQUE,
 	block_time TIMESTAMPTZ NOT NULL,
-	proposer_id INT NOT NULL REFERENCES validators(id),
-	messages TEXT[] NOT NULL,
 	fee_frac BIGINT NOT NULL
-);
-
----
-
-CREATE TABLE IF NOT EXISTS block_participations (
-	id BIGSERIAL PRIMARY KEY,
-	validated BOOLEAN NOT NULL,
-	block_id BIGINT NOT NULL REFERENCES blocks(block_height),
-	validator_id INT NOT NULL REFERENCES validators(id),
-	UNIQUE (block_id, validator_id)
 );
 
 ---
@@ -65,47 +43,48 @@ CREATE TABLE IF NOT EXISTS transactions (
 	id BIGSERIAL PRIMARY KEY,
 	transaction_hash TEXT NOT NULL UNIQUE,
 	block_id BIGINT NOT NULL REFERENCES blocks(block_height),
-	signatures BYTEA[],
+	signatures BYTEA ARRAY,
 	fee JSONB,
-	messages JSONB[],
 	memo text
 );
 
-CREATE INDEX ON transactions (transaction_hash);
 ---
-
 CREATE TABLE IF NOT EXISTS domains (
 	id BIGSERIAL PRIMARY KEY,
 	name TEXT,
-	admin BYTEA,
-	type TEXT,
+	admin BYTEA NOT NULL,
+	type TEXT NOT NULL,
 	broker BYTEA,
-	fee_payer_addr BYTEA
+	fee_payer_addr BYTEA,
+	deleted_at TIMESTAMP
 );
 
 ---
 CREATE TABLE IF NOT EXISTS accounts (
 	id BIGSERIAL PRIMARY KEY,
-	domain TEXT,
+	domain_id BIGINT NOT NULL REFERENCES domains(id),
+	domain TEXT NOT NULL,
 	name TEXT,
-	owner BYTEA,
-	ValidUntil BIGINT,
+	owner BYTEA NOT NULL,
+	registerer BYTEA,
 	broker BYTEA,
-	metadataURI TEXT
+	metadata_uri TEXT,
+	fee_payer_addr BYTEA,
+	deleted_at TIMESTAMP
 );
 
 ---
 CREATE TABLE IF NOT EXISTS resources (
 	id BIGSERIAL PRIMARY KEY,
-	account_id INTEGER REFERENCES accounts(id),
-	URI TEXT,
+	account_id BIGINT REFERENCES accounts(id),
+	uri TEXT,
 	resource TEXT
 );
 
 ---
 CREATE TABLE IF NOT EXISTS account_certificates (
 	id BIGSERIAL PRIMARY KEY,
-	account_id INTEGER REFERENCES accounts(id),
+	account_id BIGINT REFERENCES accounts(id),
 	certificate BYTEA
 );
 `

@@ -2,7 +2,10 @@ package pkg
 
 import (
 	"context"
+	"encoding/hex"
 	"time"
+
+	"github.com/prometheus/common/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -76,16 +79,54 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, hrp string) (ui
 				fee = fee.Add(c.Amount)
 			}
 
-			for _, msg := range tx.Msgs {
-				switch m := msg.(type) {
-				case *types.MsgRegisterDomain:
-					if _, err := st.RegisterDomain(ctx, m); err != nil {
-						return inserted, errors.Wrapf(err, "register domain message %d", c.Height)
-					}
-				}
+			if err := routeMsgs(ctx, st, tx.Msgs); err != nil {
+				log.Error(errors.Wrapf(err, "height", c.Height))
 			}
 		}
 
+		block := Block{
+			Height:  c.Height,
+			Hash:    hex.EncodeToString(c.Hash),
+			Time:    c.Time.UTC(),
+			FeeFrac: fee.Uint64(),
+		}
+		if err := st.InsertBlock(ctx, block); err != nil {
+			return inserted, errors.Wrapf(err, "insert block %d", c.Height)
+		}
 		inserted++
 	}
+}
+
+// Domain/Account valid until field is skipped, maybe could be implemented via
+// extra query calls on specific height
+func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg) error {
+	for _, msg := range msgs {
+		switch m := msg.(type) {
+		case *types.MsgRegisterDomain:
+			if _, err := st.RegisterDomain(ctx, m); err != nil {
+				return errors.Wrap(err, "register domain message")
+			}
+		case *types.MsgDeleteDomain:
+			if err := st.DeleteDomain(ctx, m); err != nil {
+				return errors.Wrapf(err, "delete domain message, domain name: %s", m.Domain)
+			}
+		case *types.MsgTransferDomain:
+			if err := st.TransferDomain(ctx, m); err != nil {
+				return errors.Wrapf(err, "transfer domain message, domain name: %s", m.Domain)
+			}
+		case *types.MsgRegisterAccount:
+			if _, err := st.RegisterAccount(ctx, m); err != nil {
+				return errors.Wrapf(err, "register account message, domain name: %s, account name: %s", m.Domain, m.Name)
+			}
+		case *types.MsgDeleteAccount:
+			if err := st.DeleteAccount(ctx, m); err != nil {
+				return errors.Wrapf(err, "delete account message, domain name: %s, account name: %s", m.Domain, m.Name)
+			}
+		case *types.MsgReplaceAccountResources:
+			if _, err := st.ReplaceAccountResources(ctx, m); err != nil {
+				return errors.Wrapf(err, "replace account resources msg, domain name: %s, account name: %s", m.Domain, m.Name)
+			}
+		}
+	}
+	return nil
 }
