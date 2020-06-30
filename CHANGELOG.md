@@ -2,6 +2,9 @@
 
 ## HEAD
 
+- FIX: AccountRenewalCountMax and DomainRenewalCountMax bumped at configuration update
+- FIX: fix cli tests
+
 ## v0.4.4
 
 - fix: iovnscli get config
