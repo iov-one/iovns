@@ -132,7 +132,7 @@ func (s Store) IterateIndex(index SecondaryKey, do func(key PrimaryKey) bool) {
 // To achieve so a zeroed copy of Object is created which is used to
 // unmarshal the old object contents which is necessary for the un-indexing.
 func (s Store) Update(o interface{}) {
-	primaryKey, secondaryKeys, err := inspect(o)
+	primaryKey, _, err := inspect(o)
 	if err != nil {
 		panic(err)
 	}
@@ -145,8 +145,12 @@ func (s Store) Update(o interface{}) {
 	objCopy := tutils.CloneFromValue(o)
 	// unmarshal
 	s.cdc.MustUnmarshalBinaryBare(oldObjBytes, objCopy)
-	// remove old indexes
-	s.unindex(primaryKey, secondaryKeys)
+	// remove old object
+	s.Delete(objCopy)
+	// create new object
+	s.Create(o)
+	// add new indexes
+
 	// update object
 	s.objects.Set(primaryKey, s.cdc.MustMarshalBinaryBare(o))
 }
