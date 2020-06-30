@@ -2,12 +2,12 @@ package keeper
 
 import (
 	"fmt"
+	"github.com/iov-one/iovns/pkg/crud"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/iovns"
-	"github.com/iov-one/iovns/pkg/index"
 	"github.com/iov-one/iovns/x/domain/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -121,7 +121,7 @@ func (q *QueryAccountsInDomain) QueryPath() string {
 // returned after a QueryAccountsInDomain query
 type QueryAccountsInDomainResponse struct {
 	// Accounts is a slice of the accounts found
-	Accounts []types.Account `json:"accounts"`
+	Accounts []*types.Account `json:"accounts"`
 }
 
 // queryAccountsInDomainHandler returns all accounts in aliceAddr domain
@@ -135,12 +135,12 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	if err = query.Validate(); err != nil {
 		return nil, err
 	}
-	keys := make([][]byte, 0, query.ResultsPerPage)
+	keys := make([]crud.PrimaryKey, 0, query.ResultsPerPage)
 	i := 0
 	// calculate index range
 	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
 	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
-	do := func(key []byte) bool {
+	do := func(key crud.PrimaryKey) bool {
 		// check if our index is grater-equal than our start
 		if i >= indexStart {
 			keys = append(keys, key)
@@ -153,11 +153,20 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		return true
 	}
 	// iterate keys
-	k.GetAccountsInDomain(ctx, query.Domain, do)
+	as := k.AccountStore(ctx)
+	// TODO to change
+	as.IterateIndex(crud.SecondaryKey{
+		Key:         []byte(query.Domain),
+		StorePrefix: []byte{0x2},
+	}, do)
 	// get accounts
-	accounts := make([]types.Account, 0, len(keys))
+	accounts := make([]*types.Account, 0, len(keys))
 	for _, key := range keys {
-		account, _ := k.GetAccount(ctx, query.Domain, accountKeyToString(key))
+		account := new(types.Account)
+		ok := as.Read(key, account)
+		if !ok {
+			panic(":O")
+		}
 		accounts = append(accounts, account)
 	}
 	// return response
@@ -233,12 +242,12 @@ func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 		return nil, err
 	}
 	// generate expected keys
-	keys := make([][]byte, 0, query.ResultsPerPage)
+	keys := make([]crud.PrimaryKey, 0, query.ResultsPerPage)
 	i := 0
 	// calculate index range
 	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
 	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
-	do := func(key []byte) bool {
+	do := func(key crud.PrimaryKey) bool {
 		// check if our index is grater-equal than our start
 		if i >= indexStart {
 			keys = append(keys, key)
@@ -251,10 +260,12 @@ func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 		return true
 	}
 	// iterate account keys
-	err = k.iterAccountToOwner(ctx, query.Owner, do)
-	if err != nil {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
-	}
+	as := k.AccountStore(ctx)
+	// TODO change
+	as.IterateIndex(crud.SecondaryKey{
+		Key:         query.Owner,
+		StorePrefix: []byte{0x1},
+	}, do)
 	// check if there are any keys
 	if len(keys) == 0 {
 		respBytes, err := iovns.DefaultQueryEncode(QueryAccountsWithOwnerResponse{})
@@ -267,13 +278,12 @@ func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 	accounts := make([]types.Account, 0, len(keys))
 	for _, accKey := range keys {
 		// get indexed account
-		indexedAccount := types.Account{}
-		err = index.Unpack(accKey, &indexedAccount)
-		if err != nil {
-			panic(err)
+		account := new(types.Account)
+		ok := as.Read(accKey, account)
+		if !ok {
+			panic(":O")
 		}
-		account, _ := k.GetAccount(ctx, indexedAccount.Domain, indexedAccount.Name)
-		accounts = append(accounts, account)
+		accounts = append(accounts, *account)
 	}
 	// return response
 	respBytes, err := iovns.DefaultQueryEncode(QueryAccountsWithOwnerResponse{Accounts: accounts})
@@ -349,12 +359,12 @@ func queryDomainsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	}
 	// get domain keys
 	// generate expected keys
-	keys := make([][]byte, 0, query.ResultsPerPage)
+	keys := make([]crud.PrimaryKey, 0, query.ResultsPerPage)
 	i := 0
 	// calculate i range
 	indexStart := query.ResultsPerPage*query.Offset - query.ResultsPerPage // this is the start
 	indexEnd := indexStart + query.ResultsPerPage - 1                      // this is the end
-	do := func(key []byte) bool {
+	do := func(key crud.PrimaryKey) bool {
 		// check if our i is grater-equal than our start
 		if i >= indexStart {
 			keys = append(keys, key)
@@ -367,23 +377,18 @@ func queryDomainsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		return true
 	}
 	// fill domain keys
-	err = k.iterDomainToOwner(ctx, query.Owner, do)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
-	}
+	ds := k.DomainStore(ctx)
+	ds.IterateIndex(crud.SecondaryKey{
+		Key:         query.Owner,
+		StorePrefix: []byte{0x1},
+	}, do)
 	// get domains
 	domains := make([]types.Domain, 0, len(keys))
 	for _, key := range keys {
 		// prepare the domain index key unpacker
-		indexedDomain := types.Domain{}
-		err = index.Unpack(key, &indexedDomain)
-		// if it's not found or unpacked then we need to panic
-		if err != nil {
-			panic("unexpected domain key not found: " + err.Error())
-		}
-		// get domain
-		domain, _ := k.GetDomain(ctx, indexedDomain.Name)
-		domains = append(domains, domain)
+		domain := new(types.Domain)
+		ds.Read(key, domain)
+		domains = append(domains, *domain)
 	}
 	respBytes, err := iovns.DefaultQueryEncode(QueryDomainsWithOwnerResponse{Domains: domains})
 	if err != nil {
@@ -467,12 +472,14 @@ func queryResolveAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQue
 		return nil, err
 	}
 	// do query
-	account, exists := k.GetAccount(ctx, q.Domain, q.Name)
+	account := new(types.Account)
+	pk := (&types.Account{Name: q.Name, Domain: q.Domain}).PrimaryKey()
+	exists := k.AccountStore(ctx).Read(pk, account)
 	if !exists {
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", q.Domain, q.Name)
 	}
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryResolveAccountResponse{Account: account})
+	respBytes, err := iovns.DefaultQueryEncode(QueryResolveAccountResponse{Account: *account})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -531,12 +538,14 @@ func queryResolveDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuer
 	if err = q.Validate(); err != nil {
 		return nil, err
 	}
-	domain, ok := k.GetDomain(ctx, q.Name)
+	filter := &types.Domain{Name: q.Name}
+	domain := new(types.Domain)
+	ok := k.DomainStore(ctx).Read(filter.PrimaryKey(), domain)
 	if !ok {
 		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", q.Name)
 	}
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryResolveDomainResponse{Domain: domain})
+	respBytes, err := iovns.DefaultQueryEncode(QueryResolveDomainResponse{Domain: *domain})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -596,12 +605,12 @@ func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQu
 		return nil, err
 	}
 	// generate expected keys
-	keys := make([][]byte, 0, q.ResultsPerPage)
+	keys := make([]crud.PrimaryKey, 0, q.ResultsPerPage)
 	// calculate index range
 	indexStart := q.ResultsPerPage*q.Offset - q.ResultsPerPage // start index
 	indexEnd := indexStart + q.ResultsPerPage - 1              // index end
 	i := 0
-	do := func(key []byte) bool {
+	do := func(key crud.PrimaryKey) bool {
 		// check if our index is grater-equal than our start
 		if i >= indexStart {
 			keys = append(keys, key)
@@ -614,21 +623,22 @@ func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQu
 		return true
 	}
 	// fill keys
-	err = k.iterateResourceAccounts(ctx, q.Resource, do)
-	if err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
-	}
+	as := k.AccountStore(ctx)
+	resKey := strings.Join([]string{q.Resource.URI, q.Resource.Resource}, "")
+	as.IterateIndex(crud.SecondaryKey{
+		Key:         []byte(resKey),
+		StorePrefix: []byte{0x3},
+	}, do)
 	// get accounts
 	accounts := make([]types.Account, 0, len(keys))
 	for _, key := range keys {
 		// get account name
-		account := types.Account{}
-		index.MustUnpack(key, &account)
-		account, ok := k.GetAccount(ctx, account.Domain, account.Name)
+		account := new(types.Account)
+		ok := as.Read(key, account)
 		if !ok {
 			panic(fmt.Sprintf("account was not found for key %x", key))
 		}
-		accounts = append(accounts, account)
+		accounts = append(accounts, *account)
 	}
 	// return response
 	b, err := iovns.DefaultQueryEncode(QueryResolveResourceResponse{Accounts: accounts})

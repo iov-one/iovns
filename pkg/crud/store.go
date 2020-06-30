@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/tutils"
+	"log"
 )
 
 var indexPrefix = []byte{0x01}
@@ -60,6 +61,7 @@ func (s Store) Create(o interface{}) {
 // if it is found then the binary is unmarshalled into the Object.
 // CONTRACT: Object must be a pointer for the unmarshalling to take effect.
 func (s Store) Read(key []byte, o interface{}) (ok bool) {
+	log.Printf("read: %x", key)
 	v := s.objects.Get(key)
 	if v == nil {
 		return
@@ -116,14 +118,16 @@ func (s Store) ReadFromIndex(index SecondaryKey, o interface{}) (ok bool) {
 }
 
 func (s Store) IterateIndex(index SecondaryKey, do func(key PrimaryKey) bool) {
-	indexStore := prefix.NewStore(s.indexes, index.StorePrefix)
-	iterator := sdk.KVStorePrefixIterator(indexStore, index.Key)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		if primaryKey := iterator.Key(); !do(primaryKey) {
-			return
+	s.opIndex([]SecondaryKey{index}, func(s sdk.KVStore) bool {
+		iterator := s.Iterator(nil, nil)
+		defer iterator.Close()
+		for ; iterator.Valid(); iterator.Next() {
+			if primaryKey := iterator.Key(); !do(primaryKey) {
+				return false
+			}
 		}
-	}
+		return true
+	})
 }
 
 // Update updates the given Object in the objects store
@@ -212,6 +216,7 @@ type SecondaryKey struct {
 	// Key is the byte key which identifies the byte key prefix used to iterate of the index of the secondary key
 	Key []byte
 	// StorePrefix is the prefix of the index, necessary to divide one index from another
+	// TODO this is not safe, because of prefixes overlapping
 	StorePrefix []byte
 }
 
