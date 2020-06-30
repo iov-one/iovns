@@ -22,6 +22,9 @@ func (m MsgUpdateConfig) ValidateBasic() error {
 	if m.Signer.Empty() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "no signer specified")
 	}
+	if err := m.NewConfiguration.Validate(); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "new configuration validation error")
+	}
 	return nil
 }
 
