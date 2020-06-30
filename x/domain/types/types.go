@@ -1,7 +1,8 @@
 package types
 
 import (
-	"fmt"
+	"github.com/iov-one/iovns/pkg/crud"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -16,15 +17,31 @@ const emptyAccountNameIndexIdentifier = "*"
 // Domain defines a domain
 type Domain struct {
 	// Name is the name of the domain
-	Name string `json:"name"`
+	Name string `json:"name" crud:"primaryKey"`
 	// Owner is the owner of the domain
-	Admin sdk.AccAddress `json:"admin"`
+	Admin sdk.AccAddress `json:"admin" crud:"01"`
 	// ValidUntil is a unix timestamp defines the time when the domain will become invalid
 	ValidUntil int64 `json:"valid_until"`
 	// Type defines the type of the domain
 	Type DomainType `json:"type"`
 	// Broker TODO needs comment
 	Broker sdk.AccAddress `json:"broker"`
+}
+
+func (d *Domain) PrimaryKey() crud.PrimaryKey {
+	if d.Name == "" {
+		return nil
+	}
+	return []byte(d.Name)
+}
+
+func (d *Domain) SecondaryKeys() []crud.SecondaryKey {
+	return []crud.SecondaryKey{
+		{
+			Key:         d.Admin,
+			StorePrefix: []byte{0x1},
+		},
+	}
 }
 
 type DomainType string
@@ -41,37 +58,6 @@ func ValidateDomainType(typ DomainType) error {
 	default:
 		return errors.Wrapf(ErrInvalidDomainType, "invalid domain type: %s", typ)
 	}
-}
-
-// Index implements Indexer and packs the
-// domain into an index key using its name
-func (d Domain) Index() ([]byte, error) {
-	key, err := index.PackBytes([][]byte{[]byte(d.Name)})
-	if err != nil {
-		return nil, err
-	}
-	return key, nil
-}
-
-// Pack implements Indexed and allows
-// the domain to be saved as a value
-// in an index deterministically
-func (d Domain) Pack() ([]byte, error) {
-	return d.Index()
-}
-
-// Unpack implements Unpacker and allows
-// the domain to be retrieved from an index key
-func (d *Domain) Unpack(key []byte) error {
-	unpackedKeys, err := index.UnpackBytes(key)
-	if err != nil {
-		return err
-	}
-	if len(unpackedKeys) != 1 {
-		return fmt.Errorf("unpack domain expected one key, got: %d", len(unpackedKeys))
-	}
-	d.Name = string(unpackedKeys[0])
-	return nil
 }
 
 // Account defines an account that belongs to a domain
@@ -95,41 +81,37 @@ type Account struct {
 	MetadataURI string `json:"metadata_uri"`
 }
 
-// Pack implements Indexed and allows
-// the account to be saved as a value
-// in an index deterministically
-func (a Account) Pack() ([]byte, error) {
-	// in order to avoid empty keys
-	// indexing in case account name
-	// is empty, we index it as '*'
-	var name = a.Name
-	if a.Name == "" {
-		name = emptyAccountNameIndexIdentifier
-	}
-	key, err := index.PackBytes([][]byte{[]byte(a.Domain), []byte(name)})
-	if err != nil {
-		return nil, err
-	}
-	return key, nil
+func (a *Account) PrimaryKey() crud.PrimaryKey {
+	j := strings.Join([]string{a.Domain, a.Name}, "*")
+	return []byte(j)
 }
 
-// Unpack implements Unpacker and allows
-// the account to be retrieved from an index key
-func (a *Account) Unpack(key []byte) error {
-	keys, err := index.UnpackBytes(key)
-	if err != nil {
-		return err
+func (a *Account) SecondaryKeys() []crud.SecondaryKey {
+	// index by owner
+	ownerIndex := crud.SecondaryKey{
+		Key:         a.Owner,
+		StorePrefix: []byte{0x1},
 	}
-	if len(keys) != 2 {
-		return fmt.Errorf("unexpected number of keys for %T: %d", a, len(keys))
+	// index by domain
+	domainIndex := crud.SecondaryKey{
+		Key:         []byte(a.Domain),
+		StorePrefix: []byte{0x2},
 	}
-	a.Domain = string(keys[0])
-	name := string(keys[1])
-	if name == emptyAccountNameIndexIdentifier {
-		name = ""
+	// index by resources
+	resourcesIndexes := make([]crud.SecondaryKey, len(a.Resources))
+	for i, res := range a.Resources {
+		// exclude empty resources
+		if res.Resource == "" || res.URI == "" {
+			continue
+		}
+		resKey := strings.Join([]string{res.URI, res.Resource}, "")
+		resourcesIndexes[i] = crud.SecondaryKey{
+			Key:         []byte(resKey),
+			StorePrefix: []byte{0x3},
+		}
 	}
-	a.Name = name
-	return nil
+	// return keys
+	return append([]crud.SecondaryKey{ownerIndex, domainIndex}, resourcesIndexes...)
 }
 
 // Resource defines a resource an account can resolve to

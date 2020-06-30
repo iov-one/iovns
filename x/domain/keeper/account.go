@@ -15,7 +15,7 @@ import (
 // a zeroed account and false.
 func (k Keeper) GetAccount(ctx sdk.Context, domainName, accountName string) (account types.Account, exists bool) {
 	// get domain prefix key
-	store := accountsInDomainStore(ctx.KVStore(k.storeKey), domainName)
+	store := accountsInDomainStore(ctx.KVStore(k.StoreKey), domainName)
 	// get account key
 	accountKey := getAccountKey(accountName)
 	// get account
@@ -25,7 +25,7 @@ func (k Keeper) GetAccount(ctx sdk.Context, domainName, accountName string) (acc
 	}
 	// key exists
 	exists = true
-	k.cdc.MustUnmarshalBinaryBare(accountBytes, &account)
+	k.Cdc.MustUnmarshalBinaryBare(accountBytes, &account)
 	return
 }
 
@@ -48,18 +48,18 @@ func (k Keeper) CreateAccount(ctx sdk.Context, account types.Account) {
 // SetAccount upserts account data
 func (k Keeper) SetAccount(ctx sdk.Context, account types.Account) {
 	// get prefixed store
-	store := accountsInDomainStore(ctx.KVStore(k.storeKey), account.Domain)
+	store := accountsInDomainStore(ctx.KVStore(k.StoreKey), account.Domain)
 	// get account key
 	accountKey := getAccountKey(account.Name)
 	// set store
-	store.Set(accountKey, k.cdc.MustMarshalBinaryBare(account))
+	store.Set(accountKey, k.Cdc.MustMarshalBinaryBare(account))
 }
 
 // DeleteAccount deletes an account based on it full account name -> domain + iovns.Separator + account
 func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 	// we need to retrieve account in order to unmap the account from the index; TODO can we avoid this?
 	account, _ := k.GetAccount(ctx, domainName, accountName)
-	store := accountsInDomainStore(ctx.KVStore(k.storeKey), domainName)
+	store := accountsInDomainStore(ctx.KVStore(k.StoreKey), domainName)
 	// get account key
 	accountKey := getAccountKey(account.Name)
 	store.Delete(accountKey)
@@ -78,7 +78,7 @@ func (k Keeper) DeleteAccount(ctx sdk.Context, domainName, accountName string) {
 // GetAccountsInDomain provides all the account keys related to the given domain name
 func (k Keeper) GetAccountsInDomain(ctx sdk.Context, domainName string, do func(key []byte) bool) {
 	// get store
-	store := accountsInDomainStore(ctx.KVStore(k.storeKey), domainName)
+	store := accountsInDomainStore(ctx.KVStore(k.StoreKey), domainName)
 	// create iterator
 	iterator := store.Iterator(nil, nil)
 	defer iterator.Close()
@@ -201,14 +201,14 @@ func (k Keeper) ReplaceAccountResources(ctx sdk.Context, account types.Account, 
 
 // IterateAllAccounts returns all the accounts inside the store
 func (k Keeper) IterateAllAccounts(ctx sdk.Context) []types.Account {
-	store := accountStore(ctx.KVStore(k.storeKey))
+	store := accountStore(ctx.KVStore(k.StoreKey))
 	iterator := store.Iterator(nil, nil)
 	defer iterator.Close()
 	var accounts []types.Account
 	for ; iterator.Valid(); iterator.Next() {
 		var a types.Account
 		accountBytes := store.Get(iterator.Key())
-		k.cdc.MustUnmarshalBinaryBare(accountBytes, &a)
+		k.Cdc.MustUnmarshalBinaryBare(accountBytes, &a)
 		accounts = append(accounts, a)
 	}
 	return accounts

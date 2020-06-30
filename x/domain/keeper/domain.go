@@ -12,7 +12,7 @@ import (
 
 // GetDomain returns the domain based on its name, if domain is not found ok will be false
 func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Domain, ok bool) {
-	store := domainStore(ctx.KVStore(k.storeKey))
+	store := domainStore(ctx.KVStore(k.StoreKey))
 	// get domain in form of bytes
 	domainBytes := store.Get([]byte(domainName))
 	// if nothing is returned, return nil
@@ -20,7 +20,7 @@ func (k Keeper) GetDomain(ctx sdk.Context, domainName string) (domain types.Doma
 		return
 	}
 	// if domain exists then unmarshal
-	k.cdc.MustUnmarshalBinaryBare(domainBytes, &domain)
+	k.Cdc.MustUnmarshalBinaryBare(domainBytes, &domain)
 	// success
 	return domain, true
 }
@@ -54,21 +54,21 @@ func (k Keeper) CreateDomain(ctx sdk.Context, domain types.Domain) {
 
 // SetDomain updates or creates a new domain in the store
 func (k Keeper) SetDomain(ctx sdk.Context, domain types.Domain) {
-	store := domainStore(ctx.KVStore(k.storeKey))
-	store.Set([]byte(domain.Name), k.cdc.MustMarshalBinaryBare(domain))
+	store := domainStore(ctx.KVStore(k.StoreKey))
+	store.Set([]byte(domain.Name), k.Cdc.MustMarshalBinaryBare(domain))
 }
 
 // IterateAllDomains will return an iterator for all the domain keys
 // present in the KVStore, it's callers duty to close the iterator.
 func (k Keeper) IterateAllDomains(ctx sdk.Context) []types.Domain {
-	store := domainStore(ctx.KVStore(k.storeKey))
+	store := domainStore(ctx.KVStore(k.StoreKey))
 	iterator := store.Iterator(nil, nil)
 	defer iterator.Close()
 	var domains []types.Domain
 	for ; iterator.Valid(); iterator.Next() {
 		var d types.Domain
 		domainBytes := store.Get(iterator.Key())
-		k.cdc.MustUnmarshalBinaryBare(domainBytes, &d)
+		k.Cdc.MustUnmarshalBinaryBare(domainBytes, &d)
 		domains = append(domains, d)
 	}
 	return domains
@@ -82,7 +82,7 @@ func (k Keeper) DeleteDomain(ctx sdk.Context, domainName string) (exists bool) {
 		return
 	}
 	// delete domain
-	domainStore := domainStore(ctx.KVStore(k.storeKey))
+	domainStore := domainStore(ctx.KVStore(k.StoreKey))
 	domainStore.Delete([]byte(domainName))
 	// delete accounts
 	var accountKeys [][]byte

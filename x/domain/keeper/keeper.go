@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"github.com/iov-one/iovns/pkg/crud"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -48,21 +49,30 @@ type Keeper struct {
 	ConfigurationKeeper ConfigurationKeeper
 	SupplyKeeper        SupplyKeeper
 	// default fields
-	storeKey   sdk.StoreKey // contains the store key for the domain module
-	cdc        *codec.Codec
+	StoreKey   sdk.StoreKey // contains the store key for the domain module
+	Cdc        *codec.Codec
 	paramspace ParamSubspace
 }
 
 // NewKeeper creates aliceAddr domain keeper
 func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, configKeeper ConfigurationKeeper, supply SupplyKeeper, paramspace ParamSubspace) Keeper {
 	keeper := Keeper{
-		storeKey:            storeKey,
-		cdc:                 cdc,
+		StoreKey:            storeKey,
+		Cdc:                 cdc,
 		ConfigurationKeeper: configKeeper,
 		SupplyKeeper:        supply,
 		paramspace:          paramspace,
 	}
 	return keeper
+}
+
+func (k Keeper) AccountStore(ctx sdk.Context) crud.Store {
+	store := crud.NewStore(ctx, k.StoreKey, k.Cdc, []byte{0x1})
+	return store
+}
+
+func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
+	return crud.NewStore(ctx, k.StoreKey, k.Cdc, []byte{0x2})
 }
 
 // Logger returns aliceAddr module-specific logger.
