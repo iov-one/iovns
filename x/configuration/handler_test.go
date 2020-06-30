@@ -22,14 +22,14 @@ func Test_HandleUpdateConfig(t *testing.T) {
 				msg := types.MsgUpdateConfig{
 					Signer: CharlieKey,
 				}
-				_, err := handleUpdateConfig(ctx, &msg, k)
+				_, err := handleUpdateConfig(ctx, msg, k)
 				if !errors.Is(err, sdkerrors.ErrUnauthorized) {
 					t.Fatalf("unexpected error: %s", err)
 				}
 				msg = types.MsgUpdateConfig{
 					Signer: AliceKey,
 				}
-				_, err = handleUpdateConfig(ctx, &msg, k)
+				_, err = handleUpdateConfig(ctx, msg, k)
 				if err != nil {
 					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
 				}
