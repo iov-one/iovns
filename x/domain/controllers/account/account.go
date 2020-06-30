@@ -177,9 +177,10 @@ func (a *Account) renewable() error {
 	a.requireConfiguration()
 
 	// do calculations
-	newValidUntil := iovns.SecondsToTime(a.account.ValidUntil).Add(a.conf.AccountRenewalPeriod) //
-	// set new expected valid until
+	newValidUntil := iovns.SecondsToTime(a.account.ValidUntil).Add(a.conf.AccountRenewalPeriod)
+	// renew count bumped because domain is already at count 1 when created
 	renewCount := a.conf.AccountRenewalCountMax + 1
+	// set new expected valid until
 	maximumValidUntil := a.ctx.BlockTime().Add(a.conf.AccountRenewalPeriod * time.Duration(renewCount))
 	// check if new valid until is after maximum allowed
 	if newValidUntil.After(maximumValidUntil) {

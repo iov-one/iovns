@@ -80,15 +80,12 @@ func TestAccount_Renewable(t *testing.T) {
 		AccountRenewalCountMax: 1,
 		AccountRenewalPeriod:   10 * time.Second,
 	})
-	// create mock domains and accounts
-	// create open domain
 	k.CreateDomain(ctx, types.Domain{
 		Name:       "open",
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
 	})
-	// creat open domain account
 	k.CreateAccount(ctx, types.Account{
 		Domain:     "open",
 		Name:       "test",
