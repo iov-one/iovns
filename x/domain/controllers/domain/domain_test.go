@@ -301,33 +301,52 @@ func TestDomain_validName(t *testing.T) {
 }
 
 func TestDomain_Renewable(t *testing.T) {
-	ctrl := &Domain{
-		domainName: "test",
-		domain: &types.Domain{
-			Name:       "test",
-			ValidUntil: 1,
-			Type:       "",
-			Broker:     nil,
-		},
-		conf: &configuration.Config{
-			DomainRenewalPeriod:   2 * time.Second,
-			DomainRenewalCountMax: 1,
-		},
-		k: keeper.Keeper{},
-	}
-	t.Run("success", func(t *testing.T) {
-		ctrl.ctx = sdk.Context{}.WithBlockTime(time.Unix(5, 0))
-		err := ctrl.Validate(Renewable)
-		if err != nil {
+	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	ctx = ctx.WithBlockTime(time.Unix(1, 0))
+	setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+	setConfig(ctx, configuration.Config{
+		DomainRenewalCountMax: 1, // increased by one inside controller
+		DomainRenewalPeriod:   10 * time.Second,
+	})
+	k.CreateDomain(ctx, types.Domain{
+		Name:       "open",
+		Admin:      keeper.AliceKey,
+		ValidUntil: time.Unix(18, 0).Unix(),
+		Type:       types.OpenDomain,
+	})
+	k.CreateDomain(ctx, types.Domain{
+		Name:       "closed",
+		Admin:      keeper.AliceKey,
+		ValidUntil: time.Unix(18, 0).Unix(),
+		Type:       types.ClosedDomain,
+	})
+
+	// 18(DomainValidUntil) + 10 (DomainRP) = 28 newValidUntil
+	t.Run("open domain", func(t *testing.T) {
+		// 7(time) + 2(DomainRCM) * 10(DomainRP) = 27 maxValidUntil
+		d := NewController(ctx.WithBlockTime(time.Unix(7, 0)), k, "open")
+		err := d.Validate(Renewable)
+		if !errors.Is(err, types.ErrUnauthorized) {
+			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
+		}
+		// 100(time) + 2(DomainRCM) * 10(DomainRP) = 120 maxValidUntil
+		d = NewController(ctx.WithBlockTime(time.Unix(100, 0)), k, "open")
+		if err := d.Validate(Renewable); err != nil {
 			t.Fatalf("got error: %s", err)
 		}
 	})
-	t.Run("fail renewal not allowed", func(t *testing.T) {
-		ctrl.domain.ValidUntil = ctrl.domain.ValidUntil + int64(ctrl.conf.DomainRenewalPeriod/time.Second)                            // make valid until as if a renew was already made
-		ctrl.ctx = sdk.Context{}.WithBlockTime(time.Unix(ctrl.domain.ValidUntil-int64(ctrl.conf.DomainRenewalPeriod/time.Second), 0)) // make current time domain valid until - one renewal                                    // make current time, domain expiration time - 1 renewal period
-		err := ctrl.Validate(Renewable)
+	// 18(DomainValidUntil) + 10 (DomainRP) = 28 newValidUntil
+	t.Run("closed domain", func(t *testing.T) {
+		// 7(time) + 2(DomainRCM) * 10(DomainRP) = 27 maxValidUntil
+		d := NewController(ctx.WithBlockTime(time.Unix(7, 0)), k, "closed")
+		err := d.Validate(Renewable)
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
+		}
+		// 100(time) + 2(DomainRCM) * 10(DomainRP) = 120 maxValidUntil
+		d = NewController(ctx.WithBlockTime(time.Unix(100, 0)), k, "closed")
+		if err := d.Validate(Renewable); err != nil {
+			t.Fatalf("got error: %s", err)
 		}
 	})
 }
