@@ -35,8 +35,6 @@ func handleUpdateConfig(ctx sdk.Context, msg *types.MsgUpdateConfig, k Keeper) (
 	if !configurer.Equals(msg.Signer) {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update configuration", msg.Signer)
 	}
-	msg.NewConfiguration.AccountRenewalCountMax = msg.NewConfiguration.AccountRenewalCountMax + 1
-	msg.NewConfiguration.DomainRenewalCountMax = msg.NewConfiguration.DomainRenewalCountMax + 1
 	// if allowed update configuration
 	k.SetConfig(ctx, msg.NewConfiguration)
 	// TODO emit event

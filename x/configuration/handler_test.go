@@ -35,38 +35,6 @@ func Test_HandleUpdateConfig(t *testing.T) {
 				}
 			},
 		},
-		"account/domain renewal count bumped": {
-			BeforeTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				conf := Config{
-					Configurer: AliceKey,
-				}
-				k.SetConfig(ctx, conf)
-			},
-			Test: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				newConfig := Config{
-					Configurer:             AliceKey,
-					DomainRenewalCountMax:  1,
-					AccountRenewalCountMax: 1,
-				}
-				msg := types.MsgUpdateConfig{
-					Signer:           AliceKey,
-					NewConfiguration: newConfig,
-				}
-				_, err := handleUpdateConfig(ctx, &msg, k)
-				if err != nil {
-					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
-				}
-			},
-			AfterTest: func(t *testing.T, k Keeper, ctx sdk.Context) {
-				cfg := k.GetConfiguration(ctx)
-				if cfg.DomainRenewalCountMax != 2 {
-					t.Fatalf("DomainRenewalCountMax expected %d got %d", 2, cfg.DomainRenewalCountMax)
-				}
-				if cfg.AccountRenewalCountMax != 2 {
-					t.Fatalf("AccouhntRenewalCountMax expected %d got %d", 2, cfg.AccountRenewalCountMax)
-				}
-			},
-		},
 	}
 	RunTests(t, cases)
 }
