@@ -28,6 +28,9 @@ func Test_HandleUpdateConfig(t *testing.T) {
 				}
 				msg = types.MsgUpdateConfig{
 					Signer: AliceKey,
+					NewConfiguration: Config{
+						Configurer: BobKey,
+					},
 				}
 				_, err = handleUpdateConfig(ctx, msg, k)
 				if err != nil {
