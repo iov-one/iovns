@@ -2,6 +2,8 @@
 
 ## HEAD
 
+- FIX: fix domain renewal
+
 ## v0.4.4
 
 - fix: iovnscli get config
