@@ -80,151 +80,29 @@ func getCmdUpdateFees(cdc *codec.Codec) *cobra.Command {
 func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-config",
-		Short: "update domain configuration, provide the values you want to override in current configuration",
+		Short: "update domain configuration, provide file",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			config := &types.Config{}
-			if !cliCtx.GenerateOnly {
-				rawCfg, _, err := cliCtx.QueryStore([]byte(types.ConfigKey), types.StoreKey)
-				if err != nil {
-					return err
-				}
-				cdc.MustUnmarshalBinaryBare(rawCfg, config)
-			}
-			var signer sdk.AccAddress
-			// if tx is not generate only, use --from flag as signer, otherwise get it from signer flag
-			if !cliCtx.GenerateOnly {
-				signer = cliCtx.FromAddress
-			} else {
-				signerStr, err := cmd.Flags().GetString("signer")
-				if err != nil {
-					return err
-				}
-				signer, err = sdk.AccAddressFromBech32(signerStr)
-				if err != nil {
-					return err
-				}
-			}
-			// get flags
-			configurerStr, err := cmd.Flags().GetString("configurer")
-			if err != nil {
-				return
-			}
-			if configurerStr != "" {
-				configurer, err := sdk.AccAddressFromBech32(configurerStr)
-				if err != nil {
-					return err
-				}
-				config.Configurer = configurer
-			}
-			validDomainName, err := cmd.Flags().GetString("valid-domain-name")
-			if err != nil {
-				return err
-			}
-			if validDomainName != defaultRegex {
-				config.ValidDomainName = validDomainName
-			}
-			validAccountName, err := cmd.Flags().GetString("valid-account-name")
-			if err != nil {
-				return err
-			}
-			if validAccountName != defaultRegex {
-				config.ValidAccountName = validAccountName
-			}
-			validURI, err := cmd.Flags().GetString("valid-uri")
-			if err != nil {
-				return err
-			}
-			if validURI != defaultRegex {
-				config.ValidURI = validURI
-			}
-			validResource, err := cmd.Flags().GetString("valid-resource")
-			if err != nil {
-				return err
-			}
-			if validResource != defaultRegex {
-				config.ValidResource = validResource
-			}
-			domainRenew, err := cmd.Flags().GetDuration("domain-renew-period")
-			if err != nil {
-				return err
-			}
-			if domainRenew != defaultDuration {
-				config.DomainRenewalPeriod = domainRenew
-			}
-			domainRenewCountMax, err := cmd.Flags().GetUint32("domain-renew-count-max")
-			if err != nil {
-				return err
-			}
-			if domainRenewCountMax != defaultNumber {
-				config.DomainRenewalCountMax = domainRenewCountMax
-			}
-			domainGracePeriod, err := cmd.Flags().GetDuration("domain-grace-period")
-			if err != nil {
-				return err
-			}
-			if domainGracePeriod != defaultNumber {
-				config.DomainGracePeriod = domainGracePeriod
-			}
-			accountRenewPeriod, err := cmd.Flags().GetDuration("account-renew-period")
-			if err != nil {
-				return err
-			}
-			if accountRenewPeriod != defaultNumber {
-				config.AccountRenewalPeriod = accountRenewPeriod
-			}
-			accountRenewCountMax, err := cmd.Flags().GetUint32("account-renew-count-max")
-			if err != nil {
-				return err
-			}
-			if accountRenewCountMax != defaultNumber {
-				config.AccountRenewalCountMax = accountRenewCountMax
-			}
-			accountGracePeriod, err := cmd.Flags().GetDuration("account-grace-period")
-			if err != nil {
-				return err
-			}
-			if accountGracePeriod != defaultDuration {
-				config.AccountGracePeriod = accountGracePeriod
-			}
-			resourceMax, err := cmd.Flags().GetUint32("resource-max")
-			if err != nil {
-				return err
-			}
-			if resourceMax != defaultNumber {
-				config.ResourcesMax = resourceMax
-			}
-			certificateSizeMax, err := cmd.Flags().GetUint64("certificate-size-max")
-			if err != nil {
-				return err
-			}
-			if certificateSizeMax != defaultNumber {
-				config.CertificateSizeMax = certificateSizeMax
-			}
-			certificateCountMax, err := cmd.Flags().GetUint32("certificate-count-max")
-			if err != nil {
-				return err
-			}
-			if certificateCountMax != defaultNumber {
-				config.CertificateCountMax = certificateCountMax
-			}
-			metadataSizeMax, err := cmd.Flags().GetUint64("metadata-size-max")
-			if err != nil {
-				return err
-			}
-			if metadataSizeMax != defaultNumber {
-				config.MetadataSizeMax = metadataSizeMax
-			}
 
-			if err := config.Validate(); err != nil {
+			configFile, err := cmd.Flags().GetString("config-file")
+			if err != nil {
 				return err
 			}
-			// build msg
-			msg := &types.MsgUpdateConfig{
-				Signer:           signer,
-				NewConfiguration: *config,
+			f, err := os.Open(configFile)
+			if err != nil {
+				return fmt.Errorf("unable to open config file: %s", err)
+			}
+			defer f.Close()
+			newConfig := new(types.Config)
+			err = json.NewDecoder(f).Decode(newConfig)
+			if err != nil {
+				return fmt.Errorf("unable to decode json: %s", err)
+			}
+			msg := types.MsgUpdateConfig{
+				Signer:           cliCtx.GetFromAddress(),
+				NewConfiguration: *newConfig,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -235,24 +113,6 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 	// add flags
-	cmd.Flags().String("signer", "", "current configuration owner, for offline usage, otherwise --from is used")
-	cmd.Flags().String("configurer", "", "new configuration owner")
-	cmd.Flags().String("valid-domain-name", defaultRegex, "regexp that determines if domain name is valid or not")
-	cmd.Flags().String("valid-account-name", defaultRegex, "regexp that determines if account name is valid or not")
-	cmd.Flags().String("valid-uri", defaultRegex, "regexp that determines if uri is valid or not")
-	cmd.Flags().String("valid-resource", defaultRegex, "regexp that determines if resource is valid or not")
-
-	cmd.Flags().Duration("domain-renew-period", defaultDuration, "domain renewal duration in seconds before expiration")
-	cmd.Flags().Uint32("domain-renew-count-max", uint32(defaultNumber), "maximum number of applicable domain renewals")
-	cmd.Flags().Duration("domain-grace-period", defaultDuration, "domain grace period duration in seconds")
-
-	cmd.Flags().Duration("account-renew-period", defaultDuration, "domain renewal duration in seconds before expiration")
-	cmd.Flags().Uint32("account-renew-count-max", uint32(defaultNumber), "maximum number of applicable account renewals")
-	cmd.Flags().Duration("account-grace-period", defaultDuration, "account grace period duration in seconds")
-
-	cmd.Flags().Uint32("resource-max", uint32(defaultNumber), "maximum number of resources could be saved under an account")
-	cmd.Flags().Uint64("certificate-size-max", uint64(defaultNumber), "maximum size of a certificate that could be saved under an account")
-	cmd.Flags().Uint32("certificate-count-max", uint32(defaultNumber), "maximum number of certificates that could be saved under an account")
-	cmd.Flags().Uint64("metadata-size-max", uint64(defaultNumber), "maximum size of metadata that could be saved under an account")
+	cmd.Flags().String("config-file", "config.json", "config file in json format")
 	return cmd
 }
