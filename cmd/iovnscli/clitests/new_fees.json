@@ -6,7 +6,7 @@
   "register_account_open": "1.000000000000000000",
   "transfer_account_closed": "1.000000000000000000",
   "transfer_account_open": "1.000000000000000000",
-  "replace_account_targets": "1.000000000000000000",
+  "replace_account_resources": "1.000000000000000000",
   "add_account_certificate": "1.000000000000000000",
   "del_account_certificate": "1.000000000000000000",
   "set_account_metadata": "1.000000000000000000",

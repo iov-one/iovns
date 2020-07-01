@@ -164,7 +164,7 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 	accountCtrl := account.NewController(ctx, k, msg.Domain, msg.Name).WithConfiguration(conf)
 	if err := accountCtrl.Validate(
 		account.MustExist,
-		account.MaxRenewNotExceeded); err != nil {
+		account.Renewable); err != nil {
 		return nil, err
 	}
 	feeCtrl := fees.NewController(ctx, k, domainCtrl.Domain())
