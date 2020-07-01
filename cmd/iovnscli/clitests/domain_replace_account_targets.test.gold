@@ -3,14 +3,14 @@
   "value": {
     "msg": [
       {
-        "type": "domain/ReplaceAccountTargets",
+        "type": "domain/ReplaceAccountResources",
         "value": {
           "domain": "test",
           "name": "test",
-          "new_targets": [
+          "new_resources": [
             {
-              "blockchain_id": "id1",
-              "address": "address"
+              "uri": "",
+              "resource": ""
             }
           ],
           "owner": "star1yfcw3pju4wd8rud9l0uzkzwgs7c2drg88k7vzk",

@@ -294,7 +294,9 @@ func (c *Domain) renewable() error {
 	}
 	// do calculations
 	newValidUntil := iovns.SecondsToTime(c.domain.ValidUntil).Add(c.conf.DomainRenewalPeriod) // set new expected valid until
-	maximumValidUntil := c.ctx.BlockTime().Add(c.conf.DomainRenewalPeriod * time.Duration(c.conf.DomainRenewalCountMax))
+	// renew count bumped because domain count is already at count 1 when created
+	renewCount := c.conf.DomainRenewalCountMax + 1
+	maximumValidUntil := c.ctx.BlockTime().Add(c.conf.DomainRenewalPeriod * time.Duration(renewCount))
 	// check if new valid until is after maximum allowed
 	if newValidUntil.After(maximumValidUntil) {
 		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew domain, domain %s renewal period would be after maximum allowed: %s", c.domainName, maximumValidUntil)
