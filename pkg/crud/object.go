@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/iov-one/iovns/tutils"
-	"log"
 	"reflect"
 )
 
@@ -71,12 +70,6 @@ func validateKeys(pk PrimaryKey, sk []SecondaryKey) error {
 }
 
 func getKeys(o interface{}) (primaryKey PrimaryKey, secondaryKeys []SecondaryKey, err error) {
-	defer func() {
-		log.Printf("primaryKey: %x", primaryKey)
-		for i, k := range secondaryKeys {
-			log.Printf("secKey:%d:%x", i, k)
-		}
-	}()
 	// check if type implements object interface
 	if object, ok := o.(Object); ok {
 		primaryKey = object.PrimaryKey()

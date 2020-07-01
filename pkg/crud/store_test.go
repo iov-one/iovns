@@ -31,7 +31,7 @@ func TestStore(t *testing.T) {
 		Secondary: "third",
 	}
 	store.Update(updateObj)
-	ok = store.ReadFilter(testStoreObject{Primary: "account"}, readObj)
+	ok = store.ReadFilter(testStoreObject{Secondary: "third"}, readObj)
 	if !ok {
 		t.Fatal("object not found")
 	}

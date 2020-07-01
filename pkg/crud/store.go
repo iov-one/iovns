@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/tutils"
-	"log"
 )
 
 var indexPrefix = []byte{0x01}
@@ -61,7 +60,6 @@ func (s Store) Create(o interface{}) {
 // if it is found then the binary is unmarshalled into the Object.
 // CONTRACT: Object must be a pointer for the unmarshalling to take effect.
 func (s Store) Read(key []byte, o interface{}) (ok bool) {
-	log.Printf("read: %x", key)
 	v := s.objects.Get(key)
 	if v == nil {
 		return
@@ -75,7 +73,7 @@ func (s Store) ReadFilter(filter interface{}, o interface{}) (ok bool) {
 	if err != nil {
 		panic(err)
 	}
-	if pk != nil {
+	if len(pk) != 0 {
 		return s.Read(pk, o)
 	}
 	if len(sk) != 0 {
@@ -122,7 +120,8 @@ func (s Store) IterateIndex(index SecondaryKey, do func(key PrimaryKey) bool) {
 		iterator := s.Iterator(nil, nil)
 		defer iterator.Close()
 		for ; iterator.Valid(); iterator.Next() {
-			if primaryKey := iterator.Key(); !do(primaryKey) {
+			primaryKey := iterator.Key()
+			if !do(primaryKey) {
 				return false
 			}
 		}

@@ -27,7 +27,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 			Handler: queryAccountsInDomainHandler,
 			WantErr: nil,
 			PtrExpectedResponse: QueryAccountsInDomainResponse{
-				Accounts: []*types.Account{{Domain: "test", Name: "", Owner: aliceAddr, ValidUntil: types.MaxValidUntil}, {Domain: "test", Name: "1", Owner: aliceAddr}, {Domain: "test", Name: "2", Owner: aliceAddr}},
+				Accounts: []*types.Account{{Domain: "test", Name: "1", Owner: aliceAddr}, {Domain: "test", Name: "2", Owner: aliceAddr}},
 			},
 		},
 		"success with paging": {
@@ -47,7 +47,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 			Handler: queryAccountsInDomainHandler,
 			WantErr: nil,
 			PtrExpectedResponse: QueryAccountsInDomainResponse{
-				Accounts: []*types.Account{{Domain: "test", Name: "1", Owner: aliceAddr}},
+				Accounts: []*types.Account{{Domain: "test", Name: "2", Owner: bobAddr}},
 			},
 		},
 	}
