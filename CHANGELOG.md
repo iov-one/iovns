@@ -5,6 +5,7 @@
 - FIX: AccountRenewalCountMax and DomainRenewalCountMax bumped at configuration update
 - FIX: fix cli tests
 - FIX: fix domain renewal
+- Implement block-metrics
 
 ## v0.4.4
 

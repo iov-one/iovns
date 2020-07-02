@@ -29,4 +29,7 @@ type (
 )
 
 // aliasing for funcs
-var NewKeeper = keeper.NewKeeper
+var (
+	NewKeeper     = keeper.NewKeeper
+	RegisterCodec = types.RegisterCodec
+)
