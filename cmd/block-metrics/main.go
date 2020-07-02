@@ -15,7 +15,7 @@ import (
 func main() {
 	conf := pkg.Configuration{
 		DBHost:          os.Getenv("POSTGRES_HOST"),
-		DBName:          os.Getenv("POSTGRES_DB_NAME"),
+		DBName:          os.Getenv("POSTGRES_DB"),
 		DBUser:          os.Getenv("POSTGRES_USER"),
 		DBPass:          os.Getenv("POSTGRES_PASSWORD"),
 		DBSSL:           os.Getenv("POSTGRES_SSL_ENABLE"),
