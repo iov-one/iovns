@@ -2,6 +2,7 @@ package account
 
 import (
 	"bytes"
+	"github.com/iov-one/iovns/pkg/crud"
 	"regexp"
 	"time"
 
@@ -29,9 +30,9 @@ type Account struct {
 	account      *types.Account
 	conf         *configuration.Config
 
-	ctx sdk.Context
-	k   keeper.Keeper
-
+	ctx        sdk.Context
+	k          keeper.Keeper
+	store      crud.Store
 	domainCtrl *domain.Domain
 }
 
@@ -42,6 +43,7 @@ func NewController(ctx sdk.Context, k keeper.Keeper, domain, name string) *Accou
 		domain: domain,
 		ctx:    ctx,
 		k:      k,
+		store:  k.AccountStore(ctx),
 	}
 }
 
@@ -86,11 +88,12 @@ func (a *Account) requireAccount() error {
 	if a.account != nil {
 		return nil
 	}
-	account, ok := a.k.GetAccount(a.ctx, a.domain, a.name)
+	account := new(types.Account)
+	ok := a.store.Read((&types.Account{Domain: a.domain, Name: a.name}).PrimaryKey(), account)
 	if !ok {
 		return sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "%s was not found in domain %s", a.name, a.domain)
 	}
-	a.account = &account
+	a.account = account
 	return nil
 }
 

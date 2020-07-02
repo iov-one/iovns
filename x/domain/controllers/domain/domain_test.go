@@ -15,7 +15,8 @@ import (
 func TestDomain_requireDomain(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
-		k.CreateDomain(ctx, types.Domain{
+		ds := k.DomainStore(ctx)
+		ds.Create(&types.Domain{
 			Name:  "test",
 			Admin: keeper.AliceKey,
 			Type:  types.OpenDomain,
@@ -39,7 +40,8 @@ func TestDomain_requireDomain(t *testing.T) {
 func TestDomain_domainExpired(t *testing.T) {
 	t.Run("domain expired", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
-		k.CreateDomain(ctx, types.Domain{
+		ds := k.DomainStore(ctx)
+		ds.Create(&types.Domain{
 			Name:       "test",
 			Admin:      keeper.AliceKey,
 			Type:       types.OpenDomain,
@@ -53,8 +55,9 @@ func TestDomain_domainExpired(t *testing.T) {
 	})
 	t.Run("domain not expired", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		ds := k.DomainStore(ctx)
 		now := time.Now()
-		k.CreateDomain(ctx, types.Domain{
+		ds.Create(&types.Domain{
 			Name:       "test",
 			Admin:      keeper.AliceKey,
 			ValidUntil: now.Unix() + 10000,
@@ -81,7 +84,8 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 1 * time.Second,
 				})
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
@@ -103,7 +107,8 @@ func TestDomain_gracePeriodFinished(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					DomainGracePeriod: 15 * time.Second,
 				})
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 1,
@@ -126,7 +131,8 @@ func TestDomain_ownedBy(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
@@ -142,7 +148,8 @@ func TestDomain_ownedBy(t *testing.T) {
 		},
 		"unauthorized": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
@@ -164,7 +171,8 @@ func TestDomain_notExpired(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"success": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 2,
@@ -181,7 +189,8 @@ func TestDomain_notExpired(t *testing.T) {
 		},
 		"expired": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 1,
@@ -204,7 +213,8 @@ func TestDomain_type(t *testing.T) {
 	cases := map[string]keeper.SubTest{
 		"saved": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:  "test",
 					Admin: keeper.AliceKey,
 					Type:  types.ClosedDomain,
@@ -220,7 +230,8 @@ func TestDomain_type(t *testing.T) {
 		},
 		"fail want type close domain": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:  "test",
 					Admin: keeper.AliceKey,
 					Type:  types.ClosedDomain,
@@ -236,7 +247,8 @@ func TestDomain_type(t *testing.T) {
 		},
 		"fail want open domain": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:  "test",
 					Admin: keeper.AliceKey,
 					Type:  types.OpenDomain,
@@ -262,7 +274,8 @@ func TestDomain_validName(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidDomainName: keeper.RegexMatchAll,
 				})
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
@@ -282,7 +295,8 @@ func TestDomain_validName(t *testing.T) {
 				setConfig(ctx, configuration.Config{
 					ValidDomainName: keeper.RegexMatchNothing,
 				})
-				k.CreateDomain(ctx, types.Domain{
+				ds := k.DomainStore(ctx)
+				ds.Create(&types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
 					ValidUntil: 0,
@@ -308,13 +322,14 @@ func TestDomain_Renewable(t *testing.T) {
 		DomainRenewalCountMax: 1, // increased by one inside controller
 		DomainRenewalPeriod:   10 * time.Second,
 	})
-	k.CreateDomain(ctx, types.Domain{
+	ds := k.DomainStore(ctx)
+	ds.Create(&types.Domain{
 		Name:       "open",
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Unix(18, 0).Unix(),
 		Type:       types.OpenDomain,
 	})
-	k.CreateDomain(ctx, types.Domain{
+	ds.Create(&types.Domain{
 		Name:       "closed",
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Unix(18, 0).Unix(),

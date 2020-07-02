@@ -17,27 +17,29 @@ func TestAccount_transferable(t *testing.T) {
 	k, ctx, _ := keeper.NewTestKeeper(t, true)
 	// create mock domains and accounts
 	// create open domain
-	k.CreateDomain(ctx, types.Domain{
+	ds := k.DomainStore(ctx)
+	as := k.AccountStore(ctx)
+	ds.Create(&types.Domain{
 		Name:       "open",
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
 	})
 	// creat open domain account
-	k.CreateAccount(ctx, types.Account{
+	as.Create(&types.Account{
 		Domain: "open",
 		Name:   "test",
 		Owner:  keeper.BobKey,
 	})
 	// create closed domain
-	k.CreateDomain(ctx, types.Domain{
+	ds.Create(&types.Domain{
 		Name:       "closed",
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.ClosedDomain,
 	})
 	// create closed domain account
-	k.CreateAccount(ctx, types.Account{
+	as.Create(&types.Account{
 		Domain: "closed",
 		Name:   "test",
 		Owner:  keeper.BobKey,
@@ -73,8 +75,9 @@ func TestAccount_transferable(t *testing.T) {
 
 func TestAccount_existence(t *testing.T) {
 	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	as := k.AccountStore(ctx)
 	// insert mock account
-	k.SetAccount(ctx, types.Account{
+	as.Create(&types.Account{
 		Domain:     "test",
 		Name:       "test",
 		Owner:      keeper.AliceKey,
@@ -115,8 +118,9 @@ func TestAccount_existence(t *testing.T) {
 func TestAccount_requireAccount(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		as := k.AccountStore(ctx)
 		alice, _ := mock.Addresses()
-		k.SetAccount(ctx, types.Account{
+		as.Create(&types.Account{
 			Domain: "test",
 			Name:   "test",
 			Owner:  alice,

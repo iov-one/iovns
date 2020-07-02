@@ -10,7 +10,7 @@ import (
 
 func NewAccount(ctx sdk.Context, k keeper.Keeper, account types.Account) *Account {
 	return &Account{
-		store:   crud.NewStore(ctx, k.StoreKey, k.Cdc, []byte{0x5}),
+		store:   k.AccountStore(ctx),
 		account: &account,
 		ctx:     ctx,
 		k:       k,
@@ -47,7 +47,7 @@ func (a *Account) UpdateMetadata(newMetadata string) {
 		panic("cannot update metadata on non specified account")
 	}
 	a.account.MetadataURI = newMetadata
-	a.store.Update(*a.account)
+	a.store.Update(a.account)
 }
 
 func (a *Account) ReplaceTargets(newTargets []types.Resource) {
@@ -55,7 +55,7 @@ func (a *Account) ReplaceTargets(newTargets []types.Resource) {
 		panic("cannot replace targets on non specified account")
 	}
 	a.account.Resources = newTargets
-	a.store.Update(*a.account)
+	a.store.Update(a.account)
 }
 
 func (a *Account) Renew() {
@@ -67,21 +67,21 @@ func (a *Account) Renew() {
 		iovns.SecondsToTime(a.account.ValidUntil).Add(renew),
 	)
 	// update account in kv store
-	a.store.Update(*a.account)
+	a.store.Update(a.account)
 }
 
 func (a *Account) Create() {
 	if a.account == nil {
 		panic("cannot create a non specified account")
 	}
-	a.store.Create(*a.account)
+	a.store.Create(a.account)
 }
 
 func (a *Account) Delete() {
 	if a.account == nil {
 		panic("cannot delete a non specified account")
 	}
-	a.store.Delete(*a.account)
+	a.store.Delete(a.account)
 }
 
 func (a *Account) DeleteCertificate(index int) {
@@ -89,7 +89,7 @@ func (a *Account) DeleteCertificate(index int) {
 		panic("cannot delete certificate on a non specified account")
 	}
 	a.account.Certificates = append(a.account.Certificates[:index], a.account.Certificates[index+1:]...)
-	a.store.Update(*a.account)
+	a.store.Update(a.account)
 }
 
 func (a *Account) AddCertificate(cert []byte) {
@@ -97,7 +97,7 @@ func (a *Account) AddCertificate(cert []byte) {
 		panic("cannot add certificate on a non specified account")
 	}
 	a.account.Certificates = append(a.account.Certificates, cert)
-	a.store.Update(*a.account)
+	a.store.Update(a.account)
 }
 
 // State returns the current state of the account
