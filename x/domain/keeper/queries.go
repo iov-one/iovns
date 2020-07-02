@@ -165,7 +165,7 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		account := new(types.Account)
 		ok := as.Read(key, account)
 		if !ok {
-			panic(":O")
+			panic("missing expected account key")
 		}
 		accounts = append(accounts, account)
 	}
@@ -281,7 +281,7 @@ func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 		account := new(types.Account)
 		ok := as.Read(accKey, account)
 		if !ok {
-			panic(":O")
+			panic("missing expected key")
 		}
 		accounts = append(accounts, *account)
 	}

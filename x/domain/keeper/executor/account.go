@@ -50,7 +50,7 @@ func (a *Account) UpdateMetadata(newMetadata string) {
 	a.store.Update(a.account)
 }
 
-func (a *Account) ReplaceTargets(newTargets []types.Resource) {
+func (a *Account) ReplaceResources(newTargets []types.Resource) {
 	if a.account == nil {
 		panic("cannot replace targets on non specified account")
 	}

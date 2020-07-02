@@ -3,6 +3,7 @@ package domain
 import (
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/domain/controllers/fees"
+	"github.com/iov-one/iovns/x/domain/keeper/executor"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -41,7 +42,8 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *typ
 		return nil, errors.Wrapf(err, "unable to collect fees")
 	}
 	// add certificate
-	k.AddAccountCertificate(ctx, accountCtrl.Account(), msg.NewCertificate)
+	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
+	ex.AddCertificate(msg.NewCertificate)
 	// success; TODO emit event
 	return &sdk.Result{}, nil
 }
@@ -74,7 +76,8 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *t
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// delete cert
-	k.DeleteAccountCertificate(ctx, accountCtrl.Account(), *certIndex)
+	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
+	ex.DeleteCertificate(*certIndex)
 	// success; TODO emit event?
 	return &sdk.Result{}, nil
 }
@@ -101,7 +104,8 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// delete account
-	k.DeleteAccount(ctx, msg.Domain, msg.Name)
+	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
+	ex.Delete()
 	// success; todo can we emit event?
 	return &sdk.Result{}, nil
 }
@@ -149,7 +153,8 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
-	k.CreateAccount(ctx, a)
+	ex := executor.NewAccount(ctx, k, a)
+	ex.Create()
 	return &sdk.Result{}, nil
 }
 
@@ -175,17 +180,17 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// renew account
-	a := accountCtrl.Account()
 	// account valid until is extended here
-	k.RenewAccount(ctx, &a, conf.AccountRenewalPeriod)
+	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
+	ex.Renew()
 	// get grace period and expiration time
 	d := domainCtrl.Domain()
 	dgp := conf.DomainGracePeriod
 	domainGracePeriodUntil := iovns.SecondsToTime(d.ValidUntil).Add(dgp)
-	accNewValidUntil := iovns.SecondsToTime(a.ValidUntil)
+	accNewValidUntil := iovns.SecondsToTime(ex.State().ValidUntil)
 	if domainGracePeriodUntil.Before(accNewValidUntil) {
-		d.ValidUntil = accNewValidUntil.Unix()
-		k.SetDomain(ctx, d)
+		dex := executor.NewDomain(ctx, k, domainCtrl.Domain())
+		dex.Renew(accNewValidUntil.Unix())
 	}
 	// success; todo emit event??
 	return &sdk.Result{}, nil
@@ -217,7 +222,8 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k keeper.Keeper, msg *ty
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// replace accounts resources
-	k.ReplaceAccountResources(ctx, accountCtrl.Account(), msg.NewResources)
+	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
+	ex.ReplaceResources(msg.NewResources)
 	// success; TODO emit any useful event?
 	return &sdk.Result{}, nil
 }
@@ -247,7 +253,8 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *typ
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// save to store
-	k.UpdateMetadataAccount(ctx, accountCtrl.Account(), msg.NewMetadataURI)
+	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
+	ex.UpdateMetadata(msg.NewMetadataURI)
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
@@ -284,7 +291,8 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 		return nil, errors.Wrap(err, "unable to collect fees")
 	}
 	// transfer account
-	k.TransferAccountWithReset(ctx, accountCtrl.Account(), msg.NewOwner, msg.Reset)
+	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
+	ex.Transfer(msg.NewOwner, msg.Reset)
 	// success, todo emit event?
 	return &sdk.Result{}, nil
 }
