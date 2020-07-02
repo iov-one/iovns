@@ -14,6 +14,11 @@ import (
 // account names of a domain are identified in indexes
 const emptyAccountNameIndexIdentifier = "*"
 
+const DomainAdminIndex = 0x1
+const AccountAdminIndex = 0x1
+const AccountDomainIndex = 0x2
+const AccountResourcesIndex = 0x3
+
 // Domain defines a domain
 type Domain struct {
 	// Name is the name of the domain
@@ -39,7 +44,7 @@ func (d *Domain) SecondaryKeys() []crud.SecondaryKey {
 	return []crud.SecondaryKey{
 		{
 			Key:         d.Admin,
-			StorePrefix: []byte{0x1},
+			StorePrefix: []byte{DomainAdminIndex},
 		},
 	}
 }
@@ -90,12 +95,12 @@ func (a *Account) SecondaryKeys() []crud.SecondaryKey {
 	// index by owner
 	ownerIndex := crud.SecondaryKey{
 		Key:         a.Owner,
-		StorePrefix: []byte{0x1},
+		StorePrefix: []byte{AccountAdminIndex},
 	}
 	// index by domain
 	domainIndex := crud.SecondaryKey{
 		Key:         []byte(a.Domain),
-		StorePrefix: []byte{0x2},
+		StorePrefix: []byte{AccountDomainIndex},
 	}
 	// index by resources
 	resourcesIndexes := make([]crud.SecondaryKey, len(a.Resources))
@@ -107,7 +112,7 @@ func (a *Account) SecondaryKeys() []crud.SecondaryKey {
 		resKey := strings.Join([]string{res.URI, res.Resource}, "")
 		resourcesIndexes[i] = crud.SecondaryKey{
 			Key:         []byte(resKey),
-			StorePrefix: []byte{0x3},
+			StorePrefix: []byte{AccountResourcesIndex},
 		}
 	}
 	// return keys
