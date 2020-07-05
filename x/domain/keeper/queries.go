@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 	"github.com/iov-one/iovns/pkg/crud"
+	"log"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -145,11 +146,8 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	accounts := make([]*types.Account, 0, len(keys))
 	filter := as.Filter(&types.Account{Domain: query.Domain})
 	for {
-		filter.Next()
 		if !filter.Valid() {
-			break
-		}
-		if i == indexEnd {
+			log.Printf("breaking n :%d", i)
 			break
 		}
 		if i >= indexStart {
@@ -157,6 +155,10 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 			filter.Read(acc)
 			accounts = append(accounts, acc)
 		}
+		if i == indexEnd {
+			break
+		}
+		filter.Next()
 		i++
 	}
 	// return response
@@ -243,11 +245,7 @@ func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 	accounts := make([]types.Account, 0, len(keys))
 	filter := as.Filter(&types.Account{Owner: query.Owner})
 	for {
-		filter.Next()
 		if !filter.Valid() {
-			break
-		}
-		if i == indexEnd {
 			break
 		}
 		if i >= indexStart {
@@ -255,6 +253,10 @@ func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 			filter.Read(acc)
 			accounts = append(accounts, *acc)
 		}
+		if i == indexEnd {
+			break
+		}
+		filter.Next()
 		i++
 	}
 	// return response
@@ -342,11 +344,7 @@ func queryDomainsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	domains := make([]types.Domain, 0, len(keys))
 	filter := ds.Filter(&types.Domain{Admin: query.Owner})
 	for {
-		filter.Next()
 		if !filter.Valid() {
-			break
-		}
-		if i == indexEnd {
 			break
 		}
 		if i >= indexStart {
@@ -355,6 +353,10 @@ func queryDomainsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 			domains = append(domains, *dom)
 
 		}
+		if i == indexEnd {
+			break
+		}
+		filter.Next()
 		i++
 	}
 	respBytes, err := iovns.DefaultQueryEncode(QueryDomainsWithOwnerResponse{Domains: domains})
@@ -582,11 +584,7 @@ func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQu
 	accounts := make([]types.Account, 0, len(keys))
 	filter := as.Filter(&types.Account{Resources: []types.Resource{q.Resource}})
 	for {
-		filter.Next()
 		if !filter.Valid() {
-			break
-		}
-		if i == indexEnd {
 			break
 		}
 		if i >= indexStart {
@@ -594,6 +592,10 @@ func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQu
 			filter.Read(acc)
 			accounts = append(accounts, *acc)
 		}
+		if i == indexEnd {
+			break
+		}
+		filter.Next()
 		i++
 	}
 	// return response

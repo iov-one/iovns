@@ -74,7 +74,7 @@ func TestStore(t *testing.T) {
 	}
 	// check if indexes were updated
 	filter := store.Filter(&testStoreObject{Index2: "updated"})
-	if !filter.Next() {
+	if !filter.Valid() {
 		t.Fatal("index was not updated")
 	}
 	filter.Read(cpy)
@@ -111,7 +111,7 @@ func TestFilter(t *testing.T) {
 	}
 	// delete based on filter
 	filter := store.Filter(&testStoreObject{Index1: objs[0].Index1}) // delete based on same index
-	for filter.Next() {
+	for ; filter.Valid(); filter.Next() {
 		filter.Delete()
 	}
 	// try to read primary keys and check if they're deleted

@@ -104,7 +104,7 @@ func (d *Domain) Create() {
 	d.domains.Create(d.domain)
 	d.accounts.Create(&types.Account{
 		Domain:       d.domain.Name,
-		Name:         "",
+		Name:         types.EmptyAccountIdentifier,
 		Owner:        d.domain.Admin,
 		ValidUntil:   0,
 		Resources:    nil,

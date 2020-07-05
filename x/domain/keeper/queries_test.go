@@ -65,6 +65,9 @@ func Test_queryGetAccountsWithOwner(t *testing.T) {
 				ds.Create(&types.Domain{Name: "test", Admin: bobAddr})
 				as.Create(&types.Account{Domain: "test", Name: "1", Owner: aliceAddr})
 				as.Create(&types.Account{Domain: "test", Name: "2", Owner: aliceAddr})
+				as.Create(&types.Account{Domain: "test", Name: "3", Owner: aliceAddr})
+				as.Create(&types.Account{Domain: "test", Name: "4", Owner: aliceAddr})
+
 			},
 			Request: &QueryAccountsWithOwner{
 				Owner:          aliceAddr,
@@ -77,6 +80,8 @@ func Test_queryGetAccountsWithOwner(t *testing.T) {
 				Accounts: []types.Account{
 					{Domain: "test", Name: "1", Owner: aliceAddr},
 					{Domain: "test", Name: "2", Owner: aliceAddr},
+					{Domain: "test", Name: "3", Owner: aliceAddr},
+					{Domain: "test", Name: "4", Owner: aliceAddr},
 				},
 			},
 		},
