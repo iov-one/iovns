@@ -36,7 +36,7 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 	// if account valid until is specified then the renew is coming from accounts
 	if len(accValidUntil) != 0 {
 		d.domain.ValidUntil = accValidUntil[0]
-		d.domains.Update(d)
+		d.domains.Update(d.domain.PrimaryKey(), d.domain)
 		return
 	}
 	// get configuration
@@ -46,16 +46,18 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 		iovns.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(prefixedStore.ValidUntil) + renew duration
 	)
 	// set prefixedStore
-	d.domains.Update(d.domain)
+	d.domains.Update(d.domain.PrimaryKey(), d.domain)
 }
 
-// Delete deletes a prefixedStore from the kvstore
+// Delete deletes a domain from the kvstore
 func (d *Domain) Delete() {
 	if d.domain == nil {
 		panic("cannot execute delete state change on non present prefixedStore")
 	}
-	d.domains.Delete(d.domain)
-	d.accounts.Delete(&types.Account{Domain: d.domain.Name, Name: ""})
+	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
+	for filter.Next() {
+		filter.Delete()
+	}
 }
 
 // Transferrer returns a prefixedStore transfer function based on the transfer flag
@@ -67,55 +69,28 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) func
 		// transfer domain
 		var oldOwner = d.domain.Admin // cache it for future uses
 		d.domain.Admin = newOwner
-		d.domains.Update(d.domain)
-		emptyAccount := new(types.Account)
-		ok := d.accounts.Read((&types.Account{Domain: d.domain.Name, Name: ""}).PrimaryKey(), emptyAccount)
-		if !ok {
-			panic("empty account not found")
-		}
-
+		d.domains.Update(d.domain.PrimaryKey(), d.domain)
+		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: ""})
+		filter.Next()
+		filter.Delete()
 		// transfer accounts of the prefixedStore based on the transfer flag
 		switch flag {
 		// reset none is simply skipped as empty account is already transferred during prefixedStore transfer
 		case types.ResetNone:
 		// transfer flush, deletes all domains accounts except the empty one since it was transferred in the first step
 		case types.TransferFlush:
-			var accountKeys []crud.PrimaryKey
-			d.accounts.IterateIndex(crud.SecondaryKey{
-				Key:         []byte(d.domain.Name),
-				StorePrefix: nil,
-			}, func(key crud.PrimaryKey) bool {
-				accountKeys = append(accountKeys, key)
-				return true
-			})
-			for _, key := range accountKeys {
-				d.accounts.Delete(key)
+			filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
+			for filter.Next() {
+				filter.Delete()
 			}
 		// transfer owned transfers only accounts owned by the old owner
 		case types.TransferOwned:
-			// TODO change when crud supports multiple indexes
-			var accountsInDomain []crud.PrimaryKey
-			d.accounts.IterateIndex(crud.SecondaryKey{
-				Key:         []byte(d.domain.Name),
-				StorePrefix: nil,
-			}, func(key crud.PrimaryKey) bool {
-				accountsInDomain = append(accountsInDomain, key)
-				return true
-			})
-			// iterate over accounts
-			for _, key := range accountsInDomain {
+			filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Owner: oldOwner})
+			for filter.Next() {
 				acc := new(types.Account)
-				ok := d.accounts.Read(key, acc)
-				if !ok {
-					panic("missing account data which was indexed")
-				}
-				// skip accounts which are not owned by old owner
-				if !acc.Owner.Equals(oldOwner) {
-					continue
-				}
-				// change owner and update
+				filter.Read(acc)
 				acc.Owner = newOwner
-				d.accounts.Update(acc)
+				filter.Update(acc)
 			}
 		}
 	}
@@ -126,5 +101,15 @@ func (d *Domain) Create() {
 	if d.domain == nil {
 		panic("cannot create non specified domain")
 	}
-	d.domains.Update(d.domain)
+	d.domains.Create(d.domain)
+	d.accounts.Create(&types.Account{
+		Domain:       d.domain.Name,
+		Name:         "",
+		Owner:        d.domain.Admin,
+		ValidUntil:   0,
+		Resources:    nil,
+		Certificates: nil,
+		Broker:       nil,
+		MetadataURI:  "",
+	})
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/pkg/index"
 )
 
 // emptyAccountNameIndexIdentifier defines how empty
@@ -41,10 +40,13 @@ func (d *Domain) PrimaryKey() crud.PrimaryKey {
 }
 
 func (d *Domain) SecondaryKeys() []crud.SecondaryKey {
+	if d.Admin.Empty() {
+		return nil
+	}
 	return []crud.SecondaryKey{
 		{
-			Key:         d.Admin,
 			StorePrefix: []byte{DomainAdminIndex},
+			Key:         d.Admin,
 		},
 	}
 }
@@ -87,36 +89,46 @@ type Account struct {
 }
 
 func (a *Account) PrimaryKey() crud.PrimaryKey {
+	if len(a.Domain) == 0 {
+		return nil
+	}
 	j := strings.Join([]string{a.Domain, a.Name}, "*")
 	return []byte(j)
 }
 
 func (a *Account) SecondaryKeys() []crud.SecondaryKey {
+	var sk []crud.SecondaryKey
 	// index by owner
-	ownerIndex := crud.SecondaryKey{
-		Key:         a.Owner,
-		StorePrefix: []byte{AccountAdminIndex},
+	if !a.Owner.Empty() {
+		ownerIndex := crud.SecondaryKey{
+			Key:         a.Owner,
+			StorePrefix: []byte{AccountAdminIndex},
+		}
+		sk = append(sk, ownerIndex)
 	}
 	// index by domain
-	domainIndex := crud.SecondaryKey{
-		Key:         []byte(a.Domain),
-		StorePrefix: []byte{AccountDomainIndex},
+	if len(a.Domain) != 0 {
+		domainIndex := crud.SecondaryKey{
+			Key:         []byte(a.Domain),
+			StorePrefix: []byte{AccountDomainIndex},
+		}
+		sk = append(sk, domainIndex)
 	}
 	// index by resources
-	resourcesIndexes := make([]crud.SecondaryKey, len(a.Resources))
-	for i, res := range a.Resources {
+	for _, res := range a.Resources {
 		// exclude empty resources
 		if res.Resource == "" || res.URI == "" {
 			continue
 		}
 		resKey := strings.Join([]string{res.URI, res.Resource}, "")
-		resourcesIndexes[i] = crud.SecondaryKey{
+		// append resource
+		sk = append(sk, crud.SecondaryKey{
 			Key:         []byte(resKey),
 			StorePrefix: []byte{AccountResourcesIndex},
-		}
+		})
 	}
 	// return keys
-	return append([]crud.SecondaryKey{ownerIndex, domainIndex}, resourcesIndexes...)
+	return sk
 }
 
 // Resource defines a resource an account can resolve to
@@ -125,13 +137,6 @@ type Resource struct {
 	URI string `json:"uri"`
 	// Resource is the resource
 	Resource string `json:"resource"`
-}
-
-// Index implements Indexer and packs the
-// resource into an index key using
-// its URI and Resource
-func (b Resource) Index() ([]byte, error) {
-	return index.PackBytes([][]byte{[]byte(b.URI), []byte(b.Resource)})
 }
 
 // Certificate defines a certificate

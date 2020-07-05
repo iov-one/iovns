@@ -72,7 +72,7 @@ func (f feeApplier) renewDomain() sdk.Dec {
 	}
 	var accountN int64
 	as := f.k.AccountStore(f.ctx)
-	as.IterateIndex(crud.SecondaryKey{
+	as.primaryKeysInIndex(crud.SecondaryKey{
 		Key:         []byte(f.domain.Name),
 		StorePrefix: []byte{types.AccountDomainIndex},
 	}, func(_ crud.PrimaryKey) bool {

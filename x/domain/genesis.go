@@ -2,6 +2,7 @@ package domain
 
 import (
 	"fmt"
+	"github.com/iov-one/iovns/x/domain/keeper/executor"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -45,21 +46,24 @@ func DefaultGenesisState() GenesisState {
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	// insert domains
 	for _, domain := range data.Domains {
-		keeper.CreateDomain(ctx, domain)
+		executor.NewDomain(ctx, keeper, domain).Create()
 	}
 	// insert accounts
 	for _, account := range data.Accounts {
-		keeper.CreateAccount(ctx, account)
+		executor.NewAccount(ctx, keeper, account).Create()
 	}
 }
 
 // ExportGenesis saves the state of the domain module
 func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
-	// save domain data
-	domains := k.IterateAllDomains(ctx)
-	// save account data
-	accounts := k.IterateAllAccounts(ctx)
-	return GenesisState{Domains: domains, Accounts: accounts}
+	panic("implement")
+	/*
+		// save domain data
+		domains := k.IterateAllDomains(ctx)
+		// save account data
+		accounts := k.IterateAllAccounts(ctx)
+		return GenesisState{Domains: domains, Accounts: accounts}
+	*/
 }
 
 // validateDomain checks if a domain is valid or not
