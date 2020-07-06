@@ -8,7 +8,7 @@
 - FIX: fix cli tests
 - FIX: fix domain renewal
 - Implement block-metrics
-- disable block metrics
+- disable block metrics CI
 
 ## v0.4.4
 
