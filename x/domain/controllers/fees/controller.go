@@ -2,7 +2,6 @@ package fees
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/pkg/crud"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
@@ -72,13 +71,10 @@ func (f feeApplier) renewDomain() sdk.Dec {
 	}
 	var accountN int64
 	as := f.k.AccountStore(f.ctx)
-	as.primaryKeysInIndex(crud.SecondaryKey{
-		Key:         []byte(f.domain.Name),
-		StorePrefix: []byte{types.AccountDomainIndex},
-	}, func(_ crud.PrimaryKey) bool {
+	filter := as.Filter(&types.Account{Domain: f.domain.Name})
+	for ; filter.Valid(); filter.Next() {
 		accountN++
-		return true
-	})
+	}
 	fee := f.moduleFees.RegisterAccountClosed
 	fee = fee.MulInt64(accountN)
 	return fee
