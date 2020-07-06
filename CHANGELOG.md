@@ -8,6 +8,7 @@
 - FIX: fix cli tests
 - FIX: fix domain renewal
 - Implement block-metrics
+- disable block metrics
 
 ## v0.4.4
 
