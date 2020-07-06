@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	client "github.com/influxdata/influxdb1-client/v2"
 	"log"
 	"net/http"
 	"os"
@@ -9,10 +10,9 @@ import (
 	"time"
 
 	keys2 "github.com/cosmos/cosmos-sdk/crypto/keys"
-
 	"github.com/gorilla/mux"
 	"github.com/iov-one/iovns/cmd/faucet/pkg"
-	rpchttp "github.com/tendermint/tendermint/rpc/client"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 		log.Fatalf("configuration: %s", err)
 	}
 	// setup node
-	node, err := rpchttp.NewHTTP(conf.TendermintRPC, "/websocket")
+	node, err := rpchttp.New(conf.TendermintRPC, "/websocket")
 	kb := keys2.NewInMemory()
 	if err := kb.ImportPrivKey("faucet", conf.Armor, conf.Passphrase); err != nil {
 		log.Fatalf("keybase: %v", err)
