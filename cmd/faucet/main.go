@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	client "github.com/influxdata/influxdb1-client/v2"
 	"log"
 	"net/http"
 	"os"
