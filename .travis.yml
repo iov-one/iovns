@@ -37,7 +37,6 @@ env:
     - COMMIT=$(git log -1 --format='%H')
     - IMAGE_NAME="iov1/iovns:${BUILD_VERSION}"
     - FAUCET_IMAGE_NAME="iov1/iovns-faucet:${BUILD_VERSION}"
-    # - BLOCk_METRICS_IMAGE_NAME="iov1/iovns-block-metrics:${BUILD_VERSION}"
 
 script:
   - set -eo pipefail
@@ -56,7 +55,6 @@ script:
     mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
     docker build --pull --tag ${IMAGE_NAME} . ;
     cd cmd/faucet && make build && docker build --pull --tag ${FAUCET_IMAGE_NAME} . ;
-    # cd cmd/block-metrics && make build && docker build --pull --tag ${BLOCK_METRICS_IMAGE_NAME} . ;
     fi;
 
     if [[ $release_latest == "yes" ]]; then
@@ -66,8 +64,6 @@ script:
 
     docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:latest" ;
     docker push "iov1/iovns-faucet:latest";
-    # docker tag  "iov1/iovns-block-metrics:${BUILD_VERSION}" "iov1/iovns-block-metrics:latest" ;
-    # docker push "iov1/iovns-block-metrics:latest";
     docker logout;
     fi;
 
@@ -78,9 +74,6 @@ script:
 
     docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:$TRAVIS_TAG" ;
     docker push "iov1/iovns-faucet:$TRAVIS_TAG";
-
-    # docker tag  "iov1/iovns-block-metrics:${BUILD_VERSION}" "iov1/iovns-block-metrics:$TRAVIS_TAG" ;
-    # docker push "iov1/iovns-block-metrics:$TRAVIS_TAG";
 
     docker logout;
     fi;
