@@ -1,6 +1,8 @@
 # Changelog
 
 ## HEAD
+
+## v0.4.5
 - CHANGE: bump cosmos-sdk and tendermint version
 - FIX: AccountRenewalCountMax and DomainRenewalCountMax bumped at configuration update
 - FIX: fix cli tests
