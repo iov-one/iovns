@@ -41,7 +41,7 @@ const main = async () => {
               account_renew_count_max: 2,
               account_renew_period: 365.25 * 24 * 60 * 60 + "000000000",
               resources_max: 10, // https://internetofvalues.slack.com/archives/GPYCU2AJJ/p1592563251000500
-              certificate_count_max: 16,
+              certificate_count_max: 5,
               certificate_size_max: "1024",
               configurer: "star1 IOV SAS", // TODO
               domain_grace_period: 30 * 24 * 60 * 60 + "000000000",
@@ -182,16 +182,16 @@ const main = async () => {
          },
          mint: {
             minter: {
-               inflation: "0.000000000000000000",
+               inflation: "0.12",
                annual_provisions: "0.000000000000000000"
             },
             params: {
                blocks_per_year: "5259600", // assume 6 blocks per second since create_empty_blocks=false is broken
                "//note": "goal_bonded cannot be 0: module=consensus err='division by zero'",
-               goal_bonded: "0.000000000000000001",
-               inflation_max: "0.0000000000000000",
-               inflation_min: "0.0000000000000000",
-               inflation_rate_change: "0.000000000000000000",
+               goal_bonded: "0.8",
+               inflation_max: "0.25",
+               inflation_min: "0.12",
+               inflation_rate_change: "0.26", // six months to reach inflation_max
                mint_denom: "uiov"
             }
          },
