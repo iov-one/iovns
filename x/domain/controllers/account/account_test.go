@@ -6,7 +6,6 @@ import (
 	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"testing"
 	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/mock"
 	"github.com/iov-one/iovns/x/configuration"
@@ -70,6 +69,44 @@ func TestAccount_transferable(t *testing.T) {
 		err = acc.Validate(TransferableBy(keeper.AliceKey))
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
+		}
+	})
+}
+
+func TestAccount_Renewable(t *testing.T) {
+	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	ctx = ctx.WithBlockTime(time.Unix(1, 0))
+	setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
+	setConfig(ctx, configuration.Config{
+		AccountRenewalCountMax: 1,
+		AccountRenewalPeriod:   10 * time.Second,
+	})
+	k.CreateDomain(ctx, types.Domain{
+		Name:       "open",
+		Admin:      keeper.AliceKey,
+		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
+		Type:       types.OpenDomain,
+	})
+	k.CreateAccount(ctx, types.Account{
+		Domain:     "open",
+		Name:       "test",
+		ValidUntil: time.Unix(18, 0).Unix(),
+		Owner:      keeper.BobKey,
+	})
+
+	// 18(AccountValidUntil) + 10 (AccountRP) = 28 newValidUntil
+	// no need to test closed domain since its not renewable
+	t.Run("open domain", func(t *testing.T) {
+		// 7(time) + 2(AccountRCM) * 10(AccountRP) = 27 maxValidUntil
+		acc := NewController(ctx.WithBlockTime(time.Unix(7, 0)), k, "open", "test")
+		err := acc.Validate(Renewable)
+		if !errors.Is(err, types.ErrUnauthorized) {
+			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
+		}
+		// 100(time) + 2(AccountRCM) * 10(AccountRP) = 120 maxValidUntil
+		acc = NewController(ctx.WithBlockTime(time.Unix(100, 0)), k, "open", "test")
+		if err := acc.Validate(Renewable); err != nil {
+			t.Fatalf("got error: %s", err)
 		}
 	})
 }

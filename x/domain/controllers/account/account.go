@@ -170,22 +170,25 @@ func (a *Account) notExpired() error {
 	return sdkerrors.Wrapf(types.ErrAccountExpired, "account %s in domain %s has expired", a.name, a.domain)
 }
 
-func MaxRenewNotExceeded(ctrl *Account) error {
-	return ctrl.maxRenewNotExceeded()
+func Renewable(ctrl *Account) error {
+	return ctrl.renewable()
 }
 
-func (a *Account) maxRenewNotExceeded() error {
+func (a *Account) renewable() error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check is not allowed on a non existing account")
 	}
 	a.requireConfiguration()
 
 	// do calculations
-	newValidUntil := iovns.SecondsToTime(a.account.ValidUntil).Add(a.conf.DomainRenewalPeriod) // set new expected valid until
-	maximumValidUntil := a.ctx.BlockTime().Add(a.conf.AccountRenewalPeriod * time.Duration(a.conf.AccountRenewalCountMax))
+	newValidUntil := iovns.SecondsToTime(a.account.ValidUntil).Add(a.conf.AccountRenewalPeriod)
+	// renew count bumped because domain is already at count 1 when created
+	renewCount := a.conf.AccountRenewalCountMax + 1
+	// set new expected valid until
+	maximumValidUntil := a.ctx.BlockTime().Add(a.conf.AccountRenewalPeriod * time.Duration(renewCount))
 	// check if new valid until is after maximum allowed
 	if newValidUntil.After(maximumValidUntil) {
-		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew account %s in domain %s, maximum domain renewal has exceeded: %s", *a.account.Name, a.domain, maximumValidUntil)
+		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew account %s in domain %s, maximum account renewal has exceeded: %s", a.account.Name, a.domain, maximumValidUntil)
 	}
 
 	// if it has expired return error

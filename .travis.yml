@@ -71,8 +71,10 @@ script:
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
     docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:$TRAVIS_TAG" ;
     docker push "iov1/iovns:$TRAVIS_TAG";
+
     docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:$TRAVIS_TAG" ;
     docker push "iov1/iovns-faucet:$TRAVIS_TAG";
+
     docker logout;
     fi;
     fi;

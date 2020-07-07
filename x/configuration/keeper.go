@@ -6,20 +6,23 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
+
+// ParamSubspace is a placeholder
+type ParamSubspace interface {
+}
 
 // Keeper is the key value store handler for the configuration module
 type Keeper struct {
 	storeKey   sdk.StoreKey
 	cdc        *codec.Codec
-	paramspace params.Subspace
+	paramspace ParamSubspace
 }
 
 // NewKeeper is Keeper constructor
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace params.Subspace) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace ParamSubspace) Keeper {
 	return Keeper{
 		storeKey:   key,
 		cdc:        cdc,
