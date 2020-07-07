@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/pkg/crud"
+	"github.com/iov-one/iovns/tutils"
 	"github.com/iov-one/iovns/x/domain/keeper"
 	"github.com/iov-one/iovns/x/domain/types"
 )
@@ -58,6 +59,7 @@ func (d *Domain) Delete() {
 	for filter.Next() {
 		filter.Delete()
 	}
+	d.domains.Delete(d.domain.PrimaryKey(), d.domain)
 }
 
 // Transferrer returns a prefixedStore transfer function based on the transfer flag
@@ -70,7 +72,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) func
 		var oldOwner = d.domain.Admin // cache it for future uses
 		d.domain.Admin = newOwner
 		d.domains.Update(d.domain.PrimaryKey(), d.domain)
-		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: ""})
+		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: tutils.StrPtr(types.EmptyAccountName)}) // delete empty account
 		filter.Next()
 		filter.Delete()
 		// transfer accounts of the prefixedStore based on the transfer flag
@@ -104,7 +106,7 @@ func (d *Domain) Create() {
 	d.domains.Create(d.domain)
 	d.accounts.Create(&types.Account{
 		Domain:       d.domain.Name,
-		Name:         types.EmptyAccountIdentifier,
+		Name:         tutils.StrPtr(types.EmptyAccountName),
 		Owner:        d.domain.Admin,
 		ValidUntil:   0,
 		Resources:    nil,

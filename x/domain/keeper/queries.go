@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 	"github.com/iov-one/iovns/pkg/crud"
+	"github.com/iov-one/iovns/tutils"
 	"log"
 	"strings"
 
@@ -442,7 +443,7 @@ func queryResolveAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQue
 	}
 	// do query
 	account := new(types.Account)
-	pk := (&types.Account{Name: q.Name, Domain: q.Domain}).PrimaryKey()
+	pk := (&types.Account{Name: tutils.StrPtr(q.Name), Domain: q.Domain}).PrimaryKey()
 	exists := k.AccountStore(ctx).Read(pk, account)
 	if !exists {
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", q.Domain, q.Name)

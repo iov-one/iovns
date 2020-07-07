@@ -248,6 +248,9 @@ func (f *Filtered) Update(o interface{}) {
 }
 
 func (f *Filtered) Delete() {
+	if !f.Valid() {
+		return
+	}
 	f.store.deleteFromPrimary(f.currKey(), f.underlying)
 }
 

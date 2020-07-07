@@ -2,6 +2,7 @@ package account
 
 import (
 	"errors"
+	"github.com/iov-one/iovns/tutils"
 	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"testing"
 	"time"
@@ -28,7 +29,7 @@ func TestAccount_transferable(t *testing.T) {
 	// creat open domain account
 	as.Create(&types.Account{
 		Domain: "open",
-		Name:   "test",
+		Name:   tutils.StrPtr("test"),
 		Owner:  keeper.BobKey,
 	})
 	// create closed domain
@@ -41,7 +42,7 @@ func TestAccount_transferable(t *testing.T) {
 	// create closed domain account
 	as.Create(&types.Account{
 		Domain: "closed",
-		Name:   "test",
+		Name:   tutils.StrPtr("test"),
 		Owner:  keeper.BobKey,
 	})
 	// run tests
@@ -79,7 +80,7 @@ func TestAccount_existence(t *testing.T) {
 	// insert mock account
 	as.Create(&types.Account{
 		Domain:     "test",
-		Name:       "test",
+		Name:       tutils.StrPtr("test"),
 		Owner:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 	})
@@ -122,7 +123,7 @@ func TestAccount_requireAccount(t *testing.T) {
 		alice, _ := mock.Addresses()
 		as.Create(&types.Account{
 			Domain: "test",
-			Name:   "test",
+			Name:   tutils.StrPtr("test"),
 			Owner:  alice,
 		})
 		ctrl := NewController(ctx, k, "test", "test")
@@ -241,7 +242,7 @@ func TestAccount_ownedBy(t *testing.T) {
 func TestAccount_validName(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		acc := &Account{
-			account: &types.Account{Name: "valid"},
+			account: &types.Account{Name: tutils.StrPtr("valid")},
 			conf:    &configuration.Config{ValidAccountName: "^(.*?)?"},
 		}
 		err := acc.Validate(ValidName)

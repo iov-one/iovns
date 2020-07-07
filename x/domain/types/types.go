@@ -67,14 +67,12 @@ func ValidateDomainType(typ DomainType) error {
 	}
 }
 
-const EmptyAccountIdentifier = "*"
-
 // Account defines an account that belongs to a domain
 type Account struct {
 	// Domain references the domain this account belongs to
 	Domain string `json:"domain"`
 	// Name is the name of the account
-	Name string `json:"name"`
+	Name *string `json:"name"`
 	// Owner is the address that owns the account
 	Owner sdk.AccAddress `json:"owner"`
 	// ValidUntil defines a unix timestamp of the expiration of the account
@@ -91,10 +89,10 @@ type Account struct {
 }
 
 func (a *Account) PrimaryKey() crud.PrimaryKey {
-	if len(a.Domain) == 0 || len(a.Name) == 0 {
+	if len(a.Domain) == 0 || a.Name == nil {
 		return nil
 	}
-	j := strings.Join([]string{a.Domain, a.Name}, "*")
+	j := strings.Join([]string{a.Domain, *a.Name}, "*")
 	return []byte(j)
 }
 

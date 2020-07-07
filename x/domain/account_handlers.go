@@ -2,6 +2,7 @@ package domain
 
 import (
 	"github.com/iov-one/iovns"
+	"github.com/iov-one/iovns/tutils"
 	"github.com/iov-one/iovns/x/domain/controllers/fees"
 	"github.com/iov-one/iovns/x/domain/keeper/executor"
 
@@ -134,7 +135,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 
 	a := types.Account{
 		Domain:       msg.Domain,
-		Name:         msg.Name,
+		Name:         tutils.StrPtr(msg.Name),
 		Owner:        msg.Owner,
 		Resources:    msg.Resources,
 		Certificates: nil,

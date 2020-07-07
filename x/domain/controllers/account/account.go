@@ -3,6 +3,7 @@ package account
 import (
 	"bytes"
 	"github.com/iov-one/iovns/pkg/crud"
+	"github.com/iov-one/iovns/tutils"
 	"regexp"
 	"time"
 
@@ -63,7 +64,7 @@ func (a *Account) WithConfiguration(cfg configuration.Config) *Account {
 func (a *Account) WithAccount(acc types.Account) *Account {
 	a.account = &acc
 	a.domain = acc.Domain
-	a.name = acc.Name
+	a.name = *acc.Name
 	return a
 }
 
@@ -89,7 +90,7 @@ func (a *Account) requireAccount() error {
 		return nil
 	}
 	account := new(types.Account)
-	ok := a.store.Read((&types.Account{Domain: a.domain, Name: a.name}).PrimaryKey(), account)
+	ok := a.store.Read((&types.Account{Domain: a.domain, Name: tutils.StrPtr(a.name)}).PrimaryKey(), account)
 	if !ok {
 		return sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "%s was not found in domain %s", a.name, a.domain)
 	}
@@ -184,7 +185,7 @@ func (a *Account) maxRenewNotExceeded() error {
 	maximumValidUntil := a.ctx.BlockTime().Add(a.conf.AccountRenewalPeriod * time.Duration(a.conf.AccountRenewalCountMax))
 	// check if new valid until is after maximum allowed
 	if newValidUntil.After(maximumValidUntil) {
-		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew account %s in domain %s, maximum domain renewal has exceeded: %s", a.account.Name, a.domain, maximumValidUntil)
+		return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to renew account %s in domain %s, maximum domain renewal has exceeded: %s", *a.account.Name, a.domain, maximumValidUntil)
 	}
 
 	// if it has expired return error
@@ -431,7 +432,7 @@ func (a *Account) gracePeriodFinished() error {
 	if a.ctx.BlockTime().After(expireTime.Add(gracePeriod)) {
 		return nil
 	}
-	return sdkerrors.Wrapf(types.ErrAccountGracePeriodNotFinished, "account %s grace period has not finished", a.account.Name)
+	return sdkerrors.Wrapf(types.ErrAccountGracePeriodNotFinished, "account %s grace period has not finished", *a.account.Name)
 }
 
 // ResettableBy checks if the account attributes resettable by the provided address
