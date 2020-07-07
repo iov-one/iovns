@@ -2,15 +2,16 @@ package account
 
 import (
 	"errors"
-	"github.com/iov-one/iovns/tutils"
-	"github.com/iov-one/iovns/x/domain/controllers/domain"
-	"testing"
-	"time"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/mock"
+	"github.com/iov-one/iovns/tutils"
 	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/keeper/executor"
 	"github.com/iov-one/iovns/x/domain/types"
+	"testing"
+	"time"
 )
 
 func TestAccount_transferable(t *testing.T) {
@@ -81,18 +82,18 @@ func TestAccount_Renewable(t *testing.T) {
 		AccountRenewalCountMax: 1,
 		AccountRenewalPeriod:   10 * time.Second,
 	})
-	k.CreateDomain(ctx, types.Domain{
+	executor.NewDomain(ctx, k, types.Domain{
 		Name:       "open",
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
-	})
-	k.CreateAccount(ctx, types.Account{
+	}).Create()
+	executor.NewAccount(ctx, k, types.Account{
 		Domain:     "open",
-		Name:       "test",
+		Name:       tutils.StrPtr("test"),
 		ValidUntil: time.Unix(18, 0).Unix(),
 		Owner:      keeper.BobKey,
-	})
+	}).Create()
 
 	// 18(AccountValidUntil) + 10 (AccountRP) = 28 newValidUntil
 	// no need to test closed domain since its not renewable
