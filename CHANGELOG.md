@@ -3,7 +3,7 @@
 ## HEAD
 
 - FIX: fix domain renewal
-
+- BREAKING: account type field Name to pointer
 ## v0.4.4
 
 - fix: iovnscli get config
