@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/iov-one/iovns/cmd/iovnscli/extension"
 	"net/http"
 	"os"
 	"path"
@@ -65,6 +66,7 @@ func main() {
 	}
 
 	// Construct Root Command
+	sign := flags.PostCommands(extension.SignatureCommand())[0]
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
 		client.ConfigCmd(app.DefaultCLIHome),
@@ -77,6 +79,7 @@ func main() {
 		flags.LineBreak,
 		version.Cmd,
 		flags.NewCompletionCmd(rootCmd, true),
+		sign,
 	)
 
 	// Add flags and prefix all env exposed with AA

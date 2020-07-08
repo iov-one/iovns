@@ -16,5 +16,5 @@ RUN mv /build/iovnscli iovnscli
 RUN mv /build/iovnsd iovnsd
 COPY ./scripts .
 RUN chmod +x init.sh
-RUN bash ./init.sh
+RUN sh ./init.sh
 CMD iovnsd start
