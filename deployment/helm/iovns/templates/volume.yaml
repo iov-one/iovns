@@ -15,7 +15,6 @@ kind: PersistentVolumeClaim
 metadata:
   name: iovns
 spec:
-  storageClassName: manual
   accessModes:
     - ReadWriteMany
   resources:

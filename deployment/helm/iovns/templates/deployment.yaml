@@ -18,9 +18,11 @@ spec:
             claimName: iovns
       containers:
         - name: iovns
-          image: iovns
+          image: {{ .Values.image }}
           imagePullPolicy: Always
-
+          volumeMounts:
+            - mountPath: /iovns
+              name: iovns
       restartPolicy: Always
   selector:
     matchLabels:
