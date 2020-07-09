@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -10,15 +11,16 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"io/ioutil"
+	"io"
 	"os"
 )
 
 type SignatureSchema struct {
-	ChanID string `json:"@chain_id"`
-	Type   string `json:"@type"`
-	Text   string `json:"text"`
-	PubKey string `json:"pubKey"`
+	ChanID  string         `json:"@chain_id"`
+	Type    string         `json:"@type"`
+	Message []byte         `json:"text"`
+	Sig     string         `json:"sig"`
+	PubKey  sdk.AccAddress `json:"address"`
 }
 
 type sigCommand struct {
@@ -53,7 +55,8 @@ func SignatureCommand() *cobra.Command {
 				return
 			}
 			defer f.Close()
-			message, err := ioutil.ReadAll(f)
+			buf := &bytes.Buffer{}
+			_, err = io.Copy(buf, f)
 			if err != nil {
 				return
 			}
@@ -62,15 +65,16 @@ func SignatureCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			sig, _, err := kb.Sign(cliCtx.GetFromName(), keys.DefaultBIP39Passphrase, message)
+			sig, _, err := kb.Sign(cliCtx.GetFromName(), keys.DefaultBIP39Passphrase, buf.Bytes())
 			if err != nil {
 				return
 			}
 			messageJSON, err := json.Marshal(&SignatureSchema{
-				ChanID: cliCtx.ChainID,
-				Type:   "message",
-				Text:   string(sig),
-				PubKey: cliCtx.GetFromAddress().String(),
+				ChanID:  cliCtx.ChainID,
+				Type:    "message",
+				Sig:     string(sig),
+				Message: buf.Bytes(),
+				PubKey:  cliCtx.GetFromAddress(),
 			})
 			if err != nil {
 				return
