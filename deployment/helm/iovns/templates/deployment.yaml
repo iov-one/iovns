@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iovns
+  labels:
+    app: iovns
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: iovns
+      labels:
+        app: iovns
+    spec:
+      volumes:
+        - name: iovns
+          persistentVolumeClaim:
+            claimName: iovns
+      containers:
+        - name: iovns
+          image: iovns
+          imagePullPolicy: Always
+
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: iovns

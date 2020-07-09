@@ -15,6 +15,6 @@ WORKDIR /iovns
 RUN mv /build/iovnscli iovnscli
 RUN mv /build/iovnsd iovnsd
 COPY ./scripts .
-RUN chmod +x init.sh
-RUN bash ./init.sh
+RUN chmod +x new_net.sh
+RUN sh ./new_net.sh
 CMD iovnsd start

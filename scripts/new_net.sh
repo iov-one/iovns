@@ -1,11 +1,5 @@
 #!/bin/bash
 
-set -o nounset
-
-echo -n "This script will remove all existing iovns configurations, wallets etc. Do you want to proceed? [Y/n] "
-read YN
-if ! echo $YN | grep -v -q -i "n"; then exit; fi
-
 rm -rf "$HOME/.iovnscli"
 rm -rf "$HOME/.iovnsd"
 # init config files
