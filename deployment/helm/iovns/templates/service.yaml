@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: iovns
+spec:
+  selector:
+    app: iovns
+  ports:
+    - port: 8080
+  type: ClusterIP

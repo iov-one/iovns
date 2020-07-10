@@ -2,45 +2,47 @@ package account
 
 import (
 	"errors"
-	"testing"
-	"time"
-
-	"github.com/iov-one/iovns/x/domain/controllers/domain"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/mock"
+	"github.com/iov-one/iovns/tutils"
 	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/domain/controllers/domain"
 	"github.com/iov-one/iovns/x/domain/keeper"
+	"github.com/iov-one/iovns/x/domain/keeper/executor"
 	"github.com/iov-one/iovns/x/domain/types"
+	"testing"
+	"time"
 )
 
 func TestAccount_transferable(t *testing.T) {
 	k, ctx, _ := keeper.NewTestKeeper(t, true)
 	// create mock domains and accounts
 	// create open domain
-	k.CreateDomain(ctx, types.Domain{
+	ds := k.DomainStore(ctx)
+	as := k.AccountStore(ctx)
+	ds.Create(&types.Domain{
 		Name:       "open",
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
 	})
 	// creat open domain account
-	k.CreateAccount(ctx, types.Account{
+	as.Create(&types.Account{
 		Domain: "open",
-		Name:   "test",
+		Name:   tutils.StrPtr("test"),
 		Owner:  keeper.BobKey,
 	})
 	// create closed domain
-	k.CreateDomain(ctx, types.Domain{
+	ds.Create(&types.Domain{
 		Name:       "closed",
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.ClosedDomain,
 	})
 	// create closed domain account
-	k.CreateAccount(ctx, types.Account{
+	as.Create(&types.Account{
 		Domain: "closed",
-		Name:   "test",
+		Name:   tutils.StrPtr("test"),
 		Owner:  keeper.BobKey,
 	})
 	// run tests
@@ -80,18 +82,18 @@ func TestAccount_Renewable(t *testing.T) {
 		AccountRenewalCountMax: 1,
 		AccountRenewalPeriod:   10 * time.Second,
 	})
-	k.CreateDomain(ctx, types.Domain{
+	executor.NewDomain(ctx, k, types.Domain{
 		Name:       "open",
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 		Type:       types.OpenDomain,
-	})
-	k.CreateAccount(ctx, types.Account{
+	}).Create()
+	executor.NewAccount(ctx, k, types.Account{
 		Domain:     "open",
-		Name:       "test",
+		Name:       tutils.StrPtr("test"),
 		ValidUntil: time.Unix(18, 0).Unix(),
 		Owner:      keeper.BobKey,
-	})
+	}).Create()
 
 	// 18(AccountValidUntil) + 10 (AccountRP) = 28 newValidUntil
 	// no need to test closed domain since its not renewable
@@ -112,10 +114,11 @@ func TestAccount_Renewable(t *testing.T) {
 
 func TestAccount_existence(t *testing.T) {
 	k, ctx, _ := keeper.NewTestKeeper(t, true)
+	as := k.AccountStore(ctx)
 	// insert mock account
-	k.SetAccount(ctx, types.Account{
+	as.Create(&types.Account{
 		Domain:     "test",
-		Name:       "test",
+		Name:       tutils.StrPtr("test"),
 		Owner:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 	})
@@ -154,10 +157,11 @@ func TestAccount_existence(t *testing.T) {
 func TestAccount_requireAccount(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		k, ctx, _ := keeper.NewTestKeeper(t, true)
+		as := k.AccountStore(ctx)
 		alice, _ := mock.Addresses()
-		k.SetAccount(ctx, types.Account{
+		as.Create(&types.Account{
 			Domain: "test",
-			Name:   "test",
+			Name:   tutils.StrPtr("test"),
 			Owner:  alice,
 		})
 		ctrl := NewController(ctx, k, "test", "test")
@@ -276,7 +280,7 @@ func TestAccount_ownedBy(t *testing.T) {
 func TestAccount_validName(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		acc := &Account{
-			account: &types.Account{Name: "valid"},
+			account: &types.Account{Name: tutils.StrPtr("valid")},
 			conf:    &configuration.Config{ValidAccountName: "^(.*?)?"},
 		}
 		err := acc.Validate(ValidName)

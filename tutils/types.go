@@ -10,3 +10,7 @@ func UnderlyingValue(v reflect.Value) reflect.Value {
 	v = v.Elem()
 	return UnderlyingValue(v)
 }
+
+func StrPtr(str string) *string {
+	return &str
+}

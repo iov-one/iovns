@@ -300,7 +300,7 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 	for _, acc := range gen.Accounts {
 		msg := types.MsgRegisterAccount{
 			Domain:    acc.Domain,
-			Name:      acc.Name,
+			Name:      *acc.Name,
 			Owner:     acc.Owner,
 			Resources: acc.Resources,
 			Broker:    acc.Broker,

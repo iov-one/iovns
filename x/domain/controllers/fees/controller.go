@@ -70,10 +70,11 @@ func (f feeApplier) renewDomain() sdk.Dec {
 		return f.moduleFees.RenewDomainOpen
 	}
 	var accountN int64
-	f.k.GetAccountsInDomain(f.ctx, f.domain.Name, func(_ []byte) bool {
+	as := f.k.AccountStore(f.ctx)
+	filter := as.Filter(&types.Account{Domain: f.domain.Name})
+	for ; filter.Valid(); filter.Next() {
 		accountN++
-		return true
-	})
+	}
 	fee := f.moduleFees.RegisterAccountClosed
 	fee = fee.MulInt64(accountN)
 	return fee

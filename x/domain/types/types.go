@@ -1,30 +1,54 @@
 package types
 
 import (
-	"fmt"
+	"github.com/iov-one/iovns/pkg/crud"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/pkg/index"
 )
 
 // emptyAccountNameIndexIdentifier defines how empty
 // account names of a domain are identified in indexes
 const emptyAccountNameIndexIdentifier = "*"
 
+const DomainAdminIndex = 0x1
+const AccountAdminIndex = 0x1
+const AccountDomainIndex = 0x2
+const AccountResourcesIndex = 0x3
+
 // Domain defines a domain
 type Domain struct {
 	// Name is the name of the domain
-	Name string `json:"name"`
+	Name string `json:"name" crud:"primaryKey"`
 	// Owner is the owner of the domain
-	Admin sdk.AccAddress `json:"admin"`
+	Admin sdk.AccAddress `json:"admin" crud:"01"`
 	// ValidUntil is a unix timestamp defines the time when the domain will become invalid
 	ValidUntil int64 `json:"valid_until"`
 	// Type defines the type of the domain
 	Type DomainType `json:"type"`
 	// Broker TODO needs comment
 	Broker sdk.AccAddress `json:"broker"`
+}
+
+func (d *Domain) PrimaryKey() crud.PrimaryKey {
+	if d.Name == "" {
+		return nil
+	}
+	return []byte(d.Name)
+}
+
+func (d *Domain) SecondaryKeys() []crud.SecondaryKey {
+	if d.Admin.Empty() {
+		return nil
+	}
+	return []crud.SecondaryKey{
+		{
+			StorePrefix: []byte{DomainAdminIndex},
+			Key:         d.Admin,
+		},
+	}
 }
 
 type DomainType string
@@ -43,37 +67,6 @@ func ValidateDomainType(typ DomainType) error {
 	}
 }
 
-// Index implements Indexer and packs the
-// domain into an index key using its name
-func (d Domain) Index() ([]byte, error) {
-	key, err := index.PackBytes([][]byte{[]byte(d.Name)})
-	if err != nil {
-		return nil, err
-	}
-	return key, nil
-}
-
-// Pack implements Indexed and allows
-// the domain to be saved as a value
-// in an index deterministically
-func (d Domain) Pack() ([]byte, error) {
-	return d.Index()
-}
-
-// Unpack implements Unpacker and allows
-// the domain to be retrieved from an index key
-func (d *Domain) Unpack(key []byte) error {
-	unpackedKeys, err := index.UnpackBytes(key)
-	if err != nil {
-		return err
-	}
-	if len(unpackedKeys) != 1 {
-		return fmt.Errorf("unpack domain expected one key, got: %d", len(unpackedKeys))
-	}
-	d.Name = string(unpackedKeys[0])
-	return nil
-}
-
 // Account defines an account that belongs to a domain
 // NOTE: It should not be confused with cosmos-sdk auth account
 // github.com/cosmos/cosmos-sdk/x/auth.Account
@@ -81,7 +74,7 @@ type Account struct {
 	// Domain references the domain this account belongs to
 	Domain string `json:"domain"`
 	// Name is the name of the account
-	Name string `json:"name"`
+	Name *string `json:"name"`
 	// Owner is the address that owns the account
 	Owner sdk.AccAddress `json:"owner"`
 	// ValidUntil defines a unix timestamp of the expiration of the account
@@ -97,41 +90,47 @@ type Account struct {
 	MetadataURI string `json:"metadata_uri"`
 }
 
-// Pack implements Indexed and allows
-// the account to be saved as a value
-// in an index deterministically
-func (a Account) Pack() ([]byte, error) {
-	// in order to avoid empty keys
-	// indexing in case account name
-	// is empty, we index it as '*'
-	var name = a.Name
-	if a.Name == "" {
-		name = emptyAccountNameIndexIdentifier
+func (a *Account) PrimaryKey() crud.PrimaryKey {
+	if len(a.Domain) == 0 || a.Name == nil {
+		return nil
 	}
-	key, err := index.PackBytes([][]byte{[]byte(a.Domain), []byte(name)})
-	if err != nil {
-		return nil, err
-	}
-	return key, nil
+	j := strings.Join([]string{a.Domain, *a.Name}, "*")
+	return []byte(j)
 }
 
-// Unpack implements Unpacker and allows
-// the account to be retrieved from an index key
-func (a *Account) Unpack(key []byte) error {
-	keys, err := index.UnpackBytes(key)
-	if err != nil {
-		return err
+func (a *Account) SecondaryKeys() []crud.SecondaryKey {
+	var sk []crud.SecondaryKey
+	// index by owner
+	if !a.Owner.Empty() {
+		ownerIndex := crud.SecondaryKey{
+			Key:         a.Owner,
+			StorePrefix: []byte{AccountAdminIndex},
+		}
+		sk = append(sk, ownerIndex)
 	}
-	if len(keys) != 2 {
-		return fmt.Errorf("unexpected number of keys for %T: %d", a, len(keys))
+	// index by domain
+	if len(a.Domain) != 0 {
+		domainIndex := crud.SecondaryKey{
+			Key:         []byte(a.Domain),
+			StorePrefix: []byte{AccountDomainIndex},
+		}
+		sk = append(sk, domainIndex)
 	}
-	a.Domain = string(keys[0])
-	name := string(keys[1])
-	if name == emptyAccountNameIndexIdentifier {
-		name = ""
+	// index by resources
+	for _, res := range a.Resources {
+		// exclude empty resources
+		if res.Resource == "" || res.URI == "" {
+			continue
+		}
+		resKey := strings.Join([]string{res.URI, res.Resource}, "")
+		// append resource
+		sk = append(sk, crud.SecondaryKey{
+			Key:         []byte(resKey),
+			StorePrefix: []byte{AccountResourcesIndex},
+		})
 	}
-	a.Name = name
-	return nil
+	// return keys
+	return sk
 }
 
 // Resource defines a resource an account can resolve to
@@ -140,13 +139,6 @@ type Resource struct {
 	URI string `json:"uri"`
 	// Resource is the resource
 	Resource string `json:"resource"`
-}
-
-// Index implements Indexer and packs the
-// resource into an index key using
-// its URI and Resource
-func (b Resource) Index() ([]byte, error) {
-	return index.PackBytes([][]byte{[]byte(b.URI), []byte(b.Resource)})
 }
 
 // Certificate defines a certificate

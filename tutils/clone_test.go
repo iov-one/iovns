@@ -1,10 +1,13 @@
 package tutils
 
 import (
-	"github.com/iov-one/iovns/x/domain/types"
 	"reflect"
 	"testing"
 )
+
+type testType struct {
+	Test string
+}
 
 func TestCloneType(t *testing.T) {
 	type args struct {
@@ -18,16 +21,16 @@ func TestCloneType(t *testing.T) {
 		{
 			name: "success",
 			args: args{
-				x: &types.Account{
-					Domain: "test",
+				x: &testType{
+					Test: "not empty",
 				},
 			},
-			want: &types.Account{},
+			want: &testType{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := CloneFromValue(tt.args.x); !reflect.DeepEqual(got.(*types.Account), tt.want) {
+			if got := CloneFromValue(tt.args.x); !reflect.DeepEqual(got.(*testType), tt.want) {
 				t.Errorf("CloneFromValue() = %v, want %v", got, tt.want)
 			}
 		})
@@ -36,11 +39,12 @@ func TestCloneType(t *testing.T) {
 
 func BenchmarkCloneType(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = CloneFromValue(&types.Account{})
+		_ = CloneFromValue(&testType{})
 	}
 }
 
 func TestNewValueFromType(t *testing.T) {
+	x := &testType{}
 	type args struct {
 		typ reflect.Type
 	}
@@ -52,14 +56,14 @@ func TestNewValueFromType(t *testing.T) {
 		{
 			name: "success",
 			args: args{
-				typ: reflect.ValueOf(&types.Account{Name: "test"}).Type().Elem(),
+				typ: reflect.ValueOf(x).Type().Elem(),
 			},
-			want: &types.Account{},
+			want: &testType{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := CloneFromType(tt.args.typ); !reflect.DeepEqual(got.(*types.Account), tt.want) {
+			if got := CloneFromType(tt.args.typ); !reflect.DeepEqual(got.(*testType), tt.want) {
 				t.Errorf("CloneFromType() = %v, want %v", got, tt.want)
 			}
 		})
@@ -67,7 +71,7 @@ func TestNewValueFromType(t *testing.T) {
 }
 
 func BenchmarkNewValueFromType(b *testing.B) {
-	typ := reflect.ValueOf(&types.Account{}).Type().Elem()
+	typ := reflect.ValueOf(&testType{}).Type().Elem()
 	//
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

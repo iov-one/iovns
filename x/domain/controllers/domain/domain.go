@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"github.com/iov-one/iovns/pkg/crud"
 	"regexp"
 	"time"
 
@@ -25,6 +26,7 @@ type Domain struct {
 	domain     *types.Domain
 	conf       *configuration.Config
 	k          keeper.Keeper
+	store      crud.Store
 }
 
 // NewController is the constructor for Domain
@@ -36,6 +38,7 @@ func NewController(ctx sdk.Context, k keeper.Keeper, domain string) *Domain {
 		domainName: domain,
 		ctx:        ctx,
 		k:          k,
+		store:      k.DomainStore(ctx),
 	}
 }
 
@@ -177,11 +180,12 @@ func (c *Domain) requireDomain() error {
 	if c.domain != nil {
 		return nil
 	}
-	domain, ok := c.k.GetDomain(c.ctx, c.domainName)
+	domain := new(types.Domain)
+	ok := c.store.Read((&types.Domain{Name: c.domainName}).PrimaryKey(), domain)
 	if !ok {
 		return sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", c.domainName)
 	}
-	c.domain = &domain
+	c.domain = domain
 	return nil
 }
 
