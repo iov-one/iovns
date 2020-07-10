@@ -2,6 +2,12 @@
 
 ## HEAD
 
+- BREAKING: change Account.name type to pointer
+- BREAKING: refactor domain and account keeper by dividing in two
+- BREAKING: remove index package
+- add crud store
+- add helm chart
+
 ## v0.4.5
 - CHANGE: bump cosmos-sdk and tendermint version
 - FIX: AccountRenewalCountMax and DomainRenewalCountMax bumped at configuration update
