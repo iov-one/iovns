@@ -14,6 +14,9 @@ go:
   - "1.14.4"
   - master
 
+node_js:
+  - lts/*
+
 addons:
   apt:
     packages:
@@ -93,6 +96,7 @@ script:
   - iovnsd validate-genesis
   - iovnsd start --minimum-gas-prices='10.0uiov' &
   - iovnscli rest-server --trust-node true --chain-id ${CHAIN_ID} --node http://localhost:26657 &
+  - cd scripts/integration && yarn install && yarn test
 
 notifications:
   email: false
