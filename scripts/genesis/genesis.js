@@ -191,7 +191,7 @@ const main = async () => {
                goal_bonded: "0.8",
                inflation_max: "0.25",
                inflation_min: "0.12",
-               inflation_rate_change: "0.26", // six months to reach inflation_max
+               inflation_rate_change: "0.13",
                mint_denom: "uiov"
             }
          },
