@@ -95,7 +95,7 @@ script:
   - iovnscli keys add ${CHAIN_ID} --no-backup
   - iovnsd add-genesis-account $(iovnscli keys show ${CHAIN_ID} -a) 1112111000000uvoi
   - iovnsd gentx --name ${CHAIN_ID} --keyring-backend test --amount 1111111000000uvoi
-  - iovnsd collect-gentxs
+  - iovnsd collect-gentxs > /dev/null 2> /dev/null
   - iovnsd validate-genesis
   - iovnsd start --minimum-gas-prices='10.0uiov' &
   - iovnscli rest-server --trust-node true --chain-id ${CHAIN_ID} --node http://localhost:26657 &
