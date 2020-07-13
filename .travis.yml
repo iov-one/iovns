@@ -47,36 +47,36 @@ script:
   - export TRAVIS_COMMIT_MESSAGE=`cat commit.msg` && rm -rf commit.msg
   - docker run -it --rm --env-file env.list -v "$(pwd):/usr/src/app" iov1ops/danger:latest > danger.out; cat danger.out
   - if [[ "$TRAVIS_GO_VERSION" == "$MAIN_GO_VERSION" && "$TRAVIS_OS_NAME" == "linux" ]]; then
-    release_latest=$( [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_TAG" == "" && "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]] && echo "yes" || echo "no" );
-    release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
+      release_latest=$( [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_TAG" == "" && "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]] && echo "yes" || echo "no" );
+      release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
-    if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
-    ./contrib/gitian-build.sh linux ;
-    mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
-    docker build --pull --tag ${IMAGE_NAME} . ;
-    cd cmd/faucet && make build && docker build --pull --tag ${FAUCET_IMAGE_NAME} . ;
-    fi;
+      if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
+        ./contrib/gitian-build.sh linux ;
+        mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
+        docker build --pull --tag ${IMAGE_NAME} . ;
+        cd cmd/faucet && make build && docker build --pull --tag ${FAUCET_IMAGE_NAME} . ;
+      fi;
 
-    if [[ $release_latest == "yes" ]]; then
-    docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-    docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:latest" ;
-    docker push "iov1/iovns:latest";
+      if [[ $release_latest == "yes" ]]; then
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+        docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:latest" ;
+        docker push "iov1/iovns:latest";
 
-    docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:latest" ;
-    docker push "iov1/iovns-faucet:latest";
-    docker logout;
-    fi;
+        docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:latest" ;
+        docker push "iov1/iovns-faucet:latest";
+        docker logout;
+      fi;
 
-    if [[ $release_tag == "yes" ]]; then
-    docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-    docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:$TRAVIS_TAG" ;
-    docker push "iov1/iovns:$TRAVIS_TAG";
+      if [[ $release_tag == "yes" ]]; then
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+        docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:$TRAVIS_TAG" ;
+        docker push "iov1/iovns:$TRAVIS_TAG";
 
-    docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:$TRAVIS_TAG" ;
-    docker push "iov1/iovns-faucet:$TRAVIS_TAG";
+        docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:$TRAVIS_TAG" ;
+        docker push "iov1/iovns-faucet:$TRAVIS_TAG";
 
-    docker logout;
-    fi;
+        docker logout;
+      fi;
     fi;
 
 notifications:
