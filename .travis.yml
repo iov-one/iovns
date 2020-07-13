@@ -14,14 +14,17 @@ go:
   - "1.14.4"
   - master
 
-node_js:
-  - lts/*
-
 addons:
   apt:
     packages:
       - docker-ce
       - apt-cacher-ng
+
+install:
+  - . $HOME/.nvm/nvm.sh
+  - nvm install 'lts/*'
+  - nvm use 'lts/*'
+  - npm install
 
 cache:
   directories:
