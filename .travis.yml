@@ -78,6 +78,21 @@ script:
         docker logout;
       fi;
     fi;
+  - iovnsd version --long --output json | jq
+  - curl --fail https://gist.githubusercontent.com/davepuchyr/e1482e63cb81443cde1616f353c4779f/raw/genesis.json > genesis.json
+  - export CHAIN_ID=$(jq -r .chain_id genesis.json)
+  - iovnsd init ${CHAIN_ID} --chain-id ${CHAIN_ID}
+  - mv genesis.json ~/.iovnsd/config
+  - iovnscli config chain-id ${CHAIN_ID}
+  - iovnscli config trust-node true
+  - iovnscli config keyring-backend test
+  - iovnscli keys add ${CHAIN_ID} --no-backup
+  - iovnsd add-genesis-account $(iovnscli keys show ${CHAIN_ID} -a) 1112111000000uvoi
+  - iovnsd gentx --name ${CHAIN_ID} --keyring-backend test --amount 1111111000000uvoi
+  - iovnsd collect-gentxs
+  - iovnsd validate-genesis
+  - iovnsd start --minimum-gas-prices='10.0uiov' &
+  - iovnscli rest-server --trust-node true --chain-id ${CHAIN_ID} --node http://localhost:26657 &
 
 notifications:
   email: false
