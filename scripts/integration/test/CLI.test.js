@@ -171,7 +171,10 @@ describe( "Tests the CLI.", () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const broker = w1;
 
-      const registered = iovnscli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "sync", "--domain", domain, "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const registered = iovnscli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      await new Promise( resolve => { // wtf: "--broadcast-mode", "block" should wait for the tx to be included in the chain
+        setTimeout( resolve, 5000 );
+      } );
       const domainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( { name: domain } ) } );
 
       expect( registered.txhash ).toBeDefined();
