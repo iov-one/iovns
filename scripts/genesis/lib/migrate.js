@@ -205,8 +205,9 @@ export const fixErrors = ( dumped, indicatives ) => {
  * @param {Object} dumped - the state of the weave-based chain
  * @param {Object} multisigs - a map of iov1 addresses to multisig account data
  * @param {Array} indicatives - an array of weave txs stemming from sends to star1*iov
+ * @param {Object} premiums - a map of iov1 addresses to { star1, starnames }
  */
-export const mapIovToStar = ( dumped, multisigs, indicatives ) => {
+export const mapIovToStar = ( dumped, multisigs, indicatives, premiums ) => {
    const iov2star = {};
    const reMemo = /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/;
 
@@ -225,6 +226,13 @@ export const mapIovToStar = ( dumped, multisigs, indicatives ) => {
       if ( iov2star[iov1] && iov2star[iov1] != star1 ) throw new Error( `star1 mismatch on ${iov1}!  ${iov2star[iov1]} != ${star1}!` );
 
       iov2star[iov1] = star1;
+   } );
+   Object.keys( premiums ).forEach( iov1 => {
+      if ( !iov2star[iov1] ) {
+         if ( reMemo.test( premiums[iov1].star1 ) ) iov2star[iov1] = premiums[iov1].star1;
+      } else {
+         if ( premiums[iov1].star1.length && iov2star[iov1] != premiums[iov1].star1 ) console.warn( `star1 mismatch on ${iov1}!  ${iov2star[iov1]} != ${premiums[iov1].star1}!` );
+      }
     } );
 
    return iov2star;
@@ -310,7 +318,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
    Object.keys( premiums ).forEach( iov1 => {
       const address = iov2star[iov1] || custodian.value.address; // add to the custodial account if needed
 
-      premiums[iov1].forEach( domain => {
+      premiums[iov1].starnames.forEach( domain => {
          if ( address == custodian.value.address ) {
             const previous = custodian[`//no star1 ${iov1}`];
             const current = !previous ? domain : ( typeof previous == "object" ? previous.concat( domain ) : [ previous, domain ] );
@@ -623,11 +631,6 @@ export const patchMainnet = genesis => {
          id: 2046,
       },
    };
-   const boughtOffChain = {
-      iov12gd6weg7py6vs7ujn22h82422arek8cxzhe85p: {
-         star1: "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt",
-      },
-   };
 
    Object.keys( lostKeys ).forEach( iov1 => {
       const recover = custodian[`//no star1 ${iov1}`];
@@ -650,20 +653,6 @@ export const patchMainnet = genesis => {
       if ( genesis.app_state.auth.accounts.find( account => account["//iov1"] == iov1 ) ) throw new Error( `Account for ${iov1} already exists!` );
       const account = createAccount( { address, amount, id, iov, iov1 } );
       genesis.app_state.auth.accounts.push( account );
-   } );
-
-   Object.keys( boughtOffChain ).forEach( iov1 => {
-      const address = boughtOffChain[iov1].star1;
-      const names = custodian[`//no star1 ${iov1}`];
-
-      delete( custodian[`//no star1 ${iov1}`] );
-
-      // remove custody of starname
-      names.forEach( name => {
-         const starname = genesis.app_state.domain.domains.find( domain => domain.name == name );
-         if ( !starname ) throw new Error( `Domain doesn't exist for ${name}!` );
-         starname.owner = address;
-      } );
    } );
 
    const getAmount = account => {
@@ -700,7 +689,7 @@ export const migrate = args => {
    fixErrors( dumped, indicatives );
 
    // ...transform (order matters)...
-   const iov2star = mapIovToStar( dumped, multisigs, indicatives );
+   const iov2star = mapIovToStar( dumped, multisigs, indicatives, premiums );
    const escrows = consolidateEscrows( dumped, source2multisig );
    const { accounts, starnames, domains } = convertToCosmosSdk( dumped, iov2star, multisigs, premiums, reserveds );
 

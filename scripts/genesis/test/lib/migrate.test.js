@@ -449,13 +449,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
       validators: [],
    };
    const premiums = {
-      iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un: [ "in3s", "huth", "tachyon", "sentient" ],
-      iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn: [ "hell", "hash", "hold" ],
-      iov1y63fp8pncpuke7mrc2huqefud59t3munnh0k32: [ "multiverse" ],
-      iov1ylw3cnluf3zayfths0ezgjp5cwf6ddvsvwa7l4: [ "lovely" ],
-      iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx: [ "gianna", "nodeateam", "tyler", "michael" ],
-      zGLlamFypWMPUeHVVsvo4mXFFOE63: [ "cosmostation", "ibcwallet", "korea", "mintscan", "seoul", "station" ],
-      zHbPpUYyRguRlhAiC30zimM05hGx2: [ "jim" ],
+      iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un: { star1: "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", starnames: [ "in3s", "huth", "tachyon", "sentient" ] },
+      iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn: { star1: "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y", starnames: [ "hell", "hash", "hold" ] },
+      iov1y63fp8pncpuke7mrc2huqefud59t3munnh0k32: { star1: "", starnames: [ "multiverse" ] },
+      iov1ylw3cnluf3zayfths0ezgjp5cwf6ddvsvwa7l4: { star1: "", starnames: [ "lovely" ] },
+      iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx: { star1: "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f", starnames: [ "gianna", "nodeateam", "tyler", "michael" ] },
+      iov12gd6weg7py6vs7ujn22h82422arek8cxzhe85p: { star1: "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt", starnames: [ "adrian", "84more" ] },
+      zGLlamFypWMPUeHVVsvo4mXFFOE63: { star1: "", starnames: [ "cosmostation", "ibcwallet", "korea", "mintscan", "seoul", "station" ] },
+      zHbPpUYyRguRlhAiC30zimM05hGx2: { star1: "", starnames: [ "jim" ] },
    };
    const reserveds = [
       "goldman",
@@ -569,7 +570,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       fixErrors( dumpedCopy, indicativesCopy );
 
-      const iov2star = mapIovToStar( dumped, multisigs, indicativesCopy );
+      const iov2star = mapIovToStar( dumped, multisigs, indicativesCopy, premiums );
       const reMemo = /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/;
 
       expect( iov2star.iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl ).toEqual( false ); // alex
@@ -590,7 +591,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       fixChainIds( dumpedCopy, chainIds );
       fixErrors( dumpedCopy, indicativesCopy );
 
-      const iov2star = mapIovToStar( dumpedCopy, multisigs, indicativesCopy );
+      const iov2star = mapIovToStar( dumpedCopy, multisigs, indicativesCopy, premiums );
       const { accounts, starnames, domains } = convertToCosmosSdk( dumpedCopy, iov2star, multisigs, premiums, reserveds );
       const custodian = accounts.find( account => account["//iov1"] == "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc" );
       const iov = accounts.find( account => account["//iov1"] == "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq" );
@@ -599,7 +600,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const dave = accounts.find( account => account["//iov1"] == "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
 
       expect( custodian.value.address ).toEqual( multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1 );
-      expect( custodian.value.coins[0].amount ).toEqual( "8321439" );
+      expect( custodian.value.coins[0].amount ).toEqual( "8321438667145" );
       expect( custodian["//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"][0] ).toEqual( 3234710 );
       expect( custodian["//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"][1] ).toEqual( "confio*iov" );
       expect( custodian["//no star1 iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9"][0] ).toEqual( 26.5 );
@@ -609,10 +610,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( custodian["//no star1 iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl"] ).toEqual( "alex*iov" );
       expect( custodian["//no star1 iov1ylw3cnluf3zayfths0ezgjp5cwf6ddvsvwa7l4"] ).toEqual( "lovely" );
       expect( custodian["//no star1 iov1y63fp8pncpuke7mrc2huqefud59t3munnh0k32"] ).toEqual( "multiverse" );
-      expect( custodian["//no star1 iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"][0] ).toEqual( "gianna" );
-      expect( custodian["//no star1 iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"][1] ).toEqual( "nodeateam" );
-      expect( custodian["//no star1 iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"][2] ).toEqual( "tyler" );
-      expect( custodian["//no star1 iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"][3] ).toEqual( "michael" );
 
       expect( rewards.value.address ).toEqual( multisigs.iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n.star1 );
       expect( rewards.value.coins[0].amount ).toEqual( "37000000" );
@@ -655,14 +652,10 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( kadimaiov.domain ).toEqual( "iov" );
       expect( kadimaiov.name ).toEqual( "kadima" );
 
-      const gianna = domains.find( domain => domain.name == "gianna" );
       const lovely = domains.find( domain => domain.name == "lovely" );
-      const michael = domains.find( domain => domain.name == "michael" );
       const multiverse = domains.find( domain => domain.name == "multiverse" );
 
-      expect( gianna.admin ).toEqual( custodian.value.address );
       expect( lovely.admin ).toEqual( custodian.value.address );
-      expect( michael.admin ).toEqual( custodian.value.address );
       expect( multiverse.admin ).toEqual( custodian.value.address );
 
       const hash = domains.find( domain => domain.name == "hash" );
