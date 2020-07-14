@@ -284,7 +284,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
          custodian[`//no star1 ${iov1}`] = iov;
       }
 
-      return previous + iov; // ...after reduction
+      return previous + amount; // ...after reduction
    }, 0 );
    custodian.value.coins[0].amount = String( Math.ceil( safeguarded ) );
 
