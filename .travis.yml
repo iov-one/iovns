@@ -97,7 +97,7 @@ script:
   - iovnsd gentx --name ${CHAIN_ID} --keyring-backend test --amount 1111111000000uvoi
   - iovnsd collect-gentxs > /dev/null 2> /dev/null
   - iovnsd validate-genesis
-  - iovnsd start --minimum-gas-prices='10.0uiov' &
+  - iovnsd start --minimum-gas-prices='10.0uvoi' &
   - iovnscli rest-server --trust-node true --chain-id ${CHAIN_ID} --node http://localhost:26657 &
   - cd scripts/integration && yarn install && yarn test
 
