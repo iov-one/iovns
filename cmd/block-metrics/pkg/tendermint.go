@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/iov-one/iovns/x/domain"
+	"github.com/iov-one/iovns/x/starname"
 	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -242,7 +242,7 @@ type TendermintBlock struct {
 	TransactionHashes [][32]byte
 }
 
-func FetchGenesis(ctx context.Context, c *TendermintClient) (*domain.GenesisState, error) {
+func FetchGenesis(ctx context.Context, c *TendermintClient) (*starname.GenesisState, error) {
 	var result coretypes.ResultGenesis
 	if err := c.Do("genesis", &result); err != nil {
 		return nil, errors.Wrap(err, "query tendermint")
@@ -252,11 +252,11 @@ func FetchGenesis(ctx context.Context, c *TendermintClient) (*domain.GenesisStat
 	if err := json.Unmarshal(appState, &st); err != nil {
 		return nil, errors.Wrapf(err, "genesis parsing error")
 	}
-	domainModuleGen, ok := st[domain.ModuleName]
+	domainModuleGen, ok := st[starname.ModuleName]
 	if !ok {
 		return nil, errors.New("cannot get domain module genesis data")
 	}
-	var genState domain.GenesisState
+	var genState starname.GenesisState
 	if err := ModuleCdc.UnmarshalJSON(domainModuleGen, &genState); err != nil {
 		return nil, errors.Wrapf(err, "genesis parsing error")
 	}
