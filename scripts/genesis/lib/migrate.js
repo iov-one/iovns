@@ -584,6 +584,8 @@ export const patchGalaxynet = genesis => {
    genesis.app_state.auth.accounts.forEach( account => account.value.coins[0].denom = "uvoi" );
    genesis.app_state.mint.params.mint_denom = "uvoi";
    genesis.app_state.staking.params.bond_denom = "uvoi";
+   genesis.app_state.crisis.constant_fee.denom = "uvoi";
+   genesis.app_state.gov.deposit_params.min_deposit[0].denom = "uvoi";
    genesis.app_state.configuration.fees = { // https://internetofvalues.slack.com/archives/GPYCU2AJJ/p1593018862011300?thread_ts=1593017152.004100&cid=GPYCU2AJJ
       "fee_coin_denom": "uvoi",
       "fee_coin_price": "0.0000001",

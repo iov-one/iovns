@@ -299,7 +299,12 @@ describe( "Tests ../../lib/migrate.js.", () => {
             fees: {
             },
          },
-         crisis: {},
+         crisis: {
+            constant_fee: {
+               denom: "uiov",
+               amount: "1000000000"
+            }
+         },
          domain: {
             domains: [
                {
@@ -315,7 +320,29 @@ describe( "Tests ../../lib/migrate.js.", () => {
             accounts: [],
          },
          genutil: {},
-         gov: {},
+         gov: {
+            starting_proposal_id: "1",
+            deposits: null,
+            votes: null,
+            proposals: null,
+            deposit_params: {
+               min_deposit: [
+                  {
+                     denom: "uiov",
+                     amount: "1000000000"
+                  }
+               ],
+               max_deposit_period: "172800000000000"
+            },
+            voting_params: {
+               voting_period: "345600000000000"
+            },
+            tally_params: {
+               quorum: "0.334000000000000000",
+               threshold: "0.500000000000000000",
+               veto: "0.334000000000000000"
+            }
+         },
          mint: {
             minter: {
                inflation: "0.000000000000000000",
@@ -1042,6 +1069,8 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesisCopy.app_state.mint.params.mint_denom ).toEqual( "uvoi" );
       expect( genesisCopy.app_state.staking.params.bond_denom ).toEqual( "uvoi" );
       expect( genesisCopy.app_state.configuration.fees.fee_coin_denom ).toEqual( "uvoi" );
+      expect( genesisCopy.app_state.crisis.constant_fee.denom ).toEqual( "uvoi" );
+      expect( genesisCopy.app_state.gov.deposit_params.min_deposit[0].denom ).toEqual( "uvoi" );
    } );
 
    it( `Should patch iov-mainnet-2.`, async () => {
