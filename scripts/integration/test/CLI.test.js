@@ -13,7 +13,8 @@ describe( "Tests the CLI.", () => {
    it( `Should do a multisig delegate.`, async () => {
       let delegated0 = 0;
       try {
-         delegated0 = iovnscli( [ "query", "staking", "delegation", msig1, validator ] );
+         const delegation = iovnscli( [ "query", "staking", "delegation", msig1, validator ] );
+         delegated0 = +delegation.balance.amount;
       } catch ( e ) {
          // no-op on no delegations yet
       }
@@ -26,7 +27,7 @@ describe( "Tests the CLI.", () => {
       const delegated = iovnscli( [ "query", "staking", "delegation", msig1, validator ] );
 
       expect( broadcasted.gas_used ).toBeDefined();
-      expect( +delegated.balance.amount ).toEqual( +delegated0.balance.amount + amount );
+      expect( +delegated.balance.amount ).toEqual( delegated0 + amount );
    } );
 
 
