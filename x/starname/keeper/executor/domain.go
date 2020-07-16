@@ -104,7 +104,7 @@ func (d *Domain) Create() {
 		panic("cannot create non specified domain")
 	}
 	d.domains.Create(d.domain)
-	d.accounts.Create(&types.Account{
+	emptyAccount := &types.Account{
 		Domain:       d.domain.Name,
 		Name:         tutils.StrPtr(types.EmptyAccountName),
 		Owner:        d.domain.Admin,
@@ -113,5 +113,6 @@ func (d *Domain) Create() {
 		Certificates: nil,
 		Broker:       nil,
 		MetadataURI:  "",
-	})
+	}
+	d.accounts.Create(emptyAccount)
 }

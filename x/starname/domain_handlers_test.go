@@ -589,11 +589,14 @@ func Test_handlerDomainRenew(t *testing.T) {
 			AfterTest: nil,
 		},
 		"success": {
+			BeforeTestBlockTime: 1000,
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				// add config
 				setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 				setConfig(ctx, configuration.Config{
-					DomainRenewalPeriod: 1 * time.Second,
+					DomainRenewalCountMax: 2,
+					DomainRenewalPeriod:   1 * time.Second,
+					DomainGracePeriod:     10 * time.Second,
 				})
 				// add domain
 				executor.NewDomain(ctx, k, types.Domain{

@@ -296,6 +296,11 @@ func (c *Domain) renewable() error {
 	if err := c.requireDomain(); err != nil {
 		panic("validation check not allowed on a non existing domain")
 	}
+	// check if current time is not beyond grace period
+	renewalDeadline := iovns.SecondsToTime(c.domain.ValidUntil).Add(c.conf.DomainGracePeriod)
+	if c.ctx.BlockTime().After(renewalDeadline) {
+		return sdkerrors.Wrapf(types.ErrRenewalDeadlineExceeded, "the deadline for renewal was: %s, current time is: %s, please delete the domain and re-register", renewalDeadline, c.ctx.BlockTime())
+	}
 	// do calculations
 	newValidUntil := iovns.SecondsToTime(c.domain.ValidUntil).Add(c.conf.DomainRenewalPeriod) // set new expected valid until
 	// renew count bumped because domain count is already at count 1 when created
