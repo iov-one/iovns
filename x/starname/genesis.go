@@ -58,7 +58,6 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 
 // ExportGenesis saves the state of the domain module
 func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
-	// TODO urgent
 	ds := k.DomainStore(ctx)
 	as := k.AccountStore(ctx)
 	var domains []types.Domain
