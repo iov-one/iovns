@@ -9,7 +9,7 @@ import (
 	"github.com/iov-one/iovns/x/starname/types"
 )
 
-// Domain defines the prefixedStore keeper executor
+// Domain defines the domain keeper executor
 type Domain struct {
 	domain   *types.Domain
 	ctx      sdk.Context
@@ -18,7 +18,7 @@ type Domain struct {
 	k        keeper.Keeper
 }
 
-// NewDomain returns is prefixedStore's constructor
+// NewDomain returns is domain's constructor
 func NewDomain(ctx sdk.Context, k keeper.Keeper, dom types.Domain) *Domain {
 	return &Domain{
 		k:        k,
@@ -29,10 +29,10 @@ func NewDomain(ctx sdk.Context, k keeper.Keeper, dom types.Domain) *Domain {
 	}
 }
 
-// Renew renews a prefixedStore based on the configuration
+// Renew renews a domain based on the configuration
 func (d *Domain) Renew(accValidUntil ...int64) {
 	if d.domain == nil {
-		panic("cannot execute renew state change on non present prefixedStore")
+		panic("cannot execute renew state change on non present domain")
 	}
 	// if account valid until is specified then the renew is coming from accounts
 	if len(accValidUntil) != 0 {
@@ -42,18 +42,18 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 	}
 	// get configuration
 	renewDuration := d.k.ConfigurationKeeper.GetDomainRenewDuration(d.ctx)
-	// update prefixedStore valid until
+	// update domain valid until
 	d.domain.ValidUntil = iovns.TimeToSeconds(
-		iovns.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(prefixedStore.ValidUntil) + renew duration
+		iovns.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
 	)
-	// set prefixedStore
+	// set domain
 	d.domains.Update(d.domain.PrimaryKey(), d.domain)
 }
 
 // Delete deletes a domain from the kvstore
 func (d *Domain) Delete() {
 	if d.domain == nil {
-		panic("cannot execute delete state change on non present prefixedStore")
+		panic("cannot execute delete state change on non present domain")
 	}
 	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
 	for filter.Next() {
@@ -62,10 +62,10 @@ func (d *Domain) Delete() {
 	d.domains.Delete(d.domain.PrimaryKey(), d.domain)
 }
 
-// Transferrer returns a prefixedStore transfer function based on the transfer flag
+// Transferrer returns a domain transfer function based on the transfer flag
 func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) func() {
 	if d.domain == nil {
-		panic("cannot execute transfer state on non defined prefixedStore")
+		panic("cannot execute transfer state on non defined domain")
 	}
 	return func() {
 		// transfer domain
@@ -75,9 +75,9 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) func
 		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: tutils.StrPtr(types.EmptyAccountName)}) // delete empty account
 		filter.Next()
 		filter.Delete()
-		// transfer accounts of the prefixedStore based on the transfer flag
+		// transfer accounts of the domain based on the transfer flag
 		switch flag {
-		// reset none is simply skipped as empty account is already transferred during prefixedStore transfer
+		// reset none is simply skipped as empty account is already transferred during domain transfer
 		case types.ResetNone:
 		// transfer flush, deletes all domains accounts except the empty one since it was transferred in the first step
 		case types.TransferFlush:
@@ -98,7 +98,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) func
 	}
 }
 
-// Create creates a new prefixedStore
+// Create creates a new domain
 func (d *Domain) Create() {
 	if d.domain == nil {
 		panic("cannot create non specified domain")
@@ -108,7 +108,7 @@ func (d *Domain) Create() {
 		Domain:       d.domain.Name,
 		Name:         tutils.StrPtr(types.EmptyAccountName),
 		Owner:        d.domain.Admin,
-		ValidUntil:   0,
+		ValidUntil:   d.domain.ValidUntil, // is this right per spec?
 		Resources:    nil,
 		Certificates: nil,
 		Broker:       nil,
