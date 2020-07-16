@@ -8,7 +8,7 @@ import (
 	"github.com/prometheus/common/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/x/domain/types"
+	"github.com/iov-one/iovns/x/starname/types"
 
 	"github.com/pkg/errors"
 )
