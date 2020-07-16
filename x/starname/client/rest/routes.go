@@ -91,17 +91,17 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 
 // registerQueryRoutes registers all the routes used to query
 // the domain module's keeper
-func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, queryAlias, storeName string, queries []iovns.QueryHandler) {
+func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string, queries []iovns.QueryHandler) {
 	for _, query := range queries {
-		path := fmt.Sprintf("/%s/query/%s", queryAlias, query.QueryPath())
+		path := fmt.Sprintf("/%s/query/%s", storeName, query.QueryPath())
 		r.HandleFunc(path, queryHandlerBuild(cliCtx, storeName, query)).Methods("POST")
 	}
 }
 
 // RegisterRoutes clubs together the tx and query routes
-func RegisterRoutes(cliContext context.CLIContext, r *mux.Router, queryAlias, storeName string, queries []iovns.QueryHandler) {
+func RegisterRoutes(cliContext context.CLIContext, r *mux.Router, storeName string, queries []iovns.QueryHandler) {
 	// register tx routes
 	registerTxRoutes(cliContext, r, storeName)
 	// register query routes
-	registerQueryRoutes(cliContext, r, queryAlias, storeName, queries)
+	registerQueryRoutes(cliContext, r, storeName, queries)
 }
