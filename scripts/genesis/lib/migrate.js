@@ -705,10 +705,16 @@ export const migrate = args => {
 
    // write genesis.json before...
    const config = path.join( home, "config" );
+   const file = path.join( config, "genesis.json" );
 
    if ( !fs.existsSync( config ) ) fs.mkdirSync( config );
-   fs.writeFileSync( path.join( config, "genesis.json" ), stringify( genesis, { space: "  " } ), "utf-8" );
+   fs.writeFileSync( file, stringify( genesis, { space: "  " } ), "utf-8" );
 
    // ...incorporating gentxs
-   if ( gentxs ) addGentxs( gentxs, home );
+   if ( gentxs ) {
+      addGentxs( gentxs, home );
+
+      const unformatted = JSON.parse( fs.readFileSync( file, "utf-8" ) );
+      fs.writeFileSync( file, stringify( unformatted, { space: "  " } ), "utf-8" );
+   }
 };
