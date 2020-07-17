@@ -17,3 +17,8 @@ vendor/
 .gitian-builder-cache
 iovns-build-*
 build
+
+# jest test suite
+node_modules/
+scripts/*/coverage/
+

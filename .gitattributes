@@ -1,5 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 swagger-ui/swagger-ui/* linguist-vendored
-scripts/genesis/* linguist-vendored
+scripts/genesis/*       linguist-vendored
+scripts/integration/*   linguist-vendored
 
