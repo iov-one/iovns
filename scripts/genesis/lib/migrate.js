@@ -358,6 +358,10 @@ export const addGentxs = ( gentxs, home ) => {
 
       if ( error.indexOf( "ERROR" ) != -1 || error.indexOf( "panic" ) != -1 ) throw new Error( error );
    };
+
+   // clean-up automagically generated files so that subsequent runs don't fail
+   [ "app.toml", "config.toml", "node_key.json", "priv_validator_key.json" ].forEach( file => fs.unlinkSync( path.join( home, "config", file ) ) );
+   fs.unlinkSync( path.join( home, "data", "priv_validator_state.json" ) );
 }
 
 /**
