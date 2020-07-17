@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/iov-one/iovns/x/domain/types"
+	"github.com/iov-one/iovns/x/starname/types"
 
 	"github.com/pkg/errors"
 )

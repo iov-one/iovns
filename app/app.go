@@ -3,7 +3,7 @@ package app
 import (
 	"encoding/json"
 	"github.com/iov-one/iovns/x/configuration"
-	"github.com/iov-one/iovns/x/domain"
+	"github.com/iov-one/iovns/x/starname"
 	"io"
 	"os"
 
@@ -63,7 +63,7 @@ var (
 		evidence.AppModuleBasic{},
 		// iovns modules
 		configuration.AppModuleBasic{},
-		domain.AppModuleBasic{},
+		starname.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -119,7 +119,7 @@ type NameService struct {
 	evidenceKeeper evidence.Keeper
 	// iovns keepers
 	configurationKeeper configuration.Keeper
-	domainKeeper        domain.Keeper
+	domainKeeper        starname.Keeper
 	// Module Manager
 	mm *module.Manager
 
@@ -149,7 +149,7 @@ func NewNameService(
 		gov.StoreKey, params.StoreKey, evidence.StoreKey, upgrade.StoreKey,
 		// iovns store keys
 		configuration.StoreKey,
-		domain.DomainStoreKey, domain.AccountStoreKey, domain.IndexStoreKey,
+		starname.DomainStoreKey,
 	)
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -178,7 +178,7 @@ func NewNameService(
 	app.subspaces[evidence.ModuleName] = app.paramsKeeper.Subspace(evidence.DefaultParamspace)
 	// iovns subspaces
 	app.subspaces[configuration.ModuleName] = app.paramsKeeper.Subspace(configuration.DefaultParamSpace)
-	app.subspaces[domain.ModuleName] = app.paramsKeeper.Subspace(domain.DefaultParamSpace)
+	app.subspaces[starname.ModuleName] = app.paramsKeeper.Subspace(starname.DefaultParamSpace)
 
 	// The AccountKeeper handles address -> account lookups
 	app.accountKeeper = auth.NewAccountKeeper(
@@ -284,12 +284,12 @@ func NewNameService(
 	)
 
 	// domain keeper
-	app.domainKeeper = domain.NewKeeper(
+	app.domainKeeper = starname.NewKeeper(
 		app.cdc,
-		keys[domain.DomainStoreKey],
+		keys[starname.DomainStoreKey],
 		app.configurationKeeper,
 		app.supplyKeeper,
-		app.subspaces[domain.ModuleName],
+		app.subspaces[starname.ModuleName],
 	)
 	// iovns keepers - end
 
@@ -307,7 +307,7 @@ func NewNameService(
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		// iovns modules
 		configuration.NewAppModule(app.configurationKeeper),
-		domain.NewAppModule(app.domainKeeper),
+		starname.NewAppModule(app.domainKeeper),
 		// iovns modules - end
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
@@ -333,7 +333,7 @@ func NewNameService(
 		mint.ModuleName,
 		// iovns module start
 		configuration.ModuleName,
-		domain.ModuleName,
+		starname.ModuleName,
 		// iovns module end
 		supply.ModuleName,
 		crisis.ModuleName,

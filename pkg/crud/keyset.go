@@ -2,6 +2,7 @@ package crud
 
 type hash string
 
+// TODO this is an inefficient implementation that should be changed asap.
 type keySet map[hash]struct{}
 
 func (k keySet) Insert(b PrimaryKey) {
