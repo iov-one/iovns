@@ -96,7 +96,7 @@ func TestStore(t *testing.T) {
 	}
 }
 
-func TestFilter(t *testing.T) {
+func TestFilterAndIterateKeys(t *testing.T) {
 	x := 5
 	objs := make([]*testStoreObject, x)
 	for i := 0; i < x; i++ {
@@ -108,6 +108,15 @@ func TestFilter(t *testing.T) {
 	// create objects
 	for _, obj := range objs {
 		store.Create(obj)
+	}
+	// check if object number is correct
+	keys := make([]PrimaryKey, 0, x)
+	store.IterateKeys(func(pk PrimaryKey) bool {
+		keys = append(keys, pk)
+		return true
+	})
+	if len(keys) != x {
+		t.Fatal("unexpected number of keys", len(keys), x)
 	}
 	// delete based on filter
 	filter := store.Filter(&testStoreObject{Index1: objs[0].Index1}) // delete based on same index

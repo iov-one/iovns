@@ -319,6 +319,7 @@ func TestDomain_Renewable(t *testing.T) {
 	ctx = ctx.WithBlockTime(time.Unix(1, 0))
 	setConfig := keeper.GetConfigSetter(k.ConfigurationKeeper).SetConfig
 	setConfig(ctx, configuration.Config{
+		DomainGracePeriod:     100 * time.Second,
 		DomainRenewalCountMax: 1, // increased by one inside controller
 		DomainRenewalPeriod:   10 * time.Second,
 	})
@@ -334,6 +335,20 @@ func TestDomain_Renewable(t *testing.T) {
 		Admin:      keeper.AliceKey,
 		ValidUntil: time.Unix(18, 0).Unix(),
 		Type:       types.ClosedDomain,
+	})
+	ds.Create(&types.Domain{
+		Name:       "deadline-exceeded",
+		Admin:      keeper.AliceKey,
+		ValidUntil: time.Unix(10, 0).Unix(),
+		Type:       types.ClosedDomain,
+	})
+	// 120(DomainValidUntil) + 10(DomainRP) = 130 newValidUntil
+	t.Run("beyond grace period", func(t *testing.T) {
+		d := NewController(ctx.WithBlockTime(time.Unix(241, 0)), k, "deadline-exceeded")
+		err := d.Validate(Renewable)
+		if !errors.Is(err, types.ErrRenewalDeadlineExceeded) {
+			t.Fatalf("want: %s, got: %s", types.ErrRenewalDeadlineExceeded, err)
+		}
 	})
 
 	// 18(DomainValidUntil) + 10 (DomainRP) = 28 newValidUntil

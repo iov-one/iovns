@@ -2,9 +2,8 @@ package starname
 
 import (
 	"fmt"
-	"github.com/iov-one/iovns/x/starname/keeper/executor"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/iovns/pkg/crud"
 	"github.com/iov-one/iovns/x/starname/types"
 )
 
@@ -45,26 +44,40 @@ func DefaultGenesisState() GenesisState {
 // InitGenesis builds a state from GenesisState
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	// insert domains
+	ds := keeper.DomainStore(ctx)
 	for _, domain := range data.Domains {
-		executor.NewDomain(ctx, keeper, domain).Create()
+		// create domains
+		ds.Create(&domain)
 	}
 	// insert accounts
+	as := keeper.AccountStore(ctx)
 	for _, account := range data.Accounts {
-		executor.NewAccount(ctx, keeper, account).Create()
+		as.Create(&account)
 	}
 }
 
 // ExportGenesis saves the state of the domain module
 func ExportGenesis(ctx sdk.Context, k Keeper) GenesisState {
-	// TODO urgent
-	panic("implement")
-	/*
-		// save domain data
-		domains := k.IterateAllDomains(ctx)
-		// save account data
-		accounts := k.IterateAllAccounts(ctx)
-		return GenesisState{Domains: domains, Accounts: accounts}
-	*/
+	ds := k.DomainStore(ctx)
+	as := k.AccountStore(ctx)
+	var domains []types.Domain
+	var accounts []types.Account
+	ds.IterateKeys(func(pk crud.PrimaryKey) bool {
+		domain := new(types.Domain)
+		ds.Read(pk, domain)
+		domains = append(domains, *domain)
+		return true
+	})
+	as.IterateKeys(func(pk crud.PrimaryKey) bool {
+		account := new(types.Account)
+		as.Read(pk, account)
+		accounts = append(accounts, *account)
+		return true
+	})
+	return GenesisState{
+		Domains:  domains,
+		Accounts: accounts,
+	}
 }
 
 // validateDomain checks if a domain is valid or not

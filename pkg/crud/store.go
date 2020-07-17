@@ -88,6 +88,16 @@ func (s Store) Read(key PrimaryKey, o interface{}) (ok bool) {
 	return true
 }
 
+func (s Store) IterateKeys(do func(pk PrimaryKey) bool) {
+	iterator := s.objects.Iterator(nil, nil)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		if !do(iterator.Key()) {
+			break
+		}
+	}
+}
+
 // primaryKeysInIndex finds all the primary keys in the given index
 func (s Store) primaryKeysInIndex(index SecondaryKey, do func(key PrimaryKey) bool) {
 	store := s.storeFromSecondaryKey(index)

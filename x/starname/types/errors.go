@@ -88,6 +88,8 @@ var ErrClosedDomainAccExpire = sdkerrors.Register(ModuleName, 26, "accounts in c
 // ErrMaxRenewExceeded is returned when max renew time exceeded
 var ErrMaxRenewExceeded = sdkerrors.Register(ModuleName, 27, "max renew exceeded")
 
+var ErrRenewalDeadlineExceeded = sdkerrors.Register(ModuleName, 31, "renewal deadline was exceeded")
+
 // ----------- QUERY ----------
 
 // ErrProvideStarnameOrDomainName is returned when both domain/name and starname provided

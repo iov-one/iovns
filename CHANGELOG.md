@@ -1,7 +1,8 @@
 # Changelog
 
 ## HEAD
-
+- fix export genesis function
+- fix domain renewal disallowed after grace period
 - BREAKING: change Account.name type to pointer
 - BREAKING: refactor domain and account keeper by dividing in two
 - BREAKING: remove index package

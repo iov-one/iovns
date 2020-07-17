@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -e
-
 # if iovnsd does not exist then init the new network
 if [ ! -d ".iovnsd" ]; then
   echo ".iovnsd not found... initting a new chain"
