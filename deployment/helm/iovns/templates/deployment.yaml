@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: iovns
+  labels:
+    app: iovns
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: iovns
+      labels:
+        app: iovns
+    spec:
+      volumes:
+        - name: iovns
+          persistentVolumeClaim:
+            claimName: iovns
+      containers:
+        - name: iovns
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: /iovns
+              name: iovns
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: iovns

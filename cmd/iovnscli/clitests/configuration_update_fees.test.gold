@@ -1,0 +1,42 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "configuration/MsgUpdateFees",
+        "value": {
+          "Fees": {
+            "fee_coin_denom": "iov",
+            "fee_coin_price": "10.000000000000000000",
+            "fee_default": "1.000000000000000000",
+            "register_account_closed": "1.000000000000000000",
+            "register_account_open": "1.000000000000000000",
+            "transfer_account_closed": "1.000000000000000000",
+            "transfer_account_open": "1.000000000000000000",
+            "replace_account_resources": "1.000000000000000000",
+            "add_account_certificate": "1.000000000000000000",
+            "del_account_certificate": "1.000000000000000000",
+            "set_account_metadata": "1.000000000000000000",
+            "register_domain_1": "1.000000000000000000",
+            "register_domain_2": "1.000000000000000000",
+            "register_domain_3": "1.000000000000000000",
+            "register_domain_4": "1.000000000000000000",
+            "register_domain_5": "1.000000000000000000",
+            "register_domain_default": "1.000000000000000000",
+            "register_open_domain_multiplier": "2.000000000000000000",
+            "transfer_domain_closed": "1.000000000000000000",
+            "transfer_domain_open": "1.000000000000000000",
+            "renew_domain_open": "1.000000000000000000"
+          },
+          "Configurer": "star1em9fw954cgpv0rhkga2damur43k8gky8ska6yd"
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}

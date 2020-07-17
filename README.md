@@ -1,16 +1,16 @@
-# IOVNS
-This repo contains bnsd built on top of the cosmos-sdk
+# IOV Name Service (IOVNS)
+This repo contains the IOV Name Service daemon (iovnsd) and command-line interface (iovnscli) built on top of the cosmos-sdk.
 
-Everything is still very very very experimental, and I expect the design to dramatically change over the course of the coming days.
-
-## Running docker image
+## Running via docker image
 ```shell script
+# make the apps
+make build
 # build docker script
 docker build -t iovns .
 # initialize chain
 bash scripts/init.sh
 # run docker iovnsd
-docker run -it -p 127.0.0.1:26657:26657 -p 127.0.0.1:26656:26656 \
-  -v ~/.iovnsd:/app/.iovnsd -v ~/.iovnscli:/app/.iovnscli \ 
+docker run -it -p 127.0.0.1:46657:26657 -p 127.0.0.1:46656:26656 \
+  -v ~/.iovnsd:/.iovnsd -v ~/.iovnscli:/.iovnscli -u `id -u $USER` \
   iovns iovnsd start
 ```

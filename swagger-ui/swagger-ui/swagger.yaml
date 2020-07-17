@@ -8,8 +8,10 @@ tags:
     description: Search, encode, or broadcast transactions.
   - name: Tendermint RPC
     description: Tendermint APIs, such as query blocks, transactions and validatorset
-  - name: Domain
-    description: Domain name related functionalities
+  - name: Starname
+    description: Starname related functionalities
+  - name: Configuration
+    description: IOVNS configuration related functionalities
   - name: Auth
     description: Authenticate accounts
   - name: Bank
@@ -1906,7 +1908,7 @@ paths:
         name: denomination
         description: Coin denomination
         required: true
-        example: uatom
+        example: uiov
         schema:
           type: string
     get:
@@ -1924,9 +1926,9 @@ paths:
           description: Invalid coin denomination
         "500":
           description: Internal Server Error
-  "/domain/query/resolveDomain":
+  "/starname/query/domainInfo":
     post:
-      summary: Resolve a domain
+      summary: Get information about a domain
       requestBody:
         content:
           application/json:
@@ -1934,7 +1936,7 @@ paths:
               $ref: "#/components/requestBodies/ResolveDomainQueryBody"
         description: Resolve domain query
       tags:
-        - Domain
+        - Starname
       responses:
         "200":
           description: Domain resolved successfully
@@ -1946,7 +1948,37 @@ paths:
           description: Domain not found
         "500":
           description: Internal Server Error
-  "/domain/query/accountsInDomain":
+  "/configuration/query/configuration":
+    post:
+      summary: Get current configuration
+      tags:
+        - Configuration
+      responses:
+        "200":
+          description: Configuration resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Configuration"
+        "400":
+          description: Configuration not found
+        "500":
+          description: Internal Server Error
+  "/configuration/query/fees":
+    post:
+      summary: Get current fees
+      tags:
+        - Configuration
+      responses:
+        "200":
+          description: Fees resolved successfully
+          content:
+            application/json:
+        "400":
+          description: Configuration not found
+        "500":
+          description: Internal Server Error
+  "/starname/query/accountsInDomain":
     post:
       summary: Returns all the accounts registered under a domain
       requestBody:
@@ -1956,7 +1988,7 @@ paths:
               $ref: "#/components/requestBodies/ResolveAccountsInDomainQueryBody"
         description: Resolve accouts in domain query
       tags:
-        - Domain
+        - Starname
       responses:
         "200":
           description: Accounts resolved successfully
@@ -1968,17 +2000,17 @@ paths:
           description: Accounts or domain not found
         "500":
           description: Internal Server Error
-  "/domain/query/accountsFromOwner":
+  "/starname/query/accountsWithOwner":
     post:
       summary: Returns all the accounts owned by a given address
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/requestBodies/ResolveAccountsFromOwnerQueryBody"
+              $ref: "#/components/requestBodies/ResolveAccountsWithOwnerQueryBody"
         description: Resolve accounts owned by an address
       tags:
-        - Domain
+        - Starname
       responses:
         "200":
           description: Accounts resolved successfully
@@ -1990,17 +2022,17 @@ paths:
           description: Accounts, domain or owner not found
         "500":
           description: Internal Server Error
-  "/domain/query/domainsFromOwner":
+  "/starname/query/domainsWithOwner":
     post:
       summary: Returns all the domains owned by a given address
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/requestBodies/ResolveDomainsFromOwnerQueryBody"
+              $ref: "#/components/requestBodies/ResolveDomainsWithOwnerQueryBody"
         description: Resolve domains owned by an address
       tags:
-        - Domain
+        - Starname
       responses:
         "200":
           description: Domains resolved successfully
@@ -2012,9 +2044,9 @@ paths:
           description: domain or owner not found
         "500":
           description: Internal Server Error
-  "/domain/query/resolveAccount":
+  "/starname/query/resolve":
     post:
-      summary: Resolves an account
+      summary: Resolves a starname
       requestBody:
         content:
           application/json:
@@ -2022,7 +2054,7 @@ paths:
               $ref: "#/components/requestBodies/ResolveAccountQueryBody"
         description: Resolve an account
       tags:
-        - Domain
+        - Starname
       responses:
         "200":
           description: Account resolved successfully
@@ -2065,7 +2097,7 @@ components:
           type: number
           example: 1
           description: Page number
-    ResolveAccountsFromOwnerQueryBody:
+    ResolveAccountsWithOwnerQueryBody:
       type: object
       properties:
         owner:
@@ -2079,7 +2111,7 @@ components:
           type: number
           example: 1
           description: Page number
-    ResolveDomainsFromOwnerQueryBody:
+    ResolveDomainsWithOwnerQueryBody:
       type: object
       properties:
         owner:
@@ -2096,12 +2128,9 @@ components:
     ResolveAccountQueryBody:
       type: object
       properties:
-        domain:
+        starname:
           type: string
-          description: Name of the domain
-        name:
-          type: string
-          description: Account name
+          description: Starname of the form "name*domain"
   securitySchemes:
     kms:
       type: http
@@ -2894,15 +2923,13 @@ components:
         admin:
           $ref: "#/components/schemas/Address"
           description: Owner of the domain
-        calidUntil:
+        validUntil:
           type: number
-          description: ValidUntil is a unix timestamp that defines for how long the domain is valid
-        hasSuperUser:
-          type: bool
-          description: If the domain is owned by a super user or not
-        accountRenew:
-          type: number
-          description: The duration of each created or renewed account under the domain
+          description: Unix timestamp that defines for how long the domain is valid
+        domainType:
+          type: string
+          example: close
+          description: defines the type of the domain
         broker:
           $ref: "#/components/schemas/Address"
           description: Address of the broker
@@ -2960,3 +2987,33 @@ components:
           type: array
           $ref: "#/components/schemas/Address"
           description: Blockchain address
+    Configuration:
+      type: object
+      properties:
+        configurer:
+          $ref: "#/components/schemas/Address"
+          description: Configuration owner
+        validDomainName:
+          type: string
+        validAccountNAme:
+          type: string
+        validBlockchainID:
+          type: string
+        domainRenewalPeriod:
+          type: number
+        domainRenewalCountMax:
+          type: number
+        domainGracePeriod:
+          type: number
+        accountRenewalPeriod:
+          type: number
+        accountRenewalCountMax:
+          type: number
+        blockchainTargetMax:
+          type: number
+        certificateSizeMax:
+          type: number
+        certificateCountMax:
+          type: number
+        metadataSizeMax:
+          type: number

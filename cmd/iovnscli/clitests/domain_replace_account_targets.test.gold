@@ -1,0 +1,28 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "domain/ReplaceAccountResources",
+        "value": {
+          "domain": "test",
+          "name": "test",
+          "new_resources": [
+            {
+              "uri": "",
+              "resource": ""
+            }
+          ],
+          "owner": "star1yfcw3pju4wd8rud9l0uzkzwgs7c2drg88k7vzk",
+          "fee_payer": ""
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": null,
+    "memo": ""
+  }
+}

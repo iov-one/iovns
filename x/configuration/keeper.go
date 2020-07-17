@@ -6,29 +6,23 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
-// configKey defines the key used for the configuration
-// since the configuration is only one the key will always be one
-const configKey = "config"
-
-// feeKey defines the key used for fees
-// since the fee params are only one
-// this is the only key we will need
-const feeKey = "fee"
+// ParamSubspace is a placeholder
+type ParamSubspace interface {
+}
 
 // Keeper is the key value store handler for the configuration module
 type Keeper struct {
 	storeKey   sdk.StoreKey
 	cdc        *codec.Codec
-	paramspace params.Subspace
+	paramspace ParamSubspace
 }
 
 // NewKeeper is Keeper constructor
-func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace params.Subspace) Keeper {
+func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramspace ParamSubspace) Keeper {
 	return Keeper{
 		storeKey:   key,
 		cdc:        cdc,
@@ -44,7 +38,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 // GetConfiguration returns the configuration of the blockchain
 func (k Keeper) GetConfiguration(ctx sdk.Context) types.Config {
 	store := ctx.KVStore(k.storeKey)
-	confBytes := store.Get([]byte(configKey))
+	confBytes := store.Get([]byte(types.ConfigKey))
 	if confBytes == nil {
 		panic("no configuration available")
 	}
@@ -67,18 +61,18 @@ func (k Keeper) IsOwner(ctx sdk.Context, addr sdk.AccAddress) bool {
 
 // GetDomainRenewDuration returns the duration of a domain renewal period
 func (k Keeper) GetDomainRenewDuration(ctx sdk.Context) time.Duration {
-	return k.GetConfiguration(ctx).DomainRenew
+	return k.GetConfiguration(ctx).DomainRenewalPeriod
 }
 
-// GetValidDomainRegexp returns the regular expression used to match valid domain names
-func (k Keeper) GetValidDomainRegexp(ctx sdk.Context) string {
-	return k.GetConfiguration(ctx).ValidDomain
+// GetValidDomainNameRegexp returns the regular expression used to match valid domain names
+func (k Keeper) GetValidDomainNameRegexp(ctx sdk.Context) string {
+	return k.GetConfiguration(ctx).ValidDomainName
 }
 
 // SetConfig updates or saves a new config in the store
 func (k Keeper) SetConfig(ctx sdk.Context, conf types.Config) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set([]byte(configKey), k.cdc.MustMarshalBinaryBare(conf))
+	store.Set([]byte(types.ConfigKey), k.cdc.MustMarshalBinaryBare(conf))
 }
 
 // GetDomainGracePeriod returns the default grace period before domains

@@ -1,12 +1,8 @@
 package configuration
 
 import (
-	"fmt"
-	"regexp"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/configuration/types"
-	domain_types "github.com/iov-one/iovns/x/domain/types"
 )
 
 // GenesisState is used to unmarshal the genesis state
@@ -28,32 +24,11 @@ func NewGenesisState(conf types.Config, fees *types.Fees) GenesisState {
 // ValidateGenesis makes sure that the genesis state is valid
 func ValidateGenesis(data GenesisState) error {
 	conf := data.Config
-	if conf.DomainRenew < 0 {
-		return fmt.Errorf("empty domain renew")
+	if err := conf.Validate(); err != nil {
+		return err
 	}
-	if conf.Configurer == nil {
-		return fmt.Errorf("empty owner")
-	}
-	if _, err := regexp.Compile(conf.ValidBlockchainAddress); err != nil {
-		return fmt.Errorf("empty valid blockchain address regexp: %w", err)
-	}
-	if _, err := regexp.Compile(conf.ValidBlockchainID); err != nil {
-		return fmt.Errorf("empty valid blockchain id regexp: %w", err)
-	}
-	if _, err := regexp.Compile(conf.ValidDomain); err != nil {
-		return fmt.Errorf("empty valid domain regexp: %w", err)
-	}
-	if conf.ValidName == "" {
-		return fmt.Errorf("empty valid name regexp")
-	}
-	if data.Fees == nil {
-		return fmt.Errorf("empty fees")
-	}
-	if data.Fees.LevelFees == nil {
-		return fmt.Errorf("empty length fees")
-	}
-	if data.Fees.DefaultFees == nil {
-		return fmt.Errorf("empty default fees")
+	if err := data.Fees.Validate(); err != nil {
+		return err
 	}
 	return nil
 }
@@ -69,28 +44,28 @@ func DefaultGenesisState() GenesisState {
 	// set default configs
 	config := types.Config{
 		Configurer:             owner,
-		ValidDomain:            "^(.*?)?",
-		ValidName:              "^(.*?)?",
-		ValidBlockchainID:      "^(.*?)?",
-		ValidBlockchainAddress: "^(.*?)?",
-		DomainRenew:            86400,
+		ValidDomainName:        "^[-_a-z0-9]{4,16}$",
+		ValidAccountName:       "[-_\\.a-z0-9]{1,64}$",
+		ValidURI:               "[-a-z0-9A-Z:]+$",
+		ValidResource:          "^[a-z0-9A-Z]+$",
+		DomainRenewalPeriod:    300000000000,
+		DomainRenewalCountMax:  2,
+		DomainGracePeriod:      60000000000,
+		AccountRenewalPeriod:   180000000000,
+		AccountRenewalCountMax: 3,
+		AccountGracePeriod:     60000000000,
+		ResourcesMax:           3,
+		CertificateSizeMax:     10000,
+		CertificateCountMax:    3,
+		MetadataSizeMax:        86400,
 	}
 	// set fees
+	// add domain module fees
+	feeCoinDenom := "tiov" // set coin denom used for fees
+	// generate new fees
 	fees := types.NewFees()
-	defFee := sdk.NewCoin("iov", sdk.NewInt(10))
-	// add domain fees
-	fees.UpsertDefaultFees(&domain_types.MsgRegisterDomain{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgAddAccountCertificates{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgDeleteAccountCertificate{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgDeleteDomain{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgDeleteAccount{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgRegisterAccount{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgRenewAccount{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgRenewDomain{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgReplaceAccountTargets{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgTransferAccount{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgTransferDomain{}, defFee)
-	fees.UpsertDefaultFees(&domain_types.MsgSetAccountMetadata{}, defFee)
+	// set default fees
+	fees.SetDefaults(feeCoinDenom)
 	// return genesis
 	return GenesisState{
 		Config: config,

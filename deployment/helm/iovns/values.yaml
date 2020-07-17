@@ -1,0 +1,2 @@
+# by changing this you can set different images to install in the deployment
+image: frojdidymylja/iovns:crud

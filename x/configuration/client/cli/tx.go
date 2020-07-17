@@ -2,8 +2,9 @@ package cli
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
-	"regexp"
+	"os"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -29,90 +30,201 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 
 	configTxCmd.AddCommand(flags.PostCommands(
 		getCmdUpdateConfig(cdc),
-		getCmdUpsertDefaultFee(cdc),
-		getCmdUpsertLevelFee(cdc),
-		getCmdDeleteLevelFee(cdc),
+		getCmdUpdateFees(cdc),
 	)...)
 	return configTxCmd
+}
+
+var defaultDuration, _ = time.ParseDuration("1h")
+
+const defaultRegex = "^(.*?)?"
+const defaultNumber = 1
+
+func getCmdUpdateFees(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-fees",
+		Short: "update fees using a file",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			// get fees file
+			feeFile, err := cmd.Flags().GetString("fees-file")
+			if err != nil {
+				return err
+			}
+			f, err := os.Open(feeFile)
+			if err != nil {
+				return fmt.Errorf("unable to open fee file: %s", err)
+			}
+			defer f.Close()
+			newFees := new(types.Fees)
+			err = json.NewDecoder(f).Decode(newFees)
+			if err != nil {
+				return err
+			}
+			msg := types.MsgUpdateFees{
+				Fees:       newFees,
+				Configurer: cliCtx.GetFromAddress(),
+			}
+			if err := msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("invalid tx: %w", err)
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+		},
+	}
+	cmd.Flags().String("fees-file", "fees.json", "fees file in json format")
+	return cmd
 }
 
 func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-config",
-		Short: "update domain configuration",
+		Short: "update domain configuration, provide the values you want to override in current configuration",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			config := &types.Config{}
+			if !cliCtx.GenerateOnly {
+				rawCfg, _, err := cliCtx.QueryStore([]byte(types.ConfigKey), types.StoreKey)
+				if err != nil {
+					return err
+				}
+				cdc.MustUnmarshalBinaryBare(rawCfg, config)
+			}
+			var signer sdk.AccAddress
+			// if tx is not generate only, use --from flag as signer, otherwise get it from signer flag
+			if !cliCtx.GenerateOnly {
+				signer = cliCtx.FromAddress
+			} else {
+				signerStr, err := cmd.Flags().GetString("signer")
+				if err != nil {
+					return err
+				}
+				signer, err = sdk.AccAddressFromBech32(signerStr)
+				if err != nil {
+					return err
+				}
+			}
 			// get flags
 			configurerStr, err := cmd.Flags().GetString("configurer")
 			if err != nil {
 				return
 			}
-			configurer, err := sdk.AccAddressFromBech32(configurerStr)
-			if err != nil {
-				return
+			if configurerStr != "" {
+				configurer, err := sdk.AccAddressFromBech32(configurerStr)
+				if err != nil {
+					return err
+				}
+				config.Configurer = configurer
 			}
-
-			validDomain, err := cmd.Flags().GetString("valid-domain")
-			if err != nil {
-				return err
-			}
-			_, err = regexp.Compile(validDomain)
+			validDomainName, err := cmd.Flags().GetString("valid-domain-name")
 			if err != nil {
 				return err
 			}
-
-			validName, err := cmd.Flags().GetString("valid-name")
+			if validDomainName != defaultRegex {
+				config.ValidDomainName = validDomainName
+			}
+			validAccountName, err := cmd.Flags().GetString("valid-account-name")
 			if err != nil {
 				return err
 			}
-			_, err = regexp.Compile(validName)
+			if validAccountName != defaultRegex {
+				config.ValidAccountName = validAccountName
+			}
+			validURI, err := cmd.Flags().GetString("valid-uri")
 			if err != nil {
 				return err
 			}
-
-			validBlockchainID, err := cmd.Flags().GetString("valid-blockchain-id")
+			if validURI != defaultRegex {
+				config.ValidURI = validURI
+			}
+			validResource, err := cmd.Flags().GetString("valid-resource")
 			if err != nil {
 				return err
 			}
-			_, err = regexp.Compile(validBlockchainID)
+			if validResource != defaultRegex {
+				config.ValidResource = validResource
+			}
+			domainRenew, err := cmd.Flags().GetDuration("domain-renew-period")
 			if err != nil {
 				return err
 			}
-
-			validBlockchainAddress, err := cmd.Flags().GetString("valid-blockchain-address")
+			if domainRenew != defaultDuration {
+				config.DomainRenewalPeriod = domainRenew
+			}
+			domainRenewCountMax, err := cmd.Flags().GetUint32("domain-renew-count-max")
 			if err != nil {
 				return err
 			}
-			_, err = regexp.Compile(validBlockchainAddress)
-			if err != nil {
-				return err
+			if domainRenewCountMax != defaultNumber {
+				config.DomainRenewalCountMax = domainRenewCountMax
 			}
-
-			domainRenew, err := cmd.Flags().GetDuration("domain-renew")
-			if err != nil {
-				return err
-			}
-
 			domainGracePeriod, err := cmd.Flags().GetDuration("domain-grace-period")
 			if err != nil {
 				return err
 			}
+			if domainGracePeriod != defaultNumber {
+				config.DomainGracePeriod = domainGracePeriod
+			}
+			accountRenewPeriod, err := cmd.Flags().GetDuration("account-renew-period")
+			if err != nil {
+				return err
+			}
+			if accountRenewPeriod != defaultNumber {
+				config.AccountRenewalPeriod = accountRenewPeriod
+			}
+			accountRenewCountMax, err := cmd.Flags().GetUint32("account-renew-count-max")
+			if err != nil {
+				return err
+			}
+			if accountRenewCountMax != defaultNumber {
+				config.AccountRenewalCountMax = accountRenewCountMax
+			}
+			accountGracePeriod, err := cmd.Flags().GetDuration("account-grace-period")
+			if err != nil {
+				return err
+			}
+			if accountGracePeriod != defaultDuration {
+				config.AccountGracePeriod = accountGracePeriod
+			}
+			resourceMax, err := cmd.Flags().GetUint32("resource-max")
+			if err != nil {
+				return err
+			}
+			if resourceMax != defaultNumber {
+				config.ResourcesMax = resourceMax
+			}
+			certificateSizeMax, err := cmd.Flags().GetUint64("certificate-size-max")
+			if err != nil {
+				return err
+			}
+			if certificateSizeMax != defaultNumber {
+				config.CertificateSizeMax = certificateSizeMax
+			}
+			certificateCountMax, err := cmd.Flags().GetUint32("certificate-count-max")
+			if err != nil {
+				return err
+			}
+			if certificateCountMax != defaultNumber {
+				config.CertificateCountMax = certificateCountMax
+			}
+			metadataSizeMax, err := cmd.Flags().GetUint64("metadata-size-max")
+			if err != nil {
+				return err
+			}
+			if metadataSizeMax != defaultNumber {
+				config.MetadataSizeMax = metadataSizeMax
+			}
 
-			config := types.Config{
-				Configurer:             configurer,
-				ValidDomain:            validDomain,
-				ValidName:              validName,
-				ValidBlockchainID:      validBlockchainID,
-				ValidBlockchainAddress: validBlockchainAddress,
-				DomainRenew:            domainRenew,
-				DomainGracePeriod:      domainGracePeriod,
+			if err := config.Validate(); err != nil {
+				return err
 			}
 			// build msg
 			msg := &types.MsgUpdateConfig{
-				Configurer:       cliCtx.GetFromAddress(),
-				NewConfiguration: config,
+				Signer:           signer,
+				NewConfiguration: *config,
 			}
 			// check if valid
 			if err = msg.ValidateBasic(); err != nil {
@@ -122,178 +234,25 @@ func getCmdUpdateConfig(cdc *codec.Codec) *cobra.Command {
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
-	defaultDuration, _ := time.ParseDuration("1h")
 	// add flags
-	cmd.Flags().String("configurer", "", "configurer in bech32 format")
-	cmd.Flags().String("valid-domain", "", "regexp that determines if domain name is valid or not")
-	cmd.Flags().String("valid-name", "", "regexp that determines if account name is valid or not")
-	cmd.Flags().String("valid-blockchain-id", "", "regexp that determines if blockchain id is valid or not")
-	cmd.Flags().String("valid-blockchain-address", "", "regexp that determines if blockchain address is valid or not")
-	cmd.Flags().Duration("domain-renew", defaultDuration, "domain renewal duration in seconds before expiration")
+	cmd.Flags().String("signer", "", "current configuration owner, for offline usage, otherwise --from is used")
+	cmd.Flags().String("configurer", "", "new configuration owner")
+	cmd.Flags().String("valid-domain-name", defaultRegex, "regexp that determines if domain name is valid or not")
+	cmd.Flags().String("valid-account-name", defaultRegex, "regexp that determines if account name is valid or not")
+	cmd.Flags().String("valid-uri", defaultRegex, "regexp that determines if uri is valid or not")
+	cmd.Flags().String("valid-resource", defaultRegex, "regexp that determines if resource is valid or not")
+
+	cmd.Flags().Duration("domain-renew-period", defaultDuration, "domain renewal duration in seconds before expiration")
+	cmd.Flags().Uint32("domain-renew-count-max", uint32(defaultNumber), "maximum number of applicable domain renewals")
 	cmd.Flags().Duration("domain-grace-period", defaultDuration, "domain grace period duration in seconds")
-	return cmd
-}
 
-func getCmdUpsertDefaultFee(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "upsert-default-fee",
-		Short: "upsert default fee configuration",
-		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			// get flags
-			configurerStr, err := cmd.Flags().GetString("configurer")
-			if err != nil {
-				return
-			}
-			configurer, err := sdk.AccAddressFromBech32(configurerStr)
-			if err != nil {
-				return
-			}
+	cmd.Flags().Duration("account-renew-period", defaultDuration, "domain renewal duration in seconds before expiration")
+	cmd.Flags().Uint32("account-renew-count-max", uint32(defaultNumber), "maximum number of applicable account renewals")
+	cmd.Flags().Duration("account-grace-period", defaultDuration, "account grace period duration in seconds")
 
-			module, err := cmd.Flags().GetString("module")
-			if err != nil {
-				return err
-			}
-
-			msgType, err := cmd.Flags().GetString("msg-type")
-			if err != nil {
-				return err
-			}
-
-			feeStr, err := cmd.Flags().GetString("fee")
-			fee, err := sdk.ParseCoin(feeStr)
-			if err != nil {
-				return err
-			}
-
-			// build msg
-			msg := &types.MsgUpsertDefaultFee{
-				Configurer: configurer,
-				Module:     module,
-				MsgType:    msgType,
-				Fee:        fee,
-			}
-			// check if valid
-			if err = msg.ValidateBasic(); err != nil {
-				return err
-			}
-			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
-		},
-	}
-	// add flags
-	cmd.Flags().String("configurer", "", "configurer in bech32 format")
-	cmd.Flags().String("module", "", "what is this?")
-	cmd.Flags().String("msg-type", "", "type of the message")
-	cmd.Flags().String("fee", "10iov", "amount of the fee")
-	return cmd
-}
-
-func getCmdUpsertLevelFee(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "upsert-level-fee",
-		Short: "upsert level fee configuration",
-		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			// get flags
-			configurerStr, err := cmd.Flags().GetString("configurer")
-			if err != nil {
-				return
-			}
-			configurer, err := sdk.AccAddressFromBech32(configurerStr)
-			if err != nil {
-				return
-			}
-
-			module, err := cmd.Flags().GetString("module")
-			if err != nil {
-				return err
-			}
-
-			msgType, err := cmd.Flags().GetString("msg-type")
-			if err != nil {
-				return err
-			}
-
-			feeStr, err := cmd.Flags().GetString("fee")
-			fee, err := sdk.ParseCoin(feeStr)
-			if err != nil {
-				return err
-			}
-
-			// build msg
-			msg := &types.MsgUpsertLevelFee{
-				Configurer: configurer,
-				Module:     module,
-				MsgType:    msgType,
-				Fee:        fee,
-			}
-			// check if valid
-			if err = msg.ValidateBasic(); err != nil {
-				return err
-			}
-			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
-		},
-	}
-	// add flags
-	cmd.Flags().String("configurer", "", "configurer in bech32 format")
-	cmd.Flags().String("module", "", "what is this?")
-	cmd.Flags().String("msg-type", "", "type of the message")
-	cmd.Flags().String("fee", "10iov", "amount of the fee")
-	return cmd
-}
-
-func getCmdDeleteLevelFee(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "delete-level-fee",
-		Short: "delete level fee configuration",
-		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			// get flags
-			configurerStr, err := cmd.Flags().GetString("configurer")
-			if err != nil {
-				return
-			}
-			configurer, err := sdk.AccAddressFromBech32(configurerStr)
-			if err != nil {
-				return
-			}
-
-			module, err := cmd.Flags().GetString("module")
-			if err != nil {
-				return err
-			}
-
-			msgType, err := cmd.Flags().GetString("msg-type")
-			if err != nil {
-				return err
-			}
-
-			// build msg
-			msg := &types.MsgDeleteLevelFee{
-				Configurer: configurer,
-				Module:     module,
-				MsgType:    msgType,
-			}
-			// check if valid
-			if err = msg.ValidateBasic(); err != nil {
-				return err
-			}
-			// broadcast request
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
-		},
-	}
-	// add flags
-	cmd.Flags().String("configurer", "", "configurer in bech32 format")
-	cmd.Flags().String("module", "", "what is this?")
-	cmd.Flags().String("msg-type", "", "type of the message")
-	cmd.Flags().String("fee", "10iov", "amount of the fee")
+	cmd.Flags().Uint32("resource-max", uint32(defaultNumber), "maximum number of resources could be saved under an account")
+	cmd.Flags().Uint64("certificate-size-max", uint64(defaultNumber), "maximum size of a certificate that could be saved under an account")
+	cmd.Flags().Uint32("certificate-count-max", uint32(defaultNumber), "maximum number of certificates that could be saved under an account")
+	cmd.Flags().Uint64("metadata-size-max", uint64(defaultNumber), "maximum size of metadata that could be saved under an account")
 	return cmd
 }

@@ -1,9 +1,91 @@
-# Changelog 
+# Changelog
 
 ## HEAD
+- fix export genesis function
+- fix domain renewal disallowed after grace period
+- BREAKING: change Account.name type to pointer
+- BREAKING: refactor domain and account keeper by dividing in two
+- BREAKING: remove index package
+- add crud store
+- add helm chart
 
+## v0.4.5
+- CHANGE: bump cosmos-sdk and tendermint version
+- FIX: AccountRenewalCountMax and DomainRenewalCountMax bumped at configuration update
+- FIX: fix cli tests
+- FIX: fix domain renewal
+- Implement block-metrics
+- disable block metrics CI
+
+## v0.4.4
+
+- fix: iovnscli get config
+- REST: rename /domain/ query path to /starname/
+- REST: rename FromOwner to WithOwner
+- CLI: Add broker field to registerDomain and registerAccount
+- FIX: fix fee deduct and improve tests
+- FIX: TransferDomain flushes empty account content
+- Implement faucet
+
+## v0.4.3
+
+- Add configuration module rest features
+- Sync swagger ui with recent changes
+- Rename resolve-domain to domain-info, resolve-account to resolve
+- Alias iovnscli domain to iovnscli starname
+- Change account target blockchain id in genesis to blockhain_id
+
+## v0.4.2
+
+- Add cli tests
+- Fix domain query responses
+- Resolve account by starname functionality
+- Normalize fee parameter names
+
+## v0.4.1
+
+- Enable gitian on travis builds
+
+### Breaking changes
+- rename targets to resource
+- Implement fee payer functionality
+
+## v0.4.0
+
+- change reconciliate with new fee calculator spec
+- fix multisig message length
+- add ledger support
+- Integrate gitian builds
+- Remove account renew field in types.Domain
+- Improve json field names in msgs
+- Improve iovnscli tx add-certs error handling
+- Fix delete domain handler
+- Enable empty account queries
+
+## v0.3.0
+- fix account controller max renew exceed
+- add tests to account handlers in domain
+- reconcile domain spec
+- treat handler as orchestrator
+- extend keeper functionality
+- move all errors/authorization checks to handlers
+- introduce domain and account controllers
 - upgrade cosmos-sdk to v0.38.4
 - iovnsd: fix fee colletor address
+- iovnscli: certificates accepted in base64 json
+
+### Breaking changes
+
+- change hasSuperUser to DomainType
+- Open domain's admin is changed from zero address to normal address
+- Recon configuration
+- Recon register account handler
+- Recon transfer account handler
+- Recon delete account handler
+- Recon replace account targets handler
+- Recon add account certs handler
+- Recon delete account cert handler
+- Recon replace metadata handler
 
 ## v0.2.5
 
@@ -13,7 +95,7 @@
 
 ## v0.2.4
 
-- domain grace period is time.duration now 
+- domain grace period is time.duration now
 - refactor configuration module to be used with multisig wallets
 - allow empty account name on msg.Validate()
 - enable fees for all domain module handlers
@@ -25,7 +107,7 @@
 
 ### Breaking changes
 
-- configuration struct signature in genesis file changed 
+- configuration struct signature in genesis file changed
 
 ## 0.2.3
 
@@ -33,7 +115,7 @@
 - add resolve certificates
 - add resolve blockchain targets
 - add generalized indexing strategy
-- abstract indexing 
+- abstract indexing
 - iovnscli: accept certificate as file
 
 ### Breaking changes
