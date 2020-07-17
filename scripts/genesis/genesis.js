@@ -83,7 +83,7 @@ const main = async () => {
                amount: "1000000000"
             }
          },
-         domain: {
+         starname: {
             domains: [
                {
                   account_renew: "31557600",

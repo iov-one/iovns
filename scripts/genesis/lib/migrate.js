@@ -367,7 +367,7 @@ export const addGentxs = ( gentxs, home ) => {
 export const patchJestnet = genesis => {
    if ( genesis.chain_id != "jestnet" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != jestnet.` );
 
-   genesis.app_state.domain.domains[0].account_renew = "3600";
+   genesis.app_state.starname.domains[0].account_renew = "3600";
 }
 
 /**
@@ -542,14 +542,14 @@ export const patchGalaxynet = genesis => {
          account.value.address = hackMultisig[account["//id"]];
       }
    } );
-   genesis.app_state.domain.domains.forEach( domain => {
+   genesis.app_state.starname.domains.forEach( domain => {
       if ( domain.admin.toLowerCase().indexOf( "custodia" ) != -1 ) {
          domain.admin = hackCustodianStar1;
       } else if ( domain.type == "open" ) {
          domain.admin = hackMultisig["IOV SAS"];
       }
    } );
-   genesis.app_state.domain.accounts.forEach( account => {
+   genesis.app_state.starname.accounts.forEach( account => {
       if ( account.owner.toLowerCase().indexOf( "custodia" ) != -1 ) {
          account.owner = hackCustodianStar1;
       }
@@ -577,8 +577,8 @@ export const patchGalaxynet = genesis => {
       hasValidUntils.forEach( hasValidUntil => hasValidUntil.valid_until = String( validUntil ) );
    };
 
-   fixTransients( genesis.app_state.domain.domains );
-   fixTransients( genesis.app_state.domain.accounts );
+   fixTransients( genesis.app_state.starname.domains );
+   fixTransients( genesis.app_state.starname.accounts );
 
    // use uvoi as the token denomination
    genesis.app_state.auth.accounts.forEach( account => account.value.coins[0].denom = "uvoi" );
@@ -647,7 +647,7 @@ export const patchMainnet = genesis => {
       custodian.value.coins[0].amount = String( +custodian.value.coins[0].amount - amount );
 
       // remove custody of starname
-      const starname = genesis.app_state.domain.accounts.find( account => account.domain == domain && account.name == name );
+      const starname = genesis.app_state.starname.accounts.find( account => account.domain == domain && account.name == name );
       if ( !starname ) throw new Error( `Starname doesn't exist for ${recover[1]}!` );
       starname.owner = address;
 
@@ -698,8 +698,8 @@ export const migrate = args => {
    // ...mutate genesis
    genesis.app_state.auth.accounts.push( ...Object.values( accounts ) );
    genesis.app_state.auth.accounts.push( ...Object.values( escrows ) );
-   genesis.app_state.domain.accounts.push( ...starnames );
-   genesis.app_state.domain.domains.push( ...domains );
+   genesis.app_state.starname.accounts.push( ...starnames );
+   genesis.app_state.starname.domains.push( ...domains );
 
    if ( patch ) patch( genesis );
 

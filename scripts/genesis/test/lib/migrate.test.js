@@ -305,7 +305,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                amount: "1000000000"
             }
          },
-         domain: {
+         starname: {
             domains: [
                {
                   name: "iov",
@@ -856,11 +856,11 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
    it( `Should patch jestnet.`, async () => {
       const genesisCopy = JSON.parse( JSON.stringify( genesis ) );
-      const previous = genesisCopy.app_state.domain.domains[0].account_renew;
+      const previous = genesisCopy.app_state.starname.domains[0].account_renew;
 
       patchJestnet( genesisCopy );
 
-      const current = genesisCopy.app_state.domain.domains[0].account_renew;
+      const current = genesisCopy.app_state.starname.domains[0].account_renew;
 
       expect( current ).not.toEqual( previous );
       expect( current ).toEqual( "3600" );
@@ -946,7 +946,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       previous.push( ...JSON.parse( JSON.stringify( accounts ) ) );
       genesisCopy.app_state.auth.accounts = [].concat( previous );
       genesisCopy.chain_id = "iovns-galaxynet";
-      genesisCopy.app_state.domain.domains = [
+      genesisCopy.app_state.starname.domains = [
          {
             "account_renew": "315576000",
             "admin": multisigs.iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq.star1,
@@ -965,7 +965,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "valid_until": "1609415999"
          },
       ];
-      genesisCopy.app_state.domain.accounts = [
+      genesisCopy.app_state.starname.accounts = [
          {
             "//iov1": "iov1akhp7t0gtuaq4dwdw6qf0nvv6d2vf4vz8kwyl8",
             "broker": null,
@@ -1046,10 +1046,10 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( config.domain_renew_period ).toEqual( "300000000000" );
       expect( config.metadata_size_max ).toEqual( "1000" );
 
-      const iov = genesisCopy.app_state.domain.domains.find( domain => domain.name == "iov" );
-      const zeros = genesisCopy.app_state.domain.domains.find( domain => domain.name == "0000" );
-      const dots = genesisCopy.app_state.domain.accounts.find( account => account.name == "..." );
-      const claudiu  = genesisCopy.app_state.domain.accounts.find( account => account.name == "01node" );
+      const iov = genesisCopy.app_state.starname.domains.find( domain => domain.name == "iov" );
+      const zeros = genesisCopy.app_state.starname.domains.find( domain => domain.name == "0000" );
+      const dots = genesisCopy.app_state.starname.accounts.find( account => account.name == "..." );
+      const claudiu  = genesisCopy.app_state.starname.accounts.find( account => account.name == "01node" );
       const escrow  = genesisCopy.app_state.auth.accounts.find( account => account["//id"] == "escrow isabella*iov" );
 
       expect( iov ).toBeTruthy();
@@ -1113,7 +1113,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "sequence": 0
          }
       } );
-      genesisCopy.app_state.domain.accounts.push( {
+      genesisCopy.app_state.starname.accounts.push( {
          "//iov1": "iov14qk7zrz2ewhdmy7cjj68sk6jn3rst4vd7u930y",
          "broker": null,
          "certificates": null,
@@ -1146,7 +1146,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
          "targets": null,
          "valid_until": "1609415999"
       } );
-      genesisCopy.app_state.domain.domains.push( {
+      genesisCopy.app_state.starname.domains.push( {
          "//iov1": "iov12gd6weg7py6vs7ujn22h82422arek8cxzhe85p",
          "account_renew": "315576000",
          "admin": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
@@ -1175,31 +1175,31 @@ describe( "Tests ../../lib/migrate.js.", () => {
       } );
 
       const accounts0 = [].concat( genesisCopy.app_state.auth.accounts );
-      const starnames0 = [].concat( genesisCopy.app_state.domain.accounts );
+      const starnames0 = [].concat( genesisCopy.app_state.starname.accounts );
       const custodian0 = JSON.parse( JSON.stringify( accounts0.find( account => account["//id"] == "Custodian of missing star1 accounts" ) ) );
 
       patchMainnet( genesisCopy );
 
       expect( genesisCopy.app_state.auth.accounts.length ).toEqual( accounts0.length + 3 ); // charlie, gilles, misang
-      expect( genesisCopy.app_state.domain.accounts.length ).toEqual( starnames0.length );
+      expect( genesisCopy.app_state.starname.accounts.length ).toEqual( starnames0.length );
 
       const custodian = genesisCopy.app_state.auth.accounts.find( account => account["//id"] == "Custodian of missing star1 accounts" );
       const charliefAmount = 700666 * 1e6;
       const charliestar1 = "star1k9ktkefsdxtydga262re596agdklwjmrf9et90";
       const charlief = genesisCopy.app_state.auth.accounts.find( account => account.value.address == charliestar1 );
-      const charliefiov = genesisCopy.app_state.domain.accounts.find( account => account.owner == charliestar1 );
+      const charliefiov = genesisCopy.app_state.starname.accounts.find( account => account.owner == charliestar1 );
       const gillesdAmount = 1111111 * 1e6;
       const gillesdstar1 = "star1keaxspy5rgw84azg5w640pp8zdla72ra0n5xh2";
       const gillesd = genesisCopy.app_state.auth.accounts.find( account => account.value.address == gillesdstar1 );
-      const gillesdiov = genesisCopy.app_state.domain.accounts.find( account => account.owner == gillesdstar1 );
+      const gillesdiov = genesisCopy.app_state.starname.accounts.find( account => account.owner == gillesdstar1 );
       const misangAmount = 122534 * 1e6;
       const misangstar1 = "star1lgh6ekcnkufs4742qr5znvtlz4vglul9g2p6xl";
       const misang = genesisCopy.app_state.auth.accounts.find( account => account.value.address == misangstar1 );
-      const misangiov = genesisCopy.app_state.domain.accounts.find( account => account.owner == misangstar1 );
+      const misangiov = genesisCopy.app_state.starname.accounts.find( account => account.owner == misangstar1 );
       const adrianstar1 = "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt";
-      const adrian       = genesisCopy.app_state.domain.domains.find( domain => domain.owner == adrianstar1 && domain.name == "adrian" );
-      const adrianirimia = genesisCopy.app_state.domain.domains.find( domain => domain.owner == adrianstar1 && domain.name == "adrianirimia" );
-      const world        = genesisCopy.app_state.domain.domains.find( domain => domain.owner == adrianstar1 && domain.name == "world" );
+      const adrian       = genesisCopy.app_state.starname.domains.find( domain => domain.owner == adrianstar1 && domain.name == "adrian" );
+      const adrianirimia = genesisCopy.app_state.starname.domains.find( domain => domain.owner == adrianstar1 && domain.name == "adrianirimia" );
+      const world        = genesisCopy.app_state.starname.domains.find( domain => domain.owner == adrianstar1 && domain.name == "world" );
 
       expect( custodian.value.coins[0].amount ).toEqual( String( +custodian0.value.coins[0].amount - charliefAmount - gillesdAmount - misangAmount ) );
       expect( charlief.value.coins[0].amount ).toEqual( String( charliefAmount ) );
@@ -1768,8 +1768,8 @@ describe( "Tests ../../lib/migrate.js.", () => {
          };
       };
 
-      fixTransients( nextGen.app_state.domain.domains, genesis.app_state.domain.domains );
-      fixTransients( nextGen.app_state.domain.accounts, genesis.app_state.domain.accounts );
+      fixTransients( nextGen.app_state.starname.domains, genesis.app_state.starname.domains );
+      fixTransients( nextGen.app_state.starname.accounts, genesis.app_state.starname.accounts );
 
       // ...comparing
       compareObjects( nextGen, genesis );
