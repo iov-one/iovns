@@ -1,0 +1,22 @@
+{
+   "name": "scripts",
+   "version": "1.0.0",
+   "description": "Scripts that test the testnet deployments",
+   "scripts": {
+      "test": "node -r dotenv/config -r esm jestesm.js --globalSetup ./test/jestSetup.js --globalTeardown ./test/jestTeardown.js --testEnvironment node --runInBand --testTimeout=20000"
+   },
+   "repository": "https://github.com/iov-one/easy-testnets",
+   "author": "admin@iov.one",
+   "license": "MIT",
+   "dependencies": {
+      "dotenv": "^8.2.0",
+      "esm": "^3.2.25",
+      "js-base64": "^2.5.2",
+      "node-fetch": "^2.6.0",
+      "node-forge": "^0.9.1",
+      "tmp": "^0.2.1"
+   },
+   "devDependencies": {
+      "jest": "^26.0.1"
+   }
+}
