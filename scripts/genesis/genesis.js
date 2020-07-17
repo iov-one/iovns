@@ -12,7 +12,7 @@ const main = async () => {
    const mainnet = process.argv[2].indexOf( "mainnet" ) != -1;
    const chain_id = mainnet ? "iov-mainnet-2" : "iovns-galaxynet";
    const home = mainnet ? path.join( __dirname, "data", chain_id ) : path.join( __dirname, "data", "galaxynet" );
-   const gentxs = mainnet ? path.join( __dirname, "data", "gentxs" ) : undefined;
+   const gentxs = mainnet ? path.join( __dirname, "data", chain_id, "gentxs" ) : path.join( __dirname, "data", "galaxynet", "gentxs" );
    const patch = mainnet ? patchMainnet : patchGalaxynet;
 
    // genesis file scaffolding
