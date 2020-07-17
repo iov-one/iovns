@@ -85,7 +85,7 @@ script:
       fi;
     fi;
   - iovnsd version --long
-  - curl --fail https://gist.githubusercontent.com/davepuchyr/e1482e63cb81443cde1616f353c4779f/raw/genesis.json > genesis.json
+  - curl --fail https://www.avaritia.com/genesis-test.json > genesis.json
   - export CHAIN_ID=$(jq -r .chain_id genesis.json)
   - iovnsd init ${CHAIN_ID} --chain-id ${CHAIN_ID} > /dev/null 2> /dev/null
   - mv genesis.json ~/.iovnsd/config
