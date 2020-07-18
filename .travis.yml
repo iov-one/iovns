@@ -20,6 +20,12 @@ addons:
       - docker-ce
       - apt-cacher-ng
 
+install:
+  - . $HOME/.nvm/nvm.sh
+  - nvm install 'lts/*'
+  - nvm use 'lts/*'
+  - npm install
+
 cache:
   directories:
     - $HOME/.cache/go-build
@@ -47,37 +53,53 @@ script:
   - export TRAVIS_COMMIT_MESSAGE=`cat commit.msg` && rm -rf commit.msg
   - docker run -it --rm --env-file env.list -v "$(pwd):/usr/src/app" iov1ops/danger:latest > danger.out; cat danger.out
   - if [[ "$TRAVIS_GO_VERSION" == "$MAIN_GO_VERSION" && "$TRAVIS_OS_NAME" == "linux" ]]; then
-    release_latest=$( [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_TAG" == "" && "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]] && echo "yes" || echo "no" );
-    release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
+      release_latest=$( [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_TAG" == "" && "$TRAVIS_PULL_REQUEST_BRANCH" == "" ]] && echo "yes" || echo "no" );
+      release_tag=$( [[ "$TRAVIS_TAG" != "" ]] && echo "yes" || echo "no" );
 
-    if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
-    ./contrib/gitian-build.sh linux ;
-    mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
-    docker build --pull --tag ${IMAGE_NAME} . ;
-    cd cmd/faucet && make build && docker build --pull --tag ${FAUCET_IMAGE_NAME} . ;
+      if [[ $release_latest == "yes" || $release_tag == "yes" ]]; then
+        ./contrib/gitian-build.sh linux ;
+        mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
+        docker build --pull --tag ${IMAGE_NAME} . ;
+        cd cmd/faucet && make build && docker build --pull --tag ${FAUCET_IMAGE_NAME} . ;
+      fi;
+
+      if [[ $release_latest == "yes" ]]; then
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+        docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:latest" ;
+        docker push "iov1/iovns:latest";
+
+        docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:latest" ;
+        docker push "iov1/iovns-faucet:latest";
+        docker logout;
+      fi;
+
+      if [[ $release_tag == "yes" ]]; then
+        docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+        docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:$TRAVIS_TAG" ;
+        docker push "iov1/iovns:$TRAVIS_TAG";
+
+        docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:$TRAVIS_TAG" ;
+        docker push "iov1/iovns-faucet:$TRAVIS_TAG";
+
+        docker logout;
+      fi;
     fi;
-
-    if [[ $release_latest == "yes" ]]; then
-    docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-    docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:latest" ;
-    docker push "iov1/iovns:latest";
-
-    docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:latest" ;
-    docker push "iov1/iovns-faucet:latest";
-    docker logout;
-    fi;
-
-    if [[ $release_tag == "yes" ]]; then
-    docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
-    docker tag  "iov1/iovns:${BUILD_VERSION}" "iov1/iovns:$TRAVIS_TAG" ;
-    docker push "iov1/iovns:$TRAVIS_TAG";
-
-    docker tag  "iov1/iovns-faucet:${BUILD_VERSION}" "iov1/iovns-faucet:$TRAVIS_TAG" ;
-    docker push "iov1/iovns-faucet:$TRAVIS_TAG";
-
-    docker logout;
-    fi;
-    fi;
+  - iovnsd version --long
+  - curl --fail https://gist.githubusercontent.com/davepuchyr/e1482e63cb81443cde1616f353c4779f/raw/genesis.json > genesis.json
+  - export CHAIN_ID=$(jq -r .chain_id genesis.json)
+  - iovnsd init ${CHAIN_ID} --chain-id ${CHAIN_ID} > /dev/null 2> /dev/null
+  - mv genesis.json ~/.iovnsd/config
+  - iovnscli config chain-id ${CHAIN_ID}
+  - iovnscli config trust-node true
+  - iovnscli config keyring-backend test
+  - iovnscli keys add ${CHAIN_ID} --no-backup
+  - iovnsd add-genesis-account $(iovnscli keys show ${CHAIN_ID} -a) 1112111000000uvoi
+  - iovnsd gentx --name ${CHAIN_ID} --keyring-backend test --amount 1111111000000uvoi
+  - iovnsd collect-gentxs > /dev/null 2> /dev/null
+  - iovnsd validate-genesis
+  - iovnsd start --minimum-gas-prices='10.0uvoi' > /dev/null &
+  - iovnscli rest-server --trust-node true --chain-id ${CHAIN_ID} --node http://localhost:26657 > /dev/null &
+  - cd scripts/integration && yarn install && yarn test
 
 notifications:
   email: false
