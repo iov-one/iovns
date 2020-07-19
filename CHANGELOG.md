@@ -1,6 +1,8 @@
 # Changelog
 
 ## HEAD
+- fix empty account name ambiguity
+- BREAKING: use cosmos-sdk v0.39 (Launchpad)
 - fix export genesis function
 - fix domain renewal disallowed after grace period
 - BREAKING: change Account.name type to pointer
