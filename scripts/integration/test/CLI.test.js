@@ -1,5 +1,5 @@
 import { Base64 } from "js-base64";
-import { gasPrices, iovnscli, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, writeTmpJson } from "./common";
+import { gasPrices, iovnscli, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, w2, writeTmpJson } from "./common";
 import forge from "node-forge";
 
 "use strict";
@@ -214,5 +214,141 @@ describe( "Tests the CLI.", () => {
 
       expect( broadcasted.gas_used ).toBeDefined();
       expect( +balance.value.coins[0].amount + parseFloat( gasPrices ) * broadcasted.gas_wanted ).toBeGreaterThan( +balance0.value.coins[0].amount );
+   } );
+
+
+   it( `Should register a domain, register an account, transfer the domain with reset flag 0 (TransferFlush), and query domain-info.`, async () => {
+      const transferFlag = "0";
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      const name = `${Math.floor( Math.random() * 1e9 )}`;
+      const metadata = "Why the uri suffix?";
+      const metadataEmpty = "top-level corporate info"; // metadata for the empty account
+      const registerDomain = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadata = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadataEmpty = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadataEmpty, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
+
+      unsigned.value.msg.push( registerAccount.value.msg[0] );
+      unsigned.value.msg.push( setMetadata.value.msg[0] );
+      unsigned.value.msg.push( setMetadataEmpty.value.msg[0] );
+      unsigned.value.fee.amount[0].amount = "100000000";
+      unsigned.value.fee.gas = "600000";
+
+      const broadcasted = signAndBroadcastTx( unsigned );
+
+      expect( broadcasted.gas_used ).toBeDefined();
+      if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
+
+      const resolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const resolvedEmpty = iovnscli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
+
+      expect( resolved.account.domain ).toEqual( domain );
+      expect( resolved.account.name ).toEqual( name );
+      expect( resolved.account.owner ).toEqual( signer );
+      expect( resolved.account.metadata_uri ).toEqual( metadata );
+      expect( resolvedEmpty.account.owner ).toEqual( signer );
+      expect( resolvedEmpty.account.metadata_uri ).toEqual( metadataEmpty );
+
+      const recipient = w1;
+      const transferred = iovnscli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+
+      expect( transferred.gas_used ).toBeDefined();
+      if ( !transferred.logs ) throw new Error( transferred.raw_log );
+
+      const newDomainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
+      const newResolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const newResolvedEmpty = iovnscli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
+
+      expect( newDomainInfo.domain.name ).toEqual( domain );
+      expect( newDomainInfo.domain.admin ).toEqual( recipient );
+      expect( newResolved.error ).toBeTruthy();
+      expect( newResolvedEmpty.account.owner ).toEqual( recipient );
+      expect( newResolvedEmpty.account.metadata_uri ).toEqual( "" );
+   } );
+
+
+   it( `Should register a domain, register an account, transfer the domain with reset flag 1 (TransferOwned), and query domain-info.`, async () => {
+      const transferFlag = "1";
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      const name = `${Math.floor( Math.random() * 1e9 )}`;
+      const nameOther = `${Math.floor( Math.random() * 1e9 )}`;
+      const other = w2; // 3rd party account owner in this case
+      const metadata = "Why the uri suffix?";
+      const metadataEmpty = "top-level corporate info"; // metadata for the empty account
+      const registerDomain = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccountOther = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", nameOther, "--owner", other, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadata = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadataEmpty = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", "", "--metadata", metadataEmpty, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
+
+      unsigned.value.msg.push( registerAccount.value.msg[0] );
+      unsigned.value.msg.push( registerAccountOther.value.msg[0] );
+      unsigned.value.msg.push( setMetadata.value.msg[0] );
+      unsigned.value.msg.push( setMetadataEmpty.value.msg[0] );
+      unsigned.value.fee.amount[0].amount = "100000000";
+      unsigned.value.fee.gas = "600000";
+
+      const broadcasted = signAndBroadcastTx( unsigned );
+
+      expect( broadcasted.gas_used ).toBeDefined();
+      if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
+
+      const resolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const resolvedEmpty = iovnscli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
+      const resolvedOther = iovnscli( [ "query", "starname", "resolve", "--starname", `${nameOther}*${domain}` ] );
+
+      expect( resolved.account.domain ).toEqual( domain );
+      expect( resolved.account.name ).toEqual( name );
+      expect( resolved.account.owner ).toEqual( signer );
+      expect( resolved.account.metadata_uri ).toEqual( metadata );
+      expect( resolvedEmpty.account.owner ).toEqual( signer );
+      expect( resolvedEmpty.account.metadata_uri ).toEqual( metadataEmpty );
+      expect( resolvedOther.account.owner ).toEqual( other );
+
+      const recipient = w1;
+      const transferred = iovnscli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--transfer-flag", transferFlag, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+
+      expect( transferred.gas_used ).toBeDefined();
+      if ( !transferred.logs ) throw new Error( transferred.raw_log );
+
+      const newDomainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
+      const newResolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      const newResolvedEmpty = iovnscli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
+      const newResolvedOther = iovnscli( [ "query", "starname", "resolve", "--starname", `${nameOther}*${domain}` ] );
+
+      expect( newDomainInfo.domain.name ).toEqual( domain );
+      expect( newDomainInfo.domain.admin ).toEqual( recipient );
+      expect( newResolved.account.owner ).toEqual( recipient );
+      expect( newResolved.account.metadata_uri ).toEqual( metadata );
+      expect( newResolvedEmpty.account.owner ).toEqual( recipient );
+      expect( newResolvedEmpty.account.metadata_uri ).toEqual( metadataEmpty );
+      expect( newResolvedOther.account.owner ).toEqual( other );
+   } );
+
+
+   it( `Should register a domain, transfer it with reset flag 2 (ResetNone, the default), and query domain-info.`, async () => {
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      const registered = iovnscli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+
+      expect( registered.txhash ).toBeDefined();
+      if ( !registered.logs ) throw new Error( registered.raw_log );
+
+      const domainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
+
+      expect( domainInfo.domain.name ).toEqual( domain );
+      expect( domainInfo.domain.admin ).toEqual( signer );
+
+      const recipient = w1;
+      const transferred = iovnscli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+
+      expect( transferred.txhash ).toBeDefined();
+      if ( !transferred.logs ) throw new Error( transferred.raw_log );
+
+      const newDomainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
+
+      expect( newDomainInfo.domain.name ).toEqual( domain );
+      expect( newDomainInfo.domain.admin ).toEqual( recipient );
    } );
 } );
