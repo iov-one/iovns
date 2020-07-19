@@ -1,5 +1,5 @@
 import { Base64 } from "js-base64";
-import { fetchObject, gasPrices, iovnscli, memo, msig1, msig1SignTx, signAndPost, signer, urlRest, w1, writeTmpJson } from "./common";
+import { gasPrices, iovnscli, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, writeTmpJson } from "./common";
 import forge from "node-forge";
 
 "use strict";
@@ -49,8 +49,8 @@ describe( "Tests the CLI.", () => {
 
 
    it( `Should update fees.`, async () => {
-      const fees0 = await fetchObject( `${urlRest}/configuration/query/fees`, { method: "POST" } );
-      const fees = JSON.parse( JSON.stringify( fees0.result.fees ) );
+      const fees0 = iovnscli( [ "query", "configuration", "get-fees" ] );
+      const fees = JSON.parse( JSON.stringify( fees0.fees ) );
 
       Object.keys( fees ).forEach( key => {
          if ( isFinite( parseFloat( fees[key] ) ) ) {
@@ -62,7 +62,7 @@ describe( "Tests the CLI.", () => {
       const signed = msig1SignTx( [ "tx", "configuration", "update-fees", "--from", msig1, "--fees-file", feesTmp, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const signedTmp = writeTmpJson( signed );
       const broadcasted = iovnscli( [ "tx", "broadcast", signedTmp, "--broadcast-mode", "block", "--gas-prices", gasPrices ] );
-      const updated = await fetchObject( `${urlRest}/configuration/query/fees`, { method: "POST" } );
+      const updated = iovnscli( [ "query", "configuration", "get-fees" ] );
       const compare = ( had, got ) => {
          Object.keys( had ).forEach( key => {
             if ( isFinite( parseFloat( had[key] ) ) ) {
@@ -74,17 +74,17 @@ describe( "Tests the CLI.", () => {
       };
 
       expect( broadcasted.gas_used ).toBeDefined();
-      compare( fees, updated.result.fees );
+      compare( fees, updated.fees );
 
       // restore original fees
-      const fees0Tmp = writeTmpJson( fees0.result.fees );
+      const fees0Tmp = writeTmpJson( fees0.fees );
       const signed0 = msig1SignTx( [ "tx", "configuration", "update-fees", "--from", msig1, "--fees-file", fees0Tmp, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const signed0Tmp = writeTmpJson( signed0 );
       const restore = iovnscli( [ "tx", "broadcast", signed0Tmp, "--broadcast-mode", "block", "--gas-prices", gasPrices ] );
-      const restored = await fetchObject( `${urlRest}/configuration/query/fees`, { method: "POST" } );
+      const restored = iovnscli( [ "query", "configuration", "get-fees" ] );
 
       expect( restore.gas_used ).toBeDefined();
-      compare( fees0.result.fees, restored.result.fees );
+      compare( fees0.fees, restored.fees );
    } );
 
 
@@ -101,19 +101,20 @@ describe( "Tests the CLI.", () => {
       unsigned.value.fee.amount[0].amount = "100000000";
       unsigned.value.fee.gas = "400000";
 
-      const posted = await signAndPost( unsigned );
-      const body = { starname: `${name}*${domain}` };
-      const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
+      const broadcasted = signAndBroadcastTx( unsigned );
+      const resolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
 
-      expect( posted.ok ).toEqual( true );
-      expect( resolved.result.account.domain ).toEqual( domain );
-      expect( resolved.result.account.name ).toEqual( name );
-      expect( resolved.result.account.owner ).toEqual( signer );
-      expect( resolved.result.account.certificates[0] ).toEqual( base64 );
-      expect( Base64.decode( resolved.result.account.certificates[0] ) ).toEqual( certificate0 );
+      expect( broadcasted.gas_used ).toBeDefined();
+      if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
+
+      expect( resolved.account.domain ).toEqual( domain );
+      expect( resolved.account.name ).toEqual( name );
+      expect( resolved.account.owner ).toEqual( signer );
+      expect( resolved.account.certificates[0] ).toEqual( base64 );
+      expect( Base64.decode( resolved.account.certificates[0] ) ).toEqual( certificate0 );
 
       // verify signature
-      const decoded = Base64.decode( resolved.result.account.certificates[0] );
+      const decoded = Base64.decode( resolved.account.certificates[0] );
       const message = decoded.match( /{"cert": (.*), "signature"/ )[1]; // fragile!
       const certificate = JSON.parse( decoded );
       const verified = forge.ed25519.verify( {
@@ -141,19 +142,20 @@ describe( "Tests the CLI.", () => {
       unsigned.value.fee.amount[0].amount = "100000000";
       unsigned.value.fee.gas = "400000";
 
-      const posted = await signAndPost( unsigned );
-      const body = { starname: `${name}*${domain}` };
-      const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
+      const broadcasted = signAndBroadcastTx( unsigned );
+      const resolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
 
-      expect( posted.ok ).toEqual( true );
-      expect( resolved.result.account.domain ).toEqual( domain );
-      expect( resolved.result.account.name ).toEqual( name );
-      expect( resolved.result.account.owner ).toEqual( signer );
-      expect( resolved.result.account.certificates[0] ).toEqual( base64 );
-      expect( Base64.decode( resolved.result.account.certificates[0] ) ).toEqual( invalid );
+      expect( broadcasted.gas_used ).toBeDefined();
+      if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
+
+      expect( resolved.account.domain ).toEqual( domain );
+      expect( resolved.account.name ).toEqual( name );
+      expect( resolved.account.owner ).toEqual( signer );
+      expect( resolved.account.certificates[0] ).toEqual( base64 );
+      expect( Base64.decode( resolved.account.certificates[0] ) ).toEqual( invalid );
 
       // verify signature
-      const decoded = Base64.decode( resolved.result.account.certificates[0] );
+      const decoded = Base64.decode( resolved.account.certificates[0] );
       const message = decoded.match( /{"cert": (.*), "signature"/ )[1]; // fragile!
       const certificate = JSON.parse( decoded );
       const verified = forge.ed25519.verify( {
@@ -168,7 +170,7 @@ describe( "Tests the CLI.", () => {
    } )
 
 
-   it.only( `Should register a domain with a broker.`, async () => {
+   it( `Should register a domain with a broker.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const broker = w1;
 
@@ -177,9 +179,10 @@ describe( "Tests the CLI.", () => {
       expect( registered.txhash ).toBeDefined();
       if ( !registered.logs ) throw new Error( registered.raw_log );
 
-      const domainInfo = iovnscli( [ "query", "tx", registered.txhash ] );
+      const domainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
 
-      expect( domainInfo.result.domain.broker ).toEqual( broker );
+      expect( domainInfo.domain.name ).toEqual( domain );
+      expect( domainInfo.domain.broker ).toEqual( broker );
    } );
 
 
@@ -189,11 +192,15 @@ describe( "Tests the CLI.", () => {
       const broker = w1;
 
       const registered = iovnscli( [ "tx", "starname", "register-account", "--yes", "--broadcast-mode", "block", "--domain", domain, "--name", name, "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
-      const body = { starname: `${name}*${domain}` };
-      const resolved = await fetchObject( `${urlRest}/starname/query/resolve`, { method: "POST", body: JSON.stringify( body ) } );
 
       expect( registered.txhash ).toBeDefined();
-      expect( resolved.result.account.broker ).toEqual( broker );
+      if ( !registered.logs ) throw new Error( registered.raw_log );
+
+      const resolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+
+      expect( resolved.account.domain ).toEqual( domain );
+      expect( resolved.account.name ).toEqual( name );
+      expect( resolved.account.broker ).toEqual( broker );
    } );
 
 

@@ -67,6 +67,16 @@ export const signAndPost = async ( unsigned, from = signer ) => {
 };
 
 
+export const signAndBroadcastTx = ( unsigned, from = signer ) => {
+   const unsignedTmp = writeTmpJson( unsigned );
+   const args = [ "tx", "sign", unsignedTmp, "--from", from ];
+   const signed = iovnscli( args );
+   const signedTmp = writeTmpJson( signed );
+   const broadcasted = iovnscli( [ "tx", "broadcast", signedTmp, "--broadcast-mode", "block", "--gas-prices", gasPrices ] );
+
+   return broadcasted;
+};
+
 export const fetchObject = async ( url, options ) => {
    const fetched = await fetch( url, options );
    const o = await fetched.json();
