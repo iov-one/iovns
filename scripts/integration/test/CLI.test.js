@@ -168,14 +168,17 @@ describe( "Tests the CLI.", () => {
    } )
 
 
-   it( `Should register a domain with a broker.`, async () => {
+   it.only( `Should register a domain with a broker.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const broker = w1;
 
       const registered = iovnscli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--broker", broker, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
-      const domainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( { name: domain } ) } );
 
       expect( registered.txhash ).toBeDefined();
+      if ( !registered.logs ) throw new Error( registered.raw_log );
+
+      const domainInfo = iovnscli( [ "query", "tx", registered.txhash ] );
+
       expect( domainInfo.result.domain.broker ).toEqual( broker );
    } );
 
