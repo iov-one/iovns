@@ -5,7 +5,7 @@ import compareObjects from "./compareObjects";
 "use strict";
 
 
-describe.skip( "Tests the REST API.", () => {
+describe( "Tests the REST API.", () => {
    it( `Should get node_info.`, async () => {
       const fetched = await fetchObject( `${urlRest}/node_info` );
 
