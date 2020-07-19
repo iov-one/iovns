@@ -168,7 +168,7 @@ describe( "Tests the CLI.", () => {
    } )
 
 
-   it( `Should register a domain with a broker.`, async () => {
+   it.only( `Should register a domain with a broker.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const broker = w1;
 
