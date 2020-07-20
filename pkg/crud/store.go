@@ -292,12 +292,8 @@ func (f *Filtered) currKey() PrimaryKey {
 	return f.primaryKeys[f.counter]
 }
 
-func (f *Filtered) Next() bool {
-	if !f.Valid() {
-		return false
-	}
+func (f *Filtered) Next() {
 	f.counter++
-	return true
 }
 
 func (f *Filtered) Valid() bool {

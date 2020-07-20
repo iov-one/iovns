@@ -56,44 +56,43 @@ func (d *Domain) Delete() {
 		panic("cannot execute delete state change on non present domain")
 	}
 	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
-	for filter.Next() {
+	for ; filter.Valid(); filter.Next() {
 		filter.Delete()
 	}
 	d.domains.Delete(d.domain.PrimaryKey(), d.domain)
 }
 
-// Transferrer returns a domain transfer function based on the transfer flag
-func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) func() {
+// Transfer transfers a domain given a flag and an owner
+func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	if d.domain == nil {
 		panic("cannot execute transfer state on non defined domain")
 	}
-	return func() {
-		// transfer domain
-		var oldOwner = d.domain.Admin // cache it for future uses
-		d.domain.Admin = newOwner
-		d.domains.Update(d.domain.PrimaryKey(), d.domain)
-		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: tutils.StrPtr(types.EmptyAccountName)}) // delete empty account
-		filter.Next()
-		filter.Delete()
-		// transfer accounts of the domain based on the transfer flag
-		switch flag {
-		// reset none is simply skipped as empty account is already transferred during domain transfer
-		case types.ResetNone:
-		// transfer flush, deletes all domains accounts except the empty one since it was transferred in the first step
-		case types.TransferFlush:
-			filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
-			for filter.Next() {
-				filter.Delete()
-			}
-		// transfer owned transfers only accounts owned by the old owner
-		case types.TransferOwned:
-			filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Owner: oldOwner})
-			for filter.Next() {
-				acc := new(types.Account)
-				filter.Read(acc)
-				acc.Owner = newOwner
-				filter.Update(acc)
-			}
+
+	// transfer domain
+	var oldOwner = d.domain.Admin // cache it for future uses
+	d.domain.Admin = newOwner
+	d.domains.Update(d.domain.PrimaryKey(), d.domain)
+	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: tutils.StrPtr(types.EmptyAccountName)}) // delete empty account
+	filter.Next()
+	filter.Delete()
+	// transfer accounts of the domain based on the transfer flag
+	switch flag {
+	// reset none is simply skipped as empty account is already transferred during domain transfer
+	case types.ResetNone:
+	// transfer flush, deletes all domains accounts except the empty one since it was transferred in the first step
+	case types.TransferFlush:
+		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
+		for ; filter.Valid(); filter.Next() {
+			filter.Delete()
+		}
+	// transfer owned transfers only accounts owned by the old owner
+	case types.TransferOwned:
+		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Owner: oldOwner})
+		for ; filter.Valid(); filter.Next() {
+			acc := new(types.Account)
+			filter.Read(acc)
+			acc.Owner = newOwner
+			filter.Update(acc)
 		}
 	}
 }
