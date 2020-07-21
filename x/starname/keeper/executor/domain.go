@@ -101,10 +101,6 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			acc := new(types.Account)
 			filter.Read(acc)
 			acc.Owner = newOwner
-			// do account reset
-			acc.Resources = nil
-			acc.Certificates = nil
-			acc.MetadataURI = ""
 			// update account
 			filter.Update(acc)
 		}
