@@ -3,13 +3,13 @@ package keeper
 import (
 	"fmt"
 	"github.com/iov-one/iovns/pkg/crud"
+	"github.com/iov-one/iovns/pkg/queries"
 	"github.com/iov-one/iovns/pkg/utils"
 	"log"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/starname/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
@@ -18,8 +18,8 @@ import (
 type QueryHandlerFunc func(ctx sdk.Context, path []string, query abci.RequestQuery, k Keeper) ([]byte, error)
 
 // AvailableQueries returns the list of available queries in the module
-func AvailableQueries() []iovns.QueryHandler {
-	queries := []iovns.QueryHandler{
+func AvailableQueries() []queries.QueryHandler {
+	queries := []queries.QueryHandler{
 		&QueryAccountsInDomain{},
 		&QueryResolveDomain{},
 		&QueryResolveAccount{},
@@ -33,17 +33,17 @@ func AvailableQueries() []iovns.QueryHandler {
 // queryRouter defines a router for domain queries
 type queryRouter map[string]QueryHandlerFunc
 
-func buildRouter(queries []iovns.QueryHandler) queryRouter {
+func buildRouter(qrs []queries.QueryHandler) queryRouter {
 	// queryHandler extends the default query handler
 	// to provide also an handler function required to
 	// build a router
 	type queryHandler interface {
-		iovns.QueryHandler
+		queries.QueryHandler
 		Handler() QueryHandlerFunc
 	}
 	// build router
-	router := make(queryRouter, len(queries))
-	for _, query := range queries {
+	router := make(queryRouter, len(qrs))
+	for _, query := range qrs {
 		queryAndHandler, ok := query.(queryHandler)
 		// if interface is not implemented then the query type formation is invalid
 		if !ok {
@@ -129,7 +129,7 @@ type QueryAccountsInDomainResponse struct {
 // queryAccountsInDomainHandler returns all accounts in aliceAddr domain
 func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryAccountsInDomain)
-	err := iovns.DefaultQueryDecode(req.Data, query)
+	err := queries.DefaultQueryDecode(req.Data, query)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -163,7 +163,7 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		i++
 	}
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryAccountsInDomainResponse{Accounts: accounts})
+	respBytes, err := queries.DefaultQueryEncode(QueryAccountsInDomainResponse{Accounts: accounts})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -226,7 +226,7 @@ type QueryAccountsWithOwnerResponse struct {
 // queryAccountsWithOwnerHandler gets all the accounts related to an account address
 func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryAccountsWithOwner)
-	err := iovns.DefaultQueryDecode(req.Data, query)
+	err := queries.DefaultQueryDecode(req.Data, query)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -261,7 +261,7 @@ func queryAccountsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.Request
 		i++
 	}
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryAccountsWithOwnerResponse{Accounts: accounts})
+	respBytes, err := queries.DefaultQueryEncode(QueryAccountsWithOwnerResponse{Accounts: accounts})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -324,7 +324,7 @@ type QueryDomainsWithOwnerResponse struct {
 // queryDomainsWithOwnerHandler is the query handler used to get all the domains owned by an sdk.AccAddress
 func queryDomainsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	query := new(QueryDomainsWithOwner)
-	err := iovns.DefaultQueryDecode(req.Data, query)
+	err := queries.DefaultQueryDecode(req.Data, query)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -360,7 +360,7 @@ func queryDomainsWithOwnerHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 		filter.Next()
 		i++
 	}
-	respBytes, err := iovns.DefaultQueryEncode(QueryDomainsWithOwnerResponse{Domains: domains})
+	respBytes, err := queries.DefaultQueryEncode(QueryDomainsWithOwnerResponse{Domains: domains})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -433,7 +433,7 @@ type QueryResolveAccountResponse struct {
 // queryResolveAccountHandler is the query handler that takes care of resolving accounts
 func queryResolveAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	q := new(QueryResolveAccount)
-	err := iovns.DefaultQueryDecode(req.Data, q)
+	err := queries.DefaultQueryDecode(req.Data, q)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -449,7 +449,7 @@ func queryResolveAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQue
 		return nil, sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "not found in domain %s: %s", q.Domain, q.Name)
 	}
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryResolveAccountResponse{Account: *account})
+	respBytes, err := queries.DefaultQueryEncode(QueryResolveAccountResponse{Account: *account})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -501,7 +501,7 @@ type QueryResolveDomainResponse struct {
 // queryResolveDomainHandler takes care of resolving domains
 func queryResolveDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	q := new(QueryResolveDomain)
-	err := iovns.DefaultQueryDecode(req.Data, q)
+	err := queries.DefaultQueryDecode(req.Data, q)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -515,7 +515,7 @@ func queryResolveDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQuer
 		return nil, sdkerrors.Wrapf(types.ErrDomainDoesNotExist, "not found: %s", q.Name)
 	}
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryResolveDomainResponse{Domain: *domain})
+	respBytes, err := queries.DefaultQueryEncode(QueryResolveDomainResponse{Domain: *domain})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -566,7 +566,7 @@ type QueryResolveResourceResponse struct {
 func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	q := new(QueryResolveResource)
 	// decode query
-	err := iovns.DefaultQueryDecode(req.Data, q)
+	err := queries.DefaultQueryDecode(req.Data, q)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONUnmarshal, err.Error())
 	}
@@ -600,7 +600,7 @@ func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQu
 		i++
 	}
 	// return response
-	b, err := iovns.DefaultQueryEncode(QueryResolveResourceResponse{Accounts: accounts})
+	b, err := queries.DefaultQueryEncode(QueryResolveResourceResponse{Accounts: accounts})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}

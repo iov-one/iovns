@@ -2,10 +2,10 @@ package configuration
 
 import (
 	"fmt"
+	"github.com/iov-one/iovns/pkg/queries"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
@@ -13,8 +13,8 @@ import (
 type QueryHandlerFunc func(ctx sdk.Context, path []string, query abci.RequestQuery, k Keeper) ([]byte, error)
 
 // AvailableQueries returns the list of available queries in the module
-func AvailableQueries() []iovns.QueryHandler {
-	queries := []iovns.QueryHandler{
+func AvailableQueries() []queries.QueryHandler {
+	queries := []queries.QueryHandler{
 		&QueryConfiguration{},
 		&QueryFees{},
 	}
@@ -24,17 +24,17 @@ func AvailableQueries() []iovns.QueryHandler {
 // queryRouter defines a router for domain queries
 type queryRouter map[string]QueryHandlerFunc
 
-func buildRouter(queries []iovns.QueryHandler) queryRouter {
+func buildRouter(qrs []queries.QueryHandler) queryRouter {
 	// queryHandler extends the default query handler
 	// to provide also an handler function required to
 	// build a router
 	type queryHandler interface {
-		iovns.QueryHandler
+		queries.QueryHandler
 		Handler() QueryHandlerFunc
 	}
 	// build router
-	router := make(queryRouter, len(queries))
-	for _, query := range queries {
+	router := make(queryRouter, len(qrs))
+	for _, query := range qrs {
 		queryAndHandler, ok := query.(queryHandler)
 		// if interface is not implemented then the query type formation is invalid
 		if !ok {
@@ -89,7 +89,7 @@ func (q *QueryConfiguration) QueryPath() string {
 func queryConfigurationHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	cfg := k.GetConfiguration(ctx)
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryConfigurationResponse{Config: cfg})
+	respBytes, err := queries.DefaultQueryEncode(QueryConfigurationResponse{Config: cfg})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
@@ -125,7 +125,7 @@ func (q *QueryFees) QueryPath() string {
 func queryFeesHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keeper) ([]byte, error) {
 	fees := k.GetFees(ctx)
 	// return response
-	respBytes, err := iovns.DefaultQueryEncode(QueryFeesResponse{Fees: *fees})
+	respBytes, err := queries.DefaultQueryEncode(QueryFeesResponse{Fees: *fees})
 	if err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrJSONMarshal, err.Error())
 	}
