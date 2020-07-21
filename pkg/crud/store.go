@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"sort"
 )
 
@@ -138,7 +138,7 @@ func (s Store) primaryKeysInIndex(index SecondaryKey, do func(key PrimaryKey) bo
 // unmarshal the old object contents which is necessary for the un-indexing.
 func (s Store) Update(pk PrimaryKey, newObject Object) {
 	// get old object
-	old := tutils.CloneFromValue(newObject).(Object)
+	old := utils.CloneFromValue(newObject).(Object)
 	s.Read(pk, old)
 	// unindex old object
 	s.unindex(pk, old.SecondaryKeys())
@@ -163,7 +163,7 @@ func (s Store) deleteFromPrimary(key PrimaryKey, o Object) {
 		panic("unexisting key")
 	}
 	// clone type
-	clone := tutils.CloneFromValue(o).(Object)
+	clone := utils.CloneFromValue(o).(Object)
 	s.decode(v, clone)
 	// remove indexes
 	s.unindex(clone.PrimaryKey(), clone.SecondaryKeys())

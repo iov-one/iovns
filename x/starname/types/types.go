@@ -3,7 +3,7 @@ package types
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/iov-one/iovns/pkg/crud"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -108,7 +108,7 @@ func (a *Account) UnmarshalCRUD(cdc *codec.Codec, b []byte) {
 	cdc.MustUnmarshalBinaryBare(b, trg)
 	*a = *trg.Underlying
 	if a.Name == nil && !trg.NameNil {
-		a.Name = tutils.StrPtr("")
+		a.Name = utils.StrPtr("")
 	}
 }
 

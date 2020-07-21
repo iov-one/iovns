@@ -2,7 +2,7 @@ package executor
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
 	"testing"
@@ -21,7 +21,7 @@ func TestDomain_Transfer(t *testing.T) {
 		}
 		acc1 := types.Account{
 			Domain:       "test",
-			Name:         tutils.StrPtr("1"),
+			Name:         utils.StrPtr("1"),
 			Owner:        keeper.BobKey,
 			ValidUntil:   1,
 			Resources:    nil,
@@ -31,7 +31,7 @@ func TestDomain_Transfer(t *testing.T) {
 		}
 		acc2 := types.Account{
 			Domain:       "test",
-			Name:         tutils.StrPtr("2"),
+			Name:         utils.StrPtr("2"),
 			Owner:        keeper.BobKey,
 			ValidUntil:   1,
 			Resources:    nil,
@@ -42,7 +42,7 @@ func TestDomain_Transfer(t *testing.T) {
 		// add account not owned
 		acc3 := types.Account{
 			Domain: "test",
-			Name:   tutils.StrPtr("not-owned"),
+			Name:   utils.StrPtr("not-owned"),
 			Owner:  keeper.CharlieKey,
 		}
 		NewDomain(ctx, k, domain).Create()

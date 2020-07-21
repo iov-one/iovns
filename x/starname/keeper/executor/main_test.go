@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	tmtypes "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	db "github.com/tendermint/tm-db"
@@ -22,7 +22,7 @@ var aliceKey sdk.AccAddress
 var bobKey sdk.AccAddress
 
 func newTest() error {
-	_, addr := tutils.GeneratePrivKeyAddressPairs(2)
+	_, addr := utils.GeneratePrivKeyAddressPairs(2)
 	aliceKey = addr[0]
 	bobKey = addr[1]
 	testCdc = codec.New()

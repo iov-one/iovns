@@ -2,7 +2,7 @@ package starname
 
 import (
 	"github.com/iov-one/iovns"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/controllers/fees"
 	"github.com/iov-one/iovns/x/starname/keeper/executor"
 
@@ -135,7 +135,7 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 
 	a := types.Account{
 		Domain:       msg.Domain,
-		Name:         tutils.StrPtr(msg.Name),
+		Name:         utils.StrPtr(msg.Name),
 		Owner:        msg.Owner,
 		Resources:    msg.Resources,
 		Certificates: nil,

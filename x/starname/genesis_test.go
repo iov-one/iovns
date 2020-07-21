@@ -2,7 +2,7 @@ package starname
 
 import (
 	"encoding/json"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/keeper/executor"
 	"github.com/iov-one/iovns/x/starname/types"
@@ -21,7 +21,7 @@ func TestExportGenesis(t *testing.T) {
 	}).Create()
 	executor.NewAccount(ctx, k, types.Account{
 		Domain:      "test",
-		Name:        tutils.StrPtr("test"),
+		Name:        utils.StrPtr("test"),
 		Owner:       keeper.AliceKey,
 		ValidUntil:  100,
 		MetadataURI: "",

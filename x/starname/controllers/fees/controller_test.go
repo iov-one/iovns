@@ -1,7 +1,7 @@
 package fees
 
 import (
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -179,9 +179,9 @@ func Test_FeeApplier(t *testing.T) {
 	ds := k.DomainStore(ctx)
 	as := k.AccountStore(ctx)
 	ds.Create(&types.Domain{Name: "renew", Admin: keeper.AliceKey})
-	as.Create(&types.Account{Domain: "renew", Name: tutils.StrPtr(types.EmptyAccountName), Owner: keeper.AliceKey}) // TODO in the future this might be removed
-	as.Create(&types.Account{Domain: "renew", Name: tutils.StrPtr("1"), Owner: keeper.AliceKey})
-	as.Create(&types.Account{Domain: "renew", Name: tutils.StrPtr("2"), Owner: keeper.AliceKey})
+	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr(types.EmptyAccountName), Owner: keeper.AliceKey}) // TODO in the future this might be removed
+	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr("1"), Owner: keeper.AliceKey})
+	as.Create(&types.Account{Domain: "renew", Name: utils.StrPtr("2"), Owner: keeper.AliceKey})
 
 	k.ConfigurationKeeper.(keeper.ConfigurationSetter).SetFees(ctx, &fee)
 	for name, c := range cases {

@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/pkg/crud"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
 )
@@ -73,7 +73,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	d.domain.Admin = newOwner
 	d.domains.Update(d.domain.PrimaryKey(), d.domain)
 	// transfer empty account
-	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: tutils.StrPtr(types.EmptyAccountName)})
+	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: utils.StrPtr(types.EmptyAccountName)})
 	emptyAccount := new(types.Account)
 	filter.Read(emptyAccount)
 	ac := NewAccount(d.ctx, d.k, *emptyAccount)
@@ -114,7 +114,7 @@ func (d *Domain) Create() {
 	d.domains.Create(d.domain)
 	emptyAccount := &types.Account{
 		Domain:       d.domain.Name,
-		Name:         tutils.StrPtr(types.EmptyAccountName),
+		Name:         utils.StrPtr(types.EmptyAccountName),
 		Owner:        d.domain.Admin,
 		ValidUntil:   d.domain.ValidUntil, // is this right per spec?
 		Resources:    nil,

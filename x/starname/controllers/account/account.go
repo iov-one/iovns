@@ -3,7 +3,7 @@ package account
 import (
 	"bytes"
 	"github.com/iov-one/iovns/pkg/crud"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"regexp"
 	"time"
 
@@ -90,7 +90,7 @@ func (a *Account) requireAccount() error {
 		return nil
 	}
 	account := new(types.Account)
-	ok := a.store.Read((&types.Account{Domain: a.domain, Name: tutils.StrPtr(a.name)}).PrimaryKey(), account)
+	ok := a.store.Read((&types.Account{Domain: a.domain, Name: utils.StrPtr(a.name)}).PrimaryKey(), account)
 	if !ok {
 		return sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "%s was not found in domain %s", a.name, a.domain)
 	}

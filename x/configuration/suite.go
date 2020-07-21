@@ -4,12 +4,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 
 	"github.com/cosmos/cosmos-sdk/types"
 )
 
-var ks, addrs = tutils.GeneratePrivKeyAddressPairs(3)
+var ks, addrs = utils.GeneratePrivKeyAddressPairs(3)
 var AliceKey types.AccAddress = addrs[0]
 var BobKey types.AccAddress = addrs[1]
 var CharlieKey types.AccAddress = addrs[2]

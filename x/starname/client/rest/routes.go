@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 	"github.com/iov-one/iovns"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 )
 
 // txRouteList clubs together all the transaction routes, which are the transactions
@@ -41,7 +41,7 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string
 
 func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType iovns.QueryHandler) http.HandlerFunc {
 	// get query type
-	typ := tutils.GetPtrType(queryType)
+	typ := utils.GetPtrType(queryType)
 	// return function
 	return func(writer http.ResponseWriter, request *http.Request) {
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(writer, cliCtx, request)
@@ -49,7 +49,7 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 			return
 		}
 		// clone queryType so we can unmarshal data to it
-		query := tutils.CloneFromType(typ).(iovns.QueryHandler)
+		query := utils.CloneFromType(typ).(iovns.QueryHandler)
 		// read request bytes
 		b, err := ioutil.ReadAll(request.Body)
 		if err != nil {

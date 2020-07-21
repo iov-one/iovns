@@ -2,7 +2,7 @@ package starname
 
 import (
 	"errors"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/keeper/executor"
 	"testing"
 	"time"
@@ -32,12 +32,12 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				}).Create()
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("1"),
+					Name:   utils.StrPtr("1"),
 					Owner:  keeper.BobKey,
 				}).Create()
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("2"),
+					Name:   utils.StrPtr("2"),
 					Owner:  keeper.BobKey,
 				}).Create()
 			},
@@ -63,11 +63,11 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("1")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("2")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
@@ -89,12 +89,12 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				}).Create()
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("1"),
+					Name:   utils.StrPtr("1"),
 					Owner:  keeper.BobKey,
 				}).Create()
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("2"),
+					Name:   utils.StrPtr("2"),
 					Owner:  keeper.BobKey,
 				}).Create()
 			},
@@ -113,11 +113,11 @@ func Test_Closed_handleMsgDomainDelete(t *testing.T) {
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("1")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("2")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
@@ -145,12 +145,12 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				}).Create()
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("1"),
+					Name:   utils.StrPtr("1"),
 					Owner:  keeper.BobKey,
 				}).Create()
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("2"),
+					Name:   utils.StrPtr("2"),
 					Owner:  keeper.BobKey,
 				}).Create()
 			},
@@ -169,11 +169,11 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("1")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("2")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
@@ -195,12 +195,12 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				}).Create()
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("1"),
+					Name:   utils.StrPtr("1"),
 					Owner:  keeper.BobKey,
 				}).Create()
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("2"),
+					Name:   utils.StrPtr("2"),
 					Owner:  keeper.BobKey,
 				}).Create()
 			},
@@ -226,11 +226,11 @@ func Test_Open_handleMsgDomainDelete(t *testing.T) {
 				if !exists {
 					t.Fatalf("handlerMsgDeleteDomain() domain should exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("1")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
 				if !exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("2")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
 				if !exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should exist")
 				}
@@ -419,11 +419,11 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("1")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("2")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
@@ -446,13 +446,13 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				// add two accounts
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("1"),
+					Name:   utils.StrPtr("1"),
 					Owner:  keeper.BobKey,
 				}).Create()
 				// add two accounts
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("2"),
+					Name:   utils.StrPtr("2"),
 					Owner:  keeper.BobKey,
 				}).Create()
 			},
@@ -470,11 +470,11 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() domain should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("1")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("1")}).PrimaryKey(), new(types.Account))
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 1 should not exist")
 				}
-				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: tutils.StrPtr("2")}).PrimaryKey(), new(types.Account))
+				exists = k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("2")}).PrimaryKey(), new(types.Account))
 				if exists {
 					t.Fatalf("handlerMsgDeleteDomain() account 2 should not exist")
 				}
@@ -741,13 +741,13 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 				// add empty account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr(""),
+					Name:   utils.StrPtr(""),
 					Owner:  keeper.AliceKey,
 				}).Create()
 				// add account 1
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
-					Name:       tutils.StrPtr("1"),
+					Name:       utils.StrPtr("1"),
 					Owner:      keeper.AliceKey,
 					ValidUntil: 0,
 					Resources: []types.Resource{{
@@ -760,7 +760,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 				// add account 2
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
-					Name:       tutils.StrPtr("2"),
+					Name:       utils.StrPtr("2"),
 					Owner:      keeper.AliceKey,
 					ValidUntil: 0,
 					Resources: []types.Resource{{
