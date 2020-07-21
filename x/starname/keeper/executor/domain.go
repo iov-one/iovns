@@ -88,8 +88,13 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 		for ; filter.Valid(); filter.Next() {
 			acc := new(types.Account)
 			filter.Read(acc)
-			// skip empty account
-			if *acc.Name == "" {
+			// reset empty account
+			if *acc.Name == types.EmptyAccountName {
+				acc.MetadataURI = ""
+				acc.Resources = nil
+				acc.Certificates = nil
+				filter.Update(acc)
+				// empty account is not deleted
 				continue
 			}
 			filter.Delete()
