@@ -400,10 +400,10 @@ func (q *QueryResolveAccount) Validate() error {
 	}
 
 	if q.Starname != "" {
-		if !strings.Contains(q.Starname, string(iovns.Separator)) {
+		if !strings.Contains(q.Starname, types.StarnameSeparator) {
 			return types.ErrStarnameNotContainSep
 		}
-		sname := strings.Split(q.Starname, string(iovns.Separator))
+		sname := strings.Split(q.Starname, types.StarnameSeparator)
 		if len(sname) != 2 {
 			return types.ErrStarnameMultipleSeparator
 		}

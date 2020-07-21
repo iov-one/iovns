@@ -11,14 +11,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// emptyAccountNameIndexIdentifier defines how empty
-// account names of a domain are identified in indexes
-const emptyAccountNameIndexIdentifier = "*"
-
 const DomainAdminIndex = 0x1
 const AccountAdminIndex = 0x1
 const AccountDomainIndex = 0x2
 const AccountResourcesIndex = 0x3
+
+// StarnameSeparator defines the starname separator identifier
+const StarnameSeparator = "*"
 
 // Domain defines a domain
 type Domain struct {

@@ -1,8 +1,6 @@
 package iovns
 
 import (
-	"bytes"
-	"fmt"
 	"time"
 )
 
@@ -14,17 +12,4 @@ func SecondsToTime(seconds int64) time.Time {
 // TimeToSeconds converts a time.Time to unix seconds timestamp
 func TimeToSeconds(t time.Time) int64 {
 	return t.Unix()
-}
-
-// GetAccountKey returns an account key in the form of string
-// given the domain name and the account name
-func GetAccountKey(domain, name string) string {
-	return fmt.Sprintf("%s%s%s", domain, Separator, name)
-}
-
-// SplitAccountKey takes an account key and splits it
-// into domain name and account name, panics on nil keys.
-func SplitAccountKey(key []byte) (domainName, accountName string) {
-	resp := bytes.Split(key, Separator)
-	return string(resp[0]), string(resp[1])
 }
