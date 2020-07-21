@@ -86,6 +86,12 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	case types.TransferFlush:
 		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
 		for ; filter.Valid(); filter.Next() {
+			acc := new(types.Account)
+			filter.Read(acc)
+			// skip empty account
+			if *acc.Name == "" {
+				continue
+			}
 			filter.Delete()
 		}
 	// transfer owned transfers only accounts owned by the old owner

@@ -72,6 +72,7 @@ func TestDomain_Transfer(t *testing.T) {
 		filter := k.AccountStore(ctx).Filter(&types.Account{
 			Domain: "test",
 		})
+		emptyAccountExists := false
 		for ; filter.Valid(); filter.Next() {
 			acc := new(types.Account)
 			filter.Read(acc)
@@ -79,6 +80,12 @@ func TestDomain_Transfer(t *testing.T) {
 			if *acc.Name != types.EmptyAccountName {
 				t.Fatalf("only empty account is expected to exist, got: %s", *acc.Name)
 			}
+			if *acc.Name == types.EmptyAccountName {
+				emptyAccountExists = true
+			}
+		}
+		if !emptyAccountExists {
+			t.Fatal("empty account not found")
 		}
 	})
 	t.Run("transfer-reset-none", func(t *testing.T) {
