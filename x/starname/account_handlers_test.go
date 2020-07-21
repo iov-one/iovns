@@ -10,7 +10,6 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
@@ -27,7 +26,7 @@ func Test_Close_handlerMsgAddAccountCertificates(t *testing.T) {
 				})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 					Type:       types.ClosedDomain,
 				}).Create()
@@ -66,7 +65,7 @@ func Test_Open_handlerMsgAddAccountCertificates(t *testing.T) {
 				})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 					Type:       types.OpenDomain,
 				}).Create()
@@ -137,7 +136,7 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				//
@@ -159,14 +158,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -187,14 +186,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -221,14 +220,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:       "test",
 					Name:         utils.StrPtr("test"),
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:        keeper.AliceKey,
 					Certificates: []types.Certificate{[]byte("test")},
 				}).Create()
@@ -256,14 +255,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:       "test",
 					Name:         utils.StrPtr("test"),
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:        keeper.AliceKey,
 					Certificates: nil,
 				}).Create()
@@ -300,14 +299,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:       "test",
 					Name:         utils.StrPtr("test"),
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:        keeper.AliceKey,
 					Certificates: []types.Certificate{[]byte("1")},
 				}).Create()
@@ -344,14 +343,14 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				})
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -388,7 +387,7 @@ func Test_Closed_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 					Type:       types.ClosedDomain,
 				}).Create()
@@ -437,7 +436,7 @@ func Test_Open_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 					Type:       types.OpenDomain,
 				}).Create()
@@ -472,14 +471,14 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -500,14 +499,14 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -528,14 +527,14 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:      keeper.BobKey,
 				}).Create()
 			},
@@ -556,14 +555,14 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -584,14 +583,14 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
 				// add mock account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:       "test",
 					Name:         utils.StrPtr("test"),
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:        keeper.AliceKey,
 					Certificates: []types.Certificate{[]byte("test")},
 				}).Create()
@@ -1202,7 +1201,7 @@ func Test_OpenDomain_handleMsgRegisterAccount(t *testing.T) {
 				if !exists {
 					t.Fatal("account test not found")
 				}
-				expected := iovns.TimeToSeconds(time.Unix(11, 0))
+				expected := utils.TimeToSeconds(time.Unix(11, 0))
 				if account.ValidUntil != expected {
 					t.Fatalf("unexpected account valid until %d, expected %d", account.ValidUntil, expected)
 				}
@@ -1559,7 +1558,7 @@ func Test_Closed_handlerMsgRenewAccount(t *testing.T) {
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Unix(1000, 0)),
+					ValidUntil: utils.TimeToSeconds(time.Unix(1000, 0)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -1642,7 +1641,7 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Unix(1, 0)),
+					ValidUntil: utils.TimeToSeconds(time.Unix(1, 0)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -1662,7 +1661,7 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 					t.Fatal("account not found")
 				}
 				want := ctx.BlockTime().Add(k.ConfigurationKeeper.GetConfiguration(ctx).AccountRenewalPeriod)
-				if account.ValidUntil != iovns.TimeToSeconds(want) {
+				if account.ValidUntil != utils.TimeToSeconds(want) {
 					t.Fatalf("handlerMsgRenewAccount() want: %d, got: %d", want.Unix(), account.ValidUntil)
 				}
 			},
@@ -1688,7 +1687,7 @@ func Test_Open_handlerMsgRenewAccount(t *testing.T) {
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Unix(1, 0)),
+					ValidUntil: utils.TimeToSeconds(time.Unix(1, 0)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -1737,7 +1736,7 @@ func Test_Closed_handlerMsgReplaceAccountResources(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 					Type:       types.ClosedDomain,
 				}).Create()
@@ -1785,7 +1784,7 @@ func Test_Open_handlerMsgReplaceAccountResources(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 					Type:       types.OpenDomain,
 				}).Create()
@@ -1832,14 +1831,14 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// create account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -1872,14 +1871,14 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// create account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -2009,7 +2008,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 			},
@@ -2042,14 +2041,14 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// create account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -2083,14 +2082,14 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// create account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -2141,7 +2140,7 @@ func Test_Closed_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 					Type:       types.ClosedDomain,
 				}).Create()
@@ -2180,7 +2179,7 @@ func Test_Open_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 					Type:       types.OpenDomain,
 				}).Create()
@@ -2251,7 +2250,7 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 			},
@@ -2272,14 +2271,14 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// create account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -2300,14 +2299,14 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// create account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -2332,14 +2331,14 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// create account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -2373,14 +2372,14 @@ func Test_Common_handlerMsgReplaceAccountMetadata(t *testing.T) {
 				// create domain
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Admin:      keeper.BobKey,
 				}).Create()
 				// create account
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
-					ValidUntil: iovns.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(time.Now().Add(1000 * time.Hour)),
 					Owner:      keeper.AliceKey,
 				}).Create()
 			},
@@ -2420,7 +2419,7 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Type:       types.ClosedDomain,
 					Broker:     nil,
 				}).Create()
@@ -2429,7 +2428,7 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
 					Owner:      keeper.BobKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -2470,7 +2469,7 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Type:       types.ClosedDomain,
 					Broker:     nil,
 				}).Create()
@@ -2479,7 +2478,7 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 					Domain:       "test",
 					Name:         utils.StrPtr("test"),
 					Owner:        keeper.BobKey,
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					MetadataURI:  "lol",
 					Certificates: []types.Certificate{[]byte("test")},
 					Resources: []types.Resource{
@@ -2533,7 +2532,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).Create()
@@ -2542,7 +2541,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
 					Owner:      keeper.BobKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -2584,7 +2583,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).Create()
@@ -2593,7 +2592,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 					Domain:       "test",
 					Name:         utils.StrPtr("test"),
 					Owner:        keeper.BobKey,
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					MetadataURI:  "lol",
 					Certificates: []types.Certificate{[]byte("test")},
 					Resources: []types.Resource{
@@ -2685,7 +2684,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).Create()
@@ -2708,7 +2707,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.BobKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).Create()
@@ -2740,7 +2739,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.AliceKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Type:       types.ClosedDomain,
 					Broker:     nil,
 				}).Create()
@@ -2748,7 +2747,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 					Domain:       "test",
 					Name:         utils.StrPtr("test"),
 					Owner:        keeper.BobKey,
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Resources:    nil,
 					Certificates: nil,
 					Broker:       nil,
@@ -2772,7 +2771,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.BobKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).Create()
@@ -2780,7 +2779,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 					Domain:       "test",
 					Name:         utils.StrPtr("test"),
 					Owner:        keeper.AliceKey,
-					ValidUntil:   iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Resources:    nil,
 					Certificates: nil,
 					Broker:       nil,
@@ -2804,7 +2803,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Admin:      keeper.BobKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Type:       types.OpenDomain,
 					Broker:     nil,
 				}).Create()
@@ -2812,7 +2811,7 @@ func Test_Common_handlerAccountTransfer(t *testing.T) {
 					Domain:     "test",
 					Name:       utils.StrPtr("test"),
 					Owner:      keeper.AliceKey,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {

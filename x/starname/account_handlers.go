@@ -1,7 +1,6 @@
 package starname
 
 import (
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/controllers/fees"
 	"github.com/iov-one/iovns/x/starname/keeper/executor"
@@ -187,8 +186,8 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 	// get grace period and expiration time
 	d := domainCtrl.Domain()
 	dgp := conf.DomainGracePeriod
-	domainGracePeriodUntil := iovns.SecondsToTime(d.ValidUntil).Add(dgp)
-	accNewValidUntil := iovns.SecondsToTime(ex.State().ValidUntil)
+	domainGracePeriodUntil := utils.SecondsToTime(d.ValidUntil).Add(dgp)
+	accNewValidUntil := utils.SecondsToTime(ex.State().ValidUntil)
 	if domainGracePeriodUntil.Before(accNewValidUntil) {
 		dex := executor.NewDomain(ctx, k, domainCtrl.Domain())
 		dex.Renew(accNewValidUntil.Unix())

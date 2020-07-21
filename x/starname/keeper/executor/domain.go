@@ -2,7 +2,6 @@ package executor
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/pkg/crud"
 	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/keeper"
@@ -43,8 +42,8 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 	// get configuration
 	renewDuration := d.k.ConfigurationKeeper.GetDomainRenewDuration(d.ctx)
 	// update domain valid until
-	d.domain.ValidUntil = iovns.TimeToSeconds(
-		iovns.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
+	d.domain.ValidUntil = utils.TimeToSeconds(
+		utils.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
 	)
 	// set domain
 	d.domains.Update(d.domain.PrimaryKey(), d.domain)

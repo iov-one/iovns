@@ -8,7 +8,6 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
@@ -713,7 +712,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Type:       types.ClosedDomain,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
 			},
@@ -735,7 +734,7 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 				executor.NewDomain(ctx, k, types.Domain{
 					Name:       "test",
 					Type:       types.ClosedDomain,
-					ValidUntil: iovns.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
+					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
 				// add empty account
