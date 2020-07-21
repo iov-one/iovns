@@ -384,7 +384,9 @@ func Test_handleMsgDomainDelete(t *testing.T) {
 					t.Fatalf("handlerMsgDeleteDomain() got error: %s", err)
 				}
 			},
-			AfterTest: nil,
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+
+			},
 		},
 		"success owner can delete their domain before grace period": {
 			BeforeTestBlockTime: 0,
@@ -567,7 +569,10 @@ func TestHandleMsgRegisterDomain(t *testing.T) {
 					t.Fatalf("handleMsgRegisterDomain() expected error: %s, got: %s", types.ErrInvalidDomainName, err)
 				}
 			},
-			AfterTest: nil,
+			// TODO ADD AFTER TEST
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+
+			},
 		},
 	}
 	// run all test cases
@@ -776,6 +781,9 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 				if err != nil {
 					t.Fatalf("handlerMsgTransferDomain() got error: %s", err)
 				}
+			},
+			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+
 			},
 		},
 	}

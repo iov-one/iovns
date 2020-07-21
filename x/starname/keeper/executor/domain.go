@@ -72,13 +72,17 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	var oldOwner = d.domain.Admin // cache it for future uses
 	d.domain.Admin = newOwner
 	d.domains.Update(d.domain.PrimaryKey(), d.domain)
-	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: tutils.StrPtr(types.EmptyAccountName)}) // delete empty account
-	filter.Next()
-	filter.Delete()
+	// transfer empty account
+	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: tutils.StrPtr(types.EmptyAccountName)})
+	emptyAccount := new(types.Account)
+	filter.Read(emptyAccount)
+	ac := NewAccount(d.ctx, d.k, *emptyAccount)
+	ac.Transfer(newOwner, true)
 	// transfer accounts of the domain based on the transfer flag
 	switch flag {
 	// reset none is simply skipped as empty account is already transferred during domain transfer
-	case types.ResetNone:
+	case types.TransferResetNone:
+		return
 	// transfer flush, deletes all domains accounts except the empty one since it was transferred in the first step
 	case types.TransferFlush:
 		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
@@ -92,6 +96,11 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 			acc := new(types.Account)
 			filter.Read(acc)
 			acc.Owner = newOwner
+			// do account reset
+			acc.Resources = nil
+			acc.Certificates = nil
+			acc.MetadataURI = ""
+			// update account
 			filter.Update(acc)
 		}
 	}

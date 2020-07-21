@@ -277,7 +277,7 @@ func (c *Domain) transferable(flag types.TransferFlag) error {
 	}
 	switch c.domain.Type {
 	case types.OpenDomain:
-		if flag != types.ResetNone {
+		if flag != types.TransferResetNone {
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to transfer open domain %s with flag %d", c.domainName, flag)
 		}
 		return nil
