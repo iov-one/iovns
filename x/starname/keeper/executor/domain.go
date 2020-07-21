@@ -76,7 +76,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	emptyAccount := new(types.Account)
 	filter.Read(emptyAccount)
 	ac := NewAccount(d.ctx, d.k, *emptyAccount)
-	ac.Transfer(newOwner, true)
+	ac.Transfer(newOwner, false)
 	// transfer accounts of the domain based on the transfer flag
 	switch flag {
 	// reset none is simply skipped as empty account is already transferred during domain transfer
@@ -88,16 +88,13 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 		for ; filter.Valid(); filter.Next() {
 			acc := new(types.Account)
 			filter.Read(acc)
-			// reset empty account
+			ex := NewAccount(d.ctx, d.k, *acc)
+			// transfer empty account
 			if *acc.Name == types.EmptyAccountName {
-				acc.MetadataURI = ""
-				acc.Resources = nil
-				acc.Certificates = nil
-				filter.Update(acc)
-				// empty account is not deleted
+				ex.Transfer(newOwner, true)
 				continue
 			}
-			filter.Delete()
+			ex.Delete()
 		}
 	// transfer owned transfers only accounts owned by the old owner
 	case types.TransferOwned:
@@ -105,9 +102,9 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 		for ; filter.Valid(); filter.Next() {
 			acc := new(types.Account)
 			filter.Read(acc)
-			acc.Owner = newOwner
-			// update account
-			filter.Update(acc)
+			ex := NewAccount(d.ctx, d.k, *acc)
+			// transfer accounts without reset
+			ex.Transfer(newOwner, false)
 		}
 	}
 }
