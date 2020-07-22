@@ -8,7 +8,7 @@ import tmp from "tmp";
 const tmpFiles = [];
 
 export const chain = process.env.CHAIN;
-export const echo = process.env.IOVNSCLI_ECHO;
+export const echo = process.env.IOVNSCLI_ECHO == "true";
 export const gasPrices = process.env.GAS_PRICES;
 export const signer = process.env.SIGNER;
 export const urlRest = process.env.URL_REST;
