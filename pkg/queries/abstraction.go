@@ -1,4 +1,4 @@
-package iovns
+package queries
 
 // abstraction.go defines a series of interfaces to facilitate
 

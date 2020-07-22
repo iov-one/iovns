@@ -684,8 +684,8 @@ const (
 	TransferFlush = iota
 	// TransferOwned transfers only accounts owned by the current owner
 	TransferOwned
-	// ResetNone leaves things as they are except for empty account
-	ResetNone
+	// TransferResetNone leaves things as they are except for empty account
+	TransferResetNone
 	// TransferAll is not available is here only for tests backwards compatibility and will be removed. TODO deprecate
 	TransferAll
 )
@@ -733,7 +733,7 @@ func (m *MsgTransferDomain) ValidateBasic() error {
 	}
 	switch m.TransferFlag {
 	case TransferOwned:
-	case ResetNone:
+	case TransferResetNone:
 	case TransferFlush:
 	default:
 		return errors.Wrapf(ErrInvalidRequest, "unknown reset flag: %d", m.TransferFlag)

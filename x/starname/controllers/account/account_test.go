@@ -4,7 +4,7 @@ import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/mock"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/starname/controllers/domain"
 	"github.com/iov-one/iovns/x/starname/keeper"
@@ -29,7 +29,7 @@ func TestAccount_transferable(t *testing.T) {
 	// creat open domain account
 	as.Create(&types.Account{
 		Domain: "open",
-		Name:   tutils.StrPtr("test"),
+		Name:   utils.StrPtr("test"),
 		Owner:  keeper.BobKey,
 	})
 	// create closed domain
@@ -42,7 +42,7 @@ func TestAccount_transferable(t *testing.T) {
 	// create closed domain account
 	as.Create(&types.Account{
 		Domain: "closed",
-		Name:   tutils.StrPtr("test"),
+		Name:   utils.StrPtr("test"),
 		Owner:  keeper.BobKey,
 	})
 	// run tests
@@ -90,7 +90,7 @@ func TestAccount_Renewable(t *testing.T) {
 	}).Create()
 	executor.NewAccount(ctx, k, types.Account{
 		Domain:     "open",
-		Name:       tutils.StrPtr("test"),
+		Name:       utils.StrPtr("test"),
 		ValidUntil: time.Unix(18, 0).Unix(),
 		Owner:      keeper.BobKey,
 	}).Create()
@@ -118,7 +118,7 @@ func TestAccount_existence(t *testing.T) {
 	// insert mock account
 	as.Create(&types.Account{
 		Domain:     "test",
-		Name:       tutils.StrPtr("test"),
+		Name:       utils.StrPtr("test"),
 		Owner:      keeper.AliceKey,
 		ValidUntil: time.Now().Add(100 * time.Hour).Unix(),
 	})
@@ -161,7 +161,7 @@ func TestAccount_requireAccount(t *testing.T) {
 		alice, _ := mock.Addresses()
 		as.Create(&types.Account{
 			Domain: "test",
-			Name:   tutils.StrPtr("test"),
+			Name:   utils.StrPtr("test"),
 			Owner:  alice,
 		})
 		ctrl := NewController(ctx, k, "test", "test")
@@ -280,7 +280,7 @@ func TestAccount_ownedBy(t *testing.T) {
 func TestAccount_validName(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		acc := &Account{
-			account: &types.Account{Name: tutils.StrPtr("valid")},
+			account: &types.Account{Name: utils.StrPtr("valid")},
 			conf:    &configuration.Config{ValidAccountName: "^(.*?)?"},
 		}
 		err := acc.Validate(ValidName)

@@ -2,14 +2,14 @@ package rest
 
 import (
 	"fmt"
+	"github.com/iov-one/iovns/pkg/queries"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	"github.com/iov-one/iovns"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 )
 
 // txRouteList clubs together all the transaction routes, which are the transactions
@@ -29,9 +29,9 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string
 	}
 }
 
-func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType iovns.QueryHandler) http.HandlerFunc {
+func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType queries.QueryHandler) http.HandlerFunc {
 	// get query type
-	typ := tutils.GetPtrType(queryType)
+	typ := utils.GetPtrType(queryType)
 	// return function
 	return func(writer http.ResponseWriter, request *http.Request) {
 		cliCtx, ok := rest.ParseQueryHeightOrReturnBadRequest(writer, cliCtx, request)
@@ -39,7 +39,7 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 			return
 		}
 		// clone queryType so we can unmarshal data to it
-		query := tutils.CloneFromType(typ).(iovns.QueryHandler)
+		query := utils.CloneFromType(typ).(queries.QueryHandler)
 		// read request bytes
 		b, err := ioutil.ReadAll(request.Body)
 		if err != nil {
@@ -48,7 +48,7 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 		}
 		if len(b) != 0 {
 			// unmarshal request from the client to the query handler
-			err = iovns.DefaultQueryDecode(b, query)
+			err = queries.DefaultQueryDecode(b, query)
 			if err != nil {
 				rest.WriteErrorResponse(writer, http.StatusBadRequest, err.Error())
 				return
@@ -60,7 +60,7 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 			return
 		}
 		// marshal request to bytes understandable to the app query processor
-		requestBytes, err := iovns.DefaultQueryEncode(query)
+		requestBytes, err := queries.DefaultQueryEncode(query)
 		if err != nil {
 			// this is an internal server error if we're not able to marshal a request TODO log
 			rest.WriteErrorResponse(writer, http.StatusInternalServerError, err.Error())
@@ -83,7 +83,7 @@ func queryHandlerBuild(cliCtx context.CLIContext, storeName string, queryType io
 
 // registerQueryRoutes registers all the routes used to query
 // the domain module's keeper
-func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string, queries []iovns.QueryHandler) {
+func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, storeName string, queries []queries.QueryHandler) {
 	for _, query := range queries {
 		path := fmt.Sprintf("/%s/query/%s", storeName, query.QueryPath())
 		r.HandleFunc(path, queryHandlerBuild(cliCtx, storeName, query)).Methods("POST")
@@ -91,7 +91,7 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, storeName str
 }
 
 // RegisterRoutes clubs together the tx and query routes
-func RegisterRoutes(cliContext context.CLIContext, r *mux.Router, storeName string, queries []iovns.QueryHandler) {
+func RegisterRoutes(cliContext context.CLIContext, r *mux.Router, storeName string, queries []queries.QueryHandler) {
 	// register tx routes
 	registerTxRoutes(cliContext, r, storeName)
 	// register query routes

@@ -1,4 +1,4 @@
-package iovns
+package queries
 
 import (
 	"encoding/json"

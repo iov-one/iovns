@@ -2,13 +2,13 @@ package cli
 
 import (
 	"fmt"
+	"github.com/iov-one/iovns/pkg/queries"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
 	"github.com/spf13/cobra"
@@ -39,7 +39,7 @@ func GetQueryCmd(moduleQueryPath string, cdc *codec.Codec) *cobra.Command {
 
 func processQueryCmd(cdc *codec.Codec, path string, q interface{}, _ interface{}) (err error) {
 	// get req byres
-	b, err := iovns.DefaultQueryEncode(q)
+	b, err := queries.DefaultQueryEncode(q)
 	if err != nil {
 		return
 	}

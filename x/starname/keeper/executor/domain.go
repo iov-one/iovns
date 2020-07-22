@@ -2,9 +2,8 @@ package executor
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/pkg/crud"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
 )
@@ -43,8 +42,8 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 	// get configuration
 	renewDuration := d.k.ConfigurationKeeper.GetDomainRenewDuration(d.ctx)
 	// update domain valid until
-	d.domain.ValidUntil = iovns.TimeToSeconds(
-		iovns.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
+	d.domain.ValidUntil = utils.TimeToSeconds(
+		utils.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
 	)
 	// set domain
 	d.domains.Update(d.domain.PrimaryKey(), d.domain)
@@ -56,44 +55,56 @@ func (d *Domain) Delete() {
 		panic("cannot execute delete state change on non present domain")
 	}
 	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
-	for filter.Next() {
+	for ; filter.Valid(); filter.Next() {
 		filter.Delete()
 	}
 	d.domains.Delete(d.domain.PrimaryKey(), d.domain)
 }
 
-// Transferrer returns a domain transfer function based on the transfer flag
-func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) func() {
+// Transfer transfers a domain given a flag and an owner
+func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	if d.domain == nil {
 		panic("cannot execute transfer state on non defined domain")
 	}
-	return func() {
-		// transfer domain
-		var oldOwner = d.domain.Admin // cache it for future uses
-		d.domain.Admin = newOwner
-		d.domains.Update(d.domain.PrimaryKey(), d.domain)
-		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: tutils.StrPtr(types.EmptyAccountName)}) // delete empty account
-		filter.Next()
-		filter.Delete()
-		// transfer accounts of the domain based on the transfer flag
-		switch flag {
-		// reset none is simply skipped as empty account is already transferred during domain transfer
-		case types.ResetNone:
-		// transfer flush, deletes all domains accounts except the empty one since it was transferred in the first step
-		case types.TransferFlush:
-			filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
-			for filter.Next() {
-				filter.Delete()
+
+	// transfer domain
+	var oldOwner = d.domain.Admin // cache it for future uses
+	d.domain.Admin = newOwner
+	d.domains.Update(d.domain.PrimaryKey(), d.domain)
+	// transfer empty account
+	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: utils.StrPtr(types.EmptyAccountName)})
+	emptyAccount := new(types.Account)
+	filter.Read(emptyAccount)
+	ac := NewAccount(d.ctx, d.k, *emptyAccount)
+	ac.Transfer(newOwner, false)
+	// transfer accounts of the domain based on the transfer flag
+	switch flag {
+	// reset none is simply skipped as empty account is already transferred during domain transfer
+	case types.TransferResetNone:
+		return
+	// transfer flush, deletes all domains accounts except the empty one since it was transferred in the first step
+	case types.TransferFlush:
+		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name})
+		for ; filter.Valid(); filter.Next() {
+			acc := new(types.Account)
+			filter.Read(acc)
+			ex := NewAccount(d.ctx, d.k, *acc)
+			// transfer empty account
+			if *acc.Name == types.EmptyAccountName {
+				ex.Transfer(newOwner, true)
+				continue
 			}
-		// transfer owned transfers only accounts owned by the old owner
-		case types.TransferOwned:
-			filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Owner: oldOwner})
-			for filter.Next() {
-				acc := new(types.Account)
-				filter.Read(acc)
-				acc.Owner = newOwner
-				filter.Update(acc)
-			}
+			ex.Delete()
+		}
+	// transfer owned transfers only accounts owned by the old owner
+	case types.TransferOwned:
+		filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Owner: oldOwner})
+		for ; filter.Valid(); filter.Next() {
+			acc := new(types.Account)
+			filter.Read(acc)
+			ex := NewAccount(d.ctx, d.k, *acc)
+			// transfer accounts without reset
+			ex.Transfer(newOwner, false)
 		}
 	}
 }
@@ -106,7 +117,7 @@ func (d *Domain) Create() {
 	d.domains.Create(d.domain)
 	emptyAccount := &types.Account{
 		Domain:       d.domain.Name,
-		Name:         tutils.StrPtr(types.EmptyAccountName),
+		Name:         utils.StrPtr(types.EmptyAccountName),
 		Owner:        d.domain.Admin,
 		ValidUntil:   d.domain.ValidUntil, // is this right per spec?
 		Resources:    nil,

@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"testing"
 	"time"
 
@@ -17,8 +17,8 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{Name: "test", Admin: aliceAddr})
 				as := k.AccountStore(ctx)
-				as.Create(&types.Account{Domain: "test", Name: tutils.StrPtr("1"), Owner: aliceAddr})
-				as.Create(&types.Account{Domain: "test", Name: tutils.StrPtr("2"), Owner: aliceAddr})
+				as.Create(&types.Account{Domain: "test", Name: utils.StrPtr("1"), Owner: aliceAddr})
+				as.Create(&types.Account{Domain: "test", Name: utils.StrPtr("2"), Owner: aliceAddr})
 			},
 			Request: &QueryAccountsInDomain{
 				Domain:         "test",
@@ -28,7 +28,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 			Handler: queryAccountsInDomainHandler,
 			WantErr: nil,
 			PtrExpectedResponse: QueryAccountsInDomainResponse{
-				Accounts: []*types.Account{{Domain: "test", Name: tutils.StrPtr("1"), Owner: aliceAddr}, {Domain: "test", Name: tutils.StrPtr("2"), Owner: aliceAddr}},
+				Accounts: []*types.Account{{Domain: "test", Name: utils.StrPtr("1"), Owner: aliceAddr}, {Domain: "test", Name: utils.StrPtr("2"), Owner: aliceAddr}},
 			},
 		},
 		"success with paging": {
@@ -36,9 +36,9 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 				as := k.AccountStore(ctx)
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{Name: "test", Admin: aliceAddr})
-				as.Create(&types.Account{Domain: "test", Name: tutils.StrPtr("1"), Owner: aliceAddr})
-				as.Create(&types.Account{Domain: "test", Name: tutils.StrPtr("2"), Owner: bobAddr})
-				as.Create(&types.Account{Domain: "test", Name: tutils.StrPtr("3"), Owner: aliceAddr})
+				as.Create(&types.Account{Domain: "test", Name: utils.StrPtr("1"), Owner: aliceAddr})
+				as.Create(&types.Account{Domain: "test", Name: utils.StrPtr("2"), Owner: bobAddr})
+				as.Create(&types.Account{Domain: "test", Name: utils.StrPtr("3"), Owner: aliceAddr})
 			},
 			Request: &QueryAccountsInDomain{
 				Domain:         "test",
@@ -48,7 +48,7 @@ func Test_queryGetAccountsInDomain(t *testing.T) {
 			Handler: queryAccountsInDomainHandler,
 			WantErr: nil,
 			PtrExpectedResponse: QueryAccountsInDomainResponse{
-				Accounts: []*types.Account{{Domain: "test", Name: tutils.StrPtr("2"), Owner: bobAddr}},
+				Accounts: []*types.Account{{Domain: "test", Name: utils.StrPtr("2"), Owner: bobAddr}},
 			},
 		},
 	}
@@ -64,10 +64,10 @@ func Test_queryGetAccountsWithOwner(t *testing.T) {
 				as := k.AccountStore(ctx)
 				ds := k.DomainStore(ctx)
 				ds.Create(&types.Domain{Name: "test", Admin: bobAddr})
-				as.Create(&types.Account{Domain: "test", Name: tutils.StrPtr("1"), Owner: aliceAddr})
-				as.Create(&types.Account{Domain: "test", Name: tutils.StrPtr("2"), Owner: aliceAddr})
-				as.Create(&types.Account{Domain: "test", Name: tutils.StrPtr("3"), Owner: aliceAddr})
-				as.Create(&types.Account{Domain: "test", Name: tutils.StrPtr("4"), Owner: aliceAddr})
+				as.Create(&types.Account{Domain: "test", Name: utils.StrPtr("1"), Owner: aliceAddr})
+				as.Create(&types.Account{Domain: "test", Name: utils.StrPtr("2"), Owner: aliceAddr})
+				as.Create(&types.Account{Domain: "test", Name: utils.StrPtr("3"), Owner: aliceAddr})
+				as.Create(&types.Account{Domain: "test", Name: utils.StrPtr("4"), Owner: aliceAddr})
 
 			},
 			Request: &QueryAccountsWithOwner{
@@ -79,10 +79,10 @@ func Test_queryGetAccountsWithOwner(t *testing.T) {
 			WantErr: nil,
 			PtrExpectedResponse: &QueryAccountsWithOwnerResponse{
 				Accounts: []types.Account{
-					{Domain: "test", Name: tutils.StrPtr("1"), Owner: aliceAddr},
-					{Domain: "test", Name: tutils.StrPtr("2"), Owner: aliceAddr},
-					{Domain: "test", Name: tutils.StrPtr("3"), Owner: aliceAddr},
-					{Domain: "test", Name: tutils.StrPtr("4"), Owner: aliceAddr},
+					{Domain: "test", Name: utils.StrPtr("1"), Owner: aliceAddr},
+					{Domain: "test", Name: utils.StrPtr("2"), Owner: aliceAddr},
+					{Domain: "test", Name: utils.StrPtr("3"), Owner: aliceAddr},
+					{Domain: "test", Name: utils.StrPtr("4"), Owner: aliceAddr},
 				},
 			},
 		},
@@ -123,7 +123,7 @@ func Test_queryResolveAccountHandler(t *testing.T) {
 				as := k.AccountStore(ctx)
 				as.Create(&types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("1"),
+					Name:   utils.StrPtr("1"),
 					Owner:  bobAddr,
 				})
 			},
@@ -135,7 +135,7 @@ func Test_queryResolveAccountHandler(t *testing.T) {
 			WantErr: nil,
 			PtrExpectedResponse: &QueryResolveAccountResponse{Account: types.Account{
 				Domain: "test",
-				Name:   tutils.StrPtr("1"),
+				Name:   utils.StrPtr("1"),
 				Owner:  bobAddr,
 			}},
 		},
@@ -143,7 +143,7 @@ func Test_queryResolveAccountHandler(t *testing.T) {
 			BeforeTest: func(t *testing.T, ctx sdk.Context, k Keeper) {
 				k.AccountStore(ctx).Create(&types.Account{
 					Domain: "test",
-					Name:   tutils.StrPtr("1"),
+					Name:   utils.StrPtr("1"),
 					Owner:  bobAddr,
 				})
 			},
@@ -156,7 +156,7 @@ func Test_queryResolveAccountHandler(t *testing.T) {
 			WantErr: nil,
 			PtrExpectedResponse: &QueryResolveAccountResponse{Account: types.Account{
 				Domain: "test",
-				Name:   tutils.StrPtr("1"),
+				Name:   utils.StrPtr("1"),
 				Owner:  bobAddr,
 			}},
 		},
@@ -234,14 +234,14 @@ func Test_queryResourceAccountsHandler(t *testing.T) {
 				}
 				as.Create(&types.Account{
 					Domain:     "test",
-					Name:       tutils.StrPtr("1"),
+					Name:       utils.StrPtr("1"),
 					Owner:      bobAddr,
 					ValidUntil: 0,
 					Resources:  []types.Resource{resource},
 				})
 				as.Create(&types.Account{
 					Domain:     "test",
-					Name:       tutils.StrPtr("2"),
+					Name:       utils.StrPtr("2"),
 					Owner:      bobAddr,
 					ValidUntil: 0,
 					Resources:  []types.Resource{resource},
@@ -259,7 +259,7 @@ func Test_queryResourceAccountsHandler(t *testing.T) {
 				Accounts: []types.Account{
 					{
 						Domain:     "test",
-						Name:       tutils.StrPtr("1"),
+						Name:       utils.StrPtr("1"),
 						Owner:      bobAddr,
 						ValidUntil: 0,
 						Resources: []types.Resource{{
@@ -269,7 +269,7 @@ func Test_queryResourceAccountsHandler(t *testing.T) {
 					},
 					{
 						Domain:     "test",
-						Name:       tutils.StrPtr("2"),
+						Name:       utils.StrPtr("2"),
 						Owner:      bobAddr,
 						ValidUntil: 0,
 						Resources: []types.Resource{{
