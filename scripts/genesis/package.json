@@ -1,0 +1,24 @@
+{
+   "name": "genesis",
+   "version": "1.0.0",
+   "description": "Club together various pieces of the genesis file from various sources",
+   "scripts": {
+      "test": "node -r esm jestesm.js --coverage --testEnvironment node --runInBand",
+      "genesis": "docker-compose up",
+      "clean": "yes | docker volume prune"
+   },
+   "repository": "https://github.com/iov-one/iovns",
+   "author": "dave@iov.one",
+   "license": "MIT",
+   "private": false,
+   "dependencies": {
+      "esm": "^3.2.25",
+      "json-stable-stringify": "^1.0.1",
+      "node-fetch": "^2.6.0"
+   },
+   "devDependencies": {
+      "jest": "^25.4.0",
+      "jest-cli": "^25.4.0",
+      "tmp": "^0.2.1"
+   }
+}

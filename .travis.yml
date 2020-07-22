@@ -99,7 +99,7 @@ script:
   - iovnsd validate-genesis
   - iovnsd start --minimum-gas-prices='10.0uvoi' > /dev/null &
   - iovnscli rest-server --trust-node true --chain-id ${CHAIN_ID} --node http://localhost:26657 > /dev/null &
-  - cd scripts/integration && yarn install && yarn test
+  - ( cd scripts/integration && yarn install && yarn test && killall iovnscli && killall iovnsd )
 
 notifications:
   email: false

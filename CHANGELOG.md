@@ -1,6 +1,7 @@
 # Changelog
 
 ## HEAD
+- add genesis file generation scripts
 - upgrade to cosmos sdk 0.39
 - move all files from root module to respective packages
 - fix transfer domain and add tests

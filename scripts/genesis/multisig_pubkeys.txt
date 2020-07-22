@@ -1,0 +1,32 @@
+see https://drive.google.com/file/d/15m0i3Uy-GuuL36rm4NcgA_AfHyIj6x9Y/view?usp=sharing
+
+dave@slim genesis(bnsd2iovns)$ ./multisig_pubkeys.sh "reward fund" "IOV SAS" "IOV SAS employee bonus pool/colloboration appropriation pool" "IOV SAS pending deals pocket; close deal or burn" "IOV SAS bounty fund" "Unconfirmed contributors/co-founders" "escrow isabella*iov" "escrow kadima*iov" "escroator guaranteed reward fund"
+mkdir: created directory '/dev/shm/blackhole'
+- name: reward fund
+  pubkey: starpub1addwnpepqfm23wlt80lcyzsdn3cgzwsek4sky2rcwnr3qu4alwjzvvg2g7sdgujwsl5
+
+- name: IOV SAS
+  pubkey: starpub1addwnpepqtzhcpfmvytrh6rtf9ttrfsdkjtxw7nsr7t7et8a5nty2vtdstmtw9mdr7s
+
+- name: IOV SAS employee bonus pool/colloboration appropriation pool
+  pubkey: starpub1addwnpepqgenpw74r98fvfudg0u2qzhgg6me5u7gfrxmqqjnncr6ym886ct3sk2h8nw
+
+- name: IOV SAS pending deals pocket; close deal or burn
+  pubkey: starpub1addwnpepqw04kg4kwvut9rvdvckxy0jan0y4yysn6mptzmd56pjpjzlkr9kv6xeua9v
+
+- name: IOV SAS bounty fund
+  pubkey: starpub1addwnpepqvhna82vld09fqxn7mtm7lkw3vt9e05zqrv75x80jgp5mlfsz4kcvc6ulzj
+
+- name: Unconfirmed contributors/co-founders
+  pubkey: starpub1addwnpepqdv8jgg8ekg2xvejqm9g7840ek99clkrpw0d7hdnx08tnn7v8tfqz2vdkqr
+
+- name: escrow isabella*iov
+  pubkey: starpub1addwnpepq00trw99pzf290cjclcd74eadqhkygvl3denvc5etz5dztmqgd98y66msd9
+
+- name: escrow kadima*iov
+  pubkey: starpub1addwnpepqtrj9dsczxy44l26ej698zzc6k8l2646hgx2yu7gfa0mxh9c29zt7w3d443
+
+- name: escrow vaildator guaranteed reward fund
+  pubkey: starpub1addwnpepqf69zzd67jh6yrhhkw5qc9gn730n9d0cpm5mu4th5kqxah50yg8vq68l7z0
+
+removed directory '/dev/shm/blackhole'

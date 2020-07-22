@@ -1,0 +1,13 @@
+version: "3.6"
+
+services:
+  genesis:
+    image: node:12.16.2-alpine3.11
+    env_file: .env
+    environment:
+      - NODE_PATH=/${APP_ROOT}/node_modules
+    volumes:
+      - .:/${APP_ROOT}
+      - ./lib:/${APP_ROOT}/lib
+      - ../../genesis.json:/${APP_ROOT}/genesis.json
+    command: sh -c "cd /${APP_ROOT} && yarn && node -r esm genesis.js"

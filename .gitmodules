@@ -1,0 +1,9 @@
+[submodule "scripts/genesis/data/dump"]
+	path = scripts/genesis/data/dump
+	url = https://gist.github.com/davepuchyr/bf9ab1d2d9ca70326cf58c7c70376554.git
+[submodule "scripts/genesis/data/premium"]
+	path = scripts/genesis/data/premium
+	url = https://gist.github.com/davepuchyr/6631a11d9160671418e38cd88fa8049b.git
+[submodule "scripts/genesis/data/galaxynet/config"]
+	path = scripts/genesis/data/galaxynet/config
+	url = https://gist.github.com/davepuchyr/e1482e63cb81443cde1616f353c4779f.git
