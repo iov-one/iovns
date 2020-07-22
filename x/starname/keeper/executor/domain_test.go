@@ -61,8 +61,11 @@ func TestDomain_Transfer(t *testing.T) {
 		for ; filter.Valid(); filter.Next() {
 			acc := new(types.Account)
 			filter.Read(acc)
-			if !acc.Owner.Equals(keeper.AliceKey) && !acc.Owner.Equals(keeper.CharlieKey) {
+			if !acc.Owner.Equals(keeper.AliceKey) && *acc.Name != "not-owned" {
 				t.Fatal("owner mismatch")
+			}
+			if *acc.Name == "not-owned" && !acc.Owner.Equals(keeper.CharlieKey) {
+				t.Fatal("a not owned account was transferred")
 			}
 		}
 	})
@@ -119,5 +122,4 @@ func TestDomain_Transfer(t *testing.T) {
 			}
 		}
 	})
-
 }
