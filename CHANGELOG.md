@@ -1,6 +1,9 @@
 # Changelog
 
 ## HEAD
+
+## v0.9.0
+
 - add genesis file generation scripts
 - upgrade to cosmos sdk 0.39
 - move all files from root module to respective packages
@@ -16,6 +19,7 @@
 - add helm chart
 
 ## v0.4.5
+
 - CHANGE: bump cosmos-sdk and tendermint version
 - FIX: AccountRenewalCountMax and DomainRenewalCountMax bumped at configuration update
 - FIX: fix cli tests
