@@ -1,4 +1,3 @@
-#!/bin/sh
 
 # if iovnsd does not exist then init the new network
 if [ ! -d ".iovnsd" ]; then
