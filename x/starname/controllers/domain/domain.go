@@ -2,12 +2,12 @@ package domain
 
 import (
 	"github.com/iov-one/iovns/pkg/crud"
+	"github.com/iov-one/iovns/pkg/utils"
 	"regexp"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
@@ -83,7 +83,7 @@ func (c *Domain) expired() error {
 	if err := c.requireDomain(); err != nil {
 		panic("conditions check not allowed on non existing domain")
 	}
-	expireTime := iovns.SecondsToTime(c.domain.ValidUntil)
+	expireTime := utils.SecondsToTime(c.domain.ValidUntil)
 	// if expire time is before block time means domain expired
 	if expireTime.Before(c.ctx.BlockTime()) {
 		return nil
@@ -106,7 +106,7 @@ func (c *Domain) gracePeriodFinished() error {
 	}
 	// get grace period and expiration time
 	gracePeriod := c.conf.DomainGracePeriod
-	expireTime := iovns.SecondsToTime(c.domain.ValidUntil)
+	expireTime := utils.SecondsToTime(c.domain.ValidUntil)
 	if c.ctx.BlockTime().After(expireTime.Add(gracePeriod)) {
 		return nil
 	}
@@ -142,7 +142,7 @@ func (c *Domain) notExpired() error {
 		panic("validation check is not allowed on a non existing domain")
 	}
 	// check if domain has expired
-	expireTime := iovns.SecondsToTime(c.domain.ValidUntil)
+	expireTime := utils.SecondsToTime(c.domain.ValidUntil)
 	// if block time is before expiration, return nil
 	if c.ctx.BlockTime().Before(expireTime) {
 		return nil
@@ -277,7 +277,7 @@ func (c *Domain) transferable(flag types.TransferFlag) error {
 	}
 	switch c.domain.Type {
 	case types.OpenDomain:
-		if flag != types.ResetNone {
+		if flag != types.TransferResetNone {
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "unable to transfer open domain %s with flag %d", c.domainName, flag)
 		}
 		return nil
@@ -297,12 +297,12 @@ func (c *Domain) renewable() error {
 		panic("validation check not allowed on a non existing domain")
 	}
 	// check if current time is not beyond grace period
-	renewalDeadline := iovns.SecondsToTime(c.domain.ValidUntil).Add(c.conf.DomainGracePeriod)
+	renewalDeadline := utils.SecondsToTime(c.domain.ValidUntil).Add(c.conf.DomainGracePeriod)
 	if c.ctx.BlockTime().After(renewalDeadline) {
 		return sdkerrors.Wrapf(types.ErrRenewalDeadlineExceeded, "the deadline for renewal was: %s, current time is: %s, please delete the domain and re-register", renewalDeadline, c.ctx.BlockTime())
 	}
 	// do calculations
-	newValidUntil := iovns.SecondsToTime(c.domain.ValidUntil).Add(c.conf.DomainRenewalPeriod) // set new expected valid until
+	newValidUntil := utils.SecondsToTime(c.domain.ValidUntil).Add(c.conf.DomainRenewalPeriod) // set new expected valid until
 	// renew count bumped because domain count is already at count 1 when created
 	renewCount := c.conf.DomainRenewalCountMax + 1
 	maximumValidUntil := c.ctx.BlockTime().Add(c.conf.DomainRenewalPeriod * time.Duration(renewCount))

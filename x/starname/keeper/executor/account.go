@@ -2,8 +2,8 @@ package executor
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/pkg/crud"
+	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
 )
@@ -63,8 +63,8 @@ func (a *Account) Renew() {
 		panic("cannot renew a non specified account")
 	}
 	renew := a.k.ConfigurationKeeper.GetConfiguration(a.ctx).AccountRenewalPeriod
-	a.account.ValidUntil = iovns.TimeToSeconds(
-		iovns.SecondsToTime(a.account.ValidUntil).Add(renew),
+	a.account.ValidUntil = utils.TimeToSeconds(
+		utils.SecondsToTime(a.account.ValidUntil).Add(renew),
 	)
 	// update account in kv store
 	a.store.Update(a.account.PrimaryKey(), a.account)

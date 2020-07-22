@@ -1,24 +1,24 @@
 package types
 
 import (
+	"strings"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/iov-one/iovns/pkg/crud"
-	"github.com/iov-one/iovns/tutils"
-	"strings"
+	"github.com/iov-one/iovns/pkg/utils"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// emptyAccountNameIndexIdentifier defines how empty
-// account names of a domain are identified in indexes
-const emptyAccountNameIndexIdentifier = "*"
-
 const DomainAdminIndex = 0x1
 const AccountAdminIndex = 0x1
 const AccountDomainIndex = 0x2
 const AccountResourcesIndex = 0x3
+
+// StarnameSeparator defines the starname separator identifier
+const StarnameSeparator = "*"
 
 // Domain defines a domain
 type Domain struct {
@@ -109,7 +109,7 @@ func (a *Account) UnmarshalCRUD(cdc *codec.Codec, b []byte) {
 	cdc.MustUnmarshalBinaryBare(b, trg)
 	*a = *trg.Underlying
 	if a.Name == nil && !trg.NameNil {
-		a.Name = tutils.StrPtr("")
+		a.Name = utils.StrPtr("")
 	}
 }
 

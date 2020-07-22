@@ -106,7 +106,7 @@ func getCmdTransferDomain(cdc *codec.Codec) *cobra.Command {
 	// add flags
 	cmd.Flags().String("domain", "", "the domain name to transfer")
 	cmd.Flags().String("new-owner", "", "the new owner address in bech32 format")
-	cmd.Flags().Int("transfer-flag", types.ResetNone, fmt.Sprintf("transfer flags for a domain"))
+	cmd.Flags().Int("transfer-flag", types.TransferResetNone, fmt.Sprintf("transfer flags for a domain"))
 	cmd.Flags().String("fee-payer", "", "address of the fee payer, optional")
 	return cmd
 }
