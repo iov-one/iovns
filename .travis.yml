@@ -60,7 +60,7 @@ script:
         ./contrib/gitian-build.sh linux ;
         mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
         docker build --pull --tag ${IMAGE_NAME} . ;
-        cd cmd/faucet && make build && docker build --pull --tag ${FAUCET_IMAGE_NAME} . ;
+        ( cd cmd/faucet && make build && docker build --pull --tag ${FAUCET_IMAGE_NAME} . );
       fi;
 
       if [[ $release_latest == "yes" ]]; then
