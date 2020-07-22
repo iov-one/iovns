@@ -79,9 +79,9 @@ export const createAccount = ( args = {} ) => {
                "amount": args.amount ? String( args.amount ) : "0",
             }
          ],
-         "public_key": "",
-         "account_number": 0,
-         "sequence": 0
+         "public_key": null,
+         "account_number": "0",
+         "sequence": "0"
       }
    };
 
@@ -401,9 +401,9 @@ export const patchGalaxynet = genesis => {
                   "amount": "1000000000000000"
                }
             ],
-            "public_key": "",
-            "account_number": 0,
-            "sequence": 0
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
          }
       },
       {
@@ -417,9 +417,9 @@ export const patchGalaxynet = genesis => {
                   "amount": "1000000000000"
                }
             ],
-            "public_key": "",
-            "account_number": 0,
-            "sequence": 0
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
          }
       },
       {
@@ -432,9 +432,9 @@ export const patchGalaxynet = genesis => {
                   "amount": "1000000000000"
                }
             ],
-            "public_key": "",
-            "account_number": 0,
-            "sequence": 0
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
          }
       },
       {
@@ -447,9 +447,9 @@ export const patchGalaxynet = genesis => {
                   "amount": "1000000000000"
                }
             ],
-            "public_key": "",
-            "account_number": 0,
-            "sequence": 0
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
          }
       },
       {
@@ -463,9 +463,9 @@ export const patchGalaxynet = genesis => {
                   "amount": "1000000000000"
                }
             ],
-            "public_key": "",
-            "account_number": 0,
-            "sequence": 0
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
          }
       },
       {
@@ -479,9 +479,9 @@ export const patchGalaxynet = genesis => {
                   "amount": "1000000000000"
                }
             ],
-            "public_key": "",
-            "account_number": 0,
-            "sequence": 0
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
          }
       },
       {
@@ -495,9 +495,9 @@ export const patchGalaxynet = genesis => {
                   "amount": "1000000000000"
                }
             ],
-            "public_key": "",
-            "account_number": 0,
-            "sequence": 0
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
          }
       },
       {
@@ -511,9 +511,9 @@ export const patchGalaxynet = genesis => {
                   "amount": "1000000000000"
                }
             ],
-            "public_key": "",
-            "account_number": 0,
-            "sequence": 0
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
          }
       },
    ];
