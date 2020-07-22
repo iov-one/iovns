@@ -14,6 +14,7 @@ COPY --from=0 /build/iovnscli /bin/iovnscli
 COPY --from=0 /build/iovnsd /bin/iovnsd
 WORKDIR /iovns
 COPY ./scripts/entrypoint.sh entrypoint.sh
+COPY ./scripts/accounts.sh accounts.sh
 RUN chmod +x entrypoint.sh
 RUN ls -al
 ENTRYPOINT ["sh", "entrypoint.sh"]

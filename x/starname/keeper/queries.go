@@ -5,7 +5,6 @@ import (
 	"github.com/iov-one/iovns/pkg/crud"
 	"github.com/iov-one/iovns/pkg/queries"
 	"github.com/iov-one/iovns/pkg/utils"
-	"log"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -148,7 +147,6 @@ func queryAccountsInDomainHandler(ctx sdk.Context, _ []string, req abci.RequestQ
 	filter := as.Filter(&types.Account{Domain: query.Domain})
 	for {
 		if !filter.Valid() {
-			log.Printf("breaking n :%d", i)
 			break
 		}
 		if i >= indexStart {
