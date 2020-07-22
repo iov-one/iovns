@@ -1,6 +1,9 @@
 # Changelog
 
 ## HEAD
+- move all files from root module to respective packages
+- fix transfer domain and add tests
+- fix empty account name ambiguity
 - BREAKING: use cosmos-sdk v0.39 (Launchpad)
 - fix export genesis function
 - fix domain renewal disallowed after grace period

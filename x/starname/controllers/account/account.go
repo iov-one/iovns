@@ -3,7 +3,7 @@ package account
 import (
 	"bytes"
 	"github.com/iov-one/iovns/pkg/crud"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"regexp"
 	"time"
 
@@ -11,7 +11,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/iov-one/iovns"
 	"github.com/iov-one/iovns/x/configuration"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
@@ -90,7 +89,7 @@ func (a *Account) requireAccount() error {
 		return nil
 	}
 	account := new(types.Account)
-	ok := a.store.Read((&types.Account{Domain: a.domain, Name: tutils.StrPtr(a.name)}).PrimaryKey(), account)
+	ok := a.store.Read((&types.Account{Domain: a.domain, Name: utils.StrPtr(a.name)}).PrimaryKey(), account)
 	if !ok {
 		return sdkerrors.Wrapf(types.ErrAccountDoesNotExist, "%s was not found in domain %s", a.name, a.domain)
 	}
@@ -162,7 +161,7 @@ func (a *Account) notExpired() error {
 		return nil
 	}
 	// check if account has expired
-	expireTime := iovns.SecondsToTime(a.account.ValidUntil)
+	expireTime := utils.SecondsToTime(a.account.ValidUntil)
 	if !expireTime.Before(a.ctx.BlockTime()) {
 		return nil
 	}
@@ -181,7 +180,7 @@ func (a *Account) renewable() error {
 	a.requireConfiguration()
 
 	// do calculations
-	newValidUntil := iovns.SecondsToTime(a.account.ValidUntil).Add(a.conf.AccountRenewalPeriod)
+	newValidUntil := utils.SecondsToTime(a.account.ValidUntil).Add(a.conf.AccountRenewalPeriod)
 	// renew count bumped because domain is already at count 1 when created
 	renewCount := a.conf.AccountRenewalCountMax + 1
 	// set new expected valid until
@@ -431,7 +430,7 @@ func (a *Account) gracePeriodFinished() error {
 	}
 	// get grace period and expiration time
 	gracePeriod := a.conf.AccountGracePeriod
-	expireTime := iovns.SecondsToTime(a.account.ValidUntil)
+	expireTime := utils.SecondsToTime(a.account.ValidUntil)
 	if a.ctx.BlockTime().After(expireTime.Add(gracePeriod)) {
 		return nil
 	}

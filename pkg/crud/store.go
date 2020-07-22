@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/tutils"
+	"github.com/iov-one/iovns/pkg/utils"
 	"sort"
 )
 
@@ -46,6 +46,27 @@ func NewStore(ctx sdk.Context, key sdk.StoreKey, cdc *codec.Codec, uniquePrefix 
 	}
 }
 
+type encoder interface {
+	MarshalCRUD() interface{}
+	UnmarshalCRUD(cdc *codec.Codec, b []byte)
+}
+
+func (s Store) encode(o interface{}) []byte {
+	if e, ok := o.(encoder); ok {
+		o = e.MarshalCRUD()
+	}
+	return s.cdc.MustMarshalBinaryBare(o)
+}
+
+func (s Store) decode(b []byte, o interface{}) {
+	e, ok := o.(encoder)
+	if !ok {
+		s.cdc.MustUnmarshalBinaryBare(b, o)
+		return
+	}
+	e.UnmarshalCRUD(s.cdc, b)
+}
+
 func (s Store) Filter(filter Object) *Filtered {
 	// if the primary key is specified then return that
 	var primaryKeys []PrimaryKey
@@ -69,7 +90,7 @@ func (s Store) Create(o Object) {
 	}
 	secondaryKeys := o.SecondaryKeys()
 	// marshal object
-	objectBytes := s.cdc.MustMarshalBinaryBare(o)
+	objectBytes := s.encode(o)
 	// save object to object store using its primary key
 	s.objects.Set(primaryKey, objectBytes)
 	// generate indexes
@@ -84,7 +105,7 @@ func (s Store) Read(key PrimaryKey, o interface{}) (ok bool) {
 	if v == nil {
 		return
 	}
-	s.cdc.MustUnmarshalBinaryBare(v, o)
+	s.decode(v, o)
 	return true
 }
 
@@ -115,16 +136,16 @@ func (s Store) primaryKeysInIndex(index SecondaryKey, do func(key PrimaryKey) bo
 // new update.
 // To achieve so a zeroed copy of Object is created which is used to
 // unmarshal the old object contents which is necessary for the un-indexing.
-func (s Store) Update(pk PrimaryKey, new Object) {
+func (s Store) Update(pk PrimaryKey, newObject Object) {
 	// get old object
-	old := tutils.CloneFromValue(new).(Object)
+	old := utils.CloneFromValue(newObject).(Object)
 	s.Read(pk, old)
 	// unindex old object
 	s.unindex(pk, old.SecondaryKeys())
 	// set new object
-	s.objects.Set(pk, s.cdc.MustMarshalBinaryBare(new))
+	s.objects.Set(pk, s.encode(newObject))
 	// index new object
-	s.index(pk, new.SecondaryKeys())
+	s.index(pk, newObject.SecondaryKeys())
 }
 
 // Delete deletes an object from the object store after
@@ -142,8 +163,8 @@ func (s Store) deleteFromPrimary(key PrimaryKey, o Object) {
 		panic("unexisting key")
 	}
 	// clone type
-	clone := tutils.CloneFromValue(o).(Object)
-	s.cdc.MustUnmarshalBinaryBare(v, clone)
+	clone := utils.CloneFromValue(o).(Object)
+	s.decode(v, clone)
 	// remove indexes
 	s.unindex(clone.PrimaryKey(), clone.SecondaryKeys())
 	// remove key
@@ -253,8 +274,8 @@ func (f *Filtered) Read(target interface{}) {
 	}
 }
 
-func (f *Filtered) Update(o interface{}) {
-	f.store.objects.Set(f.currKey(), f.store.cdc.MustMarshalBinaryBare(o))
+func (f *Filtered) Update(o Object) {
+	f.store.Update(f.currKey(), o)
 }
 
 func (f *Filtered) Delete() {
@@ -271,12 +292,8 @@ func (f *Filtered) currKey() PrimaryKey {
 	return f.primaryKeys[f.counter]
 }
 
-func (f *Filtered) Next() bool {
-	if !f.Valid() {
-		return false
-	}
+func (f *Filtered) Next() {
 	f.counter++
-	return true
 }
 
 func (f *Filtered) Valid() bool {

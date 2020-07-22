@@ -1,7 +1,9 @@
 package types
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/iov-one/iovns/pkg/crud"
+	"github.com/iov-one/iovns/pkg/utils"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -9,14 +11,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// emptyAccountNameIndexIdentifier defines how empty
-// account names of a domain are identified in indexes
-const emptyAccountNameIndexIdentifier = "*"
-
 const DomainAdminIndex = 0x1
 const AccountAdminIndex = 0x1
 const AccountDomainIndex = 0x2
 const AccountResourcesIndex = 0x3
+
+// StarnameSeparator defines the starname separator identifier
+const StarnameSeparator = "*"
 
 // Domain defines a domain
 type Domain struct {
@@ -88,6 +89,27 @@ type Account struct {
 	Broker sdk.AccAddress `json:"broker"`
 	// MetadataURI contains a link to extra information regarding the account
 	MetadataURI string `json:"metadata_uri"`
+}
+
+type accountCodecAlias struct {
+	Underlying *Account
+	NameNil    bool
+}
+
+func (a *Account) MarshalCRUD() interface{} {
+	return accountCodecAlias{
+		Underlying: a,
+		NameNil:    a.Name == nil,
+	}
+}
+
+func (a *Account) UnmarshalCRUD(cdc *codec.Codec, b []byte) {
+	trg := new(accountCodecAlias)
+	cdc.MustUnmarshalBinaryBare(b, trg)
+	*a = *trg.Underlying
+	if a.Name == nil && !trg.NameNil {
+		a.Name = utils.StrPtr("")
+	}
 }
 
 func (a *Account) PrimaryKey() crud.PrimaryKey {
