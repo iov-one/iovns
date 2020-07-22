@@ -2,11 +2,12 @@ package starname
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/keeper/executor"
 	"github.com/iov-one/iovns/x/starname/types"
-	"testing"
 )
 
 func TestExportGenesis(t *testing.T) {

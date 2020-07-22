@@ -1,10 +1,11 @@
 package types
 
 import (
+	"strings"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/iov-one/iovns/pkg/crud"
 	"github.com/iov-one/iovns/pkg/utils"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
 

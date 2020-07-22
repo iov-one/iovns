@@ -8,6 +8,7 @@ import tmp from "tmp";
 const tmpFiles = [];
 
 export const chain = process.env.CHAIN;
+export const echo = process.env.IOVNSCLI_ECHO;
 export const gasPrices = process.env.GAS_PRICES;
 export const signer = process.env.SIGNER;
 export const urlRest = process.env.URL_REST;
@@ -20,7 +21,9 @@ export const msig1 = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg"; // msig1
 
 export const iovnscli = ( args ) => {
    const maybeWithKeyring = args.find( arg => arg == "query" ) ? args : args.concat( [ "--keyring-backend", "test" ] );
-   const cli = spawnSync( "iovnscli", maybeWithKeyring.concat( [ "--chain-id", chain, "--node", urlRpc, "--output", "json" ] ) );
+   const cliargs = maybeWithKeyring.concat( [ "--chain-id", chain, "--node", urlRpc, "--output", "json" ] );
+   const cli = spawnSync( "iovnscli", cliargs );
+   if ( echo ) console.info( `\n\x1b[94miovnscli ${cliargs.join( " " )} | jq\x1b[89m\n` );
 
    if ( cli.status ) throw cli.error ? cli.error : new Error( cli.stderr.length ? cli.stderr : cli.stdout ) ;
 
@@ -64,6 +67,16 @@ export const signAndPost = async ( unsigned, from = signer ) => {
 };
 
 
+export const signAndBroadcastTx = ( unsigned, from = signer ) => {
+   const unsignedTmp = writeTmpJson( unsigned );
+   const args = [ "tx", "sign", unsignedTmp, "--from", from ];
+   const signed = iovnscli( args );
+   const signedTmp = writeTmpJson( signed );
+   const broadcasted = iovnscli( [ "tx", "broadcast", signedTmp, "--broadcast-mode", "block", "--gas-prices", gasPrices ] );
+
+   return broadcasted;
+};
+
 export const fetchObject = async ( url, options ) => {
    const fetched = await fetch( url, options );
    const o = await fetched.json();
@@ -85,7 +98,7 @@ export const memo = () => {
       const file = matches[1];
       const line = matches[2];
 
-      return `${process.env.HOSTNAME} ${file}:${line}`;
+      return `${process.env.HOSTNAME}:${file}:${line}`;
    }
 }
 

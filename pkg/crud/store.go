@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"sort"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/pkg/utils"
-	"sort"
 )
 
 var indexPrefix = []byte{0x01}
