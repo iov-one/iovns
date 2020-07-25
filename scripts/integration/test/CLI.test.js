@@ -257,14 +257,16 @@ describe( "Tests the CLI.", () => {
       if ( !transferred.logs ) throw new Error( transferred.raw_log );
 
       const newDomainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
-      const newResolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
       const newResolvedEmpty = iovnscli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( newDomainInfo.domain.admin ).toEqual( recipient );
-      expect( newResolved.error ).toBeTruthy();
       expect( newResolvedEmpty.account.owner ).toEqual( recipient );
       expect( newResolvedEmpty.account.metadata_uri ).toEqual( "" );
+
+      expect( () => {
+         iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      } ).toThrow( `account does not exist: not found in domain ${domain}: ${name}` );
    } );
 
 
