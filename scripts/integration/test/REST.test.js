@@ -254,7 +254,7 @@ describe( "Tests the REST API.", () => {
    } );
 
 
-   it.only( `Should register a domain, transfer it with reset flag 2 (ResetNone, the default), and query domainInfo.`, async () => {
+   it( `Should register a domain, transfer it with reset flag 2 (ResetNone, the default), and query domainInfo.`, async () => {
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const unsigned = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
       const posted = await signAndPost( unsigned );
@@ -276,7 +276,7 @@ describe( "Tests the REST API.", () => {
    } );
 
 
-   it.only( `Should register a domain, register an account, transfer the domain with reset flag 0 (TransferFlush), and query domainInfo.`, async () => {
+   it( `Should register a domain, register an account, transfer the domain with reset flag 0 (TransferFlush), and query domainInfo.`, async () => {
       const transferFlag = "0";
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
@@ -324,7 +324,7 @@ describe( "Tests the REST API.", () => {
    } );
 
 
-   it.only( `Should register a domain, register an account, transfer the domain with reset flag 1 (TransferOwned), and query domainInfo.`, async () => {
+   it( `Should register a domain, register an account, transfer the domain with reset flag 1 (TransferOwned), and query domainInfo.`, async () => {
       const transferFlag = "1";
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
