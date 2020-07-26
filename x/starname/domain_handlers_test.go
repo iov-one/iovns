@@ -737,12 +737,6 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					ValidUntil: utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Admin:      keeper.AliceKey,
 				}).Create()
-				// add empty account
-				executor.NewAccount(ctx, k, types.Account{
-					Domain: "test",
-					Name:   utils.StrPtr(""),
-					Owner:  keeper.AliceKey,
-				}).Create()
 				// add account 1
 				executor.NewAccount(ctx, k, types.Account{
 					Domain:     "test",

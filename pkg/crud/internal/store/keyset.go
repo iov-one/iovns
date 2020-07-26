@@ -1,25 +1,31 @@
-package crud
+package store
+
+import (
+	"github.com/iov-one/iovns/pkg/crud/types"
+)
 
 type hash string
 
 // TODO this is an inefficient implementation that should be changed asap.
 type keySet map[hash]struct{}
 
-func (k keySet) Insert(b PrimaryKey) {
-	k[hash(b)] = struct{}{}
+func (k keySet) Insert(b types.PrimaryKey) {
+	key := b.Key()
+	k[hash(key)] = struct{}{}
 }
 
-func (k keySet) Has(b PrimaryKey) bool {
-	_, ok := k[hash(b)]
+func (k keySet) Has(b types.PrimaryKey) bool {
+	key := b.Key()
+	_, ok := k[hash(key)]
 	return ok
 }
 
-func (k keySet) Keys() []PrimaryKey {
-	keys := make([]PrimaryKey, 0, len(k))
+func (k keySet) Keys() []types.PrimaryKey {
+	primaryKeys := make([]types.PrimaryKey, 0, len(k))
 	for key := range k {
-		keys = append(keys, PrimaryKey(key))
+		primaryKeys = append(primaryKeys, types.NewPrimaryKeyFromString(string(key)))
 	}
-	return keys
+	return primaryKeys
 }
 
 func (k keySet) Len() int {
@@ -27,12 +33,12 @@ func (k keySet) Len() int {
 }
 
 type set interface {
-	Has(b PrimaryKey) bool
-	Keys() []PrimaryKey
+	Has(b types.PrimaryKey) bool
+	Keys() []types.PrimaryKey
 	Len() int
 }
 
-func filter(sets []set) []PrimaryKey {
+func primaryKeysFromSets(sets []set) []types.PrimaryKey {
 	if len(sets) == 0 {
 		return nil
 	}
@@ -54,7 +60,7 @@ func filter(sets []set) []PrimaryKey {
 		return nil
 	}
 	// nice now start filtering
-	primaryKeys := make([]PrimaryKey, 0, smallestSet.Len())
+	primaryKeys := make([]types.PrimaryKey, 0, smallestSet.Len())
 	for _, key := range smallestSet.Keys() {
 		if !isInAll(key, sets) {
 			continue
@@ -66,7 +72,7 @@ func filter(sets []set) []PrimaryKey {
 }
 
 // isInAll verifies that the given primary key is present in all sets
-func isInAll(key PrimaryKey, sets []set) bool {
+func isInAll(key types.PrimaryKey, sets []set) bool {
 	for _, set := range sets {
 		if !set.Has(key) {
 			return false
