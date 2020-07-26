@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/iov-one/iovns/pkg/crud"
+	crud "github.com/iov-one/iovns/pkg/crud/types"
 	"github.com/iov-one/iovns/pkg/utils"
 	"regexp"
 	"time"

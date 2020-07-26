@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/iov-one/iovns/pkg/crud"
+	crud "github.com/iov-one/iovns/pkg/crud/types"
 	"github.com/iov-one/iovns/pkg/utils"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -38,19 +38,14 @@ func (d *Domain) PrimaryKey() crud.PrimaryKey {
 	if d.Name == "" {
 		return nil
 	}
-	return []byte(d.Name)
+	return crud.NewPrimaryKeyFromString(d.Name)
 }
 
 func (d *Domain) SecondaryKeys() []crud.SecondaryKey {
 	if d.Admin.Empty() {
 		return nil
 	}
-	return []crud.SecondaryKey{
-		{
-			StorePrefix: []byte{DomainAdminIndex},
-			Key:         d.Admin,
-		},
-	}
+	return []crud.SecondaryKey{crud.NewSecondaryKey(DomainAdminIndex, d.Admin)}
 }
 
 type DomainType string
@@ -118,25 +113,19 @@ func (a *Account) PrimaryKey() crud.PrimaryKey {
 		return nil
 	}
 	j := strings.Join([]string{a.Domain, *a.Name}, "*")
-	return []byte(j)
+	return crud.NewPrimaryKeyFromString(j)
 }
 
 func (a *Account) SecondaryKeys() []crud.SecondaryKey {
 	var sk []crud.SecondaryKey
 	// index by owner
 	if !a.Owner.Empty() {
-		ownerIndex := crud.SecondaryKey{
-			Key:         a.Owner,
-			StorePrefix: []byte{AccountAdminIndex},
-		}
+		ownerIndex := crud.NewSecondaryKey(AccountAdminIndex, a.Owner)
 		sk = append(sk, ownerIndex)
 	}
 	// index by domain
 	if len(a.Domain) != 0 {
-		domainIndex := crud.SecondaryKey{
-			Key:         []byte(a.Domain),
-			StorePrefix: []byte{AccountDomainIndex},
-		}
+		domainIndex := crud.NewSecondaryKey(AccountDomainIndex, []byte(a.Domain))
 		sk = append(sk, domainIndex)
 	}
 	// index by resources
@@ -147,10 +136,7 @@ func (a *Account) SecondaryKeys() []crud.SecondaryKey {
 		}
 		resKey := strings.Join([]string{res.URI, res.Resource}, "")
 		// append resource
-		sk = append(sk, crud.SecondaryKey{
-			Key:         []byte(resKey),
-			StorePrefix: []byte{AccountResourcesIndex},
-		})
+		sk = append(sk, crud.NewSecondaryKey(AccountResourcesIndex, []byte(resKey)))
 	}
 	// return keys
 	return sk

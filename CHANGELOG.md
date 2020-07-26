@@ -3,7 +3,7 @@
 ## HEAD
 
 ## v0.9.0
-
+- change enhance crud store api and make it more secure
 - add genesis file generation scripts
 - upgrade to cosmos sdk 0.39
 - move all files from root module to respective packages

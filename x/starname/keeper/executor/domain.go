@@ -2,7 +2,7 @@ package executor
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/iov-one/iovns/pkg/crud"
+	crud "github.com/iov-one/iovns/pkg/crud/types"
 	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
@@ -36,7 +36,7 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 	// if account valid until is specified then the renew is coming from accounts
 	if len(accValidUntil) != 0 {
 		d.domain.ValidUntil = accValidUntil[0]
-		d.domains.Update(d.domain.PrimaryKey(), d.domain)
+		d.domains.Update(d.domain)
 		return
 	}
 	// get configuration
@@ -46,7 +46,7 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 		utils.SecondsToTime(d.domain.ValidUntil).Add(renewDuration), // time(domain.ValidUntil) + renew duration
 	)
 	// set domain
-	d.domains.Update(d.domain.PrimaryKey(), d.domain)
+	d.domains.Update(d.domain)
 }
 
 // Delete deletes a domain from the kvstore
@@ -58,7 +58,7 @@ func (d *Domain) Delete() {
 	for ; filter.Valid(); filter.Next() {
 		filter.Delete()
 	}
-	d.domains.Delete(d.domain.PrimaryKey(), d.domain)
+	d.domains.Delete(d.domain.PrimaryKey())
 }
 
 // Transfer transfers a domain given a flag and an owner
@@ -70,7 +70,7 @@ func (d *Domain) Transfer(flag types.TransferFlag, newOwner sdk.AccAddress) {
 	// transfer domain
 	var oldOwner = d.domain.Admin // cache it for future uses
 	d.domain.Admin = newOwner
-	d.domains.Update(d.domain.PrimaryKey(), d.domain)
+	d.domains.Update(d.domain)
 	// transfer empty account
 	filter := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: utils.StrPtr(types.EmptyAccountName)})
 	emptyAccount := new(types.Account)
