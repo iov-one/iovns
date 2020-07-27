@@ -34,7 +34,7 @@ type indexes interface {
 type Store struct {
 	objects objects
 	indexes indexes
-	raw sdk.KVStore
+	raw     sdk.KVStore
 }
 
 // NewStore generates a new crud.Store given a context, a store key, the codec and a unique prefix
@@ -56,9 +56,10 @@ func (s Store) Filter(fltr types.Object) types.Filter {
 	// if the primary key is specified then return that
 	var primaryKeys []types.PrimaryKey
 	pk := fltr.PrimaryKey()
+	// if primary key exists then just use that
 	if pk != nil && len(pk.Key()) != 0 {
 		primaryKeys = append(primaryKeys, pk)
-
+		return filter.NewFiltered(primaryKeys, s)
 	}
 	primaryKeys = append(primaryKeys, s.getPrimaryKeys(fltr.SecondaryKeys())...)
 	return filter.NewFiltered(primaryKeys, s)
