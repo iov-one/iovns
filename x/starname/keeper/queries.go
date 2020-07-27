@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"fmt"
-	"github.com/iov-one/iovns/pkg/crud"
+	crud "github.com/iov-one/iovns/pkg/crud/types"
 	"github.com/iov-one/iovns/pkg/queries"
 	"github.com/iov-one/iovns/pkg/utils"
 	"strings"
@@ -18,7 +18,7 @@ type QueryHandlerFunc func(ctx sdk.Context, path []string, query abci.RequestQue
 
 // AvailableQueries returns the list of available queries in the module
 func AvailableQueries() []queries.QueryHandler {
-	queries := []queries.QueryHandler{
+	qrs := []queries.QueryHandler{
 		&QueryAccountsInDomain{},
 		&QueryResolveDomain{},
 		&QueryResolveAccount{},
@@ -26,7 +26,7 @@ func AvailableQueries() []queries.QueryHandler {
 		&QueryDomainsWithOwner{},
 		&QueryResolveResource{},
 	}
-	return queries
+	return qrs
 }
 
 // queryRouter defines a router for domain queries

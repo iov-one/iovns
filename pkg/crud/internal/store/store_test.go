@@ -1,9 +1,10 @@
-package crud
+package store
 
 import (
 	"crypto/rand"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
+	"github.com/iov-one/iovns/pkg/crud/types"
 	"reflect"
 	"testing"
 )
@@ -18,23 +19,18 @@ type testStoreObject struct {
 	Index2 string
 }
 
-func (t testStoreObject) PrimaryKey() PrimaryKey {
-	return []byte(t.Key)
+func (t testStoreObject) PrimaryKey() types.PrimaryKey {
+	return types.NewPrimaryKey([]byte(t.Key))
 }
 
-func (t testStoreObject) SecondaryKeys() []SecondaryKey {
-	var sk []SecondaryKey
+func (t testStoreObject) SecondaryKeys() []types.SecondaryKey {
+	var sk []types.SecondaryKey
 	if t.Index1 != "" {
-		sk = append(sk, SecondaryKey{
-			Key:         []byte(t.Index1),
-			StorePrefix: []byte{0x1},
-		})
+		sk = append(sk, types.NewSecondaryKey(0x1, []byte(t.Index1)))
 	}
 	if t.Index2 != "" {
-		sk = append(sk, SecondaryKey{
-			Key:         []byte(t.Index2),
-			StorePrefix: []byte{0x2},
-		})
+		sk = append(sk, types.NewSecondaryKey(0x2, []byte(t.Index2)))
+
 	}
 	return sk
 }
@@ -43,9 +39,9 @@ func newTestStoreObject() *testStoreObject {
 	key := make([]byte, 8)
 	index1 := make([]byte, 8)
 	index2 := make([]byte, 8)
-	rand.Read(key)
-	rand.Read(index1)
-	rand.Read(index2)
+	_, _ = rand.Read(key)
+	_, _ = rand.Read(index1)
+	_, _ = rand.Read(index2)
 	return &testStoreObject{
 		Key:    fmt.Sprintf("%x", key),
 		Index1: fmt.Sprintf("%x", index1),
@@ -56,7 +52,7 @@ func newTestStoreObject() *testStoreObject {
 func TestStore(t *testing.T) {
 	store := NewStore(testCtx, testKey, testCdc, []byte{0x0})
 	obj := newTestStoreObject()
-	obj.Index2 = string([]byte{ReservedSeparator, 0x2, 0x3}) // put reserved separator in
+	obj.Index2 = string([]byte{types.ReservedSeparator, 0x2, 0x3}) // put reserved separator in
 	store.Create(obj)
 	cpy := new(testStoreObject)
 	if !store.Read(obj.PrimaryKey(), cpy) {
@@ -68,7 +64,7 @@ func TestStore(t *testing.T) {
 	// update object
 	oldIndex := obj.Index2
 	obj.Index2 = "updated"
-	store.Update(obj.PrimaryKey(), obj)
+	store.Update(obj)
 	if !store.Read(obj.PrimaryKey(), cpy) {
 		t.Fatal("object deleted after update")
 	}
@@ -87,7 +83,7 @@ func TestStore(t *testing.T) {
 		t.Fatal("old index was not removed")
 	}
 	// delete object
-	store.Delete(obj.PrimaryKey(), obj)
+	store.Delete(obj.PrimaryKey())
 	// check if anything was left in the store
 	it := store.raw.Iterator(nil, nil)
 	defer it.Close()
@@ -110,29 +106,29 @@ func TestFilterAndIterateKeys(t *testing.T) {
 		store.Create(obj)
 	}
 	// check if object number is correct
-	keys := make([]PrimaryKey, 0, x)
-	store.IterateKeys(func(pk PrimaryKey) bool {
-		keys = append(keys, pk)
+	primaryKeys := make([]types.PrimaryKey, 0, x)
+	store.IterateKeys(func(pk types.PrimaryKey) bool {
+		primaryKeys = append(primaryKeys, pk)
 		return true
 	})
-	if len(keys) != x {
-		t.Fatal("unexpected number of keys", len(keys), x)
+	if len(primaryKeys) != x {
+		t.Fatal("unexpected number of keys", len(primaryKeys), x)
 	}
-	// delete based on filter
+	// delete based on primaryKeysFromSets
 	filter := store.Filter(&testStoreObject{Index1: objs[0].Index1}) // delete based on same index
 	for ; filter.Valid(); filter.Next() {
 		filter.Delete()
 	}
 	// try to read primary keys and check if they're deleted
 	for i, obj := range objs {
-		if store.objects.Has(obj.PrimaryKey()) {
+		if store.objects.(_objects).store.Has(obj.PrimaryKey().Key()) {
 			t.Fatalf("key not deleted %d %#v", i, obj)
 		}
 	}
 	// now try to iterate indexes and check if index keys were removed
 	for _, obj := range objs {
 		for _, sk := range obj.SecondaryKeys() {
-			if prefix.NewStore(store.indexes, sk.StorePrefix).Has(sk.Key) {
+			if prefix.NewStore(store.indexes.(_indexes).pointers, []byte{sk.Prefix()}).Has(sk.Key()) {
 				t.Fatal("index not removed")
 			}
 		}
@@ -145,11 +141,10 @@ func TestFilterAndIterateKeys(t *testing.T) {
 	// try to filter by secondary index
 	filter = store.Filter(&testStoreObject{Index2: objs[0].Index2})
 	if filter.Valid() {
-		t.Fatalf("no valid keys should exist %s", filter.primaryKeys[0])
+		t.Fatalf("no valid keys should exist")
 	}
 	iterator := store.raw.Iterator(nil, nil)
 	for ; iterator.Valid(); iterator.Next() {
 		t.Logf("%s", iterator.Key())
 	}
-
 }
