@@ -83,7 +83,6 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 	c := domain.NewController(ctx, k, msg.Domain)
 	err := c.Validate(
 		domain.MustExist,
-		domain.Type(types.ClosedDomain),
 		domain.Admin(msg.Owner),
 		domain.NotExpired,
 		domain.Transferable(msg.TransferFlag),

@@ -353,4 +353,31 @@ describe( "Tests the CLI.", () => {
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( newDomainInfo.domain.admin ).toEqual( recipient );
    } );
+
+
+   it( `Should register an open domain and transfer it.`, async () => {
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      const registered = iovnscli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--type", "open", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+
+      expect( registered.txhash ).toBeDefined();
+      if ( !registered.logs ) throw new Error( registered.raw_log );
+
+      const domainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
+
+      expect( domainInfo.domain.name ).toEqual( domain );
+      expect( domainInfo.domain.admin ).toEqual( signer );
+      expect( domainInfo.domain.type ).toEqual( "open" );
+
+      const recipient = w1;
+      const transferred = iovnscli( [ "tx", "starname", "transfer-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--new-owner", recipient, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+
+      expect( transferred.txhash ).toBeDefined();
+      if ( !transferred.logs ) throw new Error( transferred.raw_log );
+
+      const newDomainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
+
+      expect( newDomainInfo.domain.name ).toEqual( domain );
+      expect( newDomainInfo.domain.admin ).toEqual( recipient );
+      expect( newDomainInfo.domain.type ).toEqual( "open" );
+   } );
 } );
