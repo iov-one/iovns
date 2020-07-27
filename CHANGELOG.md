@@ -1,11 +1,11 @@
 # Changelog
 
 ## HEAD
-
-## v0.9.0
+- allow open domain transfers
 - fix filtering when primary key is present
 - fix finding the smallest set in the filters
 - change enhance crud store api and make it more secure
+## v0.9.0
 - add genesis file generation scripts
 - upgrade to cosmos sdk 0.39
 - move all files from root module to respective packages
