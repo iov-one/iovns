@@ -88,7 +88,7 @@ script:
   - curl --fail https://gist.githubusercontent.com/davepuchyr/e1482e63cb81443cde1616f353c4779f/raw/genesis.json > genesis.json
   - export CHAIN_ID=$(jq -r .chain_id genesis.json)
   - iovnsd init ${CHAIN_ID} --chain-id ${CHAIN_ID} > /dev/null 2> /dev/null
-  - sed --in-place 's/skip_timeout_commit = false/skip_timeout_commit = true/'
+  - sed --in-place 's/skip_timeout_commit = false/skip_timeout_commit = true/' ~/.iovnsd/config/config.toml
   - mv genesis.json ~/.iovnsd/config
   - iovnscli config chain-id ${CHAIN_ID}
   - iovnscli config trust-node true
