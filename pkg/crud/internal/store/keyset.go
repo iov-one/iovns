@@ -2,6 +2,7 @@ package store
 
 import (
 	"github.com/iov-one/iovns/pkg/crud/types"
+	"sort"
 )
 
 type hash string
@@ -45,16 +46,13 @@ func primaryKeysFromSets(sets []set) []types.PrimaryKey {
 	if len(sets) == 1 {
 		return sets[0].Keys()
 	}
-	// get the smaller set
-	smallerLen := sets[0].Len()
-	var smallestSet = sets[0]
-	sets = sets[1:] // remove first element
-	for _, set := range sets {
-		if length := set.Len(); length < smallerLen {
-			smallerLen = length
-			smallestSet = set
-		}
-	}
+	// determine the smallest set, as the final filter
+	// will have, at best, all the keys in the smallest one
+	sort.Slice(sets, func(i, j int) bool {
+		return sets[i].Len() < sets[j].Len()
+	})
+	smallestSet := sets[0]
+	smallerLen := smallestSet.Len()
 	// if smallest is zero then return nothing
 	if smallerLen == 0 {
 		return nil
