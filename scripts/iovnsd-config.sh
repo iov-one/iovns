@@ -12,7 +12,7 @@ iovnsd unsafe-reset-all
 curl ${GENESIS} > genesis.json
 CHAIN_ID=$(jq -r .chain_id genesis.json)
 iovnsd init ${CHAIN_ID} --chain-id ${CHAIN_ID}
-sed --in-place 's/skip_timeout_commit = false/skip_timeout_commit = true/' ~/.iovnsd/config/config.toml
+sed --in-place 's/timeout_commit = "5s"/timeout_commit = "1s"/' ~/.iovnsd/config/config.toml
 mv genesis.json ~/.iovnsd/config
 iovnsd add-genesis-account $(iovnscli keys show ${CHAIN_ID} -a) 1112111000000uvoi
 iovnsd gentx --name ${CHAIN_ID} --keyring-backend test --amount 1111111000000uvoi
