@@ -647,26 +647,28 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 			},
 			AfterTest: nil,
 		},
-		"domain type open": {
-			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				executor.NewDomain(ctx, k, types.Domain{
-					Name:  "test",
-					Type:  types.OpenDomain,
-					Admin: keeper.AliceKey,
-				}).Create()
+		/*
+			"domain type open": {
+				BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+					executor.NewDomain(ctx, k, types.Domain{
+						Name:  "test",
+						Type:  types.OpenDomain,
+						Admin: keeper.AliceKey,
+					}).Create()
+				},
+				Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
+					_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
+						Domain:   "test",
+						Owner:    nil,
+						NewAdmin: nil,
+					})
+					if !errors.Is(err, types.ErrInvalidDomainType) {
+						t.Fatalf("handlerMsgTransferDomain() expected error: %s, got error: %s", types.ErrInvalidDomainType, err)
+					}
+				},
+				AfterTest: nil,
 			},
-			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				_, err := handlerMsgTransferDomain(ctx, k, &types.MsgTransferDomain{
-					Domain:   "test",
-					Owner:    nil,
-					NewAdmin: nil,
-				})
-				if !errors.Is(err, types.ErrInvalidDomainType) {
-					t.Fatalf("handlerMsgTransferDomain() expected error: %s, got error: %s", types.ErrInvalidDomainType, err)
-				}
-			},
-			AfterTest: nil,
-		},
+		*/
 		"domain type closed": {
 			BeforeTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				executor.NewDomain(ctx, k, types.Domain{
