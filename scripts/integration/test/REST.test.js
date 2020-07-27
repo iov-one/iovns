@@ -324,7 +324,7 @@ describe( "Tests the REST API.", () => {
    } );
 
 
-   it.skip( `Should register a domain, register an account, transfer the domain with reset flag 1 (TransferOwned), and query domainInfo.`, async () => {
+   it( `Should register a domain, register an account, transfer the domain with reset flag 1 (TransferOwned), and query domainInfo.`, async () => {
       const transferFlag = "1";
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
