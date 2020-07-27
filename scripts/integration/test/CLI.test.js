@@ -217,7 +217,7 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it.skip( `Should register a domain, register an account, transfer the domain with reset flag 0 (TransferFlush), and query domain-info.`, async () => {
+   it( `Should register a domain, register an account, transfer the domain with reset flag 0 (TransferFlush), and query domain-info.`, async () => {
       const transferFlag = "0";
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
@@ -257,18 +257,20 @@ describe( "Tests the CLI.", () => {
       if ( !transferred.logs ) throw new Error( transferred.raw_log );
 
       const newDomainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
-      const newResolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
       const newResolvedEmpty = iovnscli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
 
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( newDomainInfo.domain.admin ).toEqual( recipient );
-      expect( newResolved.error ).toBeTruthy();
       expect( newResolvedEmpty.account.owner ).toEqual( recipient );
       expect( newResolvedEmpty.account.metadata_uri ).toEqual( "" );
+
+      expect( () => {
+         iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+      } ).toThrow( `account does not exist: not found in domain ${domain}: ${name}` );
    } );
 
 
-   it.skip( `Should register a domain, register an account, transfer the domain with reset flag 1 (TransferOwned), and query domain-info.`, async () => {
+   it( `Should register a domain, register an account, transfer the domain with reset flag 1 (TransferOwned), and query domain-info.`, async () => {
       const transferFlag = "1";
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
       const name = `${Math.floor( Math.random() * 1e9 )}`;
