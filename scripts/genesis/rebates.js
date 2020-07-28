@@ -7,6 +7,7 @@ import YAML from "yaml";
 
 
 const memo = "Thank-you for registering your Starname Network address!"; // HARD-CODED in conjunction with LIKE '%Thank%Starname%Network%'
+const src = "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un";
 
 
 const main = async () => {
@@ -50,8 +51,7 @@ const main = async () => {
    // pull previously paid; HARD-CODED LIKE in conjunction with memo
    const paid = ( await client.query( `
       SELECT *  FROM public.transactions
-      WHERE message -> 'details' ->> 'source' = 'iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un'
-      AND   message -> 'details' ->> 'memo' LIKE '%Thank%Starname%Network%'
+      WHERE message -> 'details' ->> 'memo' LIKE '%Thank%Starname%Network%'
       ORDER BY block_id asc
    ` ) ).rows.map( row => row.message.details.destination );
    const paid0 = paid.length;
@@ -107,7 +107,7 @@ const main = async () => {
 
    // send rebates
    iov1s.forEach( iov1 => {
-      const cli = spawnSync( "bash", [ "-x", "rebate.sh", recipients[iov1].amount, iov1, process.env.TM, memo ] );
+      const cli = spawnSync( "bash", [ "-x", "rebate.sh", src, recipients[iov1].amount, iov1, process.env.TM, memo ] );
 
       if ( cli.status ) throw cli.error ? cli.error : new Error( cli.stderr.length ? cli.stderr : cli.stdout );
    } );
