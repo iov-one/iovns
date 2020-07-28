@@ -50,6 +50,8 @@ const main = async () => {
       AND   message -> 'details' ->> 'memo' LIKE '%ick%'
       ORDER BY block_id asc
    ` ) ).rows.map( row => row.message.details.destination );
+   const paid0 = paid.length;
+   let payout = 0;
 
    const sendRebate = ( iov1, amount, info ) => {
       if ( !eligible.includes( iov1 ) || paid.includes( iov1 ) ) return;
@@ -57,6 +59,7 @@ const main = async () => {
       console.log( `${iov1} ${amount} ${info}` );
 
       paid.push( iov1 );
+      payout += amount;
    };
 
    changes.forEach( row => {
@@ -76,7 +79,7 @@ const main = async () => {
       sendRebate( iov1, amount + 0.5, row.message.details.memo ); // 0.5 for the anti-spam fee
    } );
 
-   console.log( `changes == ${changes.length}; registers == ${registers.length}; sends == ${sends.length}; `);
+   console.log( `changes == ${changes.length}; registers == ${registers.length}; sends == ${sends.length}; paid0 == ${paid0}; payouts == ${paid.length - paid0}; payout == ${payout};`);
 }
 
 
