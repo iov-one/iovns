@@ -88,8 +88,20 @@ const main = async () => {
    } ).map( recipient => recipient.iov1 );
 
    iov1s.forEach( iov1 => console.log( `${iov1} ${recipients[iov1].amount} ${recipients[iov1].info}` ) );
-   console.log( `changes == ${changes.length}; registers == ${registers.length}; sends == ${sends.length}; paid0 == ${paid0}; payouts == ${paid.length - paid0}; payout == ${payout};`);
-   console.log( `Send rebates?` );
+   console.log( `changes == ${changes.length}; registers == ${registers.length}; sends == ${sends.length}; paid0 == ${paid0}; rebates == ${paid.length - paid0}; payout == ${payout};`);
+
+   await new Promise( resolve => {
+      console.log( `Send ${paid.length - paid0} rebates totalling ${payout + 0.5 * ( paid.length - paid0 )} including fees? [yN]` );
+
+      process.stdin.resume();
+      process.stdin.once( "data", yn => {
+         if ( `${yn}`.toLocaleLowerCase().indexOf( "y" ) == -1 ) process.exit( 0 );
+
+         resolve();
+      } );
+   } );
+
+   console.log( "TODO: send" );
 }
 
 
