@@ -52,34 +52,44 @@ const main = async () => {
    ` ) ).rows.map( row => row.message.details.destination );
    const paid0 = paid.length;
    let payout = 0;
+   const recipients = {};
 
-   const sendRebate = ( iov1, amount, info ) => {
+   const filterRecipient = ( iov1, amount, info ) => {
       if ( !eligible.includes( iov1 ) || paid.includes( iov1 ) ) return;
-
-      console.log( `${iov1} ${amount} ${info}` );
 
       paid.push( iov1 );
       payout += amount;
+      recipients[iov1] = {
+         amount,
+         info,
+         iov1,
+      };
    };
 
    changes.forEach( row => {
       const target = row.message.details.new_targets.find( target => target.blockchain_id == "iov-mainnet" );
 
-      if ( target ) sendRebate( target.address, 1, row.message.details.username );
+      if ( target ) filterRecipient( target.address, 1, row.message.details.username );
    } );
    registers.forEach( row => {
       const target = row.message.details.targets.find( target => target.blockchain_id == "iov-mainnet" );
 
-      if ( target ) sendRebate( target.address, 10, row.message.details.username );
+      if ( target ) filterRecipient( target.address, 10, row.message.details.username );
    } );
    sends.forEach( row => {
       const iov1 = row.message.details.source;
       const amount = ( row.message.details.amount.whole || 0 ) + ( row.message.details.amount.fractional || 0 );
 
-      sendRebate( iov1, amount + 0.5, row.message.details.memo ); // 0.5 for the anti-spam fee
+      filterRecipient( iov1, amount + 0.5, row.message.details.memo ); // 0.5 for the anti-spam fee
    } );
 
+   const iov1s = Object.values( recipients ).sort( ( a, b ) => {
+      return a.amount == b.amount ? a.info.localeCompare( b.info ) : a.amount - b.amount;
+   } ).map( recipient => recipient.iov1 );
+
+   iov1s.forEach( iov1 => console.log( `${iov1} ${recipients[iov1].amount} ${recipients[iov1].info}` ) );
    console.log( `changes == ${changes.length}; registers == ${registers.length}; sends == ${sends.length}; paid0 == ${paid0}; payouts == ${paid.length - paid0}; payout == ${payout};`);
+   console.log( `Send rebates?` );
 }
 
 
