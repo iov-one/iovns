@@ -1,8 +1,12 @@
 import { atob } from "Base64";
 import { Client } from "pg";
+import { spawnSync } from "child_process";
 import fetch from "node-fetch";
 import fs from "fs";
 import YAML from "yaml";
+
+
+const memo = "Thank-you for registering your Starname Network address!"; // HARD-CODED in conjunction with LIKE '%Thank%Starname%Network%'
 
 
 const main = async () => {
@@ -33,7 +37,7 @@ const main = async () => {
    // pull potential rebate candidates that used register_token
    const registers = ( await client.query( `
       SELECT *  FROM public.transactions
-      WHERE message::text LIKE '%register%star1%'
+      WHERE message::text LIKE '%register_token%star1%'
       ORDER BY block_id asc
    ` ) ).rows;
    // pull potential rebate candidates that used send (Ledger users)
@@ -43,11 +47,11 @@ const main = async () => {
       AND   message -> 'details' ->> 'memo' LIKE '%star1%'
       ORDER BY block_id asc
    ` ) ).rows;
-   // pull previously paid; TODO: fix LIKE
+   // pull previously paid; HARD-CODED LIKE in conjunction with memo
    const paid = ( await client.query( `
       SELECT *  FROM public.transactions
       WHERE message -> 'details' ->> 'source' = 'iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un'
-      AND   message -> 'details' ->> 'memo' LIKE '%ick%'
+      AND   message -> 'details' ->> 'memo' LIKE '%Thank%Starname%Network%'
       ORDER BY block_id asc
    ` ) ).rows.map( row => row.message.details.destination );
    const paid0 = paid.length;
@@ -91,7 +95,7 @@ const main = async () => {
    console.log( `changes == ${changes.length}; registers == ${registers.length}; sends == ${sends.length}; paid0 == ${paid0}; rebates == ${paid.length - paid0}; payout == ${payout};`);
 
    await new Promise( resolve => {
-      console.log( `Send ${paid.length - paid0} rebates totalling ${payout + 0.5 * ( paid.length - paid0 )} including fees? [yN]` );
+      console.log( `Send ${paid.length - paid0} rebates totalling ${payout + 0.5 * ( paid.length - paid0 )} including fees via ${process.env.TM}? [yN]` );
 
       process.stdin.resume();
       process.stdin.once( "data", yn => {
@@ -101,7 +105,12 @@ const main = async () => {
       } );
    } );
 
-   console.log( "TODO: send" );
+   // send rebates
+   iov1s.forEach( iov1 => {
+      const cli = spawnSync( "bash", [ "-x", "rebate.sh", recipients[iov1].amount, iov1, process.env.TM, memo ] );
+
+      if ( cli.status ) throw cli.error ? cli.error : new Error( cli.stderr.length ? cli.stderr : cli.stdout );
+   } );
 }
 
 
