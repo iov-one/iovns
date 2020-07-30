@@ -490,6 +490,18 @@ describe( "Tests ../../lib/migrate.js.", () => {
       "socgen",
       "twitter",
       "youtube",
+      "ivanontech",
+      "goldman_sachs",
+      "fcbarca",
+      "china",
+      "goldman1",
+      "socgen1",
+      "twitter1",
+      "youtube1",
+      "ivanontech1",
+      "goldman_sachs1",
+      "fcbarca1",
+      "china1",
    ];
 
    it( `Should burn tokens.`, async () => {
@@ -694,10 +706,25 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       expect( hash.admin ).toEqual( "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y" );
       expect( huth.admin ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
-      expect( goldman.admin ).toEqual( iov.value.address );
+      expect( goldman.admin ).toEqual( iov.value.address ); // TODO: 3rd party custodian
       expect( socgen.admin ).toEqual( iov.value.address );
       expect( twitter.admin ).toEqual( iov.value.address );
       expect( youtube.admin ).toEqual( iov.value.address );
+
+      const limiteds = domains.filter( domain => domain.valid_until != lovely.valid_until ).sort( ( a, b ) => a.valid_until.localeCompare( b.valid_until ) );
+
+      expect( limiteds.length ).toEqual( reserveds.length );
+
+      const buckets = limiteds.reduce( ( accumulator, limited ) => {
+         let count = accumulator[limited.valid_until] || 0;
+
+         accumulator[limited.valid_until] = ++count;
+
+         return accumulator;
+      }, {} );
+
+      expect( Object.keys( buckets ).length ).toEqual( 8 ); // HARD-CODED in conjunction with convertToCosmosSdk().releases
+      Object.keys( buckets ).forEach( valid_until => expect( isFinite( valid_until ) ).toEqual( true ) ); // milliseconds since epoch
    } );
 
    it( `Should fail to add gentxs due to floating point amount.`, async () => {
@@ -1146,33 +1173,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
          "targets": null,
          "valid_until": "1609415999"
       } );
-      genesisCopy.app_state.starname.domains.push( {
-         "//iov1": "iov12gd6weg7py6vs7ujn22h82422arek8cxzhe85p",
-         "account_renew": "315576000",
-         "admin": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
-         "broker": null,
-         "name": "adrian",
-         "type": "closed",
-         "valid_until": "1609415999"
-      },
-      {
-         "//iov1": "iov12gd6weg7py6vs7ujn22h82422arek8cxzhe85p",
-         "account_renew": "315576000",
-         "admin": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
-         "broker": null,
-         "name": "adrianirimia",
-         "type": "closed",
-         "valid_until": "1609415999"
-      },
-      {
-         "//iov1": "iov12gd6weg7py6vs7ujn22h82422arek8cxzhe85p",
-         "account_renew": "315576000",
-         "admin": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
-         "broker": null,
-         "name": "world",
-         "type": "closed",
-         "valid_until": "1609415999"
-      } );
 
       const accounts0 = [].concat( genesisCopy.app_state.auth.accounts );
       const starnames0 = [].concat( genesisCopy.app_state.starname.accounts );
@@ -1196,10 +1196,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const misangstar1 = "star1lgh6ekcnkufs4742qr5znvtlz4vglul9g2p6xl";
       const misang = genesisCopy.app_state.auth.accounts.find( account => account.value.address == misangstar1 );
       const misangiov = genesisCopy.app_state.starname.accounts.find( account => account.owner == misangstar1 );
-      const adrianstar1 = "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt";
-      const adrian       = genesisCopy.app_state.starname.domains.find( domain => domain.owner == adrianstar1 && domain.name == "adrian" );
-      const adrianirimia = genesisCopy.app_state.starname.domains.find( domain => domain.owner == adrianstar1 && domain.name == "adrianirimia" );
-      const world        = genesisCopy.app_state.starname.domains.find( domain => domain.owner == adrianstar1 && domain.name == "world" );
 
       expect( custodian.value.coins[0].amount ).toEqual( String( +custodian0.value.coins[0].amount - charliefAmount - gillesdAmount - misangAmount ) );
       expect( charlief.value.coins[0].amount ).toEqual( String( charliefAmount ) );
@@ -1208,9 +1204,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( gillesdiov ).toBeTruthy();
       expect( misang.value.coins[0].amount ).toEqual( String( misangAmount ) );
       expect( misangiov ).toBeTruthy();
-      expect( adrian ).toBeTruthy();
-      expect( adrianirimia ).toBeTruthy();
-      expect( world ).toBeTruthy();
    } );
 
    it( `Should migrate.`, async () => {
