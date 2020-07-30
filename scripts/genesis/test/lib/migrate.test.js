@@ -490,6 +490,18 @@ describe( "Tests ../../lib/migrate.js.", () => {
       "socgen",
       "twitter",
       "youtube",
+      "ivanontech",
+      "goldman_sachs",
+      "fcbarca",
+      "china",
+      "goldman1",
+      "socgen1",
+      "twitter1",
+      "youtube1",
+      "ivanontech1",
+      "goldman_sachs1",
+      "fcbarca1",
+      "china1",
    ];
 
    it( `Should burn tokens.`, async () => {
@@ -694,10 +706,25 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       expect( hash.admin ).toEqual( "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y" );
       expect( huth.admin ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
-      expect( goldman.admin ).toEqual( iov.value.address );
+      expect( goldman.admin ).toEqual( iov.value.address ); // TODO: 3rd party custodian
       expect( socgen.admin ).toEqual( iov.value.address );
       expect( twitter.admin ).toEqual( iov.value.address );
       expect( youtube.admin ).toEqual( iov.value.address );
+
+      const limiteds = domains.filter( domain => domain.valid_until != lovely.valid_until ).sort( ( a, b ) => a.valid_until.localeCompare( b.valid_until ) );
+
+      expect( limiteds.length ).toEqual( reserveds.length );
+
+      const buckets = limiteds.reduce( ( accumulator, limited ) => {
+         let count = accumulator[limited.valid_until] || 0;
+
+         accumulator[limited.valid_until] = ++count;
+
+         return accumulator;
+      }, {} );
+
+      expect( Object.keys( buckets ).length ).toEqual( 8 ); // HARD-CODED in conjunction with convertToCosmosSdk().releases
+      Object.keys( buckets ).forEach( valid_until => expect( isFinite( valid_until ) ).toEqual( true ) ); // milliseconds since epoch
    } );
 
    it( `Should fail to add gentxs due to floating point amount.`, async () => {

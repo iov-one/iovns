@@ -133,7 +133,7 @@ export const createDomain = ( args = {} ) => {
       "broker": null,
       "name": args.domain,
       "type": "closed",
-      "valid_until": String( Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60 ), // 1 year from now
+      "valid_until": String( args.valid_until || Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60 ), // specified or 1 year from now
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -330,10 +330,21 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
       } );
    } );
 
-   const iov1 = "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq";
+   const iov1 = "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq"; // TODO: 3rd party custodian
    const address = multisigs[iov1].star1;
-   reserveds.forEach( domain => {
-      domains.push( createDomain( { address, iov1, domain } ) );
+   const now = new Date();
+   const d0 = new Date( now.getFullYear(), now.getMonth() + 1, 14 ); // mid-month
+   const releases = [ 1, 2, 3, 4, 5, 6, 7, 8 ].map( dm => { // give 8 months to sell
+      const d = new Date( d0.getTime() + dm * 30.4375 * 24 * 60 * 60 * 1000 ); // average days per month
+
+      d.setDate( d.getDate() + ( 10 - d.getDay() ) % 7 ); // Wednesdays (3) only
+
+      return d;
+   } );
+   reserveds.forEach( ( domain, i ) => {
+      const valid_until = releases[i % releases.length].getTime();
+
+      domains.push( createDomain( { address, iov1, domain, valid_until } ) );
    } );
 
    domains.sort( ( a, b ) => a.name.localeCompare( b.name ) );
