@@ -23,6 +23,6 @@ describe( "Tests ../../lib/fetchIndicativeSendsTo.js.", () => {
       ];
       const sends = await fetchIndicativeSendsTo( "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6", /star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38}/ );
 
-      compareObjects( indicative, sends );
+      compareObjects( indicative, sends.slice( 0, 2 ) );
    } );
 } );
