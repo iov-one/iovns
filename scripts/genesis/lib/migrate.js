@@ -330,6 +330,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
       } );
    } );
 
+   // reserve domains
    const iov1 = "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq"; // TODO: 3rd party custodian
    const address = multisigs[iov1].star1;
    const now = new Date();
@@ -342,9 +343,11 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
       return d;
    } );
    reserveds.forEach( ( domain, i ) => {
-      const valid_until = releases[i % releases.length].getTime();
+      if ( !domains.find( existing => existing.name == domain ) ) { // don't allow duplicates
+         const valid_until = releases[i % releases.length].getTime();
 
-      domains.push( createDomain( { address, iov1, domain, valid_until } ) );
+         domains.push( createDomain( { address, iov1, domain, valid_until } ) );
+      }
    } );
 
    domains.sort( ( a, b ) => a.name.localeCompare( b.name ) );
