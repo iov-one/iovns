@@ -711,7 +711,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( twitter.admin ).toEqual( iov.value.address );
       expect( youtube.admin ).toEqual( iov.value.address );
 
-      const limiteds = domains.filter( domain => domain.valid_until != lovely.valid_until ).sort( ( a, b ) => a.valid_until.localeCompare( b.valid_until ) );
+      const limiteds = domains.filter( domain => domain.valid_until != lovely.valid_until );
 
       expect( limiteds.length ).toEqual( reserveds.length );
 
