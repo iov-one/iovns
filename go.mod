@@ -3,10 +3,10 @@ module github.com/iov-one/iovns
 go 1.14
 
 require (
-	github.com/cosmos/cosmos-sdk v0.39.0
+	github.com/cosmos/cosmos-sdk v0.39.1-rc1
 	github.com/fatih/structs v1.1.0
 	github.com/golang/mock v1.3.1 // indirect
-	github.com/gorilla/mux v1.7.3
+	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/websocket v1.4.2
 	github.com/jinzhu/gorm v1.9.14
 	github.com/lib/pq v1.1.1
