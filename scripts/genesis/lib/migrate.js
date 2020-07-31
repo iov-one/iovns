@@ -653,7 +653,7 @@ export const patchMainnet = genesis => {
    if ( genesis.chain_id != "iov-mainnet-2" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iov-mainnet-2.` );
 
    const custodian = genesis.app_state.auth.accounts.find( account => account["//id"] == "Custodian of missing star1 accounts" );
-   const lostKeys = { // lost keys/ledger firmware upgraded
+   const lostKeysInCustody = { // lost keys/ledger firmware upgraded
       iov1jq8z8xl9tqdwjsp44gtkd2c5rpq33e556kg0ft: {
          star1: "star1k9ktkefsdxtydga262re596agdklwjmrf9et90",
          id: 2033,
@@ -668,12 +668,12 @@ export const patchMainnet = genesis => {
       },
    };
 
-   Object.keys( lostKeys ).forEach( iov1 => {
+   Object.keys( lostKeysInCustody ).forEach( iov1 => {
       const recover = custodian[`//no star1 ${iov1}`];
       const iov = recover[0];
       const amount = 1.e6 * iov;
-      const address = lostKeys[iov1].star1;
-      const id = lostKeys[iov1].id;
+      const address = lostKeysInCustody[iov1].star1;
+      const id = lostKeysInCustody[iov1].id;
       const [ name, domain ] = recover[1].split( "*" );
 
       // remove custody of tokens
@@ -689,6 +689,32 @@ export const patchMainnet = genesis => {
       if ( genesis.app_state.auth.accounts.find( account => account["//iov1"] == iov1 ) ) throw new Error( `Account for ${iov1} already exists!` );
       const account = createAccount( { address, amount, id, iov, iov1 } );
       genesis.app_state.auth.accounts.push( account );
+   } );
+
+   const lostKeysWithStar1 = { // lost keys after star1 address generation
+      iov1lfjspe4x5u404sskmv5md4q7u9jcz96zya8krw: {
+         star1: "star1lsk9ckth2s870kjqcyl6x5af7gazj6eg7msluq",
+         id: 2191,
+      },
+      iov1ja0syy203qncn28cqmz5zh9kh2xl0xxt36m4qx: {
+         star1: "star1f2jpr2guzq3y5yjv667axr26pl6qzyn2hzthfa",
+         id: 2192,
+      },
+      iov1axxtqae3x9jtvv7wavg6fnjgpc27dx7a9jlp9r: {
+         star1: "star1xnzwj34e8zefm7g7vtgnphfj6x2qgnq723rq0j",
+         id: 2193,
+      },
+   };
+
+   Object.keys( lostKeysWithStar1 ).forEach( iov1 => {
+      const account = genesis.app_state.auth.accounts.find( account => account["//iov1"] == iov1 );
+      const starname = genesis.app_state.starname.accounts.find( account => account["//iov1"] == iov1 );
+      const resource = starname.resources.find( resource => resource.uri.indexOf( ":iov" ) != -1 );
+      const star1 = lostKeysWithStar1[iov1].star1;
+
+      account.value.address = star1;
+      starname.owner = star1;
+      resource.resource = star1;
    } );
 
    const getAmount = account => {
