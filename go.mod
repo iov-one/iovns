@@ -24,6 +24,3 @@ require (
 	github.com/tendermint/tendermint v0.33.6
 	github.com/tendermint/tm-db v0.5.1
 )
-
-// patch bech32 decoding, TODO this should not be the fix for the multisig isue
-replace github.com/btcsuite/btcutil => github.com/kava-labs/btcutil v0.0.0-20200522184203-886d33430f06
