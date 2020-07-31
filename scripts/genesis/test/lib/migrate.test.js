@@ -1031,7 +1031,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const current = genesisCopy.app_state.auth.accounts;
 
       expect( current.length ).not.toEqual( previous.length );
-      expect( current.length ).toEqual( 12 );
+      expect( current.length ).toEqual( 13 );
 
       const antoine = current.find( account => account["//name"] == "antoine" );
       const dave = current.find( account => account["//name"] == "dave*iov" );
@@ -1139,6 +1139,60 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "public_key": "",
             "sequence": 0
          }
+      },
+      {
+         "//id": 2191,
+         "//iov1": "iov1lfjspe4x5u404sskmv5md4q7u9jcz96zya8krw",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": "0",
+            "address": "star1alx5xdyws6hzeynewdzm4x5wg0v6tjl3wcq34g",
+            "coins": [
+               {
+                  "//IOV": 49998,
+                  "amount": "49998000000",
+                  "denom": "uvoi"
+               }
+            ],
+            "public_key": null,
+            "sequence": "0"
+         }
+      },
+      {
+         "//id": 2192,
+         "//iov1": "iov1ja0syy203qncn28cqmz5zh9kh2xl0xxt36m4qx",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": "0",
+            "address": "star16yqeeqp26h64rldcql7cpsz0zte7rwx9jc8s6x",
+            "coins": [
+               {
+                  "//IOV": 22220,
+                  "amount": "22220000000",
+                  "denom": "uvoi"
+               }
+            ],
+            "public_key": null,
+            "sequence": "0"
+         }
+      },
+      {
+         "//id": 2193,
+         "//iov1": "iov1axxtqae3x9jtvv7wavg6fnjgpc27dx7a9jlp9r",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": "0",
+            "address": "star1myg5g0uvsjdq20atrjv5t49ffflwz2m7d7u677",
+            "coins": [
+               {
+                  "//IOV": 235925.5,
+                  "amount": "235925500000",
+                  "denom": "uvoi"
+               }
+            ],
+            "public_key": null,
+            "sequence": "0"
+         }
       } );
       genesisCopy.app_state.starname.accounts.push( {
          "//iov1": "iov14qk7zrz2ewhdmy7cjj68sk6jn3rst4vd7u930y",
@@ -1172,6 +1226,54 @@ describe( "Tests ../../lib/migrate.js.", () => {
          "owner": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
          "targets": null,
          "valid_until": "1609415999"
+      },
+      {
+         "//iov1": "iov1axxtqae3x9jtvv7wavg6fnjgpc27dx7a9jlp9r",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "de26",
+         "owner": "star1myg5g0uvsjdq20atrjv5t49ffflwz2m7d7u677",
+         "resources": [
+            {
+               "resource": "star1myg5g0uvsjdq20atrjv5t49ffflwz2m7d7u677",
+               "uri": "asset:iov"
+            }
+         ],
+         "valid_until": "1609415999"
+      },
+      {
+         "//iov1": "iov1lfjspe4x5u404sskmv5md4q7u9jcz96zya8krw",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "jean501",
+         "owner": "star1alx5xdyws6hzeynewdzm4x5wg0v6tjl3wcq34g",
+         "resources": [
+            {
+               "resource": "star1alx5xdyws6hzeynewdzm4x5wg0v6tjl3wcq34g",
+               "uri": "asset:iov"
+            }
+         ],
+         "valid_until": "1609415999"
+      },
+      {
+         "//iov1": "iov1ja0syy203qncn28cqmz5zh9kh2xl0xxt36m4qx",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "mam",
+         "owner": "star16yqeeqp26h64rldcql7cpsz0zte7rwx9jc8s6x",
+         "resources": [
+            {
+               "resource": "star16yqeeqp26h64rldcql7cpsz0zte7rwx9jc8s6x",
+               "uri": "asset:iov"
+            }
+         ],
+         "valid_until": "1609415999"
       } );
 
       const accounts0 = [].concat( genesisCopy.app_state.auth.accounts );
@@ -1183,6 +1285,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesisCopy.app_state.auth.accounts.length ).toEqual( accounts0.length + 3 ); // charlie, gilles, misang
       expect( genesisCopy.app_state.starname.accounts.length ).toEqual( starnames0.length );
 
+      // lostKeysInCustody
       const custodian = genesisCopy.app_state.auth.accounts.find( account => account["//id"] == "Custodian of missing star1 accounts" );
       const charliefAmount = 700666 * 1e6;
       const charliestar1 = "star1k9ktkefsdxtydga262re596agdklwjmrf9et90";
@@ -1204,6 +1307,27 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( gillesdiov ).toBeTruthy();
       expect( misang.value.coins[0].amount ).toEqual( String( misangAmount ) );
       expect( misangiov ).toBeTruthy();
+
+      // lostKeysWithStar1
+      const de26star1 = "star1xnzwj34e8zefm7g7vtgnphfj6x2qgnq723rq0j";
+      const de26 = genesisCopy.app_state.auth.accounts.find( account => account.value.address == de26star1 );
+      const de26iov = genesisCopy.app_state.starname.accounts.find( account => account.owner == de26star1 );
+      const jean501star1 = "star1lsk9ckth2s870kjqcyl6x5af7gazj6eg7msluq";
+      const jean501 = genesisCopy.app_state.auth.accounts.find( account => account.value.address == jean501star1 );
+      const jean501iov = genesisCopy.app_state.starname.accounts.find( account => account.owner == jean501star1 );
+      const mamstar1 = "star1f2jpr2guzq3y5yjv667axr26pl6qzyn2hzthfa";
+      const mam = genesisCopy.app_state.auth.accounts.find( account => account.value.address == mamstar1 );
+      const mamiov = genesisCopy.app_state.starname.accounts.find( account => account.owner == mamstar1 );
+
+      expect( de26 ).toBeTruthy();
+      expect( de26iov.name ).toEqual( "de26" );
+      expect( de26iov.resources[0].resource ).toEqual( de26star1 );
+      expect( jean501 ).toBeTruthy();
+      expect( jean501iov.name ).toEqual( "jean501" );
+      expect( jean501iov.resources[0].resource ).toEqual( jean501star1 );
+      expect( mam ).toBeTruthy();
+      expect( mamiov.name ).toEqual( "mam" );
+      expect( mamiov.resources[0].resource ).toEqual( mamstar1 );
    } );
 
    it( `Should migrate.`, async () => {
