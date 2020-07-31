@@ -1031,7 +1031,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const current = genesisCopy.app_state.auth.accounts;
 
       expect( current.length ).not.toEqual( previous.length );
-      expect( current.length ).toEqual( 12 );
+      expect( current.length ).toEqual( 13 );
 
       const antoine = current.find( account => account["//name"] == "antoine" );
       const dave = current.find( account => account["//name"] == "dave*iov" );
