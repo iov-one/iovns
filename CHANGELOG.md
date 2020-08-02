@@ -1,6 +1,7 @@
 # Changelog
 
 ## HEAD
+- make controllers API nicer
 - enhance executors tests
 - allow open domain transfers
 - fix filtering when primary key is present
