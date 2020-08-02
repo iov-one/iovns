@@ -12,13 +12,16 @@ import (
 )
 
 func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteDomain) (*sdk.Result, error) {
-	c := domain.NewController(ctx, k, msg.Domain)
+	ctrl := domain.NewController(ctx, k, msg.Domain)
 	// do precondition and authorization checks
-	if err := c.Validate(domain.MustExist, domain.DeletableBy(msg.Owner)); err != nil {
+	if err := ctrl.
+		MustExist().
+		DeletableBy(msg.Owner).
+		Validate(); err != nil {
 		return nil, err
 	}
 	// operation is allowed
-	feeCtrl := fees.NewController(ctx, k, c.Domain())
+	feeCtrl := fees.NewController(ctx, k, ctrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err := k.CollectFees(ctx, msg, fee)
@@ -26,15 +29,18 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// all checks passed delete domain
-	executor.NewDomain(ctx, k, c.Domain()).Delete()
+	executor.NewDomain(ctx, k, ctrl.Domain()).Delete()
 	// success TODO maybe emit event?
 	return &sdk.Result{}, nil
 }
 
 // handleMsgRegisterDomain handles the domain registration process
 func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDomain) (resp *sdk.Result, err error) {
-	c := domain.NewController(ctx, k, msg.Name)
-	err = c.Validate(domain.MustNotExist, domain.ValidName)
+	ctrl := domain.NewController(ctx, k, msg.Name)
+	err = ctrl.
+		MustNotExist().
+		ValidName().
+		Validate()
 	if err != nil {
 		return nil, err
 	}
@@ -61,12 +67,15 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 
 // handlerMsgRenewDomain renews a domain
 func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewDomain) (*sdk.Result, error) {
-	c := domain.NewController(ctx, k, msg.Domain)
-	err := c.Validate(domain.MustExist, domain.Renewable)
+	ctrl := domain.NewController(ctx, k, msg.Domain)
+	err := ctrl.
+		MustExist().
+		Renewable().
+		Validate()
 	if err != nil {
 		return nil, err
 	}
-	feeCtrl := fees.NewController(ctx, k, c.Domain())
+	feeCtrl := fees.NewController(ctx, k, ctrl.Domain())
 	fee := feeCtrl.GetFee(msg)
 	// collect fees
 	err = k.CollectFees(ctx, msg, fee)
@@ -74,19 +83,19 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 		return nil, sdkerrors.Wrap(err, "unable to collect fees")
 	}
 	// update domain
-	executor.NewDomain(ctx, k, c.Domain()).Renew()
+	executor.NewDomain(ctx, k, ctrl.Domain()).Renew()
 	// success TODO emit event
 	return &sdk.Result{}, nil
 }
 
 func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTransferDomain) (*sdk.Result, error) {
 	c := domain.NewController(ctx, k, msg.Domain)
-	err := c.Validate(
-		domain.MustExist,
-		domain.Admin(msg.Owner),
-		domain.NotExpired,
-		domain.Transferable(msg.TransferFlag),
-	)
+	err := c.
+		MustExist().
+		Admin(msg.Owner).
+		NotExpired().
+		Transferable(msg.TransferFlag).
+		Validate()
 	if err != nil {
 		return nil, err
 	}
