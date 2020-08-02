@@ -1,6 +1,7 @@
 # Changelog
 
 ## HEAD
+- enhance executors tests
 - allow open domain transfers
 - fix filtering when primary key is present
 - fix finding the smallest set in the filters
