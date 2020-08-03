@@ -331,8 +331,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
    } );
 
    // reserve domains
-   const iov1 = "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq"; // TODO: 3rd party custodian
-   const address = multisigs[iov1].star1;
+   const address = "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96"; // https://internetofvalues.slack.com/archives/GPYCU2AJJ/p1596436694013900
    const now = new Date();
    const d0 = new Date( now.getFullYear(), now.getMonth() + 1, 14 ); // mid-month
    const releases = [ 1, 2, 3, 4, 5, 6, 7, 8 ].map( dm => { // give 8 months to sell
@@ -346,7 +345,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
       if ( !domains.find( existing => existing.name == domain ) ) { // don't allow duplicates
          const valid_until = releases[i % releases.length].getTime();
 
-         domains.push( createDomain( { address, iov1, domain, valid_until } ) );
+         domains.push( createDomain( { address, domain, valid_until } ) );
       }
    } );
 
