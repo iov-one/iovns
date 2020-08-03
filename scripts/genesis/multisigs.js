@@ -69,6 +69,8 @@ const main = async () => {
       "escrow isabella*iov": "escrowIsabella",
       "escrow kadima*iov": "escrowKadima",
       "escrow vaildator guaranteed reward fund": "escrowValidators",
+      "Custodial of missing star1 accounts": "star1Custodian",
+      "escrow joghurt*iov": "escrowJoghurt",
    };
    const have = iovnscli( [ "keys", "list" ] ).map( value => value.name );
    const need = Object.keys( pubkeys ).filter( key => !have.includes( nice[key] ? nice[key] : key ) );

@@ -45,3 +45,15 @@ removed directory '/dev/shm/blackhole'
 
 - name: olivier
   pubkey: starpub1addwnpepqd5vtc5j8sl0mxmvxa7ydu4flwh5taxnea423q7d9qup548snshpzyp9z58
+
+dave@slim genesis(multisigs)$ ./multisig_pubkeys.sh "Custodial of missing star1 accounts" "escrow joghurt*iov"
+mkdir: created directory '/dev/shm/blackhole'
+
+- name: Custodial of missing star1 accounts
+  pubkey: starpub1addwnpepqtyh4ud7vlepy4ldquqewtnzeyz8f8par39ajsmgprlz70wh75cl2cz3sq5
+
+- name: escrow joghurt*iov
+  pubkey: starpub1addwnpepqgwhrsfkjxrugqj204sw903ut8dgwr5devmt9049h4vd4g7llh9s50qjwzd
+
+removed directory '/dev/shm/blackhole'
+dave@slim genesis(multisigs)$
