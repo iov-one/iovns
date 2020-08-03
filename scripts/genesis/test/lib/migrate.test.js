@@ -703,13 +703,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const socgen = domains.find( domain => domain.name == "socgen" );
       const twitter = domains.find( domain => domain.name == "twitter" );
       const youtube = domains.find( domain => domain.name == "youtube" );
+      const externalCustodian = "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96"; // HARD-CODED in conjunction with convertToCosmosSdk().address
 
       expect( hash.admin ).toEqual( "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y" );
       expect( huth.admin ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
-      expect( goldman.admin ).toEqual( iov.value.address ); // TODO: 3rd party custodian
-      expect( socgen.admin ).toEqual( iov.value.address );
-      expect( twitter.admin ).toEqual( iov.value.address );
-      expect( youtube.admin ).toEqual( iov.value.address );
+      expect( goldman.admin ).toEqual( externalCustodian );
+      expect( socgen.admin ).toEqual( externalCustodian );
+      expect( twitter.admin ).toEqual( externalCustodian );
+      expect( youtube.admin ).toEqual( externalCustodian );
 
       const limiteds = domains.filter( domain => domain.valid_until != lovely.valid_until );
 
