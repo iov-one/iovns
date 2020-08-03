@@ -6,7 +6,7 @@
         "type": "cosmos-sdk/MsgCreateValidator",
         "value": {
           "description": {
-            "moniker": "slim",
+            "moniker": "slim.avaritia.com",
             "identity": "",
             "website": "",
             "security_contact": "",
@@ -22,7 +22,7 @@
           "validator_address": "starvaloper1478t4fltj689nqu83vsmhz27quk7uggjtjp2gl",
           "pubkey": "starvalconspub1zcjduepqds57cwz6kgzprcsuermllsyglcwz9w2z85nuar575z82mujtrhws0n4m0g",
           "value": {
-            "denom": "iov",
+            "denom": "uiov",
             "amount": "1"
           }
         }
@@ -38,9 +38,9 @@
           "type": "tendermint/PubKeySecp256k1",
           "value": "AwOzGduZPxmjUMKASZGKPrUA7Drs9CvfJfXkgR/RSdyu"
         },
-        "signature": "mi817tgVyfLtiObMU0/I7TUjqbyKwUiQGYAJY2oAG0dhlEGGRJFNTfS12nLUw42n5lZp09LUq9pXcHxHRXuV9g=="
+        "signature": "6ccfT5yLqEKJ1wB9KRbALLeKWilnWTwl0MfRQQr7YlAQWPSzPSnwQhbskOHPlGYxxD7XRX03MecQ9ZLxbqiOKA=="
       }
     ],
-    "memo": "61e1f6d195f022cab0fe18f2ac1a4d33430999eb@192.168.1.46:26656"
+    "memo": "720e88e97dca985e303fc4ce1a8fc355571778cc@192.168.1.46:26656"
   }
 }
