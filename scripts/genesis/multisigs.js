@@ -7,7 +7,15 @@ const iovnscli = args => {
 
    if ( cli.status ) throw cli.error ? cli.error : new Error( cli.stderr.length ? cli.stderr : cli.stdout );
 
-   return JSON.parse( cli.stdout );
+   let o = {};
+
+   try {
+    o = JSON.parse( cli.stdout );
+   } catch ( e ) {
+      // no-op on non-json output
+   }
+
+   return o;
 };
 
 
@@ -51,11 +59,24 @@ const main = async () => {
    } );
 
    // create needed keys
+   const nice = { // convert to nice names
+      "reward fund": "rewardFund",
+      "IOV SAS": "iovSAS",
+      "IOV SAS employee bonus pool/colloboration appropriation pool": "employeePool",
+      "IOV SAS pending deals pocket; close deal or burn": "dealsPocket",
+      "IOV SAS bounty fund": "bountyFund",
+      "Unconfirmed contributors/co-founders": "cofounders",
+      "escrow isabella*iov": "escrowIsabella",
+      "escrow kadima*iov": "escrowKadima",
+      "escrow vaildator guaranteed reward fund": "escrowValidators",
+   };
    const have = iovnscli( [ "keys", "list" ] ).map( value => value.name );
-   const need = Object.keys( pubkeys ).filter( key => !have.includes( key ) );
+   const need = Object.keys( pubkeys ).filter( key => !have.includes( nice[key] ? nice[key] : key ) );
 
    need.forEach( name => {
       if ( name == user ) throw new Error( `Key '${user}' should exist already!  Did you do 'iovnscli keys add ${user} --ledger'?` );
+
+      iovnscli( [ "keys", "add", nice[name] ? nice[name] : name, "--pubkey", pubkeys[name] ] );
    } );
 };
 
