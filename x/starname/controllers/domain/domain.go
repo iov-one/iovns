@@ -16,11 +16,9 @@ import (
 // ControllerFunc is the function signature for domain validation functions
 type ControllerFunc func(controller *Domain) error
 
-// ControllerCond is the function signature for domain condition functions
-type ControllerCond func(controller *Domain) bool
-
 // Domain is the domain controller
 type Domain struct {
+	validators []ControllerFunc
 	domainName string
 	ctx        sdk.Context
 	domain     *types.Domain
@@ -58,8 +56,8 @@ func (c *Domain) WithDomain(dom types.Domain) *Domain {
 // ---------------------- VALIDATION -----------------------------
 
 // Validate validates a domain based on the provided checks
-func (c *Domain) Validate(checks ...ControllerFunc) error {
-	for _, check := range checks {
+func (c *Domain) Validate() error {
+	for _, check := range c.validators {
 		if err := check(c); err != nil {
 			return err
 		}
@@ -67,14 +65,73 @@ func (c *Domain) Validate(checks ...ControllerFunc) error {
 	return nil
 }
 
-// Condition asserts if the given condition is true
-func (c *Domain) Condition(cond ControllerFunc) bool {
-	return cond(c) == nil
+func (c *Domain) Admin(addr sdk.AccAddress) *Domain {
+	c.validators = append(c.validators, func(controller *Domain) error {
+		return controller.isAdmin(addr)
+	})
+	return c
 }
 
-// Expired checks if the provided domain has expired or not
-func Expired(controller *Domain) error {
-	return controller.expired()
+func (c *Domain) NotExpired() *Domain {
+	c.validators = append(c.validators, func(controller *Domain) error {
+		return controller.notExpired()
+	})
+	return c
+}
+
+// Superuser makes sure the domain superuser is set to the provided condition
+func (c *Domain) Type(Type types.DomainType) *Domain {
+	c.validators = append(c.validators, func(controller *Domain) error {
+		return controller.dType(Type)
+	})
+	return c
+}
+
+// MustExist checks if the provided domain exists
+func (c *Domain) MustExist() *Domain {
+	c.validators = append(c.validators, func(controller *Domain) error {
+		return controller.mustExist()
+	})
+	return c
+}
+
+// MustNotExist checks if the provided domain does not exist
+func (c *Domain) MustNotExist() *Domain {
+	c.validators = append(c.validators, func(controller *Domain) error {
+		return controller.mustNotExist()
+	})
+	return c
+}
+
+// ValidAccountName checks if the name of the domain is valid
+func (c *Domain) ValidName() *Domain {
+	c.validators = append(c.validators, func(controller *Domain) error {
+		return controller.validName()
+	})
+	return c
+}
+
+// Deletable checks if the domain can be deleted by the provided address
+func (c *Domain) DeletableBy(addr sdk.AccAddress) *Domain {
+	c.validators = append(c.validators, func(controller *Domain) error {
+		return controller.deletableBy(addr)
+	})
+	return c
+}
+
+func (c *Domain) Transferable(flag types.TransferFlag) *Domain {
+	c.validators = append(c.validators, func(controller *Domain) error {
+		return controller.transferable(flag)
+	})
+	return c
+}
+
+// Renewable checks if the domain is allowed to be renewed
+func (c *Domain) Renewable() *Domain {
+	c.validators = append(c.validators, func(controller *Domain) error {
+		return controller.renewable()
+	})
+	return c
 }
 
 // expired returns nil if domain expired, otherwise ErrDomainNotExpired
@@ -90,10 +147,6 @@ func (c *Domain) expired() error {
 	}
 
 	return sdkerrors.Wrapf(types.ErrDomainNotExpired, "domain %s has not expired", c.domain.Name)
-}
-
-func GracePeriodFinished(controller *Domain) error {
-	return controller.gracePeriodFinished()
 }
 
 // gracePeriodFinished is the condition that checks if given domain's grace period has finished
@@ -113,12 +166,6 @@ func (c *Domain) gracePeriodFinished() error {
 	return sdkerrors.Wrapf(types.ErrDomainGracePeriodNotFinished, "domain %s grace period has not finished", c.domain.Name)
 }
 
-func Admin(addr sdk.AccAddress) ControllerFunc {
-	return func(controller *Domain) error {
-		return controller.isAdmin(addr)
-	}
-}
-
 // isAdmin makes sure the domain is owned by the provided address
 func (c *Domain) isAdmin(addr sdk.AccAddress) error {
 	// assert domain exists
@@ -130,10 +177,6 @@ func (c *Domain) isAdmin(addr sdk.AccAddress) error {
 		return nil
 	}
 	return sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to perform an operation in a domain owned by %s", addr, c.domain.Admin)
-}
-
-func NotExpired(controller *Domain) error {
-	return controller.notExpired()
 }
 
 func (c *Domain) notExpired() error {
@@ -151,13 +194,6 @@ func (c *Domain) notExpired() error {
 	return sdkerrors.Wrapf(types.ErrDomainExpired, "%s has expired", c.domainName)
 }
 
-// Superuser makes sure the domain superuser is set to the provided condition
-func Type(Type types.DomainType) ControllerFunc {
-	return func(controller *Domain) error {
-		return controller.dType(Type)
-	}
-}
-
 func (c *Domain) dType(Type types.DomainType) error {
 	// assert domain exists
 	if err := c.requireDomain(); err != nil {
@@ -167,11 +203,6 @@ func (c *Domain) dType(Type types.DomainType) error {
 		return sdkerrors.Wrapf(types.ErrInvalidDomainType, "operation not allowed on invalid domain type %s, expected %s", c.domain.Type, Type)
 	}
 	return nil
-}
-
-// MustExist checks if the provided domain exists
-func MustExist(controller *Domain) error {
-	return controller.mustExist()
 }
 
 // requireDomain tries to find the domain by name
@@ -194,11 +225,6 @@ func (c *Domain) mustExist() error {
 	return c.requireDomain()
 }
 
-// MustNotExist checks if the provided domain does not exist
-func MustNotExist(controller *Domain) error {
-	return controller.mustNotExist()
-}
-
 // mustNotExist asserts that a domain does not exist
 func (c *Domain) mustNotExist() error {
 	err := c.requireDomain()
@@ -206,11 +232,6 @@ func (c *Domain) mustNotExist() error {
 		return sdkerrors.Wrapf(types.ErrDomainAlreadyExists, c.domainName)
 	}
 	return nil
-}
-
-// ValidAccountName checks if the name of the domain is valid
-func ValidName(controller *Domain) error {
-	return controller.validName()
 }
 
 // validName checks if the name of the domain is valid
@@ -237,13 +258,6 @@ func (c *Domain) requireConfiguration() {
 	c.conf = &conf
 }
 
-// Deletable checks if the domain can be deleted by the provided address
-func DeletableBy(addr sdk.AccAddress) ControllerFunc {
-	return func(controller *Domain) error {
-		return controller.deletableBy(addr)
-	}
-}
-
 // deletableBy is the underlying operation used by DeletableBy controller
 func (c *Domain) deletableBy(addr sdk.AccAddress) error {
 	if err := c.requireDomain(); err != nil {
@@ -265,12 +279,6 @@ func (c *Domain) deletableBy(addr sdk.AccAddress) error {
 	return nil
 }
 
-func Transferable(flag types.TransferFlag) ControllerFunc {
-	return func(controller *Domain) error {
-		return controller.transferable(flag)
-	}
-}
-
 func (c *Domain) transferable(flag types.TransferFlag) error {
 	if err := c.requireDomain(); err != nil {
 		panic("validation check not allowed on a non existing domain")
@@ -284,11 +292,6 @@ func (c *Domain) transferable(flag types.TransferFlag) error {
 	default:
 		return nil
 	}
-}
-
-// Renewable checks if the domain is allowed to be renewed
-func Renewable(ctrl *Domain) error {
-	return ctrl.renewable()
 }
 
 func (c *Domain) renewable() error {
