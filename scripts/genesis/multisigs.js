@@ -72,11 +72,33 @@ const main = async () => {
    };
    const have = iovnscli( [ "keys", "list" ] ).map( value => value.name );
    const need = Object.keys( pubkeys ).filter( key => !have.includes( nice[key] ? nice[key] : key ) );
+   const people = Object.keys( pubkeys ).filter( key => key.indexOf( " " ) == -1 ).sort().join( "," );
+   const garbage = Object.keys( pubkeys ).filter( key => key.indexOf( " " ) != -1 );
 
    need.forEach( name => {
       if ( name == user ) throw new Error( `Key '${user}' should exist already!  Did you do 'iovnscli keys add ${user} --ledger'?` );
 
-      iovnscli( [ "keys", "add", nice[name] ? nice[name] : name, "--pubkey", pubkeys[name] ] );
+      const niced = nice[name];
+
+      if ( !niced ) garbage.push( name ); // delete people, too
+
+      iovnscli( [ "keys", "add", niced ? niced : name, "--pubkey", pubkeys[name] ] );
+
+      console.log( `Created ${niced ? niced : name}.` );
+   } );
+
+   // create multisig keys prefixed with _
+   Object.values( nice ).filter( name => !have.includes( `_${name}` ) ).forEach( name => {
+      iovnscli( [ "keys", "add", "--multisig", `${people},${name}`, "--multisig-threshold", "3", `_${name}` ] );
+
+      console.log( `Created multisig _${name}.` );
+   } );
+
+   // collect garbage
+   garbage.forEach( name => {
+      iovnscli( [ "keys", "delete", nice[name] ? nice[name] : name, "--yes" ] );
+
+      console.log( `Deleted ${nice[name] ? nice[name] : name}.` );
    } );
 };
 
