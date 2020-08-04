@@ -549,45 +549,6 @@ export const patchGalaxynet = genesis => {
 
    genesis.app_state.auth.accounts.push( ...accounts );
 
-   // hack multisig accounts since pubkeys from others are still pending; TODO: delete when possible
-   const hackMultisig = {
-      "reward fund":                                                  "star1rad8f5rm39ak03h3ev0q4lrshywjdn3v9fn6w3",
-      "IOV SAS":                                                      "star12d063hg3ypass56a52fhap25tfgxyaluu6w02r",
-      "IOV SAS employee bonus pool/colloboration appropriation pool": "star1v6na4q8kqljynwkh3gt4katlsrqzsk3ewxv6aw",
-      "IOV SAS pending deals pocket; close deal or burn":             "star1vhkg66j3xvzqf4smy9qup5ra8euyjwlpdkdyn4",
-      "IOV SAS bounty fund":                                          "star1gxchcu6wycentu6fs977hygqx67kv5n7x25w4g",
-      "Unconfirmed contributors/co-founders":                         "star1f27zp27q6d8xqeq768r0gffg7ux34ml69dt67j",
-      "escrow isabella*iov":                                          "star1uzn9lxhmw0q2vfgy6d5meh2n7m43fqse6ryru6",
-      "escrow kadima*iov":                                            "star1hkeufxdyypclg876kc4u9nxjqudkgh2uecrpm7",
-      "escrow guaranteed reward fund":                                "star1v875jc00cqh26k5505p5mt4q8w0ylwypsca3jr",
-      "vaildator guaranteed reward fund":                             "star1n0et7nukw4htc56lkuqer67heppfjpdhs525ua",
-      "Custodian of missing star1 accounts":                          "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
-      "vaildator guaranteed reward fund":                             "star13c7s0xkmpu9uykn56scwwnkjl07svm69j0jm29",
-      "escrow isabella*iov":                                          "star1wywlg9ddad2l5zw7zqgcytwx838x00t7t2qqag",
-      "escrow kadima*iov":                                            "star1s7dy7pmhzj8t0s48xnvt0ceug873zn9ue4qqma",
-      "escrow joghurt*iov":                                           "star1wy4kze7hanky9kpmvrygad5ar8j37wur4e5e3g",
-   };
-   const hackMultisigKeys = Object.keys( hackMultisig );
-   const hackCustodianStar1 = hackMultisig["Custodian of missing star1 accounts"];
-
-   genesis.app_state.auth.accounts.forEach( account => {
-      if ( hackMultisigKeys.findIndex( key => key == account["//id"] ) != -1 ) {
-         account.value.address = hackMultisig[account["//id"]];
-      }
-   } );
-   genesis.app_state.starname.domains.forEach( domain => {
-      if ( domain.admin.toLowerCase().indexOf( "custodia" ) != -1 ) {
-         domain.admin = hackCustodianStar1;
-      } else if ( domain.type == "open" ) {
-         domain.admin = hackMultisig["IOV SAS"];
-      }
-   } );
-   genesis.app_state.starname.accounts.forEach( account => {
-      if ( account.owner.toLowerCase().indexOf( "custodia" ) != -1 ) {
-         account.owner = hackCustodianStar1;
-      }
-   } );
-
    // set the configuration owner and parameters
    const config = genesis.app_state.configuration.config;
 
@@ -598,7 +559,7 @@ export const patchGalaxynet = genesis => {
    config.resources_max = 10;
    config.certificate_count_max = 3;
    config.certificate_size_max = "1000";
-   config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg";
+   config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg"; // intentionally not a mainnet multisig
    config.domain_grace_period = 1 * 60 + "000000000";
    config.domain_renew_count_max = 2;
    config.domain_renew_period = 5 * 60 + "000000000";
