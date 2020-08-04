@@ -2,6 +2,7 @@ import { chainIds, multisigs, source2multisig } from "./lib/constants";
 import { migrate, patchGalaxynet, patchMainnet, } from "./lib/migrate";
 import fetchIndicativeSendsTo from "./lib/fetchIndicativeSendsTo";
 import fetchOsakaGenesisFile from "./lib/fetchOsakaGenesisFile";
+import filterReserveds from "./lib/filterReserveds";
 import path from "path";
 import pullDumpedState from "./lib/pullDumpedState";
 import pullPremiums from "./lib/pullPremiums";
@@ -223,7 +224,7 @@ const main = async () => {
    const indicatives = await fetchIndicativeSendsTo( "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6", /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/ ).catch( e => { throw e } );
    const osaka = await fetchOsakaGenesisFile().catch( e => { throw e } );
    const premiums = await pullPremiums().catch( e => { throw e } );
-   const reserveds = []; // TODO
+   const reserveds = filterReserveds( genesis.app_state.configuration.config.valid_domain_name );
 
    // migration
    migrate( { chainIds, dumped, flammable, genesis, gentxs, home, indicatives, multisigs, osaka, patch, premiums, reserveds, source2multisig } );
