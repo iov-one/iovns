@@ -1029,7 +1029,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
          "type": "cosmos-sdk/Account",
          "value": {
             "account_number": 0,
-            "address": "IOV SAS multisig star1_TBD_isabella*iov",
+            "address": "star1elad203jykd8la6wgfnvk43rzajyqpk0wsme9g",
             "coins": [
                {
                   "//IOV": 2965149,
@@ -1158,11 +1158,11 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( claudiu ).toBeTruthy();
       expect( escrow ).toBeTruthy();
 
-      expect( iov.admin ).toEqual( "star12d063hg3ypass56a52fhap25tfgxyaluu6w02r" );
+      expect( iov.admin ).toEqual( "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78" );
       expect( zeros.admin ).toEqual( "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y" );
       expect( dots.owner ).toEqual( "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y" );
       expect( claudiu.owner ).toEqual( "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y" );
-      expect( escrow.value.address ).toEqual( "star1wywlg9ddad2l5zw7zqgcytwx838x00t7t2qqag" );
+      expect( escrow.value.address ).toEqual( "star1elad203jykd8la6wgfnvk43rzajyqpk0wsme9g" );
 
       expect( dave.value.coins[0].denom ).toEqual( "uvoi" );
       expect( escrow.value.coins[0].denom ).toEqual( "uvoi" );
