@@ -43,7 +43,7 @@ const main = async () => {
               resources_max: 10, // https://internetofvalues.slack.com/archives/GPYCU2AJJ/p1592563251000500
               certificate_count_max: 5,
               certificate_size_max: "1024",
-              configurer: "star1 IOV SAS", // TODO
+              configurer: "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78",
               domain_grace_period: 30 * 24 * 60 * 60 + "000000000",
               domain_renew_count_max: 2,
               domain_renew_period: 365.25 * 24 * 60 * 60 + "000000000",
