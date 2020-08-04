@@ -2,7 +2,7 @@ package account
 
 import (
 	"bytes"
-	crud "github.com/iov-one/iovns/pkg/crud/types"
+	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud"
 	"github.com/iov-one/iovns/pkg/utils"
 	"regexp"
 	"time"

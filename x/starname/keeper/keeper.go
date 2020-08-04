@@ -2,8 +2,7 @@ package keeper
 
 import (
 	"fmt"
-	"github.com/iov-one/iovns/pkg/crud"
-	crud_types "github.com/iov-one/iovns/pkg/crud/types"
+	"github.com/iov-one/cosmos-sdk-crud/pkg/crud"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -67,12 +66,12 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, configKeeper Configurati
 	return keeper
 }
 
-func (k Keeper) AccountStore(ctx sdk.Context) crud_types.Store {
+func (k Keeper) AccountStore(ctx sdk.Context) crud.Store {
 	store := crud.NewStore(ctx, k.StoreKey, k.Cdc, []byte{0x1})
 	return store
 }
 
-func (k Keeper) DomainStore(ctx sdk.Context) crud_types.Store {
+func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
 	return crud.NewStore(ctx, k.StoreKey, k.Cdc, []byte{0x2})
 }
 

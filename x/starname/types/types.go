@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	crud "github.com/iov-one/iovns/pkg/crud/types"
+	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud/types"
 	"github.com/iov-one/iovns/pkg/utils"
 
 	"github.com/cosmos/cosmos-sdk/types/errors"
