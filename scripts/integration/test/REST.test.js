@@ -647,15 +647,14 @@ describe( "Tests the REST API.", () => {
    } );
 
 
-   // TODO: don't skip after https://github.com/iov-one/iovns/issues/235 is closed
-   it.skip( `Should update configuration.`, async () => {
+   it( `Should update configuration.`, async () => {
       const config0 = await fetchObject( `${urlRest}/configuration/query/configuration`, { method: "POST" } );
       const config = JSON.parse( JSON.stringify( config0.result.configuration ) );
 
       config.account_grace_period = `${1 + +config.account_grace_period / 1e9}s`;
       config.account_renew_count_max += 1;
       config.account_renew_period = `${1 + +config.account_renew_period / 1e9}s`;
-      config.blockchain_target_max += 1;
+      config.resources_max += 1;
       config.certificate_count_max += 1;
       config.certificate_size_max = 1 + +config.certificate_size_max;
       config.domain_grace_period = `${1 + +config.domain_grace_period / 1e9}s`;
@@ -663,8 +662,8 @@ describe( "Tests the REST API.", () => {
       config.domain_renew_period = `${1 + +config.domain_renew_period / 1e9}s`;
       config.metadata_size_max = 1 + +config.metadata_size_max;
       config.valid_account_name = "^[-_.a-z0-9]{1,63}$";
-      config.valid_blockchain_address = "^[a-z0-9A-Z]+$";
-      config.valid_blockchain_id = "[-a-z0-9A-Z:]+$";
+      config.valid_resource = "^[a-z0-9A-Z]+$";
+      config.valid_uri = "[-a-z0-9A-Z:]+$";
       config.valid_domain_name = "^[-_a-z0-9]{4,15}$";
 
       const argsConfig = [ ...txUpdateConfigArgs( config, msig1 ), "--memo", memo() ];
