@@ -1,6 +1,7 @@
 # Changelog
 
 ## HEAD
+- use external crud package
 - make controllers API nicer
 - enhance executors tests
 - allow open domain transfers

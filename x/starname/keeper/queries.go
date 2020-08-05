@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"fmt"
-	crud "github.com/iov-one/iovns/pkg/crud/types"
+	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud"
 	"github.com/iov-one/iovns/pkg/queries"
 	"github.com/iov-one/iovns/pkg/utils"
 	"strings"

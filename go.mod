@@ -8,6 +8,7 @@ require (
 	github.com/golang/mock v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/websocket v1.4.2
+	github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804183153-2b7470a92e52
 	github.com/jinzhu/gorm v1.9.14
 	github.com/lib/pq v1.1.1
 	github.com/onsi/ginkgo v1.8.0 // indirect
