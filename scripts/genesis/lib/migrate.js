@@ -343,7 +343,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
    } );
    reserveds.forEach( ( domain, i ) => {
       if ( !domains.find( existing => existing.name == domain ) ) { // don't allow duplicates
-         const valid_until = releases[i % releases.length].getTime();
+         const valid_until = releases[i % releases.length].getTime() / 1000;
 
          domains.push( createDomain( { address, domain, valid_until } ) );
       }
@@ -731,7 +731,7 @@ export const migrate = args => {
    fs.writeFileSync( file, stringify( genesis, { space: "  " } ), "utf-8" );
 
    // ...incorporating gentxs
-   if ( gentxs ) {
+   if ( gentxs && fs.readdirSync( gentxs ).length > 1 ) { // account for README
       addGentxs( gentxs, home );
 
       const unformatted = JSON.parse( fs.readFileSync( file, "utf-8" ) );

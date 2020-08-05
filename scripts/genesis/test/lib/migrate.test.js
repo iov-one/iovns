@@ -2039,7 +2039,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "china",
                      "type": "closed",
-                     "valid_until": "1621418400000"
+                     "valid_until": "1621418400"
                   },
                   {
                      "account_renew": "315576000",
@@ -2047,7 +2047,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "china1",
                      "type": "closed",
-                     "valid_until": "1621418400000"
+                     "valid_until": "1621418400"
                   },
                   {
                      "//iov1": "zGLlamFypWMPUeHVVsvo4mXFFOE63",
@@ -2064,7 +2064,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "fcbarca",
                      "type": "closed",
-                     "valid_until": "1618961400000"
+                     "valid_until": "1618961400"
                   },
                   {
                      "account_renew": "315576000",
@@ -2072,7 +2072,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "fcbarca1",
                      "type": "closed",
-                     "valid_until": "1618961400000"
+                     "valid_until": "1618961400"
                   },
                   {
                      "//iov1": "iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx",
@@ -2089,7 +2089,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "goldman",
                      "type": "closed",
-                     "valid_until": "1602664200000"
+                     "valid_until": "1602664200"
                   },
                   {
                      "account_renew": "315576000",
@@ -2097,7 +2097,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "goldman_sachs",
                      "type": "closed",
-                     "valid_until": "1615986000000"
+                     "valid_until": "1615986000"
                   },
                   {
                      "account_renew": "315576000",
@@ -2105,7 +2105,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "goldman_sachs1",
                      "type": "closed",
-                     "valid_until": "1615986000000"
+                     "valid_until": "1615986000"
                   },
                   {
                      "account_renew": "315576000",
@@ -2113,7 +2113,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "goldman1",
                      "type": "closed",
-                     "valid_until": "1602664200000"
+                     "valid_until": "1602664200"
                   },
                   {
                      "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn",
@@ -2175,7 +2175,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "ivanontech",
                      "type": "closed",
-                     "valid_until": "1613529000000"
+                     "valid_until": "1613529000"
                   },
                   {
                      "account_renew": "315576000",
@@ -2183,7 +2183,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "ivanontech1",
                      "type": "closed",
-                     "valid_until": "1613529000000"
+                     "valid_until": "1613529000"
                   },
                   {
                      "//iov1": "zHbPpUYyRguRlhAiC30zimM05hGx2",
@@ -2272,7 +2272,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "socgen",
                      "type": "closed",
-                     "valid_until": "1605726000000"
+                     "valid_until": "1605726000"
                   },
                   {
                      "account_renew": "315576000",
@@ -2280,7 +2280,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "socgen1",
                      "type": "closed",
-                     "valid_until": "1605726000000"
+                     "valid_until": "1605726000"
                   },
                   {
                      "//iov1": "zGLlamFypWMPUeHVVsvo4mXFFOE63",
@@ -2306,7 +2306,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "twitter",
                      "type": "closed",
-                     "valid_until": "1608096600000"
+                     "valid_until": "1608096600"
                   },
                   {
                      "account_renew": "315576000",
@@ -2314,7 +2314,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "twitter1",
                      "type": "closed",
-                     "valid_until": "1608096600000"
+                     "valid_until": "1608096600"
                   },
                   {
                      "//iov1": "iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx",
@@ -2331,7 +2331,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "youtube",
                      "type": "closed",
-                     "valid_until": "1610553600000"
+                     "valid_until": "1610553600"
                   },
                   {
                      "account_renew": "315576000",
@@ -2339,7 +2339,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "broker": null,
                      "name": "youtube1",
                      "type": "closed",
-                     "valid_until": "1610553600000"
+                     "valid_until": "1610553600"
                   }
                ]
             },
