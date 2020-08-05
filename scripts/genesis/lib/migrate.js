@@ -731,7 +731,7 @@ export const migrate = args => {
    fs.writeFileSync( file, stringify( genesis, { space: "  " } ), "utf-8" );
 
    // ...incorporating gentxs
-   if ( gentxs ) {
+   if ( gentxs && fs.readdirSync( gentxs ).length ) {
       addGentxs( gentxs, home );
 
       const unformatted = JSON.parse( fs.readFileSync( file, "utf-8" ) );
