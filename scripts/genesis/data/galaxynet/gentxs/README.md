@@ -13,7 +13,7 @@ cd ~ && git clone https://github.com/iov-one/iovns.git && cd iovns
 # create your genesis transaction (do `iovnsd gentx --help` for the list of available flags)
 ${DIR_IOVNS}/iovnsd gentx \
   --amount 1000000000uvoi \
-  --pubkey $(iovnsd tendermint show-validator) \
+  --pubkey $(${DIR_WORK}/iovnsd tendermint show-validator) \
   --home ${DIR_WORK} \
   --name ${SIGNER} \
   --output-document ./scripts/genesis/data/galaxynet/gentxs/${MONIKER}.json
