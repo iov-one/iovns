@@ -343,7 +343,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
    } );
    reserveds.forEach( ( domain, i ) => {
       if ( !domains.find( existing => existing.name == domain ) ) { // don't allow duplicates
-         const valid_until = releases[i % releases.length].getTime();
+         const valid_until = releases[i % releases.length].getTime() / 1000;
 
          domains.push( createDomain( { address, domain, valid_until } ) );
       }
