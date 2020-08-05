@@ -243,6 +243,10 @@ github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NH
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/influxdata/influxdb1-client v0.0.0-20191209144304-8bf82d3c094d h1:/WZQPMZNsjZ7IlCpsLGdQBINg5bxKQ1K1sh6awxLtkA=
 github.com/influxdata/influxdb1-client v0.0.0-20191209144304-8bf82d3c094d/go.mod h1:qj24IKcXYK6Iy9ceXlo3Tc+vtHo9lIhSX5JddghvEPo=
+github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804182707-29e3147b6e2e h1:KM8wM8RVerY5QaUTDsjxY9Ousw8Vn32vHOklnoOBbrA=
+github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804182707-29e3147b6e2e/go.mod h1:wfvPz9CNFOERo+9wnq2jUeDKH6NHSrFtJcNA2oB6UdQ=
+github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804183153-2b7470a92e52 h1:fCi/QCX1F8J61LrRsSmWBXpTVIdDFAi3Enf+6FQkd7g=
+github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804183153-2b7470a92e52/go.mod h1:wfvPz9CNFOERo+9wnq2jUeDKH6NHSrFtJcNA2oB6UdQ=
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
 github.com/jinzhu/gorm v1.9.14 h1:Kg3ShyTPcM6nzVo148fRrcMO6MNKuqtOUwnzqMgVniM=
 github.com/jinzhu/gorm v1.9.14/go.mod h1:G3LB3wezTOWM2ITLzPxEXgSkOXAntiLHS7UdBefADcs=

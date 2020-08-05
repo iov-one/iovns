@@ -3,7 +3,7 @@ package starname
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	crud "github.com/iov-one/iovns/pkg/crud/types"
+	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud/types"
 	"github.com/iov-one/iovns/x/starname/types"
 )
 
