@@ -1074,7 +1074,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "metadata_uri": "",
             "name": "...",
             "owner": multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1,
-            "targets": null,
+            "resources": null,
             "valid_until": "1609415999"
          },
          {
@@ -1085,14 +1085,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "metadata_uri": "",
             "name": "01node",
             "owner": multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1,
-            "targets": [
+            "resources": [
               {
-                "address": "992290736603857528L",
-                "blockchain_id": "lip9:9ee11e9df416b18b"
+                "resource": "992290736603857528L",
+                "uri": "lip9:9ee11e9df416b18b"
               },
               {
-                "address": "0x6DF432079347050e0D8dA43C21fa6fe54697AfA7",
-                "blockchain_id": "eip155:1"
+                "resource": "0x6DF432079347050e0D8dA43C21fa6fe54697AfA7",
+                "uri": "eip155:1"
               }
             ],
             "valid_until": "1609415999"

@@ -603,6 +603,13 @@ export const patchGalaxynet = genesis => {
       "transfer_domain_open": "125.000000000000000000",
       "renew_domain_open": "12345.000000000000000000",
    };
+
+   // convert URIs to testnet
+   genesis.app_state.starname.accounts.forEach( account => {
+      const resource = account.resources ? account.resources.find( resource => resource.uri == "asset:iov" ) : null;
+
+      if ( resource ) resource.uri = "asset-testing:iov"; // https://internetofvalues.slack.com/archives/CPNRVHG94/p1595965860011800
+   } );
 }
 
 /**
