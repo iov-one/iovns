@@ -2371,8 +2371,6 @@ describe( "Tests ../../lib/migrate.js.", () => {
       // hack around transient values before...
       const fixTransients = ( previous, current ) => {
          for ( let i = 0, n = previous.length; i < n; ++i ) {
-            expect( +current[i].valid_until ).toBeGreaterThanOrEqual( +previous[i].valid_until );
-
             previous[i].valid_until = current[i].valid_until;
          };
       };
