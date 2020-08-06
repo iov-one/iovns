@@ -114,7 +114,7 @@ export const createStarname = ( args = {} ) => {
       "name": args.name || "",
       "owner": args.address || "",
       "resources": resources,
-      "valid_until": String( Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60 ), // 1 year from now
+      "valid_until": String( new Date( "2020-10-01T00:00:00" ).getTime() / 1000 ), // just after listing date
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -133,7 +133,7 @@ export const createDomain = ( args = {} ) => {
       "broker": null,
       "name": args.domain,
       "type": "closed",
-      "valid_until": String( args.valid_until || Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60 ), // specified or 1 year from now
+      "valid_until": String( args.valid_until || new Date( "2020-10-01T00:00:00" ).getTime() / 1000 ), // just after listing date
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -332,15 +332,16 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
 
    // reserve domains
    const address = "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96"; // https://internetofvalues.slack.com/archives/GPYCU2AJJ/p1596436694013900
-   const now = new Date();
-   const d0 = new Date( now.getFullYear(), now.getMonth() + 1, 14 ); // mid-month
-   const releases = [ 1, 2, 3, 4, 5, 6, 7, 8 ].map( dm => { // give 8 months to sell
-      const d = new Date( d0.getTime() + dm * 30.4375 * 24 * 60 * 60 * 1000 ); // average days per month
-
-      d.setDate( d.getDate() + ( 10 - d.getDay() ) % 7 ); // Wednesdays (3) only
-
-      return d;
-   } );
+   const releases = [ // give 8 months to sell
+      new Date( "2020-09-16T10:00:00" ),
+      new Date( "2020-10-14T10:00:00" ),
+      new Date( "2020-11-18T10:00:00" ),
+      new Date( "2020-12-16T10:00:00" ),
+      new Date( "2021-01-20T10:00:00" ),
+      new Date( "2021-02-17T10:00:00" ),
+      new Date( "2021-03-17T10:00:00" ),
+      new Date( "2021-04-14T10:00:00" ),
+   ];
    reserveds.forEach( ( domain, i ) => {
       if ( !domains.find( existing => existing.name == domain ) ) { // don't allow duplicates
          const valid_until = releases[i % releases.length].getTime() / 1000;
@@ -565,15 +566,6 @@ export const patchGalaxynet = genesis => {
    config.domain_renew_period = 5 * 60 + "000000000";
    config.metadata_size_max = "1000";
 
-   // stabilize valid_untils
-   const validUntil = 1609415999;
-   const fixTransients = hasValidUntils => {
-      hasValidUntils.forEach( hasValidUntil => hasValidUntil.valid_until = String( validUntil ) );
-   };
-
-   fixTransients( genesis.app_state.starname.domains );
-   fixTransients( genesis.app_state.starname.accounts );
-
    // use uvoi as the token denomination
    genesis.app_state.auth.accounts.forEach( account => account.value.coins[0].denom = "uvoi" );
    genesis.app_state.mint.params.mint_denom = "uvoi";
@@ -603,6 +595,13 @@ export const patchGalaxynet = genesis => {
       "transfer_domain_open": "125.000000000000000000",
       "renew_domain_open": "12345.000000000000000000",
    };
+
+   // convert URIs to testnet
+   genesis.app_state.starname.accounts.forEach( account => {
+      const resource = account.resources ? account.resources.find( resource => resource.uri == "asset:iov" ) : null;
+
+      if ( resource ) resource.uri = "asset-testnet:iov"; // https://internetofvalues.slack.com/archives/CPNRVHG94/p1595965860011800
+   } );
 }
 
 /**

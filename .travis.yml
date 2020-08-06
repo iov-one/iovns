@@ -101,6 +101,7 @@ script:
   - iovnsd start --minimum-gas-prices='10.0uvoi' > /dev/null &
   - iovnscli rest-server --trust-node true --chain-id ${CHAIN_ID} --node http://localhost:26657 > /dev/null &
   - ( cd scripts/integration && yarn install && yarn test && killall iovnscli && killall iovnsd )
+  - git submodule foreach git checkout master
   - ( cd scripts/genesis && yarn install && yarn test && node -r esm genesis.js galaxynet     && mv data/galaxynet/config/genesis.json     ~/.iovnsd/config && iovnsd validate-genesis )
   - ( cd scripts/genesis && yarn install && yarn test && node -r esm genesis.js iov-mainnet-2 && mv data/iov-mainnet-2/config/genesis.json ~/.iovnsd/config && iovnsd validate-genesis )
 
