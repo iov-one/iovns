@@ -47,9 +47,15 @@ const main = async () => {
       return o;
    }, {} );
    const iov2username = genesis.app_state.starname.accounts.reduce( ( o, account ) => {
-      const iov1 = star2iov[account.owner];
+      let iov1 = star2iov[account.owner];
 
-      if ( account.owner != custodian && account.owner != exchange && iov1 != account["//iov1"] ) console.error( `iov1 mismatch on ${account.name}*${account.domain}!  ${iov1} != ${account["//iov1"]}` );
+      if ( account.owner != custodian && account.owner != exchange && iov1 != account["//iov1"] ) {
+         if ( !iov1 ) {
+            iov1 = account["//iov1"]; // iov1 doesn't have tokens but does have a username
+         } else {
+            console.error( `iov1 mismatch on ${account.name}*${account.domain}!  ${iov1} != ${account["//iov1"]}` );
+         }
+      }
 
       const starname = `${account.name}*${account.domain}`;
 
@@ -66,7 +72,7 @@ const main = async () => {
    usernamer( multisigs, "//name" );
    usernamer( source2multisig, "//id" );
 
-   const iov2true = Object.keys( iov2coin ).concat( Object.keys( iov2domain ) ).reduce( ( o, iov1 ) => {
+   const iov2true = Object.keys( iov2coin ).concat( Object.keys( iov2domain ), Object.keys( iov2username ) ).reduce( ( o, iov1 ) => {
       o[iov1] = true;
 
       return o;
