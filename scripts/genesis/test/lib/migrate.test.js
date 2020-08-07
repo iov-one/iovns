@@ -711,7 +711,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const dave = accounts.find( account => account["//iov1"] == "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
 
       expect( custodian.value.address ).toEqual( multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1 );
-      expect( custodian.value.coins[0].amount ).toEqual( "8321438667145" );
+      expect( custodian.value.coins[0].amount ).toEqual( "8321023157268" );
       expect( custodian["//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"][0] ).toEqual( 3234710 );
       expect( custodian["//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"][1] ).toEqual( "confio*iov" );
       expect( custodian["//no star1 iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9"][0] ).toEqual( 26.5 );
@@ -1496,7 +1496,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                         "coins": [
                            {
                               "//IOV": 1.000123,
-                              "amount": "4895215667145",
+                              "amount": "4894800157268",
                               "denom": "uiov"
                            }
                         ],

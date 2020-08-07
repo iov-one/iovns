@@ -167,7 +167,7 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
       escrows[source].forEach( escrow => {
          const account = accumulator[source] || createAccount( { iov:0 } );
          const value = account.value;
-         const iov = parseInt( escrow.amount[0].whole ); // escrows don't have fractional as of 2020.06.07
+         const iov = ( escrow.amount[0].whole || 0 ) + ( escrow.amount[0].fractional / 1e9 || 0 );
 
          account["//id"] = source2multisig[source]["//id"];
          account["//note"] = `consolidated escrows with source ${source}`;
@@ -290,11 +290,12 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
          burnTokens( dumped, [ iov1 ] );
          // ...adding to the custodial account...
          custodian[`//no star1 ${iov1}`] = iov;
+         previous += amount; // ...after reduction
       }
 
-      return previous + amount; // ...after reduction
-   }, 0 );
-   custodian.value.coins[0].amount = String( Math.ceil( safeguarded ) );
+      return previous;
+   }, Math.floor( custodian.value.coins[0].amount ) );
+   custodian.value.coins[0].amount = String( safeguarded );
 
    const starnames = dumped.username.sort( ( a, b ) => a.Username.localeCompare( b.Username ) ).map( username => {
       const iov1 = username.Owner;
