@@ -48,7 +48,7 @@ const main = async () => {
    const iov2username = genesis.app_state.starname.accounts.reduce( ( o, account ) => {
       const iov1 = star2iov[account.owner];
 
-      //if ( iov1 != custodian && iov1 != account["//iov1"] ) throw new Error( `iov1 mismatch on ${account.name}*${account.domain}!  ${iov1} != ${account["//iov1"]}` );
+      if ( account.owner != custodian && account.owner != exchange && iov1 != account["//iov1"] ) console.error( `iov1 mismatch on ${account.name}*${account.domain}!  ${iov1} != ${account["//iov1"]}` );
 
       const starname = `${account.name}*${account.domain}`;
 
