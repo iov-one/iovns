@@ -78,7 +78,11 @@ const main = async () => {
 
    usernamer( multisigs, "//name" );
    usernamer( source2multisig, "//id" );
-   usernamer( { iov170qvwm0tscn5mza3vmaerkzqllvwc3kykkt7kj: { id: "vaildator guaranteed reward fund" } }, "id" );
+   usernamer( {
+      iov170qvwm0tscn5mza3vmaerkzqllvwc3kykkt7kj: { id: "vaildator guaranteed reward fund" },
+      iov1cre24vrfn0klc0rc0wy0a9tf4d360d0fc7f3hl: { id: "escrow isabella*iov" }, // iov1 is last tranche
+      iov1ytn5f79hlu5y25phgwx79jmeqj78l6d2ey4s35: { id: "escrow kadima*iov" }, // iov1 is last tranche
+   }, "id" );
 
    const iov2true = Object.keys( iov2coin ).concat( Object.keys( iov2domain ), Object.keys( iov2username ) ).reduce( ( o, iov1 ) => {
       o[iov1] = true;
