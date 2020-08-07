@@ -78,6 +78,7 @@ const main = async () => {
 
    usernamer( multisigs, "//name" );
    usernamer( source2multisig, "//id" );
+   usernamer( { iov170qvwm0tscn5mza3vmaerkzqllvwc3kykkt7kj: { id: "vaildator guaranteed reward fund" } }, "id" );
 
    const iov2true = Object.keys( iov2coin ).concat( Object.keys( iov2domain ), Object.keys( iov2username ) ).reduce( ( o, iov1 ) => {
       o[iov1] = true;
