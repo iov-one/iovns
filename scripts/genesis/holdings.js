@@ -1,3 +1,4 @@
+const { multisigs, source2multisig } = require( "./lib/constants" );
 const fs = require( "fs" );
 
 
@@ -56,6 +57,15 @@ const main = async () => {
 
       return o;
    }, {} );
+   const usernamer = ( msigs, id ) => { // hack names/ids to multisig accounts
+      Object.keys( msigs ).forEach( iov1 => {
+         iov2username[iov1] = [ msigs[iov1][id] ];
+      } );
+   };
+
+   usernamer( multisigs, "//name" );
+   usernamer( source2multisig, "//id" );
+
    const iov2true = Object.keys( iov2coin ).concat( Object.keys( iov2domain ) ).reduce( ( o, iov1 ) => {
       o[iov1] = true;
 
