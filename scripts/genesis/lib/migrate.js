@@ -167,7 +167,7 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
       escrows[source].forEach( escrow => {
          const account = accumulator[source] || createAccount( { iov:0 } );
          const value = account.value;
-         const iov = parseInt( escrow.amount[0].whole ); // escrows don't have fractional as of 2020.06.07
+         const iov = ( escrow.amount[0].whole || 0 ) + ( escrow.amount[0].fractional / 1e9 || 0 );
 
          account["//id"] = source2multisig[source]["//id"];
          account["//note"] = `consolidated escrows with source ${source}`;
