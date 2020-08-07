@@ -9,8 +9,15 @@ const main = async () => {
    const genesis = JSON.parse( json );
    const custodian = "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y";
    const { iov2coin, iov2star, star2iov, nostar2data } = genesis.app_state.auth.accounts.reduce( ( o, account ) => {
-      const iov1 = account["//iov1"];
+      let iov1 = account["//iov1"];
       const star1 = account.value.address;
+
+      if ( !iov1 ) { // escrowed
+         if ( star1 == "star15u4kl3lalt8pm2g4m23erlqhylz76rfh50cuv8" ) iov1 = "iov149cn0rauw2773lfdp34njyejg3cfz2d56c0m5t"; // joghurt
+         if ( star1 == "star1hjf04872s9rlcdg2wqwvapwttvt3p4gjpp0xmc" ) iov1 = "iov1ytn5f79hlu5y25phgwx79jmeqj78l6d2ey4s35"; // kadima
+         if ( star1 == "star1elad203jykd8la6wgfnvk43rzajyqpk0wsme9g" ) iov1 = "iov1cre24vrfn0klc0rc0wy0a9tf4d360d0fc7f3hl"; // isabella
+         if ( star1 == "star17w7fjdkr9laphtyj4wxa32rf0evu94xgywxgl4" ) iov1 = "iov170qvwm0tscn5mza3vmaerkzqllvwc3kykkt7kj"; // vaildator guaranteed reward fund
+      }
 
       o.iov2coin[iov1] = {
          IOV: account.value.coins[0]["//IOV"],
