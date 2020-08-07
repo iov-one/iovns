@@ -290,11 +290,12 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
          burnTokens( dumped, [ iov1 ] );
          // ...adding to the custodial account...
          custodian[`//no star1 ${iov1}`] = iov;
+         previous += amount; // ...after reduction
       }
 
-      return previous + amount; // ...after reduction
-   }, 0 );
-   custodian.value.coins[0].amount = String( Math.ceil( safeguarded ) );
+      return previous;
+   }, Math.floor( custodian.value.coins[0].amount ) );
+   custodian.value.coins[0].amount = String( safeguarded );
 
    const starnames = dumped.username.sort( ( a, b ) => a.Username.localeCompare( b.Username ) ).map( username => {
       const iov1 = username.Owner;
