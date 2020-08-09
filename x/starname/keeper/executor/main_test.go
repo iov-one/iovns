@@ -69,6 +69,13 @@ func newTest() error {
 	testKeeper = keeper.NewKeeper(testCdc, testKey, mockConfig, nil, nil)
 	testKeeper.AccountStore(testCtx).Create(&testAccount)
 	testKeeper.DomainStore(testCtx).Create(&testDomain)
+	testKeeper.AccountStore(testCtx).Create(&types.Account{
+		Domain:      testDomain.Name,
+		Name:        utils.StrPtr(types.EmptyAccountName),
+		Owner:       testDomain.Admin,
+		ValidUntil:  testDomain.ValidUntil,
+		MetadataURI: "",
+	})
 	return nil
 }
 
