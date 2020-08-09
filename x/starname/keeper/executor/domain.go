@@ -47,6 +47,12 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 	)
 	// set domain
 	d.domains.Update(d.domain)
+	// update empty account
+	account := new(types.Account)
+	fltr := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: utils.StrPtr(types.EmptyAccountName)})
+	fltr.Read(account)
+	account.ValidUntil = d.domain.ValidUntil
+	fltr.Update(account)
 }
 
 // Delete deletes a domain from the kvstore
