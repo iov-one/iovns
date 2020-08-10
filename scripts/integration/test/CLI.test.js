@@ -380,4 +380,31 @@ describe( "Tests the CLI.", () => {
       expect( newDomainInfo.domain.admin ).toEqual( recipient );
       expect( newDomainInfo.domain.type ).toEqual( "open" );
    } );
-} );
+
+
+   it( `Should register and renew domain.`, async () => {
+      // register
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+
+      const registered = iovnscli( [ "tx", "starname", "register-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+
+      expect( registered.txhash ).toBeDefined();
+      if ( !registered.logs ) throw new Error( registered.raw_log );
+
+      const domainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
+
+      expect( domainInfo.domain.name ).toEqual( domain );
+
+      // renew
+      const renewed = iovnscli( [ "tx", "starname", "renew-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+
+      expect( renewed.txhash ).toBeDefined();
+      if ( !renewed.logs ) throw new Error( renewed.raw_log );
+
+      const newDomainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
+      const starname = iovnscli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
+
+      expect( newDomainInfo.domain.name ).toEqual( domain );
+      expect( newDomainInfo.domain.valid_until ).toBeGreaterThan( domainInfo.domain.valid_until );
+      expect( newDomainInfo.domain.valid_until ).toEqual( starname.account.valid_until );
+   } );} );

@@ -1,6 +1,7 @@
 # Changelog
 
 ## HEAD
+- fix empty account renewal
 - use external crud package
 - make controllers API nicer
 - enhance executors tests
