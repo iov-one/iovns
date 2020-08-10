@@ -52,4 +52,4 @@ exit # ${USER_IOV}
 
 If the above is executed successfully then the genesis file that you generated in `~/iovns/scripts/genesis/data/iov-mainnet-2/config/genesis.json` is identical to this [gist](https://gist.githubusercontent.com/davepuchyr/4fe7e002061c537ddb116fee7a2f8e47/raw/genesis.json).  You're ready to follow the procedure [here](https://docs.iov.one/for-validators/mainnet) and wait for `genesis_time`.
 
-`genesis.js` is where the conversion from **iov-mainnet**'s state to **iov-mainnet-2**'s genesis file takes place.  It simply does the transformations to fork from weave to cosmos-sdk.  [Check it out](genesis.js).
+`node -r esm genesis.js iov-mainnet-2` is where the conversion from **iov-mainnet**'s state to **iov-mainnet-2**'s genesis file takes place.  It simply does the transformations to fork from weave to cosmos-sdk.  [Check it out](genesis.js).
