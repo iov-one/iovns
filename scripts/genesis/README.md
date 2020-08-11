@@ -19,12 +19,14 @@ sudo systemctl stop iovns.service
 su - ${USER_IOV}
 set -o allexport ; source /etc/systemd/system/iovns.env ; set +o allexport # pick-up env vars
 
-# pull the exported state from IOV
+# pull the exported state from IOV and build iovnsd
 cd ~ \
 && git clone --recursive https://github.com/iov-one/iovns.git \
 && cd iovns \
 && git submodule foreach git checkout master \
-&& export HEIGHT=$(jq -r .height ./scripts/genesis/data/dump/dump.json)
+&& export HEIGHT=$(jq -r .height ./scripts/genesis/data/dump/dump.json) \
+&& make build \
+&& export PATH=~/iovns/build:$PATH
 
 # dump local state and compare it with IOV's state
 cd ~ \
