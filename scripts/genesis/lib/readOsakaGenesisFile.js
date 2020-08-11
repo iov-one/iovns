@@ -5,7 +5,8 @@ import path from "path";
 
 
 const readOsakaGenesisFile = async () => {
-   const result = fs.readFileSync( path.join( "data", "osaka.json" ), "utf-8" );
+   const pwd = path.dirname( process.argv[1] );
+   const result = fs.readFileSync( path.join( pwd, "data", "osaka.json" ), "utf-8" );
    const json = JSON.parse( result );
    const genesis = json.result.genesis;
 
