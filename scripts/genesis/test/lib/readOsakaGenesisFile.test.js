@@ -1,11 +1,11 @@
-import fetchOsakaGenesisFile from "../../lib/fetchOsakaGenesisFile";
+import readOsakaGenesisFile from "../../lib/readOsakaGenesisFile";
 
 "use strict";
 
 
 describe( "Tests ../../lib/fetchOsakaGenesisFile.js.", () => {
    it( `Should get the weave-based mainnet genesis file.`, async () => {
-      const osaka = await fetchOsakaGenesisFile();
+      const osaka = await readOsakaGenesisFile();
 
       expect( osaka.chain_id ).toEqual( "iov-mainnet" );
       expect( osaka.validators[3].address ).toEqual( "058078082E8ED2431EA61E69657BE27F0D7456FA" );

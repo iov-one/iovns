@@ -1,7 +1,7 @@
 import { chainIds, multisigs, source2multisig } from "./lib/constants";
 import { migrate, patchGalaxynet, patchMainnet, } from "./lib/migrate";
 import fetchIndicativeSendsTo from "./lib/fetchIndicativeSendsTo";
-import fetchOsakaGenesisFile from "./lib/fetchOsakaGenesisFile";
+import readOsakaGenesisFile from "./lib/readOsakaGenesisFile";
 import filterReserveds from "./lib/filterReserveds";
 import path from "path";
 import pullDumpedState from "./lib/pullDumpedState";
@@ -222,7 +222,7 @@ const main = async () => {
    const dumped = await pullDumpedState().catch( e => { throw e } );
    const flammable = [ "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" ]; // accounts to burn; "pending deals" tokens were effectively burned by sending to this 0x0 hex account
    const indicatives = await fetchIndicativeSendsTo( "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6", /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/ ).catch( e => { throw e } );
-   const osaka = await fetchOsakaGenesisFile().catch( e => { throw e } );
+   const osaka = await readOsakaGenesisFile().catch( e => { throw e } );
    const premiums = await pullPremiums().catch( e => { throw e } );
    const reserveds = filterReserveds( genesis.app_state.configuration.config.valid_domain_name );
 
