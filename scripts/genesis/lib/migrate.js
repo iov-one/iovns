@@ -603,6 +603,9 @@ export const patchGalaxynet = genesis => {
 
       if ( resource ) resource.uri = "asset-testnet:iov"; // https://internetofvalues.slack.com/archives/CPNRVHG94/p1595965860011800
    } );
+
+   // attempt a decentralized launch
+   genesis.genesis_time = new Date( "2020-08-13T12:00:00Z" ).toISOString();
 }
 
 /**
