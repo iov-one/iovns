@@ -89,7 +89,7 @@ script:
   - export CHAIN_ID=$(jq -r .chain_id genesis.json)
   - iovnsd init ${CHAIN_ID} --chain-id ${CHAIN_ID} > /dev/null 2> /dev/null
   - sed --in-place 's/timeout_commit = "5s"/timeout_commit = "1s"/' ~/.iovnsd/config/config.toml
-  - mv genesis.json ~/.iovnsd/config
+  - jq '.genesis_time = (now|strflocaltime("%Y-%m-%dT%H:%M:%SZ"))' genesis.json > ~/.iovnsd/config
   - iovnscli config chain-id ${CHAIN_ID}
   - iovnscli config trust-node true
   - iovnscli config keyring-backend test
