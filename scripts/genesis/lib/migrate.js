@@ -114,7 +114,7 @@ export const createStarname = ( args = {} ) => {
       "name": args.name || "",
       "owner": args.address || "",
       "resources": resources,
-      "valid_until": String( new Date( "2020-10-01T00:00:00" ).getTime() / 1000 ), // just after listing date
+      "valid_until": String( new Date( "2020-10-01T00:00:00Z" ).getTime() / 1000 ), // just after listing date
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -133,7 +133,7 @@ export const createDomain = ( args = {} ) => {
       "broker": null,
       "name": args.domain,
       "type": "closed",
-      "valid_until": String( args.valid_until || new Date( "2020-10-01T00:00:00" ).getTime() / 1000 ), // just after listing date
+      "valid_until": String( args.valid_until || new Date( "2020-10-01T00:00:00Z" ).getTime() / 1000 ), // just after listing date
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -334,14 +334,14 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
    // reserve domains
    const address = "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96"; // https://internetofvalues.slack.com/archives/GPYCU2AJJ/p1596436694013900
    const releases = [ // give 8 months to sell
-      new Date( "2020-09-16T10:00:00" ),
-      new Date( "2020-10-14T10:00:00" ),
-      new Date( "2020-11-18T10:00:00" ),
-      new Date( "2020-12-16T10:00:00" ),
-      new Date( "2021-01-20T10:00:00" ),
-      new Date( "2021-02-17T10:00:00" ),
-      new Date( "2021-03-17T10:00:00" ),
-      new Date( "2021-04-14T10:00:00" ),
+      new Date( "2020-09-16T10:00:00Z" ),
+      new Date( "2020-10-14T10:00:00Z" ),
+      new Date( "2020-11-18T10:00:00Z" ),
+      new Date( "2020-12-16T10:00:00Z" ),
+      new Date( "2021-01-20T10:00:00Z" ),
+      new Date( "2021-02-17T10:00:00Z" ),
+      new Date( "2021-03-17T10:00:00Z" ),
+      new Date( "2021-04-14T10:00:00Z" ),
    ];
    reserveds.forEach( ( domain, i ) => {
       if ( !domains.find( existing => existing.name == domain ) ) { // don't allow duplicates
