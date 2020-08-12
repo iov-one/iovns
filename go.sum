@@ -79,6 +79,8 @@ github.com/coreos/pkg v0.0.0-20160727233714-3ac0863d7acf/go.mod h1:E3G3o1h8I7cfc
 github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f/go.mod h1:E3G3o1h8I7cfcXa63jLwjI0eiQQMgzzUDFVpN/nH/eA=
 github.com/cosmos/cosmos-sdk v0.39.1-rc1 h1:Xo+fkvs/4PEDOR1vb5XPbit5ZnP7OnqWYTNqtZ0lKPU=
 github.com/cosmos/cosmos-sdk v0.39.1-rc1/go.mod h1:soj4C8lIjJLeUQPBqrM+krbXdnF4cDKaaDgg1JIJYRU=
+github.com/cosmos/cosmos-sdk v0.39.1 h1:vhjf9PZh9ph8btAj9aBpHoVITgVVjNBpM3x5Gl/Vwac=
+github.com/cosmos/cosmos-sdk v0.39.1/go.mod h1:ry2ROl5n+f2/QXpKJo3rdWNJwll00z7KhIVcxNcl16M=
 github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d h1:49RLWk1j44Xu4fjHb6JFYmeUnDORVwHNkDxaQ0ctCVU=
 github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d/go.mod h1:tSxLoYXyBmiFeKpvmq4dzayMdCjCnu8uqmCysIGBT2Y=
 github.com/cosmos/ledger-cosmos-go v0.11.1 h1:9JIYsGnXP613pb2vPjFeMMjBI5lEDsEaF6oYorTy6J4=
@@ -243,8 +245,6 @@ github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NH
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/influxdata/influxdb1-client v0.0.0-20191209144304-8bf82d3c094d h1:/WZQPMZNsjZ7IlCpsLGdQBINg5bxKQ1K1sh6awxLtkA=
 github.com/influxdata/influxdb1-client v0.0.0-20191209144304-8bf82d3c094d/go.mod h1:qj24IKcXYK6Iy9ceXlo3Tc+vtHo9lIhSX5JddghvEPo=
-github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804182707-29e3147b6e2e h1:KM8wM8RVerY5QaUTDsjxY9Ousw8Vn32vHOklnoOBbrA=
-github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804182707-29e3147b6e2e/go.mod h1:wfvPz9CNFOERo+9wnq2jUeDKH6NHSrFtJcNA2oB6UdQ=
 github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804183153-2b7470a92e52 h1:fCi/QCX1F8J61LrRsSmWBXpTVIdDFAi3Enf+6FQkd7g=
 github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804183153-2b7470a92e52/go.mod h1:wfvPz9CNFOERo+9wnq2jUeDKH6NHSrFtJcNA2oB6UdQ=
 github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
@@ -470,6 +470,8 @@ github.com/tendermint/iavl v0.14.0/go.mod h1:QmfViflFiXzxKLQE4tAUuWQHq+RSuQFxabl
 github.com/tendermint/tendermint v0.33.5/go.mod h1:0yUs9eIuuDq07nQql9BmI30FtYGcEC60Tu5JzB5IezM=
 github.com/tendermint/tendermint v0.33.6 h1:W4UOsXY4ROJZ3TLLGVVv71VXD4WK2gJRb3gzeced+mg=
 github.com/tendermint/tendermint v0.33.6/go.mod h1:0yUs9eIuuDq07nQql9BmI30FtYGcEC60Tu5JzB5IezM=
+github.com/tendermint/tendermint v0.33.7 h1:b5CQD8ggDtl4u0EbXzabi0MaOw9NrcXker6ijEkAE74=
+github.com/tendermint/tendermint v0.33.7/go.mod h1:0yUs9eIuuDq07nQql9BmI30FtYGcEC60Tu5JzB5IezM=
 github.com/tendermint/tm-db v0.5.1 h1:H9HDq8UEA7Eeg13kdYckkgwwkQLBnJGgX4PgLJRhieY=
 github.com/tendermint/tm-db v0.5.1/go.mod h1:g92zWjHpCYlEvQXvy9M168Su8V1IBEeawpXVVBaK4f4=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
