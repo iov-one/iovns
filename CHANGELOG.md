@@ -1,6 +1,7 @@
 # Changelog
 
-## HEAD
+## 0.9.1
+- upgrade to cosmos sdk 0.39.1
 - fix empty account renewal
 - use external crud package
 - make controllers API nicer
