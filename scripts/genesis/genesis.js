@@ -19,7 +19,7 @@ const main = async () => {
    // genesis file scaffolding
    const genesis = {
       chain_id: chain_id,
-      genesis_time: new Date( "2020-04-15T10:00:00Z" ).toISOString(),
+      genesis_time: new Date( "2020-08-24T08:00:00Z" ).toISOString(),
       app_hash: "",
       app_state: {
          auth: {
