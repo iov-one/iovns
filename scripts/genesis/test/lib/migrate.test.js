@@ -1543,7 +1543,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                   {
                      "//id": "vaildator guaranteed reward fund",
                      "//note": "consolidated escrows with source iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
-                     "//timeout 2029-11-10T00:00:00.000Z": "iov170qvwm0tscn5mza3vmaerkzqllvwc3kykkt7kj yields 2347987 IOV",
+                     "//timeout 2029-11-10T00:00:00Z": "iov170qvwm0tscn5mza3vmaerkzqllvwc3kykkt7kj yields 2347987 IOV",
                      "type": "cosmos-sdk/Account",
                      "value": {
                         "account_number": "0",
@@ -1562,9 +1562,9 @@ describe( "Tests ../../lib/migrate.js.", () => {
                   {
                      "//id": "escrow isabella*iov",
                      "//note": "consolidated escrows with source iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x",
-                     "//timeout 2019-12-10T12:00:00.000Z": "iov105465l8l3yn06a56h7tqwwvnqq22e8j4nvgf02 yields 269559 IOV",
-                     "//timeout 2020-01-10T12:00:00.000Z": "iov17gdpegksje9dlh8h0g6ehgk6d4anz9pkfskunr yields 269559 IOV",
-                     "//timeout 2020-02-10T12:00:00.000Z": "iov1ppxx0vwx42p47p4pkztzl4d57zh2ctnwsz4fdu yields 269559 IOV",
+                     "//timeout 2019-12-10T12:00:00Z": "iov105465l8l3yn06a56h7tqwwvnqq22e8j4nvgf02 yields 269559 IOV",
+                     "//timeout 2020-01-10T12:00:00Z": "iov17gdpegksje9dlh8h0g6ehgk6d4anz9pkfskunr yields 269559 IOV",
+                     "//timeout 2020-02-10T12:00:00Z": "iov1ppxx0vwx42p47p4pkztzl4d57zh2ctnwsz4fdu yields 269559 IOV",
                      "type": "cosmos-sdk/Account",
                      "value": {
                         "account_number": "0",
@@ -1583,9 +1583,9 @@ describe( "Tests ../../lib/migrate.js.", () => {
                   {
                      "//id": "escrow kadima*iov",
                      "//note": "consolidated escrows with source iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph",
-                     "//timeout 2020-06-10T12:00:00.000Z": "iov1k4dpknrrf4dfm07avau0mmjkrsm6pu863d30us yields 89853 IOV",
-                     "//timeout 2020-07-10T12:00:00.000Z": "iov1dfurgye70k7f2gxptztfym697g5t832pp9m94g yields 89853 IOV",
-                     "//timeout 2020-08-10T12:00:00.000Z": "iov1497txu54lnwujzl8xhc59y6cmuw82d68udn4l3 yields 89853 IOV",
+                     "//timeout 2020-06-10T12:00:00Z": "iov1k4dpknrrf4dfm07avau0mmjkrsm6pu863d30us yields 89853 IOV",
+                     "//timeout 2020-07-10T12:00:00Z": "iov1dfurgye70k7f2gxptztfym697g5t832pp9m94g yields 89853 IOV",
+                     "//timeout 2020-08-10T12:00:00Z": "iov1497txu54lnwujzl8xhc59y6cmuw82d68udn4l3 yields 89853 IOV",
                      "type": "cosmos-sdk/Account",
                      "value": {
                         "account_number": "0",
@@ -2365,7 +2365,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                ]
             }
          },
-         "genesis_time": "2020-04-15T10:00:00.000Z"
+         "genesis_time": "2020-04-15T10:00:00Z"
       };
 
       // hack around transient values before...
