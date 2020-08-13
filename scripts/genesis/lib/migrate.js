@@ -171,7 +171,7 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
 
          account["//id"] = source2multisig[source]["//id"];
          account["//note"] = `consolidated escrows with source ${source}`;
-         account[`//timeout ${new Date( escrow.timeout * 1000 ).toISOString()}`] = `${escrow.address} yields ${escrow.amount[0].whole} ${escrow.amount[0].ticker}`;
+         account[`//timeout ${new Date( escrow.timeout * 1000 ).toISOString().replace( ".000Z", "Z" )}`] = `${escrow.address} yields ${escrow.amount[0].whole} ${escrow.amount[0].ticker}`;
          value.address = source2multisig[source].star1;
          value.coins[0]["//IOV"] += iov;
          value.coins[0].amount = `${parseInt( value.coins[0].amount ) + 1e6 * iov}`; // must be a string
@@ -605,7 +605,7 @@ export const patchGalaxynet = genesis => {
    } );
 
    // attempt a decentralized launch
-   genesis.genesis_time = new Date( "2020-08-13T12:00:00Z" ).toISOString();
+   genesis.genesis_time = new Date( "2020-08-14T08:00:00Z" ).toISOString();
 }
 
 /**
