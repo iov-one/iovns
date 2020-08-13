@@ -2365,7 +2365,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                ]
             }
          },
-         "genesis_time": "2020-04-15T10:00:00Z"
+         "genesis_time": "2020-04-15T10:00:00.000Z"
       };
 
       // hack around transient values before...
