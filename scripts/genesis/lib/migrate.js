@@ -114,7 +114,7 @@ export const createStarname = ( args = {} ) => {
       "name": args.name || "",
       "owner": args.address || "",
       "resources": resources,
-      "valid_until": String( new Date( "2020-10-01T00:00:00Z" ).getTime() / 1000 ), // just after listing date
+      "valid_until": String( new Date( "2021-10-01T00:00:00Z" ).getTime() / 1000 ), // one year from just after listing date
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -133,7 +133,7 @@ export const createDomain = ( args = {} ) => {
       "broker": null,
       "name": args.domain,
       "type": "closed",
-      "valid_until": String( args.valid_until || new Date( "2020-10-01T00:00:00Z" ).getTime() / 1000 ), // just after listing date
+      "valid_until": String( args.valid_until || new Date( "2021-10-01T00:00:00Z" ).getTime() / 1000 ), // one year from just after listing date
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
