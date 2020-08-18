@@ -1,57 +1,22 @@
-# Verify The iov-mainnet-2 Genesis File
+# Hard-Fork To iov-mainnet-2
 
-This document assumes that you followed the procedure [here](https://github.com/iov-one/docs/blob/master/docs/iov-name-service/validator/01-mainnet.md) when you joined **iov-mainnet** as a validator.  It will deliniate the procedure necessary to verify the genesis file for **iov-mainnet-2**.  It requires that `diff`, `git`, `go v1.14.2+`, `jq`, `make`, `node`, `sed`, and `yarn` are installed on your system, and user `$USER_IOV` exists.
+The hard-fork from weave to cosmos-sdk marks a new era for IOV and starnames.  This document aims to outline how to make the fork as smooth as possible.  It is intended for validators on the legacy chain.
 
-The verfication process consists of three parts:
-1. Pulling the state and iov-mainnet-2 genesis file from IOV's repo.
-1. Dumping the state from your node and comparing it to IOV's state.
-1. Generating the iov-mainnet-2 genesis file from the dumped state and comparing it to IOV's genesis file.
+Validator nodes on the legacy chain do not maintain the full history of the chain due to pruning.  That, coupled with the fact that blocks are created on-demand via transactions, means that some coordination is required in order for validators to be able to verify the exported state from the legacy chain.  In order to facilitate that coordination, IOV will add a validator to the legacy validator set that has ⅔+ `voting_power` so that when it is stopped then the legacy chain will be halted.  That will allow all validators to export state locally and use it to verify the **iov-mainnet-2** genesis file.
 
-The following procedure can be run on your validator or sentry nodes.  You can even do a practice run before the official decommissioning of the **iov-mainnet** chain takes place.  Note, however, in that case, you might see differences in the final `git diff` since the genesis file in IOV's repo is only an infrequent snapshot of the current state.
+IOV will halt the legacy chain at least an hour before the new chain's `genesis_time`.  That may not seem like a lot of time to verify the new genesis file but, as you'll see, verifying the file only takes a matter of seconds.
 
-That said, let's go!
+The technical procedure for verifying the genesis file for **iov-mainnet-2** is [here](VERIFY.md).  Wait for IOV to announce that it has generated the genesis file before attempting the procedure.  Otherwise you'd be comparing your local genesis file to one that is out-of-date.  Announce on Telegram in the **IOV Validators** channel whether or not you were able to replicate the **iov-mainnet-2** genesis file.  When all validators are good to go then announce on Twitter, too :).  If there's a problem then we will debug and potentially restart the legacy chain and repeat the technical procedure until consensus on the genesis file is achieved.
 
-```bash
-# stop iovns.service
-sudo systemctl stop iovns.service
+Once consensus on the **iov-mainnet-2** genesis file is achieved then follow the procedure at https://docs.iov.one/for-validators/mainnet and wait for `genesis_time`.  Note that https://docs.iov.one/for-validators/mainnet builds on https://docs.iov.one/for-validators/testnet, so it'd be good to be familiar with that or even join the testnet before the launch of **iov-mainnet-2**.
 
-# start the genesis file verification process
-su - ${USER_IOV}
-set -o allexport ; source /etc/systemd/system/iovns.env ; set +o allexport # pick-up env vars
+Once the new chain is started then feel free to release all the resources that the legacy chain used.
 
-# pull the exported state from IOV and build iovnsd
-cd ~ \
-&& git clone --recursive https://github.com/iov-one/iovns.git \
-&& cd iovns \
-&& git submodule foreach git checkout master \
-&& export HEIGHT=$(jq -r .height ./scripts/genesis/data/dump/dump.json) \
-&& make build \
-&& export PATH=~/iovns/build:$PATH
 
-# dump local state and compare it with IOV's state
-cd ~ \
-&& git clone https://github.com/iov-one/weave.git \
-&& cd weave/cmd/dumpstate \
-&& make test \
-&& make \
-&& ./dumpstate -db ${DIR_WORK} -height ${HEIGHT} -out ${HEIGHT}.json \
-&& sed --in-place "s/\"escrow\"/\"height\":${HEIGHT},\"escrow\"/" ${HEIGHT}.json \
-&& jq --sort-keys . ${HEIGHT}.json > dump.json \
-&& diff dump.json ~/iovns/scripts/genesis/data/dump/dump.json \
-|| echo 'BAD state!'
+## Proof Of Ownership ##
 
-# generate the iov-mainnet-2 genesis file and compare it with IOV's genesis file
-cd ~/iovns/scripts/genesis \
-&& yarn \
-&& yarn test \
-&& node -r esm genesis.js iov-mainnet-2 \
-&& cd data/iov-mainnet-2/config \
-&& git diff \
-|| echo 'BAD genesis!'
+There will undoubtedly be some legacy token holders that failed to provide IOV with a star1 address for the new chain.  All tokens and *iov names owned by them will be in the custody of IOV on the new chain.  In order to claim their property the token/name holders will have to prove their ownership.  In order to do so, IOV will restart its validator on the legacy chain and require that owners map their iov1 address to their star1 address.  Other validators are not required to operate on the legacy chain since the IOV validator will have ⅔+ `voting_power`.
 
-exit # ${USER_IOV}
-```
+## Questions? ##
 
-If the above is executed successfully then the genesis file that you generated in `~/iovns/scripts/genesis/data/iov-mainnet-2/config/genesis.json` is identical to this [gist](https://gist.githubusercontent.com/davepuchyr/4fe7e002061c537ddb116fee7a2f8e47/raw/genesis.json).  You're ready to follow the procedure [here](https://docs.iov.one/for-validators/mainnet) and wait for `genesis_time`.
-
-`node -r esm genesis.js iov-mainnet-2` is where the conversion from **iov-mainnet**'s state to **iov-mainnet-2**'s genesis file takes place.  It simply does the transformations to fork from weave to cosmos-sdk.  [Check it out](genesis.js).
+If you have any questions/concerns/suggestions then please post them in Telegram in the **IOV Validators** channel.
