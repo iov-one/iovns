@@ -8,7 +8,7 @@ IOV will halt the legacy chain at least an hour before the new chain's `genesis_
 
 The technical procedure for verifying the genesis file for **iov-mainnet-2** is [here](VERIFY.md).  Wait for IOV to announce that it has generated the genesis file before attempting the procedure.  Otherwise you'd be comparing your local genesis file to one that is out-of-date.  Announce on Telegram in the **IOV Validators** channel whether or not you were able to replicate the **iov-mainnet-2** genesis file.  When all validators are good to go then announce on Twitter, too :).  If there's a problem then we will debug and potentially restart the legacy chain and repeat the technical procedure until consensus on the genesis file is achieved.
 
-Once consensus on the **iov-mainnet-2** genesis file is achieved then follow the procedure at https://docs.iov.one/mainnet and wait for `genesis_time`.  Note that https://docs.iov.one/mainnet builds on https://docs.iov.one/for-validators/testnet, so it'd be good to be familiar with that or even join the testnet before the launch of **iov-mainnet-2**.
+Once consensus on the **iov-mainnet-2** genesis file is achieved then follow the procedure at https://docs.iov.one/for-validators/mainnet and wait for `genesis_time`.  Note that https://docs.iov.one/for-validators/mainnet builds on https://docs.iov.one/for-validators/testnet, so it'd be good to be familiar with that or even join the testnet before the launch of **iov-mainnet-2**.
 
 Once the new chain is started then feel free to release all the resources that the legacy chain used.
 
