@@ -328,6 +328,7 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
          }
 
          domains.push( createDomain( { address, iov1, domain } ) );
+         starnames.push( createStarname( { address, domain, name:"" } ) ); // create the empty account
       } );
    } );
 
@@ -348,10 +349,16 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
          const valid_until = releases[i % releases.length].getTime() / 1000;
 
          domains.push( createDomain( { address, domain, valid_until } ) );
+         starnames.push( createStarname( { address, domain, name:"" } ) ); // create the empty account
       }
    } );
 
    domains.sort( ( a, b ) => a.name.localeCompare( b.name ) );
+   starnames.sort( ( a, b ) => {
+      const d = a.domain.localeCompare( b.domain );
+
+      return d == 0 ? a.name.localeCompare( b.name ) : d;
+   } );
 
    return { accounts, starnames, domains };
 }
