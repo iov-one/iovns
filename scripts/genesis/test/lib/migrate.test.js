@@ -1767,244 +1767,44 @@ describe( "Tests ../../lib/migrate.js.", () => {
             },
             "starname": {
                "accounts": [
-                  {
-                     "//iov1": "iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "alex",
-                     "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
-                     "resources": null,
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "alpha",
-                     "owner": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd",
-                     "resources": [
-                        {
-                           "resource": "0x52dBf411B22Af67f33425bf3fbb6B8CF8FB302cd",
-                           "uri": "asset:eth"
-                        },
-                        {
-                           "resource": "cosmos15dafemy5pkaru4kf23s3e6mnugfv6et9kg2uz7",
-                           "uri": "asset:atom"
-                        },
-                        {
-                           "resource": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd",
-                           "uri": "asset:iov"
-                        }
-                     ],
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "blini44",
-                     "owner": "star1gfdmksf725qpdgl06e98ks4usg9nmkcwc5qzcg",
-                     "resources": [
-                        {
-                           "resource": "star1gfdmksf725qpdgl06e98ks4usg9nmkcwc5qzcg",
-                           "uri": "asset:iov"
-                        },
-                        {
-                           "resource": "0xa223f22664Ee8bfB41FAD93C388826E7aF24060c",
-                           "uri": "asset:eth"
-                        },
-                        {
-                           "resource": "4341330819731245941L",
-                           "uri": "asset:lsk"
-                        }
-                     ],
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "btc13",
-                     "owner": "star1qvpth6t72336fjxlej2xv8eu84hrpxdxf5rgzz",
-                     "resources": [
-                        {
-                           "resource": "star1qvpth6t72336fjxlej2xv8eu84hrpxdxf5rgzz",
-                           "uri": "asset:iov"
-                        },
-                        {
-                           "resource": "16104600299727948959L",
-                           "uri": "asset:lsk"
-                        },
-                        {
-                           "resource": "0x40698A9DcE4d6a63E766Dd08b83D03c6727DCB1a",
-                           "uri": "asset:eth"
-                        }
-                     ],
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "confio",
-                     "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
-                     "resources": null,
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "corentin",
-                     "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
-                     "resources": [
-                        {
-                           "resource": "0x5e415520beb66aa39e00d43cae889f2c5cba7017",
-                           "uri": "asset:eth"
-                        }
-                     ],
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "dave",
-                     "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
-                     "resources": [
-                        {
-                           "resource": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
-                           "uri": "asset:iov"
-                        }
-                     ],
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov1ejk0g6p2xk90lamuvtd3r0kf6jcva09hf4xy74",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "fish_and_chips",
-                     "owner": "star1yxxmpqca3l7xzhy4783vkpfx843x4zk749h8fs",
-                     "resources": [
-                        {
-                           "resource": "star1yxxmpqca3l7xzhy4783vkpfx843x4zk749h8fs",
-                           "uri": "asset:iov"
-                        }
-                     ],
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "huobi",
-                     "owner": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y",
-                     "resources": [
-                        {
-                           "resource": "0x00C60938d954FEC83E70eE98243B24F7E6EabaC8",
-                           "uri": "asset:eth"
-                        },
-                        {
-                           "resource": "13483265462465913551L",
-                           "uri": "asset:lsk"
-                        },
-                        {
-                           "resource": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y",
-                           "uri": "asset:iov"
-                        }
-                     ],
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "kadima",
-                     "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
-                     "resources": null,
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "ledger",
-                     "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
-                     "resources": [
-                        {
-                           "resource": "iov1fpezwaxfnmef8tyyg4t7avz9a2d9gqh3yh8d8n",
-                           "uri": "asset:iov"
-                        }
-                     ],
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "letsdoit",
-                     "owner": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd",
-                     "resources": [
-                        {
-                           "resource": "0x52dBf411B22Af67f33425bf3fbb6B8CF8FB302cd",
-                           "uri": "asset:eth"
-                        },
-                        {
-                           "resource": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd",
-                           "uri": "asset:iov"
-                        }
-                     ],
-                     "valid_until": "1628034048"
-                  },
-                  {
-                     "//iov1": "iov1eh6yeyel3zsc8vqnh79fqjtfkcxmj5d8nt49gq",
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "nash.io",
-                     "owner": "star1y86zdqsegxm7uj9qf7l400y29nc6x9ypqxpdcg",
-                     "resources": [
-                        {
-                           "resource": "0x2cE327b4EB237313F37a72195d64Cb80F7aeAa15",
-                           "uri": "asset:eth"
-                        },
-                        {
-                           "resource": "16192453558792957658L",
-                           "uri": "asset:lsk"
-                        },
-                        {
-                           "resource": "star1y86zdqsegxm7uj9qf7l400y29nc6x9ypqxpdcg",
-                           "uri": "asset:iov"
-                        }
-                     ],
-                     "valid_until": "1628034048"
-                  }
-               ],
+                  { "broker": null, "certificates": null, "domain": "84more", "metadata_uri": "", "name": "", "owner": "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "adrian", "metadata_uri": "", "name": "", "owner": "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "china", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "china1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "cosmostation", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "fcbarca", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "fcbarca1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "gianna", "metadata_uri": "", "name": "", "owner": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "goldman", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "goldman_sachs", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "goldman_sachs1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "goldman1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "hash", "metadata_uri": "", "name": "", "owner": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "hell", "metadata_uri": "", "name": "", "owner": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "hold", "metadata_uri": "", "name": "", "owner": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "huth", "metadata_uri": "", "name": "", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "ibcwallet", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "in3s", "metadata_uri": "", "name": "", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "alex", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400", "//iov1": "iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "alpha", "owner": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd", "resources": [ { "uri": "asset:eth", "resource": "0x52dBf411B22Af67f33425bf3fbb6B8CF8FB302cd" }, { "uri": "asset:atom", "resource": "cosmos15dafemy5pkaru4kf23s3e6mnugfv6et9kg2uz7" }, { "uri": "asset:iov", "resource": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd" } ], "valid_until": "1633046400", "//iov1": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "blini44", "owner": "star1gfdmksf725qpdgl06e98ks4usg9nmkcwc5qzcg", "resources": [ { "uri": "asset:iov", "resource": "star1gfdmksf725qpdgl06e98ks4usg9nmkcwc5qzcg" }, { "uri": "asset:eth", "resource": "0xa223f22664Ee8bfB41FAD93C388826E7aF24060c" }, { "uri": "asset:lsk", "resource": "4341330819731245941L" } ], "valid_until": "1633046400", "//iov1": "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "btc13", "owner": "star1qvpth6t72336fjxlej2xv8eu84hrpxdxf5rgzz", "resources": [ { "uri": "asset:iov", "resource": "star1qvpth6t72336fjxlej2xv8eu84hrpxdxf5rgzz" }, { "uri": "asset:lsk", "resource": "16104600299727948959L" }, { "uri": "asset:eth", "resource": "0x40698A9DcE4d6a63E766Dd08b83D03c6727DCB1a" } ], "valid_until": "1633046400", "//iov1": "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "confio", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400", "//iov1": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "corentin", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": [ { "uri": "asset:eth", "resource": "0x5e415520beb66aa39e00d43cae889f2c5cba7017" } ], "valid_until": "1633046400", "//iov1": "iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "dave", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": [ { "uri": "asset:iov", "resource": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" } ], "valid_until": "1633046400", "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "fish_and_chips", "owner": "star1yxxmpqca3l7xzhy4783vkpfx843x4zk749h8fs", "resources": [ { "uri": "asset:iov", "resource": "star1yxxmpqca3l7xzhy4783vkpfx843x4zk749h8fs" } ], "valid_until": "1633046400", "//iov1": "iov1ejk0g6p2xk90lamuvtd3r0kf6jcva09hf4xy74" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "huobi", "owner": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y", "resources": [ { "uri": "asset:eth", "resource": "0x00C60938d954FEC83E70eE98243B24F7E6EabaC8" }, { "uri": "asset:lsk", "resource": "13483265462465913551L" }, { "uri": "asset:iov", "resource": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y" } ], "valid_until": "1633046400", "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "kadima", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400", "//iov1": "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "ledger", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": [ { "uri": "asset:iov", "resource": "iov1fpezwaxfnmef8tyyg4t7avz9a2d9gqh3yh8d8n" } ], "valid_until": "1633046400", "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "letsdoit", "owner": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd", "resources": [ { "uri": "asset:eth", "resource": "0x52dBf411B22Af67f33425bf3fbb6B8CF8FB302cd" }, { "uri": "asset:iov", "resource": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd" } ], "valid_until": "1633046400", "//iov1": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "nash.io", "owner": "star1y86zdqsegxm7uj9qf7l400y29nc6x9ypqxpdcg", "resources": [ { "uri": "asset:eth", "resource": "0x2cE327b4EB237313F37a72195d64Cb80F7aeAa15" }, { "uri": "asset:lsk", "resource": "16192453558792957658L" }, { "uri": "asset:iov", "resource": "star1y86zdqsegxm7uj9qf7l400y29nc6x9ypqxpdcg" } ], "valid_until": "1633046400", "//iov1": "iov1eh6yeyel3zsc8vqnh79fqjtfkcxmj5d8nt49gq" }, { "broker": null, "certificates": null, "domain": "ivanontech", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "ivanontech1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "jim", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "korea", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "lovely", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "michael", "metadata_uri": "", "name": "", "owner": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "mintscan", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "multiverse", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "nodeateam", "metadata_uri": "", "name": "", "owner": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "sentient", "metadata_uri": "", "name": "", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "seoul", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "socgen", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "socgen1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "station", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "tachyon", "metadata_uri": "", "name": "", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "twitter", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "twitter1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "tyler", "metadata_uri": "", "name": "", "owner": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "youtube", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "youtube1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" } ],
                "domains": [
                   {
                      "//note": "msig1",
