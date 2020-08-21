@@ -95,7 +95,18 @@ const main = async () => {
                   valid_until: "1924991999"
                 },
             ],
-            accounts: []
+            accounts: [
+               {
+                  "broker": null,
+                  "certificates": null,
+                  "domain": "iov",
+                  "metadata_uri": "https://iov.one/",
+                  "name": "",
+                  "owner": multisigs.iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq.star1,
+                  "resources": null,
+                  "valid_until": "1633046400"
+               },
+            ]
          },
          distribution: {
             fee_pool: {
