@@ -16,7 +16,7 @@ export AMOUNT=1000000 # denominated in uiov
 # create your genesis transaction (do `iovnsd gentx --help` for the list of available flags)
 ${DIR_IOVNS}/iovnsd gentx \
   --amount ${AMOUNT}uiov \
-  --pubkey $(${DIR_WORK}/iovnsd tendermint show-validator --home ${DIR_WORK}) \
+  --pubkey $(${DIR_IOVNS}/iovnsd tendermint show-validator --home ${DIR_WORK}) \
   --home ${DIR_WORK} \
   --name ${SIGNER} \
   --output-document "./scripts/genesis/data/iov-mainnet-2/gentxs/${MONIKER}.json"
