@@ -231,7 +231,10 @@ const main = async () => {
 
    // other data
    const dumped = await pullDumpedState().catch( e => { throw e } );
-   const flammable = [ "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" ]; // accounts to burn; "pending deals" tokens were effectively burned by sending to this 0x0 hex account
+   const flammable = [ // accounts to burn
+      "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u", // "pending deals" tokens were effectively burned by sending to this 0x0 hex account
+      "iov1ll9ujf2v2c80gfvvnvcd3w2ljpuh5yqfu9c3ml", // registered the same star1 address to two iov1 addresses
+   ];
    const indicatives = await fetchIndicativeSendsTo( "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6", /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/ ).catch( e => { throw e } );
    const osaka = await readOsakaGenesisFile().catch( e => { throw e } );
    const premiums = await pullPremiums().catch( e => { throw e } );
