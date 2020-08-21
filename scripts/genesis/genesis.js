@@ -23,7 +23,25 @@ const main = async () => {
       app_hash: "",
       app_state: {
          auth: {
-            accounts: [],
+            accounts: [
+               {
+                  "//note": "star1qw953jeja8fzs7szug7mu5j75alt3axk4wst2w owes star1wfx4pqx9cupfussqynhyl6luterk4qm2hu5695 0.85 IOV",
+                  "type": "cosmos-sdk/Account",
+                  "value": {
+                     "account_number": "0",
+                     "address": "star1qw953jeja8fzs7szug7mu5j75alt3axk4wst2w",
+                     "coins": [
+                        {
+                           "//IOV": 0.85,
+                           "amount": "850000",
+                           "denom": "uiov"
+                        }
+                     ],
+                     "public_key": null,
+                     "sequence": "0"
+                  }
+               },
+            ],
             params: {
                max_memo_characters: "256",
                sig_verify_cost_ed25519: "590",
