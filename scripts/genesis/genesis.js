@@ -1,7 +1,8 @@
 import { chainIds, multisigs, source2multisig } from "./lib/constants";
 import { migrate, patchGalaxynet, patchMainnet, } from "./lib/migrate";
 import fetchIndicativeSendsTo from "./lib/fetchIndicativeSendsTo";
-import fetchOsakaGenesisFile from "./lib/fetchOsakaGenesisFile";
+import readOsakaGenesisFile from "./lib/readOsakaGenesisFile";
+import filterReserveds from "./lib/filterReserveds";
 import path from "path";
 import pullDumpedState from "./lib/pullDumpedState";
 import pullPremiums from "./lib/pullPremiums";
@@ -18,7 +19,7 @@ const main = async () => {
    // genesis file scaffolding
    const genesis = {
       chain_id: chain_id,
-      genesis_time: new Date( "2020-04-15T10:00:00Z" ).toISOString(),
+      genesis_time: new Date( "2020-08-26T08:00:00Z" ).toISOString(),
       app_hash: "",
       app_state: {
          auth: {
@@ -43,7 +44,7 @@ const main = async () => {
               resources_max: 10, // https://internetofvalues.slack.com/archives/GPYCU2AJJ/p1592563251000500
               certificate_count_max: 5,
               certificate_size_max: "1024",
-              configurer: "star1 IOV SAS", // TODO
+              configurer: "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78",
               domain_grace_period: 30 * 24 * 60 * 60 + "000000000",
               domain_renew_count_max: 2,
               domain_renew_period: 365.25 * 24 * 60 * 60 + "000000000",
@@ -94,7 +95,18 @@ const main = async () => {
                   valid_until: "1924991999"
                 },
             ],
-            accounts: []
+            accounts: [
+               {
+                  "broker": null,
+                  "certificates": null,
+                  "domain": "iov",
+                  "metadata_uri": "https://iov.one/",
+                  "name": "",
+                  "owner": multisigs.iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq.star1,
+                  "resources": null,
+                  "valid_until": "1633046400"
+               },
+            ]
          },
          distribution: {
             fee_pool: {
@@ -186,7 +198,7 @@ const main = async () => {
                annual_provisions: "0.000000000000000000"
             },
             params: {
-               blocks_per_year: "5259600", // assume 6 blocks per second since create_empty_blocks=false is broken
+               blocks_per_year: "5259600", // assume 6 seconds per block since create_empty_blocks=false is broken
                "//note": "goal_bonded cannot be 0: module=consensus err='division by zero'",
                goal_bonded: "0.8",
                inflation_max: "0.25",
@@ -221,9 +233,9 @@ const main = async () => {
    const dumped = await pullDumpedState().catch( e => { throw e } );
    const flammable = [ "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" ]; // accounts to burn; "pending deals" tokens were effectively burned by sending to this 0x0 hex account
    const indicatives = await fetchIndicativeSendsTo( "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6", /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/ ).catch( e => { throw e } );
-   const osaka = await fetchOsakaGenesisFile().catch( e => { throw e } );
+   const osaka = await readOsakaGenesisFile().catch( e => { throw e } );
    const premiums = await pullPremiums().catch( e => { throw e } );
-   const reserveds = []; // TODO
+   const reserveds = filterReserveds( genesis.app_state.configuration.config.valid_domain_name );
 
    // migration
    migrate( { chainIds, dumped, flammable, genesis, gentxs, home, indicatives, multisigs, osaka, patch, premiums, reserveds, source2multisig } );

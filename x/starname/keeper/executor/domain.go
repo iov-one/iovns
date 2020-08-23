@@ -2,7 +2,7 @@ package executor
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	crud "github.com/iov-one/iovns/pkg/crud/types"
+	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud"
 	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/keeper"
 	"github.com/iov-one/iovns/x/starname/types"
@@ -47,6 +47,12 @@ func (d *Domain) Renew(accValidUntil ...int64) {
 	)
 	// set domain
 	d.domains.Update(d.domain)
+	// update empty account
+	account := new(types.Account)
+	fltr := d.accounts.Filter(&types.Account{Domain: d.domain.Name, Name: utils.StrPtr(types.EmptyAccountName)})
+	fltr.Read(account)
+	account.ValidUntil = d.domain.ValidUntil
+	fltr.Update(account)
 }
 
 // Delete deletes a domain from the kvstore

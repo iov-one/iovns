@@ -114,7 +114,7 @@ export const createStarname = ( args = {} ) => {
       "name": args.name || "",
       "owner": args.address || "",
       "resources": resources,
-      "valid_until": String( Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60 ), // 1 year from now
+      "valid_until": String( new Date( "2021-10-01T00:00:00Z" ).getTime() / 1000 ), // one year from just after listing date
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -133,7 +133,7 @@ export const createDomain = ( args = {} ) => {
       "broker": null,
       "name": args.domain,
       "type": "closed",
-      "valid_until": String( args.valid_until || Math.ceil( Date.now() / 1000 ) + 365.25 * 24 * 60 * 60 ), // specified or 1 year from now
+      "valid_until": String( args.valid_until || new Date( "2021-10-01T00:00:00Z" ).getTime() / 1000 ), // one year from just after listing date
    };
 
    if ( args.iov1 ) template["//iov1"] = args.iov1;
@@ -167,11 +167,11 @@ export const consolidateEscrows = ( dumped, source2multisig ) => {
       escrows[source].forEach( escrow => {
          const account = accumulator[source] || createAccount( { iov:0 } );
          const value = account.value;
-         const iov = parseInt( escrow.amount[0].whole ); // escrows don't have fractional as of 2020.06.07
+         const iov = ( escrow.amount[0].whole || 0 ) + ( escrow.amount[0].fractional / 1e9 || 0 );
 
          account["//id"] = source2multisig[source]["//id"];
          account["//note"] = `consolidated escrows with source ${source}`;
-         account[`//timeout ${new Date( escrow.timeout * 1000 ).toISOString()}`] = `${escrow.address} yields ${escrow.amount[0].whole} ${escrow.amount[0].ticker}`;
+         account[`//timeout ${new Date( escrow.timeout * 1000 ).toISOString().replace( ".000Z", "Z" )}`] = `${escrow.address} yields ${escrow.amount[0].whole} ${escrow.amount[0].ticker}`;
          value.address = source2multisig[source].star1;
          value.coins[0]["//IOV"] += iov;
          value.coins[0].amount = `${parseInt( value.coins[0].amount ) + 1e6 * iov}`; // must be a string
@@ -290,11 +290,12 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
          burnTokens( dumped, [ iov1 ] );
          // ...adding to the custodial account...
          custodian[`//no star1 ${iov1}`] = iov;
+         previous += amount; // ...after reduction
       }
 
-      return previous + amount; // ...after reduction
-   }, 0 );
-   custodian.value.coins[0].amount = String( Math.ceil( safeguarded ) );
+      return previous;
+   }, Math.floor( custodian.value.coins[0].amount ) );
+   custodian.value.coins[0].amount = String( safeguarded );
 
    const starnames = dumped.username.sort( ( a, b ) => a.Username.localeCompare( b.Username ) ).map( username => {
       const iov1 = username.Owner;
@@ -327,30 +328,37 @@ export const convertToCosmosSdk = ( dumped, iov2star, multisigs, premiums, reser
          }
 
          domains.push( createDomain( { address, iov1, domain } ) );
+         starnames.push( createStarname( { address, domain, name:"" } ) ); // create the empty account
       } );
    } );
 
    // reserve domains
-   const iov1 = "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq"; // TODO: 3rd party custodian
-   const address = multisigs[iov1].star1;
-   const now = new Date();
-   const d0 = new Date( now.getFullYear(), now.getMonth() + 1, 14 ); // mid-month
-   const releases = [ 1, 2, 3, 4, 5, 6, 7, 8 ].map( dm => { // give 8 months to sell
-      const d = new Date( d0.getTime() + dm * 30.4375 * 24 * 60 * 60 * 1000 ); // average days per month
-
-      d.setDate( d.getDate() + ( 10 - d.getDay() ) % 7 ); // Wednesdays (3) only
-
-      return d;
-   } );
+   const address = "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96"; // https://internetofvalues.slack.com/archives/GPYCU2AJJ/p1596436694013900
+   const releases = [ // give 8 months to sell
+      new Date( "2020-09-16T10:00:00Z" ),
+      new Date( "2020-10-14T10:00:00Z" ),
+      new Date( "2020-11-18T10:00:00Z" ),
+      new Date( "2020-12-16T10:00:00Z" ),
+      new Date( "2021-01-20T10:00:00Z" ),
+      new Date( "2021-02-17T10:00:00Z" ),
+      new Date( "2021-03-17T10:00:00Z" ),
+      new Date( "2021-04-14T10:00:00Z" ),
+   ];
    reserveds.forEach( ( domain, i ) => {
       if ( !domains.find( existing => existing.name == domain ) ) { // don't allow duplicates
-         const valid_until = releases[i % releases.length].getTime();
+         const valid_until = releases[i % releases.length].getTime() / 1000;
 
-         domains.push( createDomain( { address, iov1, domain, valid_until } ) );
+         domains.push( createDomain( { address, domain, valid_until } ) );
+         starnames.push( createStarname( { address, domain, name:"" } ) ); // create the empty account
       }
    } );
 
    domains.sort( ( a, b ) => a.name.localeCompare( b.name ) );
+   starnames.sort( ( a, b ) => {
+      const d = a.domain.localeCompare( b.domain );
+
+      return d == 0 ? a.name.localeCompare( b.name ) : d;
+   } );
 
    return { accounts, starnames, domains };
 }
@@ -404,6 +412,22 @@ export const patchGalaxynet = genesis => {
 
    // add other test accounts
    const accounts = [
+      {
+         "//name": "Cosmostation",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "address": "star186lx23hw4vgc3xzs6eh85y0a294wrva7cznafs",
+            "coins": [
+               {
+                  "denom": "uiov",
+                  "amount": "100000000000"
+               }
+            ],
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
+         }
+      },
       {
          "//name": "faucet",
          "type": "cosmos-sdk/Account",
@@ -534,45 +558,6 @@ export const patchGalaxynet = genesis => {
 
    genesis.app_state.auth.accounts.push( ...accounts );
 
-   // hack multisig accounts since pubkeys from others are still pending; TODO: delete when possible
-   const hackMultisig = {
-      "reward fund":                                                  "star1rad8f5rm39ak03h3ev0q4lrshywjdn3v9fn6w3",
-      "IOV SAS":                                                      "star12d063hg3ypass56a52fhap25tfgxyaluu6w02r",
-      "IOV SAS employee bonus pool/colloboration appropriation pool": "star1v6na4q8kqljynwkh3gt4katlsrqzsk3ewxv6aw",
-      "IOV SAS pending deals pocket; close deal or burn":             "star1vhkg66j3xvzqf4smy9qup5ra8euyjwlpdkdyn4",
-      "IOV SAS bounty fund":                                          "star1gxchcu6wycentu6fs977hygqx67kv5n7x25w4g",
-      "Unconfirmed contributors/co-founders":                         "star1f27zp27q6d8xqeq768r0gffg7ux34ml69dt67j",
-      "escrow isabella*iov":                                          "star1uzn9lxhmw0q2vfgy6d5meh2n7m43fqse6ryru6",
-      "escrow kadima*iov":                                            "star1hkeufxdyypclg876kc4u9nxjqudkgh2uecrpm7",
-      "escrow guaranteed reward fund":                                "star1v875jc00cqh26k5505p5mt4q8w0ylwypsca3jr",
-      "vaildator guaranteed reward fund":                             "star1n0et7nukw4htc56lkuqer67heppfjpdhs525ua",
-      "Custodian of missing star1 accounts":                          "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
-      "vaildator guaranteed reward fund":                             "star13c7s0xkmpu9uykn56scwwnkjl07svm69j0jm29",
-      "escrow isabella*iov":                                          "star1wywlg9ddad2l5zw7zqgcytwx838x00t7t2qqag",
-      "escrow kadima*iov":                                            "star1s7dy7pmhzj8t0s48xnvt0ceug873zn9ue4qqma",
-      "escrow joghurt*iov":                                           "star1wy4kze7hanky9kpmvrygad5ar8j37wur4e5e3g",
-   };
-   const hackMultisigKeys = Object.keys( hackMultisig );
-   const hackCustodianStar1 = hackMultisig["Custodian of missing star1 accounts"];
-
-   genesis.app_state.auth.accounts.forEach( account => {
-      if ( hackMultisigKeys.findIndex( key => key == account["//id"] ) != -1 ) {
-         account.value.address = hackMultisig[account["//id"]];
-      }
-   } );
-   genesis.app_state.starname.domains.forEach( domain => {
-      if ( domain.admin.toLowerCase().indexOf( "custodia" ) != -1 ) {
-         domain.admin = hackCustodianStar1;
-      } else if ( domain.type == "open" ) {
-         domain.admin = hackMultisig["IOV SAS"];
-      }
-   } );
-   genesis.app_state.starname.accounts.forEach( account => {
-      if ( account.owner.toLowerCase().indexOf( "custodia" ) != -1 ) {
-         account.owner = hackCustodianStar1;
-      }
-   } );
-
    // set the configuration owner and parameters
    const config = genesis.app_state.configuration.config;
 
@@ -583,20 +568,11 @@ export const patchGalaxynet = genesis => {
    config.resources_max = 10;
    config.certificate_count_max = 3;
    config.certificate_size_max = "1000";
-   config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg";
+   config.configurer = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg"; // intentionally not a mainnet multisig
    config.domain_grace_period = 1 * 60 + "000000000";
    config.domain_renew_count_max = 2;
    config.domain_renew_period = 5 * 60 + "000000000";
    config.metadata_size_max = "1000";
-
-   // stabilize valid_untils
-   const validUntil = 1609415999;
-   const fixTransients = hasValidUntils => {
-      hasValidUntils.forEach( hasValidUntil => hasValidUntil.valid_until = String( validUntil ) );
-   };
-
-   fixTransients( genesis.app_state.starname.domains );
-   fixTransients( genesis.app_state.starname.accounts );
 
    // use uvoi as the token denomination
    genesis.app_state.auth.accounts.forEach( account => account.value.coins[0].denom = "uvoi" );
@@ -627,6 +603,16 @@ export const patchGalaxynet = genesis => {
       "transfer_domain_open": "125.000000000000000000",
       "renew_domain_open": "12345.000000000000000000",
    };
+
+   // convert URIs to testnet
+   genesis.app_state.starname.accounts.forEach( account => {
+      const resource = account.resources ? account.resources.find( resource => resource.uri == "asset:iov" ) : null;
+
+      if ( resource ) resource.uri = "asset-testnet:iov"; // https://internetofvalues.slack.com/archives/CPNRVHG94/p1595965860011800
+   } );
+
+   // attempt a decentralized launch
+   genesis.genesis_time = new Date( "2020-08-14T08:00:00Z" ).toISOString();
 }
 
 /**
@@ -637,7 +623,7 @@ export const patchMainnet = genesis => {
    if ( genesis.chain_id != "iov-mainnet-2" ) throw new Error( `Wrong chain_id: ${genesis.chain_id} != iov-mainnet-2.` );
 
    const custodian = genesis.app_state.auth.accounts.find( account => account["//id"] == "Custodian of missing star1 accounts" );
-   const lostKeys = { // lost keys/ledger firmware upgraded
+   const lostKeysInCustody = { // lost keys/ledger firmware upgraded
       iov1jq8z8xl9tqdwjsp44gtkd2c5rpq33e556kg0ft: {
          star1: "star1k9ktkefsdxtydga262re596agdklwjmrf9et90",
          id: 2033,
@@ -652,12 +638,12 @@ export const patchMainnet = genesis => {
       },
    };
 
-   Object.keys( lostKeys ).forEach( iov1 => {
+   Object.keys( lostKeysInCustody ).forEach( iov1 => {
       const recover = custodian[`//no star1 ${iov1}`];
       const iov = recover[0];
       const amount = 1.e6 * iov;
-      const address = lostKeys[iov1].star1;
-      const id = lostKeys[iov1].id;
+      const address = lostKeysInCustody[iov1].star1;
+      const id = lostKeysInCustody[iov1].id;
       const [ name, domain ] = recover[1].split( "*" );
 
       // remove custody of tokens
@@ -673,6 +659,32 @@ export const patchMainnet = genesis => {
       if ( genesis.app_state.auth.accounts.find( account => account["//iov1"] == iov1 ) ) throw new Error( `Account for ${iov1} already exists!` );
       const account = createAccount( { address, amount, id, iov, iov1 } );
       genesis.app_state.auth.accounts.push( account );
+   } );
+
+   const lostKeysWithStar1 = { // lost keys after star1 address generation
+      iov1lfjspe4x5u404sskmv5md4q7u9jcz96zya8krw: {
+         star1: "star1lsk9ckth2s870kjqcyl6x5af7gazj6eg7msluq",
+         id: 2191,
+      },
+      iov1ja0syy203qncn28cqmz5zh9kh2xl0xxt36m4qx: {
+         star1: "star1f2jpr2guzq3y5yjv667axr26pl6qzyn2hzthfa",
+         id: 2192,
+      },
+      iov1axxtqae3x9jtvv7wavg6fnjgpc27dx7a9jlp9r: {
+         star1: "star1xnzwj34e8zefm7g7vtgnphfj6x2qgnq723rq0j",
+         id: 2193,
+      },
+   };
+
+   Object.keys( lostKeysWithStar1 ).forEach( iov1 => {
+      const account = genesis.app_state.auth.accounts.find( account => account["//iov1"] == iov1 );
+      const starname = genesis.app_state.starname.accounts.find( account => account["//iov1"] == iov1 );
+      const resource = starname.resources.find( resource => resource.uri.indexOf( ":iov" ) != -1 );
+      const star1 = lostKeysWithStar1[iov1].star1;
+
+      account.value.address = star1;
+      starname.owner = star1;
+      resource.resource = star1;
    } );
 
    const getAmount = account => {
@@ -729,7 +741,7 @@ export const migrate = args => {
    fs.writeFileSync( file, stringify( genesis, { space: "  " } ), "utf-8" );
 
    // ...incorporating gentxs
-   if ( gentxs ) {
+   if ( gentxs && fs.readdirSync( gentxs ).length > 1 ) { // account for README
       addGentxs( gentxs, home );
 
       const unformatted = JSON.parse( fs.readFileSync( file, "utf-8" ) );

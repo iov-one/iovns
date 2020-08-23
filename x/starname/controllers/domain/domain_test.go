@@ -345,7 +345,7 @@ func TestDomain_Renewable(t *testing.T) {
 	// 120(DomainValidUntil) + 10(DomainRP) = 130 newValidUntil
 	t.Run("beyond grace period", func(t *testing.T) {
 		d := NewController(ctx.WithBlockTime(time.Unix(241, 0)), k, "deadline-exceeded")
-		err := d.Validate(Renewable)
+		err := d.Renewable().Validate()
 		if !errors.Is(err, types.ErrRenewalDeadlineExceeded) {
 			t.Fatalf("want: %s, got: %s", types.ErrRenewalDeadlineExceeded, err)
 		}
@@ -355,13 +355,13 @@ func TestDomain_Renewable(t *testing.T) {
 	t.Run("open domain", func(t *testing.T) {
 		// 7(time) + 2(DomainRCM) * 10(DomainRP) = 27 maxValidUntil
 		d := NewController(ctx.WithBlockTime(time.Unix(7, 0)), k, "open")
-		err := d.Validate(Renewable)
+		err := d.Renewable().Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
 		// 100(time) + 2(DomainRCM) * 10(DomainRP) = 120 maxValidUntil
 		d = NewController(ctx.WithBlockTime(time.Unix(100, 0)), k, "open")
-		if err := d.Validate(Renewable); err != nil {
+		if err := d.Renewable().Validate(); err != nil {
 			t.Fatalf("got error: %s", err)
 		}
 	})
@@ -369,13 +369,13 @@ func TestDomain_Renewable(t *testing.T) {
 	t.Run("closed domain", func(t *testing.T) {
 		// 7(time) + 2(DomainRCM) * 10(DomainRP) = 27 maxValidUntil
 		d := NewController(ctx.WithBlockTime(time.Unix(7, 0)), k, "closed")
-		err := d.Validate(Renewable)
+		err := d.Renewable().Validate()
 		if !errors.Is(err, types.ErrUnauthorized) {
 			t.Fatalf("want: %s, got: %s", types.ErrUnauthorized, err)
 		}
 		// 100(time) + 2(DomainRCM) * 10(DomainRP) = 120 maxValidUntil
 		d = NewController(ctx.WithBlockTime(time.Unix(100, 0)), k, "closed")
-		if err := d.Validate(Renewable); err != nil {
+		if err := d.Renewable().Validate(); err != nil {
 			t.Fatalf("got error: %s", err)
 		}
 	})

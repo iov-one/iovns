@@ -2,7 +2,7 @@ package account
 
 import (
 	"bytes"
-	crud "github.com/iov-one/iovns/pkg/crud/types"
+	crud "github.com/iov-one/cosmos-sdk-crud/pkg/crud"
 	"github.com/iov-one/iovns/pkg/utils"
 	"regexp"
 	"time"
@@ -16,8 +16,8 @@ import (
 	"github.com/iov-one/iovns/x/starname/types"
 )
 
-// ControllerFunc is the function signature used by account controllers
-type ControllerFunc func(ctrl *Account) error
+// accountControllerFunc is the function signature used by account controllers
+type accountControllerFunc func(ctrl *Account) error
 
 // Account is an account controller, it caches information
 // in order to avoid useless query to state to get the same
@@ -26,6 +26,8 @@ type ControllerFunc func(ctrl *Account) error
 // panic because of bad operation flow.
 // Errors returned are wrapped sdk.Error types.
 type Account struct {
+	validators []accountControllerFunc
+
 	name, domain string
 	account      *types.Account
 	conf         *configuration.Config
@@ -34,6 +36,155 @@ type Account struct {
 	k          keeper.Keeper
 	store      crud.Store
 	domainCtrl *domain.Domain
+}
+
+// Validate verifies the account against the order of provided controllers
+func (a *Account) Validate() error {
+	for _, check := range a.validators {
+		if err := check(a); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// MustExist asserts that the given account exists
+func (a *Account) MustExist() *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.mustExist()
+	})
+	return a
+}
+
+// MustNotExist asserts that the given account does not exist
+func (a *Account) MustNotExist() *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.mustNotExist()
+	})
+	return a
+}
+
+func (a *Account) ValidName() *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return a.validName()
+	})
+	return a
+}
+
+func (a *Account) NotExpired() *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.notExpired()
+	})
+	return a
+}
+
+func (a *Account) Renewable() *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.renewable()
+	})
+	return a
+}
+
+func (a *Account) OwnedBy(addr sdk.AccAddress) *Account {
+	f := func(ctrl *Account) error {
+		return ctrl.ownedBy(addr)
+	}
+	a.validators = append(a.validators, f)
+	return a
+}
+
+func (a *Account) CertificateSizeNotExceeded(cert []byte) *Account {
+	f := func(ctrl *Account) error {
+		return ctrl.certSizeNotExceeded(cert)
+	}
+	a.validators = append(a.validators, f)
+	return a
+}
+
+func (a *Account) CertificateLimitNotExceeded() *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.certLimitNotExceeded()
+	})
+	return a
+}
+
+// DeletableBy checks if the account can be deleted by the provided address
+func (a *Account) DeletableBy(addr sdk.AccAddress) *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.deletableBy(addr)
+	})
+	return a
+}
+
+// CertificateExists asserts that the provided certificate
+// exists and if it does the index is saved in the provided pointer
+// if certIndex pointer is nil the certificate index will not be saved
+func (a *Account) CertificateExists(cert []byte, certIndex *int) *Account {
+	f := func(ctrl *Account) error {
+		err := ctrl.certNotExist(cert, certIndex)
+		if err == nil {
+			return sdkerrors.Wrapf(types.ErrCertificateDoesNotExist, "%x", cert)
+		}
+		return nil
+	}
+	a.validators = append(a.validators, f)
+	return a
+}
+
+// ValidResources verifies that the provided resources are valid for the account
+func (a *Account) ValidResources(resources []types.Resource) *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.validResources(resources)
+	})
+	return a
+}
+
+// TransferableBy checks if the account can be transferred by the provided address
+func (a *Account) TransferableBy(addr sdk.AccAddress) *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.transferableBy(addr)
+	})
+	return a
+}
+
+// ResettableBy checks if the account attributes resettable by the provided address
+func (a *Account) ResettableBy(addr sdk.AccAddress, reset bool) *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.resettableBy(addr, reset)
+	})
+	return a
+}
+
+// ResettableBy checks if the account attributes resettable by the provided address
+func (a *Account) ResourceLimitNotExceeded(resources []types.Resource) *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.resourceLimitNotExceeded(resources)
+	})
+	return a
+}
+
+func (a *Account) MetadataSizeNotExceeded(metadata string) *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.metadataSizeNotExceeded(metadata)
+	})
+	return a
+}
+
+// RegistrableBy asserts that an account can be registered by the provided address
+func (a *Account) RegistrableBy(addr sdk.AccAddress) *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.registrableBy(addr)
+	})
+	return a
+}
+
+// CertificateNotExist asserts the provided certificate
+// does not exist in the account already
+func (a *Account) CertificateNotExist(cert []byte) *Account {
+	a.validators = append(a.validators, func(ctrl *Account) error {
+		return ctrl.certNotExist(cert, nil)
+	})
+	return a
 }
 
 // NewController is Account constructor
@@ -73,13 +224,7 @@ func (a *Account) requireDomain() error {
 		return nil
 	}
 	a.domainCtrl = domain.NewController(a.ctx, a.k, a.domain)
-	return a.domainCtrl.Validate(domain.MustExist)
-}
-
-// MustExist asserts if an account exists in the state,
-// returns an error if it does not.
-func MustExist(ctrl *Account) error {
-	return ctrl.mustExist()
+	return a.domainCtrl.MustExist().Validate()
 }
 
 // requireAccount finds the accounts and caches it, so future
@@ -102,11 +247,6 @@ func (a *Account) mustExist() error {
 	return a.requireAccount()
 }
 
-// MustNotExist asserts that an account does not exist
-func MustNotExist(ctrl *Account) error {
-	return ctrl.mustNotExist()
-}
-
 // mustNotExist is the unexported function executed by MustNotExist
 func (a *Account) mustNotExist() error {
 	err := a.requireAccount()
@@ -114,12 +254,6 @@ func (a *Account) mustNotExist() error {
 		return nil
 	}
 	return sdkerrors.Wrapf(types.ErrAccountExists, "account %s already exists in domain %s", a.name, a.domain)
-}
-
-// ValidAccountName asserts that an account has a valid name based
-// on the account regexp  saved on the configuration module
-func ValidName(ctrl *Account) error {
-	return ctrl.validName()
 }
 
 // requireConfiguration updates the configuration
@@ -139,12 +273,6 @@ func (a *Account) validName() error {
 		return sdkerrors.Wrapf(types.ErrInvalidAccountName, "invalid name: %s", a.name)
 	}
 	return nil
-}
-
-// NotExpired asserts that the account has
-// not expired compared to the current block time
-func NotExpired(ctrl *Account) error {
-	return ctrl.notExpired()
 }
 
 // notExpired is the unexported function used by NotExpired
@@ -169,10 +297,6 @@ func (a *Account) notExpired() error {
 	return sdkerrors.Wrapf(types.ErrAccountExpired, "account %s in domain %s has expired", a.name, a.domain)
 }
 
-func Renewable(ctrl *Account) error {
-	return ctrl.renewable()
-}
-
 func (a *Account) renewable() error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check is not allowed on a non existing account")
@@ -194,13 +318,6 @@ func (a *Account) renewable() error {
 	return nil
 }
 
-// Owner asserts the account is owned by the provided address
-func Owner(addr sdk.AccAddress) ControllerFunc {
-	return func(ctrl *Account) error {
-		return ctrl.ownedBy(addr)
-	}
-}
-
 // ownedBy is the unexported function used by Owner
 func (a *Account) ownedBy(addr sdk.AccAddress) error {
 	// assert domain exists
@@ -213,27 +330,6 @@ func (a *Account) ownedBy(addr sdk.AccAddress) error {
 	}
 
 	return sdkerrors.Wrapf(types.ErrUnauthorized, "%s is not allowed to perform operation in the account owned by %s", addr, a.account.Owner)
-}
-
-// CertificateExists asserts that the provided certificate
-// exists and if it does the index is saved in the provided pointer
-// if certIndex pointer is nil the certificate index will not be saved
-func CertificateExists(cert []byte, certIndex *int) ControllerFunc {
-	return func(ctrl *Account) error {
-		err := ctrl.certNotExist(cert, certIndex)
-		if err == nil {
-			return sdkerrors.Wrapf(types.ErrCertificateDoesNotExist, "%x", cert)
-		}
-		return nil
-	}
-}
-
-// CertificateNotExist asserts the provided certificate
-// does not exist in the account already
-func CertificateNotExist(cert []byte) ControllerFunc {
-	return func(ctrl *Account) error {
-		return ctrl.certNotExist(cert, nil)
-	}
 }
 
 // certNotExist is the unexported function used by CertificateNotExist
@@ -256,12 +352,6 @@ func (a *Account) certNotExist(newCert []byte, indexPointer *int) error {
 	return nil
 }
 
-func CertificateSizeNotExceeded(cert []byte) ControllerFunc {
-	return func(ctrl *Account) error {
-		return ctrl.certSizeNotExceeded(cert)
-	}
-}
-
 func (a *Account) certSizeNotExceeded(newCert []byte) error {
 	// assert domain exists
 	if err := a.requireAccount(); err != nil {
@@ -272,10 +362,6 @@ func (a *Account) certSizeNotExceeded(newCert []byte) error {
 		return sdkerrors.Wrapf(types.ErrCertificateSizeExceeded, "max certificate size %d exceeded", a.conf.CertificateSizeMax)
 	}
 	return nil
-}
-
-func CertificateLimitNotExceeded(ctrl *Account) error {
-	return ctrl.certLimitNotExceeded()
 }
 
 func (a *Account) certLimitNotExceeded() error {
@@ -290,23 +376,6 @@ func (a *Account) certLimitNotExceeded() error {
 	return nil
 }
 
-// Validate verifies the account against the order of provided controllers
-func (a *Account) Validate(checks ...ControllerFunc) error {
-	for _, check := range checks {
-		if err := check(a); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// DeletableBy checks if the account can be deleted by the provided address
-func DeletableBy(addr sdk.AccAddress) ControllerFunc {
-	return func(ctrl *Account) error {
-		return ctrl.deletableBy(addr)
-	}
-}
-
 func (a *Account) deletableBy(addr sdk.AccAddress) error {
 	if err := a.requireDomain(); err != nil {
 		panic("validation check on a non existing domain is not allowed")
@@ -318,7 +387,10 @@ func (a *Account) deletableBy(addr sdk.AccAddress) error {
 	}
 	switch d.Type {
 	case types.ClosedDomain:
-		if err := a.domainCtrl.Validate(domain.Admin(addr), domain.NotExpired); err != nil {
+		if err := a.domainCtrl.
+			Admin(addr).
+			NotExpired().
+			Validate(); err != nil {
 			return err
 		}
 	case types.OpenDomain:
@@ -329,13 +401,6 @@ func (a *Account) deletableBy(addr sdk.AccAddress) error {
 		}
 	}
 	return nil
-}
-
-// ValidResources verifies that the provided resources are valid for the account
-func ValidResources(resources []types.Resource) ControllerFunc {
-	return func(ctrl *Account) error {
-		return ctrl.validResources(resources)
-	}
 }
 
 // validResources validates different resources
@@ -365,13 +430,6 @@ func (a *Account) validResources(resources []types.Resource) error {
 	return nil
 }
 
-// TransferableBy checks if the account can be transferred by the provided address
-func TransferableBy(addr sdk.AccAddress) ControllerFunc {
-	return func(ctrl *Account) error {
-		return ctrl.transferableBy(addr)
-	}
-}
-
 func (a *Account) transferableBy(addr sdk.AccAddress) error {
 	if err := a.requireDomain(); err != nil {
 		panic("validation check not allowed on a non existing domain")
@@ -380,7 +438,9 @@ func (a *Account) transferableBy(addr sdk.AccAddress) error {
 	switch a.domainCtrl.Domain().Type {
 	// if it has a super user then only domain admin can transfer accounts
 	case types.ClosedDomain:
-		if a.domainCtrl.Validate(domain.Admin(addr)) != nil {
+		if a.domainCtrl.
+			Admin(addr).
+			Validate() != nil {
 			return sdkerrors.Wrapf(types.ErrUnauthorized, "only domain admin %s is allowed to transfer accounts", a.domainCtrl.Domain().Admin)
 		}
 	// if it has not a super user then only account owner can transfer the account
@@ -390,13 +450,6 @@ func (a *Account) transferableBy(addr sdk.AccAddress) error {
 		}
 	}
 	return nil
-}
-
-// ResettableBy checks if the account attributes resettable by the provided address
-func ResettableBy(addr sdk.AccAddress, reset bool) ControllerFunc {
-	return func(ctrl *Account) error {
-		return ctrl.resettableBy(addr, reset)
-	}
 }
 
 func (a *Account) resettableBy(addr sdk.AccAddress, reset bool) error {
@@ -437,13 +490,6 @@ func (a *Account) gracePeriodFinished() error {
 	return sdkerrors.Wrapf(types.ErrAccountGracePeriodNotFinished, "account %s grace period has not finished", *a.account.Name)
 }
 
-// ResettableBy checks if the account attributes resettable by the provided address
-func ResourceLimitNotExceeded(resources []types.Resource) ControllerFunc {
-	return func(ctrl *Account) error {
-		return ctrl.resourceLimitNotExceeded(resources)
-	}
-}
-
 func (a *Account) resourceLimitNotExceeded(resources []types.Resource) error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check is not allowed on a non existing account")
@@ -453,12 +499,6 @@ func (a *Account) resourceLimitNotExceeded(resources []types.Resource) error {
 		return sdkerrors.Wrapf(types.ErrResourceLimitExceeded, "resource limit: %d", a.conf.ResourcesMax)
 	}
 	return nil
-}
-
-func MetadataSizeNotExceeded(metadata string) ControllerFunc {
-	return func(ctrl *Account) error {
-		return ctrl.metadataSizeNotExceeded(metadata)
-	}
 }
 
 func (a *Account) metadataSizeNotExceeded(metadata string) error {
@@ -473,13 +513,6 @@ func (a *Account) metadataSizeNotExceeded(metadata string) error {
 	return nil
 }
 
-// RegistrableBy asserts that an account can be registered by the provided address
-func RegistrableBy(addr sdk.AccAddress) ControllerFunc {
-	return func(ctrl *Account) error {
-		return ctrl.registrableBy(addr)
-	}
-}
-
 func (a *Account) registrableBy(addr sdk.AccAddress) error {
 	if err := a.requireDomain(); err != nil {
 		panic("validation check is not allowed on a non existing domain")
@@ -488,7 +521,9 @@ func (a *Account) registrableBy(addr sdk.AccAddress) error {
 	switch a.domainCtrl.Domain().Type {
 	// if domain is closed then the registerer must be domain owner
 	case types.ClosedDomain:
-		return a.domainCtrl.Validate(domain.Admin(addr))
+		return a.domainCtrl.
+			Admin(addr).
+			Validate()
 	default:
 		return nil
 	}

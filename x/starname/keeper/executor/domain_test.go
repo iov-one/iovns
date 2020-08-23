@@ -123,3 +123,44 @@ func TestDomain_Transfer(t *testing.T) {
 		}
 	})
 }
+
+func TestDomain_Renew(t *testing.T) {
+	t.Run("success renew from config", func(t *testing.T) {
+		testCtx, _ := testCtx.CacheContext()
+		ex := NewDomain(testCtx, testKeeper, testDomain)
+		ex.Renew()
+		newDom := new(types.Domain)
+		ok := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom)
+		if !ok {
+			t.Fatal("domain does not exist anymore")
+		}
+		if newDom.ValidUntil != testDomain.ValidUntil+int64(testConfig.DomainRenewalPeriod.Seconds()) {
+			t.Fatal("mismatched times")
+		}
+	})
+	t.Run("success renew from account", func(t *testing.T) {
+		testCtx, _ := testCtx.CacheContext()
+		var accValidUntil int64 = 10000
+		ex := NewDomain(testCtx, testKeeper, testDomain)
+		ex.Renew(accValidUntil)
+		newDom := new(types.Domain)
+		ok := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), newDom)
+		if !ok {
+			t.Fatal("domain does not exist anymore")
+		}
+		if newDom.ValidUntil != accValidUntil {
+			t.Fatal("mismatched times")
+		}
+	})
+}
+
+func TestDomain_Delete(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		testCtx, _ := testCtx.CacheContext()
+		NewDomain(testCtx, testKeeper, testDomain).Delete()
+		ok := testKeeper.DomainStore(testCtx).Read(testDomain.PrimaryKey(), &types.Domain{})
+		if ok {
+			t.Fatal("domain was not deleted")
+		}
+	})
+}

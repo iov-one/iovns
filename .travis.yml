@@ -89,7 +89,7 @@ script:
   - export CHAIN_ID=$(jq -r .chain_id genesis.json)
   - iovnsd init ${CHAIN_ID} --chain-id ${CHAIN_ID} > /dev/null 2> /dev/null
   - sed --in-place 's/timeout_commit = "5s"/timeout_commit = "1s"/' ~/.iovnsd/config/config.toml
-  - mv genesis.json ~/.iovnsd/config
+  - jq '.genesis_time = "2020-04-15T10:00:00Z"' genesis.json > ~/.iovnsd/config/genesis.json
   - iovnscli config chain-id ${CHAIN_ID}
   - iovnscli config trust-node true
   - iovnscli config keyring-backend test
@@ -101,6 +101,9 @@ script:
   - iovnsd start --minimum-gas-prices='10.0uvoi' > /dev/null &
   - iovnscli rest-server --trust-node true --chain-id ${CHAIN_ID} --node http://localhost:26657 > /dev/null &
   - ( cd scripts/integration && yarn install && yarn test && killall iovnscli && killall iovnsd )
+  - git submodule foreach git checkout master
+  - ( cd scripts/genesis && yarn install && yarn test && node -r esm genesis.js galaxynet     && mv data/galaxynet/config/genesis.json     ~/.iovnsd/config && iovnsd validate-genesis )
+  - ( cd scripts/genesis && yarn install && yarn test && node -r esm genesis.js iov-mainnet-2 && mv data/iov-mainnet-2/config/genesis.json ~/.iovnsd/config && iovnsd validate-genesis )
 
 notifications:
   email: false

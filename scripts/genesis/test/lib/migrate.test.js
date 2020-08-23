@@ -277,6 +277,16 @@ describe( "Tests ../../lib/migrate.js.", () => {
       app_state: {
          auth: {
             accounts: [],
+            params: {
+               max_memo_characters: "256",
+               sig_verify_cost_ed25519: "590",
+               sig_verify_cost_secp256k1: "1000",
+               tx_sig_limit: "7",
+               tx_size_cost_per_byte: "10"
+            },
+         },
+         bank: {
+            send_enabled: true
          },
          configuration: {
             config: {
@@ -286,7 +296,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                resource_target_max: 16,
                certificate_count_max: 16,
                certificate_size_max: "1024",
-               configurer: "star1 IOV SAS",
+               configurer: "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78",
                domain_grace_period: String( 30 * 24 * 60 * 60 ),
                domain_renew_count_max: 2,
                domain_renew_period: String( 365.25 * 24 * 60 * 60 ),
@@ -297,6 +307,27 @@ describe( "Tests ../../lib/migrate.js.", () => {
                valid_domain_name: "^[-_a-z0-9]{4,16}$",
             },
             fees: {
+               add_account_certificate: "100",
+               del_account_certificate: "0.5",
+               fee_coin_denom: "uiov",
+               fee_coin_price: "0.000001",
+               fee_default: "0.5", // the fee for messages that don't explicitly have a fee
+               register_account_closed: "0.5",
+               register_account_open: "10",
+               register_domain_1: "10000", // domain name with 1 char
+               register_domain_2: "5000",
+               register_domain_3: "2000",
+               register_domain_4: "1000",
+               register_domain_5: "500",
+               register_domain_default: "250", // domain name with 6 or more chars
+               register_open_domain_multiplier: "5.5",
+               renew_domain_open: "12345",
+               replace_account_resources: "10",
+               set_account_metadata: "500",
+               transfer_account_closed: "10",
+               transfer_account_open: "10",
+               transfer_domain_closed: "10",
+               transfer_domain_open: "10",
             },
          },
          crisis: {
@@ -304,6 +335,31 @@ describe( "Tests ../../lib/migrate.js.", () => {
                denom: "uiov",
                amount: "1000000000"
             }
+         },
+         distribution: {
+            delegator_starting_infos: [],
+            delegator_withdraw_infos: [],
+            fee_pool: {
+               community_pool: []
+            },
+            outstanding_rewards: [],
+            params: {
+               base_proposer_reward: "0.050000000000000000",
+               bonus_proposer_reward: "0.050000000000000000",
+               community_tax: "0.000000000000000000",
+               withdraw_addr_enabled: true
+            },
+            previous_proposer: "",
+            validator_accumulated_commissions: [],
+            validator_current_rewards: [],
+            validator_historical_rewards: [],
+            validator_slash_events: []
+         },
+         evidence: {
+            evidence: [],
+            params: {
+               max_evidence_age: "1814400000000000"
+            },
          },
          starname: {
             domains: [
@@ -319,7 +375,8 @@ describe( "Tests ../../lib/migrate.js.", () => {
             ],
             accounts: [],
          },
-         genutil: {},
+         genutil: {
+         },
          gov: {
             starting_proposal_id: "1",
             deposits: null,
@@ -358,6 +415,18 @@ describe( "Tests ../../lib/migrate.js.", () => {
                mint_denom: "uiov"
             }
          },
+         slashing: {
+            missed_blocks: {},
+            params: {
+               downtime_jail_duration: "600000000000",
+               max_evidence_age: "1814400000000000",
+               min_signed_per_window: "0.500000000000000000",
+               signed_blocks_window: "10000",
+               slash_fraction_double_sign: "0.050000000000000000",
+               slash_fraction_downtime: "0.010000000000000000"
+            },
+            signing_infos: {},
+         },
          staking: {
             params: {
                historical_entries: 0,
@@ -373,6 +442,9 @@ describe( "Tests ../../lib/migrate.js.", () => {
             unbonding_delegations: null,
             redelegations: null,
             exported: false
+         },
+         supply: {
+            supply: []
          },
       },
       consensus_params: {
@@ -401,22 +473,22 @@ describe( "Tests ../../lib/migrate.js.", () => {
       iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n: {
          "//name": "reward fund",
          address: "cond:gov/rule/0000000000000002",
-         star1: "star1rewards",
+         star1: "star1scfumxscrm53s4dd3rl93py5ja2ypxmxlhs938",
       },
       iov1zd573wa38pxfvn9mxvpkjm6a8vteqvar2dwzs0: {
          "//name": "IOV SAS employee bonus pool/colloboration appropriation pool",
          address: "cond:multisig/usage/0000000000000002",
-         star1: "star1bonuses",
+         star1: "star16tm7scg0c2e04s0exk5rgpmws2wk4xkd84p5md",
       },
       iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc: {
          "//name": "Custodian of missing star1 accounts",
          address: "cond:multisig/usage/0000000000000006",
-         star1: "star1custodian",
+         star1: "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
       },
       iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq: {
          "//name": "IOV SAS",
          address: "cond:multisig/usage/0000000000000001",
-         star1: "star1iov",
+         star1: "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78",
       },
    };
    const osaka = {
@@ -639,7 +711,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const dave = accounts.find( account => account["//iov1"] == "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" );
 
       expect( custodian.value.address ).toEqual( multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1 );
-      expect( custodian.value.coins[0].amount ).toEqual( "8321438667145" );
+      expect( custodian.value.coins[0].amount ).toEqual( "8321023157268" );
       expect( custodian["//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"][0] ).toEqual( 3234710 );
       expect( custodian["//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"][1] ).toEqual( "confio*iov" );
       expect( custodian["//no star1 iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9"][0] ).toEqual( 26.5 );
@@ -703,13 +775,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const socgen = domains.find( domain => domain.name == "socgen" );
       const twitter = domains.find( domain => domain.name == "twitter" );
       const youtube = domains.find( domain => domain.name == "youtube" );
+      const externalCustodian = "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96"; // HARD-CODED in conjunction with convertToCosmosSdk().address
 
       expect( hash.admin ).toEqual( "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y" );
       expect( huth.admin ).toEqual( "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" );
-      expect( goldman.admin ).toEqual( iov.value.address ); // TODO: 3rd party custodian
-      expect( socgen.admin ).toEqual( iov.value.address );
-      expect( twitter.admin ).toEqual( iov.value.address );
-      expect( youtube.admin ).toEqual( iov.value.address );
+      expect( goldman.admin ).toEqual( externalCustodian );
+      expect( socgen.admin ).toEqual( externalCustodian );
+      expect( twitter.admin ).toEqual( externalCustodian );
+      expect( youtube.admin ).toEqual( externalCustodian );
 
       const limiteds = domains.filter( domain => domain.valid_until != lovely.valid_until );
 
@@ -801,13 +874,13 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
             "coins": [
                {
-                  "denom": "iov",
+                  "denom": "uiov",
                   "amount": "416"
                }
             ],
-            "public_key": "",
-            "account_number": 0,
-            "sequence": 0
+            "public_key": null,
+            "account_number": "0",
+            "sequence": "0"
          },
          "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un"
       } );
@@ -829,7 +902,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                   "type": "cosmos-sdk/MsgCreateValidator",
                   "value": {
                      "description": {
-                        "moniker": "slim",
+                        "moniker": "slim.avaritia.com",
                         "identity": "",
                         "website": "",
                         "security_contact": "",
@@ -845,7 +918,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "validator_address": "starvaloper1478t4fltj689nqu83vsmhz27quk7uggjtjp2gl",
                      "pubkey": "starvalconspub1zcjduepqds57cwz6kgzprcsuermllsyglcwz9w2z85nuar575z82mujtrhws0n4m0g",
                      "value": {
-                        "denom": "iov",
+                        "denom": "uiov",
                         "amount": "1"
                      }
                   }
@@ -861,10 +934,10 @@ describe( "Tests ../../lib/migrate.js.", () => {
                      "type": "tendermint/PubKeySecp256k1",
                      "value": "AwOzGduZPxmjUMKASZGKPrUA7Drs9CvfJfXkgR/RSdyu"
                   },
-                  "signature": "mi817tgVyfLtiObMU0/I7TUjqbyKwUiQGYAJY2oAG0dhlEGGRJFNTfS12nLUw42n5lZp09LUq9pXcHxHRXuV9g=="
+                  "signature": "6ccfT5yLqEKJ1wB9KRbALLeKWilnWTwl0MfRQQr7YlAQWPSzPSnwQhbskOHPlGYxxD7XRX03MecQ9ZLxbqiOKA=="
                }
             ],
-            "memo": "61e1f6d195f022cab0fe18f2ac1a4d33430999eb@192.168.1.46:26656"
+            "memo": "720e88e97dca985e303fc4ce1a8fc355571778cc@192.168.1.46:26656"
          }
       };
 
@@ -956,7 +1029,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
          "type": "cosmos-sdk/Account",
          "value": {
             "account_number": 0,
-            "address": "IOV SAS multisig star1_TBD_isabella*iov",
+            "address": "star1elad203jykd8la6wgfnvk43rzajyqpk0wsme9g",
             "coins": [
                {
                   "//IOV": 2965149,
@@ -1001,7 +1074,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "metadata_uri": "",
             "name": "...",
             "owner": multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1,
-            "targets": null,
+            "resources": null,
             "valid_until": "1609415999"
          },
          {
@@ -1012,14 +1085,14 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "metadata_uri": "",
             "name": "01node",
             "owner": multisigs.iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc.star1,
-            "targets": [
+            "resources": [
               {
-                "address": "992290736603857528L",
-                "blockchain_id": "lip9:9ee11e9df416b18b"
+                "resource": "992290736603857528L",
+                "uri": "lip9:9ee11e9df416b18b"
               },
               {
-                "address": "0x6DF432079347050e0D8dA43C21fa6fe54697AfA7",
-                "blockchain_id": "eip155:1"
+                "resource": "0x6DF432079347050e0D8dA43C21fa6fe54697AfA7",
+                "uri": "eip155:1"
               }
             ],
             "valid_until": "1609415999"
@@ -1031,7 +1104,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const current = genesisCopy.app_state.auth.accounts;
 
       expect( current.length ).not.toEqual( previous.length );
-      expect( current.length ).toEqual( 12 );
+      expect( current.length ).toEqual( 13 );
 
       const antoine = current.find( account => account["//name"] == "antoine" );
       const dave = current.find( account => account["//name"] == "dave*iov" );
@@ -1085,11 +1158,11 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( claudiu ).toBeTruthy();
       expect( escrow ).toBeTruthy();
 
-      expect( iov.admin ).toEqual( "star12d063hg3ypass56a52fhap25tfgxyaluu6w02r" );
-      expect( zeros.admin ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
-      expect( dots.owner ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
-      expect( claudiu.owner ).toEqual( "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy" );
-      expect( escrow.value.address ).toEqual( "star1wywlg9ddad2l5zw7zqgcytwx838x00t7t2qqag" );
+      expect( iov.admin ).toEqual( "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78" );
+      expect( zeros.admin ).toEqual( "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y" );
+      expect( dots.owner ).toEqual( "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y" );
+      expect( claudiu.owner ).toEqual( "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y" );
+      expect( escrow.value.address ).toEqual( "star1elad203jykd8la6wgfnvk43rzajyqpk0wsme9g" );
 
       expect( dave.value.coins[0].denom ).toEqual( "uvoi" );
       expect( escrow.value.coins[0].denom ).toEqual( "uvoi" );
@@ -1139,6 +1212,60 @@ describe( "Tests ../../lib/migrate.js.", () => {
             "public_key": "",
             "sequence": 0
          }
+      },
+      {
+         "//id": 2191,
+         "//iov1": "iov1lfjspe4x5u404sskmv5md4q7u9jcz96zya8krw",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": "0",
+            "address": "star1alx5xdyws6hzeynewdzm4x5wg0v6tjl3wcq34g",
+            "coins": [
+               {
+                  "//IOV": 49998,
+                  "amount": "49998000000",
+                  "denom": "uvoi"
+               }
+            ],
+            "public_key": null,
+            "sequence": "0"
+         }
+      },
+      {
+         "//id": 2192,
+         "//iov1": "iov1ja0syy203qncn28cqmz5zh9kh2xl0xxt36m4qx",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": "0",
+            "address": "star16yqeeqp26h64rldcql7cpsz0zte7rwx9jc8s6x",
+            "coins": [
+               {
+                  "//IOV": 22220,
+                  "amount": "22220000000",
+                  "denom": "uvoi"
+               }
+            ],
+            "public_key": null,
+            "sequence": "0"
+         }
+      },
+      {
+         "//id": 2193,
+         "//iov1": "iov1axxtqae3x9jtvv7wavg6fnjgpc27dx7a9jlp9r",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": "0",
+            "address": "star1myg5g0uvsjdq20atrjv5t49ffflwz2m7d7u677",
+            "coins": [
+               {
+                  "//IOV": 235925.5,
+                  "amount": "235925500000",
+                  "denom": "uvoi"
+               }
+            ],
+            "public_key": null,
+            "sequence": "0"
+         }
       } );
       genesisCopy.app_state.starname.accounts.push( {
          "//iov1": "iov14qk7zrz2ewhdmy7cjj68sk6jn3rst4vd7u930y",
@@ -1172,6 +1299,54 @@ describe( "Tests ../../lib/migrate.js.", () => {
          "owner": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
          "targets": null,
          "valid_until": "1609415999"
+      },
+      {
+         "//iov1": "iov1axxtqae3x9jtvv7wavg6fnjgpc27dx7a9jlp9r",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "de26",
+         "owner": "star1myg5g0uvsjdq20atrjv5t49ffflwz2m7d7u677",
+         "resources": [
+            {
+               "resource": "star1myg5g0uvsjdq20atrjv5t49ffflwz2m7d7u677",
+               "uri": "asset:iov"
+            }
+         ],
+         "valid_until": "1609415999"
+      },
+      {
+         "//iov1": "iov1lfjspe4x5u404sskmv5md4q7u9jcz96zya8krw",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "jean501",
+         "owner": "star1alx5xdyws6hzeynewdzm4x5wg0v6tjl3wcq34g",
+         "resources": [
+            {
+               "resource": "star1alx5xdyws6hzeynewdzm4x5wg0v6tjl3wcq34g",
+               "uri": "asset:iov"
+            }
+         ],
+         "valid_until": "1609415999"
+      },
+      {
+         "//iov1": "iov1ja0syy203qncn28cqmz5zh9kh2xl0xxt36m4qx",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "mam",
+         "owner": "star16yqeeqp26h64rldcql7cpsz0zte7rwx9jc8s6x",
+         "resources": [
+            {
+               "resource": "star16yqeeqp26h64rldcql7cpsz0zte7rwx9jc8s6x",
+               "uri": "asset:iov"
+            }
+         ],
+         "valid_until": "1609415999"
       } );
 
       const accounts0 = [].concat( genesisCopy.app_state.auth.accounts );
@@ -1183,6 +1358,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( genesisCopy.app_state.auth.accounts.length ).toEqual( accounts0.length + 3 ); // charlie, gilles, misang
       expect( genesisCopy.app_state.starname.accounts.length ).toEqual( starnames0.length );
 
+      // lostKeysInCustody
       const custodian = genesisCopy.app_state.auth.accounts.find( account => account["//id"] == "Custodian of missing star1 accounts" );
       const charliefAmount = 700666 * 1e6;
       const charliestar1 = "star1k9ktkefsdxtydga262re596agdklwjmrf9et90";
@@ -1204,6 +1380,27 @@ describe( "Tests ../../lib/migrate.js.", () => {
       expect( gillesdiov ).toBeTruthy();
       expect( misang.value.coins[0].amount ).toEqual( String( misangAmount ) );
       expect( misangiov ).toBeTruthy();
+
+      // lostKeysWithStar1
+      const de26star1 = "star1xnzwj34e8zefm7g7vtgnphfj6x2qgnq723rq0j";
+      const de26 = genesisCopy.app_state.auth.accounts.find( account => account.value.address == de26star1 );
+      const de26iov = genesisCopy.app_state.starname.accounts.find( account => account.owner == de26star1 );
+      const jean501star1 = "star1lsk9ckth2s870kjqcyl6x5af7gazj6eg7msluq";
+      const jean501 = genesisCopy.app_state.auth.accounts.find( account => account.value.address == jean501star1 );
+      const jean501iov = genesisCopy.app_state.starname.accounts.find( account => account.owner == jean501star1 );
+      const mamstar1 = "star1f2jpr2guzq3y5yjv667axr26pl6qzyn2hzthfa";
+      const mam = genesisCopy.app_state.auth.accounts.find( account => account.value.address == mamstar1 );
+      const mamiov = genesisCopy.app_state.starname.accounts.find( account => account.owner == mamstar1 );
+
+      expect( de26 ).toBeTruthy();
+      expect( de26iov.name ).toEqual( "de26" );
+      expect( de26iov.resources[0].resource ).toEqual( de26star1 );
+      expect( jean501 ).toBeTruthy();
+      expect( jean501iov.name ).toEqual( "jean501" );
+      expect( jean501iov.resources[0].resource ).toEqual( jean501star1 );
+      expect( mam ).toBeTruthy();
+      expect( mamiov.name ).toEqual( "mam" );
+      expect( mamiov.resources[0].resource ).toEqual( mamstar1 );
    } );
 
    it( `Should migrate.`, async () => {
@@ -1220,470 +1417,738 @@ describe( "Tests ../../lib/migrate.js.", () => {
       migrate( { chainIds, dumped, flammable, genesis, gentxs, home, indicatives, multisigs, osaka, premiums, reserveds, source2multisig } );
 
       const nextGen = {
-         "chain_id": "jestnet",
-         "genesis_time": "2020-04-15T10:00:00.000Z",
          "app_hash": "",
          "app_state": {
             "auth": {
                "accounts": [
                   {
-                     "type": "cosmos-sdk/Account",
-                     "value": {
-                        "address": "star1rewards",
-                        "coins": [
-                           {
-                              "denom": "iov",
-                              "amount": "37"
-                           }
-                        ],
-                        "public_key": "",
-                        "account_number": 0,
-                        "sequence": 0
-                     },
+                     "//alias": "cond:gov/rule/0000000000000002",
                      "//id": "reward fund",
                      "//iov1": "iov1k0dp2fmdunscuwjjusqtk6mttx5ufk3zpwj90n",
-                     "//alias": "cond:gov/rule/0000000000000002"
-                  },
-                  {
                      "type": "cosmos-sdk/Account",
                      "value": {
-                        "address": "star1bonuses",
+                        "account_number": "0",
+                        "address": "star1scfumxscrm53s4dd3rl93py5ja2ypxmxlhs938",
                         "coins": [
                            {
-                              "denom": "iov",
-                              "amount": "3570582"
+                              "//IOV": 37,
+                              "amount": "37000000",
+                              "denom": "uiov"
                            }
                         ],
-                        "public_key": "",
-                        "account_number": 0,
-                        "sequence": 0
-                     },
+                        "public_key": null,
+                        "sequence": "0"
+                     }
+                  },
+                  {
+                     "//alias": "cond:multisig/usage/0000000000000002",
                      "//id": "IOV SAS employee bonus pool/colloboration appropriation pool",
                      "//iov1": "iov1zd573wa38pxfvn9mxvpkjm6a8vteqvar2dwzs0",
-                     "//alias": "cond:multisig/usage/0000000000000002"
-                  },
-                  {
                      "type": "cosmos-sdk/Account",
                      "value": {
-                        "address": "star1custodian",
+                        "account_number": "0",
+                        "address": "star16tm7scg0c2e04s0exk5rgpmws2wk4xkd84p5md",
                         "coins": [
                            {
-                              "denom": "iov",
-                              "amount": "4894800.157268"
+                              "//IOV": 3570582,
+                              "amount": "3570582000000",
+                              "denom": "uiov"
                            }
                         ],
-                        "public_key": "",
-                        "account_number": 0,
-                        "sequence": 0
-                     },
+                        "public_key": null,
+                        "sequence": "0"
+                     }
+                  },
+                  {
+                     "//alias": "cond:multisig/usage/0000000000000006",
                      "//id": "Custodian of missing star1 accounts",
                      "//iov1": "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc",
-                     "//alias": "cond:multisig/usage/0000000000000006",
                      "//no star1 iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98": [
                         3234710,
                         "confio*iov"
                      ],
-                     "//no star1 iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph": [
-                        1628971,
-                        "kadima*iov"
-                     ],
-                     "//no star1 iov1q40tvnph5xy7cjyj3tmqzghukeheykudq246d6": 22171,
-                     "//no star1 iov1q8zjkzk3f2yzfrkh9wswlf9qtmdgel84nnlgs9": 8920.657145,
                      "//no star1 iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9": [
                         26.5,
                         "corentin*iov"
                      ],
+                     "//no star1 iov1q40tvnph5xy7cjyj3tmqzghukeheykudq246d6": 22171,
+                     "//no star1 iov1q8zjkzk3f2yzfrkh9wswlf9qtmdgel84nnlgs9": 8920.657145,
                      "//no star1 iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl": "alex*iov",
+                     "//no star1 iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph": [
+                        1628971,
+                        "kadima*iov"
+                     ],
                      "//no star1 iov1y63fp8pncpuke7mrc2huqefud59t3munnh0k32": "multiverse",
                      "//no star1 iov1ylw3cnluf3zayfths0ezgjp5cwf6ddvsvwa7l4": "lovely",
-                     "//no star1 iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx": [
-                        "gianna",
-                        "nodeateam",
-                        "tyler",
-                        "michael"
-                     ]
-                  },
-                  {
+                     "//no star1 zGLlamFypWMPUeHVVsvo4mXFFOE63": [
+                        "cosmostation",
+                        "ibcwallet",
+                        "korea",
+                        "mintscan",
+                        "seoul",
+                        "station"
+                     ],
+                     "//no star1 zHbPpUYyRguRlhAiC30zimM05hGx2": "jim",
                      "type": "cosmos-sdk/Account",
                      "value": {
-                        "address": "star1iov",
+                        "account_number": "0",
+                        "address": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
                         "coins": [
                            {
-                              "denom": "iov",
-                              "amount": "13015243.5"
+                              "//IOV": 1.000123,
+                              "amount": "4894800157268",
+                              "denom": "uiov"
                            }
                         ],
-                        "public_key": "",
-                        "account_number": 0,
-                        "sequence": 0
-                     },
-                     "//id": "IOV SAS",
-                     "//iov1": "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq",
-                     "//alias": "cond:multisig/usage/0000000000000001"
+                        "public_key": null,
+                        "sequence": "0"
+                     }
                   },
                   {
+                     "//alias": "cond:multisig/usage/0000000000000001",
+                     "//id": "IOV SAS",
+                     "//iov1": "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq",
                      "type": "cosmos-sdk/Account",
                      "value": {
+                        "account_number": "0",
+                        "address": "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78",
+                        "coins": [
+                           {
+                              "//IOV": 13015243.5,
+                              "amount": "13015243500000",
+                              "denom": "uiov"
+                           }
+                        ],
+                        "public_key": null,
+                        "sequence": "0"
+                     }
+                  },
+                  {
+                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",
+                     "type": "cosmos-sdk/Account",
+                     "value": {
+                        "account_number": "0",
                         "address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
                         "coins": [
                            {
-                              "denom": "iov",
-                              "amount": "416.51"
+                              "//IOV": 416.51,
+                              "amount": "416510000",
+                              "denom": "uiov"
                            }
                         ],
-                        "public_key": "",
-                        "account_number": 0,
-                        "sequence": 0
-                     },
-                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un"
+                        "public_key": null,
+                        "sequence": "0"
+                     }
                   },
                   {
+                     "//id": "vaildator guaranteed reward fund",
+                     "//note": "consolidated escrows with source iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u",
+                     "//timeout 2029-11-10T00:00:00Z": "iov170qvwm0tscn5mza3vmaerkzqllvwc3kykkt7kj yields 2347987 IOV",
                      "type": "cosmos-sdk/Account",
                      "value": {
-                        "address": "IOV SAS multisig star1_TBD_guaranteed",
+                        "account_number": "0",
+                        "address": "star17w7fjdkr9laphtyj4wxa32rf0evu94xgywxgl4",
                         "coins": [
                            {
-                              "denom": "iov",
-                              "amount": "2347987"
+                              "//IOV": 2347987,
+                              "amount": "2347987000000",
+                              "denom": "uiov"
                            }
                         ],
-                        "public_key": "",
-                        "account_number": 0,
-                        "sequence": 0
-                     },
-                     "//id": "consolidated escrows with source iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u (vaildator guaranteed reward fund)",
-                     "//timeout 2029-11-10T00:00:00.000Z": "iov170qvwm0tscn5mza3vmaerkzqllvwc3kykkt7kj yields 2347987 iov"
+                        "public_key": null,
+                        "sequence": "0"
+                     }
                   },
                   {
+                     "//id": "escrow isabella*iov",
+                     "//note": "consolidated escrows with source iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x",
+                     "//timeout 2019-12-10T12:00:00Z": "iov105465l8l3yn06a56h7tqwwvnqq22e8j4nvgf02 yields 269559 IOV",
+                     "//timeout 2020-01-10T12:00:00Z": "iov17gdpegksje9dlh8h0g6ehgk6d4anz9pkfskunr yields 269559 IOV",
+                     "//timeout 2020-02-10T12:00:00Z": "iov1ppxx0vwx42p47p4pkztzl4d57zh2ctnwsz4fdu yields 269559 IOV",
                      "type": "cosmos-sdk/Account",
                      "value": {
-                        "address": "IOV SAS multisig star1_TBD_isabella*iov",
+                        "account_number": "0",
+                        "address": "star1elad203jykd8la6wgfnvk43rzajyqpk0wsme9g",
                         "coins": [
                            {
-                              "denom": "iov",
-                              "amount": "808677"
+                              "//IOV": 808677,
+                              "amount": "808677000000",
+                              "denom": "uiov"
                            }
                         ],
-                        "public_key": "",
-                        "account_number": 0,
-                        "sequence": 0
-                     },
-                     "//id": "consolidated escrows with source iov1w2suyhrfcrv5h4wmq3rk3v4x95cxtu0a03gy6x (isabella*iov)",
-                     "//timeout 2019-12-10T12:00:00.000Z": "iov105465l8l3yn06a56h7tqwwvnqq22e8j4nvgf02 yields 269559 iov",
-                     "//timeout 2020-01-10T12:00:00.000Z": "iov17gdpegksje9dlh8h0g6ehgk6d4anz9pkfskunr yields 269559 iov",
-                     "//timeout 2020-02-10T12:00:00.000Z": "iov1ppxx0vwx42p47p4pkztzl4d57zh2ctnwsz4fdu yields 269559 iov"
+                        "public_key": null,
+                        "sequence": "0"
+                     }
                   },
                   {
+                     "//id": "escrow kadima*iov",
+                     "//note": "consolidated escrows with source iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph",
+                     "//timeout 2020-06-10T12:00:00Z": "iov1k4dpknrrf4dfm07avau0mmjkrsm6pu863d30us yields 89853 IOV",
+                     "//timeout 2020-07-10T12:00:00Z": "iov1dfurgye70k7f2gxptztfym697g5t832pp9m94g yields 89853 IOV",
+                     "//timeout 2020-08-10T12:00:00Z": "iov1497txu54lnwujzl8xhc59y6cmuw82d68udn4l3 yields 89853 IOV",
                      "type": "cosmos-sdk/Account",
                      "value": {
-                        "address": "IOV SAS multisig star1_TBD_kadima*iov",
+                        "account_number": "0",
+                        "address": "star1hjf04872s9rlcdg2wqwvapwttvt3p4gjpp0xmc",
                         "coins": [
                            {
-                              "denom": "iov",
-                              "amount": "269559"
+                              "//IOV": 269559,
+                              "amount": "269559000000",
+                              "denom": "uiov"
                            }
                         ],
-                        "public_key": "",
-                        "account_number": 0,
-                        "sequence": 0
-                     },
-                     "//id": "consolidated escrows with source iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph (kadima*iov)",
-                     "//timeout 2020-06-10T12:00:00.000Z": "iov1k4dpknrrf4dfm07avau0mmjkrsm6pu863d30us yields 89853 iov",
-                     "//timeout 2020-07-10T12:00:00.000Z": "iov1dfurgye70k7f2gxptztfym697g5t832pp9m94g yields 89853 iov",
-                     "//timeout 2020-08-10T12:00:00.000Z": "iov1497txu54lnwujzl8xhc59y6cmuw82d68udn4l3 yields 89853 iov"
+                        "public_key": null,
+                        "sequence": "0"
+                     }
                   }
+               ],
+               "params": {
+                  "max_memo_characters": "256",
+                  "sig_verify_cost_ed25519": "590",
+                  "sig_verify_cost_secp256k1": "1000",
+                  "tx_sig_limit": "7",
+                  "tx_size_cost_per_byte": "10"
+               }
+            },
+            "bank": {
+               "send_enabled": true
+            },
+            "configuration": {
+               "config": {
+                  "account_grace_period": "2592000",
+                  "account_renew_count_max": 2,
+                  "account_renew_period": "31557600",
+                  "certificate_count_max": 16,
+                  "certificate_size_max": "1024",
+                  "configurer": "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78",
+                  "domain_grace_period": "2592000",
+                  "domain_renew_count_max": 2,
+                  "domain_renew_period": "31557600",
+                  "metadata_size_max": "1024",
+                  "resource_target_max": 16,
+                  "valid_account_name": "[-_\\.a-z0-9]{0,64}$",
+                  "valid_domain_name": "^[-_a-z0-9]{4,16}$",
+                  "valid_resource": "^[a-z0-9A-Z]+$",
+                  "valid_uri": "[-a-z0-9A-Z:]+$"
+               },
+               "fees": {
+                  "add_account_certificate": "100",
+                  "del_account_certificate": "0.5",
+                  "fee_coin_denom": "uiov",
+                  "fee_coin_price": "0.000001",
+                  "fee_default": "0.5",
+                  "register_account_closed": "0.5",
+                  "register_account_open": "10",
+                  "register_domain_1": "10000",
+                  "register_domain_2": "5000",
+                  "register_domain_3": "2000",
+                  "register_domain_4": "1000",
+                  "register_domain_5": "500",
+                  "register_domain_default": "250",
+                  "register_open_domain_multiplier": "5.5",
+                  "renew_domain_open": "12345",
+                  "replace_account_resources": "10",
+                  "set_account_metadata": "500",
+                  "transfer_account_closed": "10",
+                  "transfer_account_open": "10",
+                  "transfer_domain_closed": "10",
+                  "transfer_domain_open": "10"
+               }
+            },
+            "crisis": {
+               "constant_fee": {
+                  "amount": "1000000000",
+                  "denom": "uiov"
+               }
+            },
+            "distribution": {
+               "delegator_starting_infos": [
+               ],
+               "delegator_withdraw_infos": [
+               ],
+               "fee_pool": {
+                  "community_pool": [
+                  ]
+               },
+               "outstanding_rewards": [
+               ],
+               "params": {
+                  "base_proposer_reward": "0.050000000000000000",
+                  "bonus_proposer_reward": "0.050000000000000000",
+                  "community_tax": "0.000000000000000000",
+                  "withdraw_addr_enabled": true
+               },
+               "previous_proposer": "",
+               "validator_accumulated_commissions": [
+               ],
+               "validator_current_rewards": [
+               ],
+               "validator_historical_rewards": [
+               ],
+               "validator_slash_events": [
                ]
             },
-            "domain": {
+            "evidence": {
+               "evidence": [
+               ],
+               "params": {
+                  "max_evidence_age": "1814400000000000"
+               }
+            },
+            "genutil": {
+            },
+            "gov": {
+               "deposit_params": {
+                  "max_deposit_period": "172800000000000",
+                  "min_deposit": [
+                     {
+                        "amount": "1000000000",
+                        "denom": "uiov"
+                     }
+                  ]
+               },
+               "deposits": null,
+               "proposals": null,
+               "starting_proposal_id": "1",
+               "tally_params": {
+                  "quorum": "0.334000000000000000",
+                  "threshold": "0.500000000000000000",
+                  "veto": "0.334000000000000000"
+               },
+               "votes": null,
+               "voting_params": {
+                  "voting_period": "345600000000000"
+               }
+            },
+            "mint": {
+               "minter": {
+                  "annual_provisions": "0.000000000000000000",
+                  "inflation": "0.000000000000000000"
+               },
+               "params": {
+                  "//note": "goal_bonded cannot be 0: module=consensus err='division by zero'",
+                  "blocks_per_year": "105192",
+                  "goal_bonded": "0.000000000000000001",
+                  "inflation_max": "0.0000000000000000",
+                  "inflation_min": "0.0000000000000000",
+                  "inflation_rate_change": "0.000000000000000000",
+                  "mint_denom": "uiov"
+               }
+            },
+            "slashing": {
+               "missed_blocks": {
+               },
+               "params": {
+                  "downtime_jail_duration": "600000000000",
+                  "max_evidence_age": "1814400000000000",
+                  "min_signed_per_window": "0.500000000000000000",
+                  "signed_blocks_window": "10000",
+                  "slash_fraction_double_sign": "0.050000000000000000",
+                  "slash_fraction_downtime": "0.010000000000000000"
+               },
+               "signing_infos": {
+               }
+            },
+            "staking": {
+               "delegations": null,
+               "exported": false,
+               "last_total_power": "0",
+               "last_validator_powers": null,
+               "params": {
+                  "bond_denom": "uiov",
+                  "historical_entries": 0,
+                  "max_entries": 7,
+                  "max_validators": 16,
+                  "unbonding_time": "259200000000000"
+               },
+               "redelegations": null,
+               "unbonding_delegations": null,
+               "validators": null
+            },
+            "starname": {
+               "accounts": [
+                  { "broker": null, "certificates": null, "domain": "84more", "metadata_uri": "", "name": "", "owner": "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "adrian", "metadata_uri": "", "name": "", "owner": "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "china", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "china1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "cosmostation", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "fcbarca", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "fcbarca1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "gianna", "metadata_uri": "", "name": "", "owner": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "goldman", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "goldman_sachs", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "goldman_sachs1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "goldman1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "hash", "metadata_uri": "", "name": "", "owner": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "hell", "metadata_uri": "", "name": "", "owner": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "hold", "metadata_uri": "", "name": "", "owner": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "huth", "metadata_uri": "", "name": "", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "ibcwallet", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "in3s", "metadata_uri": "", "name": "", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "alex", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400", "//iov1": "iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "alpha", "owner": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd", "resources": [ { "uri": "asset:eth", "resource": "0x52dBf411B22Af67f33425bf3fbb6B8CF8FB302cd" }, { "uri": "asset:atom", "resource": "cosmos15dafemy5pkaru4kf23s3e6mnugfv6et9kg2uz7" }, { "uri": "asset:iov", "resource": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd" } ], "valid_until": "1633046400", "//iov1": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "blini44", "owner": "star1gfdmksf725qpdgl06e98ks4usg9nmkcwc5qzcg", "resources": [ { "uri": "asset:iov", "resource": "star1gfdmksf725qpdgl06e98ks4usg9nmkcwc5qzcg" }, { "uri": "asset:eth", "resource": "0xa223f22664Ee8bfB41FAD93C388826E7aF24060c" }, { "uri": "asset:lsk", "resource": "4341330819731245941L" } ], "valid_until": "1633046400", "//iov1": "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "btc13", "owner": "star1qvpth6t72336fjxlej2xv8eu84hrpxdxf5rgzz", "resources": [ { "uri": "asset:iov", "resource": "star1qvpth6t72336fjxlej2xv8eu84hrpxdxf5rgzz" }, { "uri": "asset:lsk", "resource": "16104600299727948959L" }, { "uri": "asset:eth", "resource": "0x40698A9DcE4d6a63E766Dd08b83D03c6727DCB1a" } ], "valid_until": "1633046400", "//iov1": "iov1yhk8qqp3wsdg7tefd8u457n9zqsny4nqzp6960" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "confio", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400", "//iov1": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "corentin", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": [ { "uri": "asset:eth", "resource": "0x5e415520beb66aa39e00d43cae889f2c5cba7017" } ], "valid_until": "1633046400", "//iov1": "iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "dave", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": [ { "uri": "asset:iov", "resource": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk" } ], "valid_until": "1633046400", "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "fish_and_chips", "owner": "star1yxxmpqca3l7xzhy4783vkpfx843x4zk749h8fs", "resources": [ { "uri": "asset:iov", "resource": "star1yxxmpqca3l7xzhy4783vkpfx843x4zk749h8fs" } ], "valid_until": "1633046400", "//iov1": "iov1ejk0g6p2xk90lamuvtd3r0kf6jcva09hf4xy74" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "huobi", "owner": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y", "resources": [ { "uri": "asset:eth", "resource": "0x00C60938d954FEC83E70eE98243B24F7E6EabaC8" }, { "uri": "asset:lsk", "resource": "13483265462465913551L" }, { "uri": "asset:iov", "resource": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y" } ], "valid_until": "1633046400", "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "kadima", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400", "//iov1": "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "ledger", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": [ { "uri": "asset:iov", "resource": "iov1fpezwaxfnmef8tyyg4t7avz9a2d9gqh3yh8d8n" } ], "valid_until": "1633046400", "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "letsdoit", "owner": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd", "resources": [ { "uri": "asset:eth", "resource": "0x52dBf411B22Af67f33425bf3fbb6B8CF8FB302cd" }, { "uri": "asset:iov", "resource": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd" } ], "valid_until": "1633046400", "//iov1": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d" }, { "broker": null, "certificates": null, "domain": "iov", "metadata_uri": "", "name": "nash.io", "owner": "star1y86zdqsegxm7uj9qf7l400y29nc6x9ypqxpdcg", "resources": [ { "uri": "asset:eth", "resource": "0x2cE327b4EB237313F37a72195d64Cb80F7aeAa15" }, { "uri": "asset:lsk", "resource": "16192453558792957658L" }, { "uri": "asset:iov", "resource": "star1y86zdqsegxm7uj9qf7l400y29nc6x9ypqxpdcg" } ], "valid_until": "1633046400", "//iov1": "iov1eh6yeyel3zsc8vqnh79fqjtfkcxmj5d8nt49gq" }, { "broker": null, "certificates": null, "domain": "ivanontech", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "ivanontech1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "jim", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "korea", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "lovely", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "michael", "metadata_uri": "", "name": "", "owner": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "mintscan", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "multiverse", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "nodeateam", "metadata_uri": "", "name": "", "owner": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "sentient", "metadata_uri": "", "name": "", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "seoul", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "socgen", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "socgen1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "station", "metadata_uri": "", "name": "", "owner": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "tachyon", "metadata_uri": "", "name": "", "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "twitter", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "twitter1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "tyler", "metadata_uri": "", "name": "", "owner": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "youtube", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" },
+                  { "broker": null, "certificates": null, "domain": "youtube1", "metadata_uri": "", "name": "", "owner": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96", "resources": null, "valid_until": "1633046400" } ],
                "domains": [
                   {
-                     "name": "iov",
                      "//note": "msig1",
-                     "admin": "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg",
-                     "valid_until": String( Date.now() / 1000 ),
-                     "type": "open",
                      "account_renew": "3000",
-                     "broker": null
+                     "admin": "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg",
+                     "broker": null,
+                     "name": "iov",
+                     "type": "open",
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
-                     "admin": "star1custodian",
+                     "//iov1": "iov12gd6weg7py6vs7ujn22h82422arek8cxzhe85p",
+                     "account_renew": "315576000",
+                     "admin": "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt",
+                     "broker": null,
+                     "name": "84more",
+                     "type": "closed",
+                     "valid_until": "1628034048"
+                  },
+                  {
+                     "//iov1": "iov12gd6weg7py6vs7ujn22h82422arek8cxzhe85p",
+                     "account_renew": "315576000",
+                     "admin": "star1usl4zpltjesrp5rqae3fdjdyj5dyymakmhq6mt",
+                     "broker": null,
+                     "name": "adrian",
+                     "type": "closed",
+                     "valid_until": "1628034048"
+                  },
+                  {
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "china",
+                     "type": "closed",
+                     "valid_until": "1621418400"
+                  },
+                  {
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "china1",
+                     "type": "closed",
+                     "valid_until": "1621418400"
+                  },
+                  {
+                     "//iov1": "zGLlamFypWMPUeHVVsvo4mXFFOE63",
+                     "account_renew": "315576000",
+                     "admin": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
+                     "broker": null,
+                     "name": "cosmostation",
+                     "type": "closed",
+                     "valid_until": "1628034048"
+                  },
+                  {
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "fcbarca",
+                     "type": "closed",
+                     "valid_until": "1618961400"
+                  },
+                  {
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "fcbarca1",
+                     "type": "closed",
+                     "valid_until": "1618961400"
+                  },
+                  {
+                     "//iov1": "iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx",
+                     "account_renew": "315576000",
+                     "admin": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f",
                      "broker": null,
                      "name": "gianna",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
-                     "admin": "star1iov",
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
                      "broker": null,
                      "name": "goldman",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq"
+                     "valid_until": "1602664200"
                   },
                   {
-                     "account_renew": 315576000,
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "goldman_sachs",
+                     "type": "closed",
+                     "valid_until": "1615986000"
+                  },
+                  {
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "goldman_sachs1",
+                     "type": "closed",
+                     "valid_until": "1615986000"
+                  },
+                  {
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "goldman1",
+                     "type": "closed",
+                     "valid_until": "1602664200"
+                  },
+                  {
+                     "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn",
+                     "account_renew": "315576000",
                      "admin": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y",
                      "broker": null,
                      "name": "hash",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
+                     "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn",
+                     "account_renew": "315576000",
                      "admin": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y",
                      "broker": null,
                      "name": "hell",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
+                     "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn",
+                     "account_renew": "315576000",
                      "admin": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y",
                      "broker": null,
                      "name": "hold",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
+                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",
+                     "account_renew": "315576000",
                      "admin": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
                      "broker": null,
                      "name": "huth",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
+                     "//iov1": "zGLlamFypWMPUeHVVsvo4mXFFOE63",
+                     "account_renew": "315576000",
+                     "admin": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
+                     "broker": null,
+                     "name": "ibcwallet",
+                     "type": "closed",
+                     "valid_until": "1628034048"
+                  },
+                  {
+                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",
+                     "account_renew": "315576000",
                      "admin": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
                      "broker": null,
                      "name": "in3s",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
-                     "admin": "star1custodian",
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "ivanontech",
+                     "type": "closed",
+                     "valid_until": "1613529000"
+                  },
+                  {
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "ivanontech1",
+                     "type": "closed",
+                     "valid_until": "1613529000"
+                  },
+                  {
+                     "//iov1": "zHbPpUYyRguRlhAiC30zimM05hGx2",
+                     "account_renew": "315576000",
+                     "admin": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
+                     "broker": null,
+                     "name": "jim",
+                     "type": "closed",
+                     "valid_until": "1628034048"
+                  },
+                  {
+                     "//iov1": "zGLlamFypWMPUeHVVsvo4mXFFOE63",
+                     "account_renew": "315576000",
+                     "admin": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
+                     "broker": null,
+                     "name": "korea",
+                     "type": "closed",
+                     "valid_until": "1628034048"
+                  },
+                  {
+                     "//iov1": "iov1ylw3cnluf3zayfths0ezgjp5cwf6ddvsvwa7l4",
+                     "account_renew": "315576000",
+                     "admin": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
                      "broker": null,
                      "name": "lovely",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1ylw3cnluf3zayfths0ezgjp5cwf6ddvsvwa7l4"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
-                     "admin": "star1custodian",
+                     "//iov1": "iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx",
+                     "account_renew": "315576000",
+                     "admin": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f",
                      "broker": null,
                      "name": "michael",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
-                     "admin": "star1custodian",
+                     "//iov1": "zGLlamFypWMPUeHVVsvo4mXFFOE63",
+                     "account_renew": "315576000",
+                     "admin": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
+                     "broker": null,
+                     "name": "mintscan",
+                     "type": "closed",
+                     "valid_until": "1628034048"
+                  },
+                  {
+                     "//iov1": "iov1y63fp8pncpuke7mrc2huqefud59t3munnh0k32",
+                     "account_renew": "315576000",
+                     "admin": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
                      "broker": null,
                      "name": "multiverse",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1y63fp8pncpuke7mrc2huqefud59t3munnh0k32"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
-                     "admin": "star1custodian",
+                     "//iov1": "iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx",
+                     "account_renew": "315576000",
+                     "admin": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f",
                      "broker": null,
                      "name": "nodeateam",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
+                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",
+                     "account_renew": "315576000",
                      "admin": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
                      "broker": null,
                      "name": "sentient",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
-                     "admin": "star1iov",
+                     "//iov1": "zGLlamFypWMPUeHVVsvo4mXFFOE63",
+                     "account_renew": "315576000",
+                     "admin": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
+                     "broker": null,
+                     "name": "seoul",
+                     "type": "closed",
+                     "valid_until": "1628034048"
+                  },
+                  {
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
                      "broker": null,
                      "name": "socgen",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq"
+                     "valid_until": "1605726000"
                   },
                   {
-                     "account_renew": 315576000,
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "socgen1",
+                     "type": "closed",
+                     "valid_until": "1605726000"
+                  },
+                  {
+                     "//iov1": "zGLlamFypWMPUeHVVsvo4mXFFOE63",
+                     "account_renew": "315576000",
+                     "admin": "star12uv6k3c650kvm2wpa38wwlq8azayq6tlh75d3y",
+                     "broker": null,
+                     "name": "station",
+                     "type": "closed",
+                     "valid_until": "1628034048"
+                  },
+                  {
+                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un",
+                     "account_renew": "315576000",
                      "admin": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
                      "broker": null,
                      "name": "tachyon",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
-                     "admin": "star1iov",
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
                      "broker": null,
                      "name": "twitter",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq"
+                     "valid_until": "1608096600"
                   },
                   {
-                     "account_renew": 315576000,
-                     "admin": "star1custodian",
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "twitter1",
+                     "type": "closed",
+                     "valid_until": "1608096600"
+                  },
+                  {
+                     "//iov1": "iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx",
+                     "account_renew": "315576000",
+                     "admin": "star18awsa7fhwtsevta28p3uw8ymtznvpwtzl3ep5f",
                      "broker": null,
                      "name": "tyler",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1zr9epgrzysr6zc5s8ucd3qlxkhgj9fwj2a2mkx"
+                     "valid_until": "1628034048"
                   },
                   {
-                     "account_renew": 315576000,
-                     "admin": "star1iov",
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
                      "broker": null,
                      "name": "youtube",
                      "type": "closed",
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1tt3vtpukkzk53ll8vqh2cv6nfzxgtx3t52qxwq"
+                     "valid_until": "1610553600"
+                  },
+                  {
+                     "account_renew": "315576000",
+                     "admin": "star1v794jm5am4qpc52kvgmxxm2j50kgu9mjszcq96",
+                     "broker": null,
+                     "name": "youtube1",
+                     "type": "closed",
+                     "valid_until": "1610553600"
                   }
-               ],
-               "accounts": [
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "alex",
-                     "owner": "star1custodian",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1ua6tdcyw8jddn5660qcx2ndhjp4skqk4dkurrl"
-                  },
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "alpha",
-                     "owner": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d"
-                  },
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "blini44",
-                     "owner": "star1gfdmksf725qpdgl06e98ks4usg9nmkcwc5qzcg",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6"
-                  },
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "confio",
-                     "owner": "star1custodian",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1j43xew5yq7ap2kesgjnlzru0z22grs94qsyf98"
-                  },
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "corentin",
-                     "owner": "star1custodian",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1m7qjqjuv4ynhzu40xranun4u0r47d4waxc4wh9"
-                  },
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "dave",
-                     "owner": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1qnpaklxv4n6cam7v99hl0tg0dkmu97sh6007un"
-                  },
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "fish_and_chips",
-                     "owner": "star1yxxmpqca3l7xzhy4783vkpfx843x4zk749h8fs",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1ejk0g6p2xk90lamuvtd3r0kf6jcva09hf4xy74"
-                  },
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "huobi",
-                     "owner": "star1vmt7wysxug30vfenedfh4ay83y3p75tstagn2y",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1tlxqvugk9u5u973a6ee6dq4zsgsv6c5ecr0rvn"
-                  },
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "kadima",
-                     "owner": "star1custodian",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1v9pzqxpywk05xn2paf3nnsjlefsyn5xu3nwgph"
-                  },
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "letsdoit",
-                     "owner": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d"
-                  },
-                  {
-                     "broker": null,
-                     "certificates": null,
-                     "domain": "iov",
-                     "metadata_uri": "",
-                     "name": "nash.io",
-                     "owner": "star1y86zdqsegxm7uj9qf7l400y29nc6x9ypqxpdcg",
-                     "targets": null,
-                     "valid_until": 1622659427,
-                     "//iov1": "iov1eh6yeyel3zsc8vqnh79fqjtfkcxmj5d8nt49gq"
-                  }
+               ]
+            },
+            "supply": {
+               "supply": [
                ]
             }
          },
+         "chain_id": "jestnet",
          "consensus_params": {
             "block": {
                "max_bytes": "500000",
@@ -1691,72 +2156,21 @@ describe( "Tests ../../lib/migrate.js.", () => {
                "time_iota_ms": "1000"
             },
             "evidence": {
-               "max_age_num_blocks": "100000",
-               "max_age_duration": "172800000000000"
+               "max_age_duration": "172800000000000",
+               "max_age_num_blocks": "100000"
             },
             "validator": {
-               "pub_key_types": [ "ed25519" ]
+               "pub_key_types": [
+                  "ed25519"
+               ]
             }
          },
-         "crisis": {},
-         "genutil": {
-            "gentxs": [
-               {
-                  "type": "cosmos-sdk/StdTx",
-                  "value": {
-                     "msg": [
-                        {
-                           "type": "cosmos-sdk/MsgCreateValidator",
-                           "value": {
-                              "description": {
-                                 "moniker": "slim",
-                                 "identity": "",
-                                 "website": "",
-                                 "security_contact": "",
-                                 "details": ""
-                              },
-                              "commission": {
-                                 "rate": "0.100000000000000000",
-                                 "max_rate": "0.200000000000000000",
-                                 "max_change_rate": "0.010000000000000000"
-                              },
-                              "min_self_delegation": "1",
-                              "delegator_address": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk",
-                              "validator_address": "starvaloper1478t4fltj689nqu83vsmhz27quk7uggjtjp2gl",
-                              "pubkey": "starvalconspub1zcjduepqds57cwz6kgzprcsuermllsyglcwz9w2z85nuar575z82mujtrhws0n4m0g",
-                              "value": {
-                                 "denom": "iov",
-                                 "amount": "1"
-                              }
-                           }
-                        }
-                     ],
-                     "fee": {
-                        "amount": [],
-                        "gas": "200000"
-                     },
-                     "signatures": [
-                        {
-                           "pub_key": {
-                              "type": "tendermint/PubKeySecp256k1",
-                              "value": "AwOzGduZPxmjUMKASZGKPrUA7Drs9CvfJfXkgR/RSdyu"
-                           },
-                           "signature": "mi817tgVyfLtiObMU0/I7TUjqbyKwUiQGYAJY2oAG0dhlEGGRJFNTfS12nLUw42n5lZp09LUq9pXcHxHRXuV9g=="
-                        }
-                     ],
-                     "memo": "61e1f6d195f022cab0fe18f2ac1a4d33430999eb@192.168.1.46:26656"
-                  }
-               }
-            ],
-         },
-         "gov": {}
-      }
+         "genesis_time": "2020-04-15T10:00:00.000Z"
+      };
 
       // hack around transient values before...
       const fixTransients = ( previous, current ) => {
          for ( let i = 0, n = previous.length; i < n; ++i ) {
-            expect( +current[i].valid_until ).toBeGreaterThan( +previous[i].valid_until );
-
             previous[i].valid_until = current[i].valid_until;
          };
       };
