@@ -1181,6 +1181,15 @@ describe( "Tests ../../lib/migrate.js.", () => {
          "//alias": "cond:multisig/usage/0000000000000006",
          "//id": "Custodian of missing star1 accounts",
          "//iov1": "iov195cpqyk5sjh7qwfz8qlmlnz2vw4ylz394smqvc",
+         "//no star1 iov16yrd6qhyd4kxpcklu344ly4f2fay0s9rpz46fm": [
+            11,
+            "antoine*iov"
+         ],
+         "//no star1 iov1ae9us7qypf86w7jv06ytkqvuhsunvhg9mnhxq6": [
+            41024,
+            "orkun*iov"
+         ],
+         "//no star1 iov1ccgpdhxxh738pu38mcmt6fu6fq02yylel4umz6": 50028.45008,
          "//no star1 iov14qk7zrz2ewhdmy7cjj68sk6jn3rst4vd7u930y": [
             122534,
             "misang*iov"
@@ -1211,6 +1220,23 @@ describe( "Tests ../../lib/migrate.js.", () => {
             ],
             "public_key": "",
             "sequence": 0
+         }
+      },
+      {
+         "//iov1": "iov16a42lf29n2h2eurxryspue9fz2d2wnlgpyjv8d",
+         "type": "cosmos-sdk/Account",
+         "value": {
+            "account_number": "0",
+            "address": "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd",
+            "coins": [
+               {
+                  "//IOV": 293.25,
+                  "amount": "293250000",
+                  "denom": "uiov"
+               }
+            ],
+            "public_key": null,
+            "sequence": "0"
          }
       },
       {
@@ -1268,6 +1294,28 @@ describe( "Tests ../../lib/migrate.js.", () => {
          }
       } );
       genesisCopy.app_state.starname.accounts.push( {
+         "//iov1": "iov1ae9us7qypf86w7jv06ytkqvuhsunvhg9mnhxq6",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "orkun",
+         "owner": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
+         "resources": null,
+         "valid_until": "1633046400"
+      },
+      {
+         "//iov1": "iov16yrd6qhyd4kxpcklu344ly4f2fay0s9rpz46fm",
+         "broker": null,
+         "certificates": null,
+         "domain": "iov",
+         "metadata_uri": "",
+         "name": "antoine",
+         "owner": "star1xc7tn8szhtvcat2k29t6072235gsqcrujd60wy",
+         "resources": null,
+         "valid_until": "1633046400"
+      },
+      {
          "//iov1": "iov14qk7zrz2ewhdmy7cjj68sk6jn3rst4vd7u930y",
          "broker": null,
          "certificates": null,
@@ -1355,7 +1403,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
 
       patchMainnet( genesisCopy );
 
-      expect( genesisCopy.app_state.auth.accounts.length ).toEqual( accounts0.length + 3 ); // charlie, gilles, misang
+      expect( genesisCopy.app_state.auth.accounts.length ).toEqual( accounts0.length + 5 ); // charlie, gilles, misang, orkun, iov1ccgpdhxxh738pu38mcmt6fu6fq02yylel4umz6
       expect( genesisCopy.app_state.starname.accounts.length ).toEqual( starnames0.length );
 
       // lostKeysInCustody
@@ -1373,7 +1421,7 @@ describe( "Tests ../../lib/migrate.js.", () => {
       const misang = genesisCopy.app_state.auth.accounts.find( account => account.value.address == misangstar1 );
       const misangiov = genesisCopy.app_state.starname.accounts.find( account => account.owner == misangstar1 );
 
-      expect( custodian.value.coins[0].amount ).toEqual( String( +custodian0.value.coins[0].amount - charliefAmount - gillesdAmount - misangAmount ) );
+      expect( custodian.value.coins[0].amount ).toEqual( String( +custodian0.value.coins[0].amount - charliefAmount - gillesdAmount - misangAmount - 1000000 * ( 11 + 41024 + 50028.45008 ) ) );
       expect( charlief.value.coins[0].amount ).toEqual( String( charliefAmount ) );
       expect( charliefiov ).toBeTruthy();
       expect( gillesd.value.coins[0].amount ).toEqual( String( gillesdAmount ) );
