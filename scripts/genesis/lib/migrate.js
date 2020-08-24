@@ -636,6 +636,10 @@ export const patchMainnet = genesis => {
          star1: "star1lgh6ekcnkufs4742qr5znvtlz4vglul9g2p6xl",
          id: 2046,
       },
+      iov1ae9us7qypf86w7jv06ytkqvuhsunvhg9mnhxq6: {
+         star1: "star1gy858mxtnerz8wt6q50h2vxvd6scea2zh0q0u5",
+         id: 2011,
+      },
    };
 
    Object.keys( lostKeysInCustody ).forEach( iov1 => {
