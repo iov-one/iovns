@@ -636,6 +636,14 @@ export const patchMainnet = genesis => {
          star1: "star1lgh6ekcnkufs4742qr5znvtlz4vglul9g2p6xl",
          id: 2046,
       },
+      iov1ae9us7qypf86w7jv06ytkqvuhsunvhg9mnhxq6: {
+         star1: "star1gy858mxtnerz8wt6q50h2vxvd6scea2zh0q0u5",
+         id: 2011,
+      },
+      iov16yrd6qhyd4kxpcklu344ly4f2fay0s9rpz46fm: {
+         star1: "star1ayxmc4vqshd9j94hj67r55ppg5hsrhqlmy4dvd",
+         id: -26,
+      },
    };
 
    Object.keys( lostKeysInCustody ).forEach( iov1 => {
@@ -655,10 +663,17 @@ export const patchMainnet = genesis => {
       if ( !starname ) throw new Error( `Starname doesn't exist for ${recover[1]}!` );
       starname.owner = address;
 
-      // create and add account
-      if ( genesis.app_state.auth.accounts.find( account => account["//iov1"] == iov1 ) ) throw new Error( `Account for ${iov1} already exists!` );
-      const account = createAccount( { address, amount, id, iov, iov1 } );
-      genesis.app_state.auth.accounts.push( account );
+      if ( id < 0 ) { // antoine*iov
+         const account = genesis.app_state.auth.accounts.find( account => account.value.address == address );
+
+         account.value.coins[0]["//IOV"] += iov;
+         account.value.coins[0].amount = String( +account.value.coins[0].amount + amount );
+      } else {
+         // create and add account
+         if ( genesis.app_state.auth.accounts.find( account => account["//iov1"] == iov1 ) ) throw new Error( `Account for ${iov1} already exists!` );
+         const account = createAccount( { address, amount, id, iov, iov1 } );
+         genesis.app_state.auth.accounts.push( account );
+      }
    } );
 
    const lostKeysWithStar1 = { // lost keys after star1 address generation
@@ -686,6 +701,23 @@ export const patchMainnet = genesis => {
       starname.owner = star1;
       resource.resource = star1;
    } );
+
+
+   { // change of Ledger for iov1ccgpdhxxh738pu38mcmt6fu6fq02yylel4umz6
+      const address = "star1mw08m28g2gt62py9yufdwduz52al0wn3vs8ckt";
+      const iov1 = "iov1ccgpdhxxh738pu38mcmt6fu6fq02yylel4umz6";
+      const iov = custodian[`//no star1 ${iov1}`];
+      const amount = 1.e6 * iov;
+
+      // remove custody of tokens...
+      delete( custodian[`//no star1 ${iov1}`] );
+      custodian.value.coins[0].amount = String( +custodian.value.coins[0].amount - amount );
+
+      // ...before creating a new account
+      const account = createAccount( { address, amount, iov, iov1 } );
+      genesis.app_state.auth.accounts.push( account );
+   }
+
 
    const getAmount = account => {
       return +account.value.coins[0];
