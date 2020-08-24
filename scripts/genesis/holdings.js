@@ -53,7 +53,7 @@ const main = async () => {
 
       return o;
    }, {} );
-   const iov2username = genesis.app_state.starname.accounts.reduce( ( o, account ) => {
+   const iov2username = genesis.app_state.starname.accounts.filter( account => account.name != "" ).reduce( ( o, account ) => {
       let iov1 = star2iov[account.owner];
 
       if ( account.owner != custodian && account.owner != exchange && iov1 != account["//iov1"] ) {

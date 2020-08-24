@@ -23,7 +23,25 @@ const main = async () => {
       app_hash: "",
       app_state: {
          auth: {
-            accounts: [],
+            accounts: [
+               {
+                  "//note": "star1qw953jeja8fzs7szug7mu5j75alt3axk4wst2w owes star1wfx4pqx9cupfussqynhyl6luterk4qm2hu5695 0.85 IOV",
+                  "type": "cosmos-sdk/Account",
+                  "value": {
+                     "account_number": "0",
+                     "address": "star1qw953jeja8fzs7szug7mu5j75alt3axk4wst2w",
+                     "coins": [
+                        {
+                           "//IOV": 0.85,
+                           "amount": "850000",
+                           "denom": "uiov"
+                        }
+                     ],
+                     "public_key": null,
+                     "sequence": "0"
+                  }
+               },
+            ],
             params: {
                max_memo_characters: "256",
                sig_verify_cost_ed25519: "590",
@@ -231,7 +249,10 @@ const main = async () => {
 
    // other data
    const dumped = await pullDumpedState().catch( e => { throw e } );
-   const flammable = [ "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u" ]; // accounts to burn; "pending deals" tokens were effectively burned by sending to this 0x0 hex account
+   const flammable = [ // accounts to burn
+      "iov1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqvnwh0u", // "pending deals" tokens were effectively burned by sending to this 0x0 hex account
+      "iov1ll9ujf2v2c80gfvvnvcd3w2ljpuh5yqfu9c3ml", // registered the same star1 address to two iov1 addresses
+   ];
    const indicatives = await fetchIndicativeSendsTo( "iov10v69k57z2v0pr3yvtr60pp8g2jx8tdd7f55sv6", /(star1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{38})/ ).catch( e => { throw e } );
    const osaka = await readOsakaGenesisFile().catch( e => { throw e } );
    const premiums = await pullPremiums().catch( e => { throw e } );

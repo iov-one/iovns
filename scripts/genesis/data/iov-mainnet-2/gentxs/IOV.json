@@ -1,0 +1,74 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgCreateValidator",
+        "value": {
+          "description": {
+            "moniker": "IOV",
+            "identity": "",
+            "website": "https://iov.one/",
+            "security_contact": "",
+            "details": "Temporary validator to help secure the iov-mainnet-2 launch"
+          },
+          "commission": {
+            "rate": "1.000000000000000000",
+            "max_rate": "1.000000000000000000",
+            "max_change_rate": "1.000000000000000000"
+          },
+          "min_self_delegation": "1",
+          "delegator_address": "star1nrnx8mft8mks3l2akduxdjlf8rwqs8r9l36a78",
+          "validator_address": "starvaloper1nrnx8mft8mks3l2akduxdjlf8rwqs8r9667djw",
+          "pubkey": "starvalconspub1zcjduepqyjyyhjwnk8rfaph98xuxhc6tef7lmt8tjyyhgf5fjtywyyk6nxzq0gzef4",
+          "value": {
+            "denom": "uiov",
+            "amount": "10000000000001"
+          }
+        }
+      }
+    ],
+    "fee": {
+      "amount": [],
+      "gas": "200000"
+    },
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeyMultisigThreshold",
+          "value": {
+            "threshold": "3",
+            "pubkeys": [
+              {
+                "type": "tendermint/PubKeySecp256k1",
+                "value": "A5x4p4VzRwdN+1GLwBWprv/j7W2MY8i4qzAV3mPfCjM4"
+              },
+              {
+                "type": "tendermint/PubKeySecp256k1",
+                "value": "AsW0xwRR6wn6Hh7xzwA2RqWg4DIPZhHr0ybOfC/rZuM/"
+              },
+              {
+                "type": "tendermint/PubKeySecp256k1",
+                "value": "A2jF4pI8Pv2bbDd8RvKp+69F9NPPaqiDzSg4GlTwnC4R"
+              },
+              {
+                "type": "tendermint/PubKeySecp256k1",
+                "value": "Ar9we3pS97HTuADdhs/i5raJoPgjU7TsuLc6Zi76cYUc"
+              },
+              {
+                "type": "tendermint/PubKeySecp256k1",
+                "value": "AwOzGduZPxmjUMKASZGKPrUA7Drs9CvfJfXkgR/RSdyu"
+              },
+              {
+                "type": "tendermint/PubKeySecp256k1",
+                "value": "AsV8BTthFjvoa0lWsaYNtJZnenAfl+ys/aTWRTFtgva3"
+              }
+            ]
+          }
+        },
+        "signature": "CgUIBhIBqBJAh/FAIfhDdWg2TwzeMxpRUvACdrvrtlZNcWy6YQRiOg1CsWwIFYnirdA8LBXkIiys60gTmAVAn0x4OXv/WgsZbhJAH6QDPFp6mJu1f56mxTvqk7ILplDThJdgz4ywjtpzpRx2COa7SL4HMfjmMdOjVx6tx5hEVh6iCYUVSyF6UtFTXBJArsHgzbDy9tFo60I1T2Bda6dfp07gm673V4sTW0JPw/Rao0IKmeUPL9G8BlgOrCfW17+4W44BjiszPQwB2el1Zw=="
+      }
+    ],
+    "memo": "3f4f10917995bed9cbe0992d8348bdecf9e2146d@192.168.0.1:46656"
+  }
+}
