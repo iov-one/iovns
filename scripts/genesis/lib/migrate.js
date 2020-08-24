@@ -702,6 +702,23 @@ export const patchMainnet = genesis => {
       resource.resource = star1;
    } );
 
+
+   { // change of Ledger for iov1ccgpdhxxh738pu38mcmt6fu6fq02yylel4umz6
+      const address = "star1mw08m28g2gt62py9yufdwduz52al0wn3vs8ckt";
+      const iov1 = "iov1ccgpdhxxh738pu38mcmt6fu6fq02yylel4umz6";
+      const iov = custodian[`//no star1 ${iov1}`];
+      const amount = 1.e6 * iov;
+
+      // remove custody of tokens...
+      delete( custodian[`//no star1 ${iov1}`] );
+      custodian.value.coins[0].amount = String( +custodian.value.coins[0].amount - amount );
+
+      // ...before creating a new account
+      const account = createAccount( { address, amount, iov, iov1 } );
+      genesis.app_state.auth.accounts.push( account );
+   }
+
+
    const getAmount = account => {
       return +account.value.coins[0];
    };
