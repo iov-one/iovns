@@ -23,7 +23,7 @@
           "pubkey": "starvalconspub1zcjduepqyjyyhjwnk8rfaph98xuxhc6tef7lmt8tjyyhgf5fjtywyyk6nxzq0gzef4",
           "value": {
             "denom": "uiov",
-            "amount": "10000000000000"
+            "amount": "10000000000001"
           }
         }
       }
@@ -66,9 +66,9 @@
             ]
           }
         },
-        "signature": "CgUIBhIBqBJAP49mfTF+5xzH87zhz+7xEMBgLrsBaYVoNYxnbGIUSZscFgocAZFEE6t5HgMGzIb2GLJGZnthwOC+1BDgzT9wJhJAwBY2FhFDuXfqjN8UElyY6VkN5ysSp7VOZbzayFHH1A95twNrAtgrHDfIFCvLUWsUvP7MSP0htrEAggXxpWyAaBJA0AdwKkWx7eYtCo647C6owiialxouzaBqy66o9HdU8fF+EESIwyfY3nHUOy5wirv7YlfykhGRX8dOt7Dcgo3ptA=="
+        "signature": "CgUIBhIBqBJAh/FAIfhDdWg2TwzeMxpRUvACdrvrtlZNcWy6YQRiOg1CsWwIFYnirdA8LBXkIiys60gTmAVAn0x4OXv/WgsZbhJAH6QDPFp6mJu1f56mxTvqk7ILplDThJdgz4ywjtpzpRx2COa7SL4HMfjmMdOjVx6tx5hEVh6iCYUVSyF6UtFTXBJArsHgzbDy9tFo60I1T2Bda6dfp07gm673V4sTW0JPw/Rao0IKmeUPL9G8BlgOrCfW17+4W44BjiszPQwB2el1Zw=="
       }
     ],
-    "memo": "id@localhost:port"
+    "memo": "3f4f10917995bed9cbe0992d8348bdecf9e2146d@192.168.0.1:46656"
   }
 }
