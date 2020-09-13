@@ -15,7 +15,7 @@
       "Base64": "^1.1.0",
       "esm": "^3.2.25",
       "json-stable-stringify": "^1.0.1",
-      "node-fetch": "^2.6.0",
+      "node-fetch": "^2.6.1",
       "pg": "^8.3.0",
       "yaml": "^1.10.0"
    },
