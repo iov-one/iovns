@@ -8,7 +8,9 @@ import (
 // MsgUpdateConfig is used to update
 // configuration using a multisig strategy
 type MsgUpdateConfig struct {
-	Signer           sdk.AccAddress
+	// Signer is the address of the entity who is doing the transaction
+	Signer sdk.AccAddress
+	// NewConfiguration contains the new configuration data
 	NewConfiguration Config
 }
 
@@ -32,7 +34,9 @@ func (m MsgUpdateConfig) GetSignBytes() []byte { return sdk.MustSortJSON(ModuleC
 func (m MsgUpdateConfig) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Signer} }
 
 type MsgUpdateFees struct {
-	Fees       *Fees
+	// Fees represent the new fees to apply
+	Fees *Fees
+	// Configurer is the address that is singing the message
 	Configurer sdk.AccAddress
 }
 

@@ -4,8 +4,10 @@ import "github.com/iov-one/iovns/x/configuration/types"
 
 // alias for types
 type (
-	Config = types.Config // Config aliases types.Config
-	Fees   = types.Fees   // Fees aliases types.Fees
+	// Config aliases types.Config
+	Config = types.Config
+	// Fees aliases types.Fees
+	Fees = types.Fees
 )
 
 // alias for consts

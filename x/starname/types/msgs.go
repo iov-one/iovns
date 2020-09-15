@@ -5,6 +5,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// MsgWithFeePayer abstracts the Msg type to support a fee payer
+// which takes care of handling product fees
 type MsgWithFeePayer interface {
 	sdk.Msg
 	FeePayer() sdk.AccAddress
@@ -21,8 +23,9 @@ type MsgAddAccountCertificates struct {
 	// Owner is the owner of the account
 	Owner sdk.AccAddress `json:"owner"`
 	// NewCertificate is the new certificate to add
-	NewCertificate []byte         `json:"new_certificate"`
-	FeePayerAddr   sdk.AccAddress `json:"fee_payer"`
+	NewCertificate []byte `json:"new_certificate"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
+	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
 var _ MsgWithFeePayer = (*MsgAddAccountCertificates)(nil)
@@ -84,7 +87,8 @@ type MsgDeleteAccountCertificate struct {
 	// DeleteCertificate is the certificate to delete
 	DeleteCertificate []byte `json:"delete_certificate"`
 	// Owner is the owner of the account
-	Owner        sdk.AccAddress `json:"owner"`
+	Owner sdk.AccAddress `json:"owner"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
@@ -144,7 +148,8 @@ type MsgDeleteAccount struct {
 	// Name is the name of the account
 	Name string `json:"name"`
 	// Owner is the owner of the account
-	Owner        sdk.AccAddress `json:"owner"`
+	Owner sdk.AccAddress `json:"owner"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
@@ -200,8 +205,11 @@ func (m *MsgDeleteAccount) GetSigners() []sdk.AccAddress {
 // MsgDeleteDomain is the request
 // model to delete a domain
 type MsgDeleteDomain struct {
-	Domain       string         `json:"domain"`
-	Owner        sdk.AccAddress `json:"owner"`
+	// Domain is the domain to delete
+	Domain string `json:"domain"`
+	// Owner is the owner of the domain
+	Owner sdk.AccAddress `json:"owner"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
@@ -265,7 +273,8 @@ type MsgRegisterAccount struct {
 	// Resources are the blockchain addresses of the account
 	Resources []Resource `json:"resources"`
 	// Broker is the account that facilitated the transaction
-	Broker       sdk.AccAddress `json:"broker"`
+	Broker sdk.AccAddress `json:"broker"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
@@ -326,7 +335,8 @@ type MsgRegisterDomain struct {
 	// DomainType defines the type of the domain
 	DomainType DomainType `json:"type"`
 	// Broker TODO document
-	Broker       sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
+	Broker sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
@@ -384,7 +394,8 @@ type MsgRenewAccount struct {
 	// Name is the name of the account
 	Name string `json:"name"`
 	// Signer is the signer of the request
-	Signer       sdk.AccAddress `json:"signer"`
+	Signer sdk.AccAddress `json:"signer"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
@@ -436,7 +447,8 @@ type MsgRenewDomain struct {
 	// Domain is the domain name to renew
 	Domain string `json:"domain"`
 	// Signer is the request signer
-	Signer       sdk.AccAddress `json:"signer"`
+	Signer sdk.AccAddress `json:"signer"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
@@ -493,7 +505,8 @@ type MsgReplaceAccountResources struct {
 	// NewResources are the new resources
 	NewResources []Resource `json:"new_resources"`
 	// Owner is the owner of the account
-	Owner        sdk.AccAddress `json:"owner"`
+	Owner sdk.AccAddress `json:"owner"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
@@ -556,7 +569,8 @@ type MsgReplaceAccountMetadata struct {
 	// we want to update or insert
 	NewMetadataURI string `json:"new_metadata_uri"`
 	// Owner is the owner of the account
-	Owner        sdk.AccAddress `json:"owner"`
+	Owner sdk.AccAddress `json:"owner"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
@@ -619,8 +633,9 @@ type MsgTransferAccount struct {
 	Owner sdk.AccAddress `json:"owner"`
 	// NewOwner is the new owner of the account
 	NewOwner sdk.AccAddress `json:"new_owner"`
-	// Reset indicates if the accounts content will be resetted
-	Reset        bool           `json:"reset"`
+	// Reset indicates if the accounts content will be reset
+	Reset bool `json:"reset"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
@@ -693,10 +708,15 @@ const (
 // MsgTransferDomain is the request model
 // used to transfer a domain
 type MsgTransferDomain struct {
-	Domain       string         `json:"domain"`
-	Owner        sdk.AccAddress `json:"owner"`
-	NewAdmin     sdk.AccAddress `json:"new_admin"`
-	TransferFlag TransferFlag   `json:"transfer_flag"`
+	// Domain is the name of the domain
+	Domain string `json:"domain"`
+	// Owner is the address of the owner of the domain
+	Owner sdk.AccAddress `json:"owner"`
+	// NewAdmin is the address of the entity that will own the domain
+	NewAdmin sdk.AccAddress `json:"new_admin"`
+	// TransferFlag is the flag used to determine how to transfer the domain and the related accounts
+	TransferFlag TransferFlag `json:"transfer_flag"`
+	// FeePayerAddr is the address of the entity that has to pay product fees
 	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 

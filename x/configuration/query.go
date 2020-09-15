@@ -63,6 +63,7 @@ func NewQuerier(k Keeper) sdk.Querier {
 	}
 }
 
+// QueryConfiguration is the request model used to get the configuration
 type QueryConfiguration struct{}
 
 func (q *QueryConfiguration) Use() string {
@@ -96,10 +97,13 @@ func queryConfigurationHandler(ctx sdk.Context, _ []string, req abci.RequestQuer
 	return respBytes, nil
 }
 
+// QueryConfigurationResponse is the response returned after querying the configuration
 type QueryConfigurationResponse struct {
+	// Config represents the current configurations
 	Config Config `json:"configuration"`
 }
 
+// QueryFees is the request model used to get the current fees
 type QueryFees struct{}
 
 func (q *QueryFees) Use() string {
@@ -132,6 +136,8 @@ func queryFeesHandler(ctx sdk.Context, _ []string, req abci.RequestQuery, k Keep
 	return respBytes, nil
 }
 
+// QueryFeesResponse is returned after querying fees
 type QueryFeesResponse struct {
+	// Fees represents the current fees of the network
 	Fees Fees `json:"fees"`
 }
