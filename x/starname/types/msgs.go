@@ -30,7 +30,7 @@ type MsgAddAccountCertificates struct {
 
 var _ MsgWithFeePayer = (*MsgAddAccountCertificates)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgAddAccountCertificates) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -94,7 +94,7 @@ type MsgDeleteAccountCertificate struct {
 
 var _ MsgWithFeePayer = (*MsgDeleteAccountCertificate)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgDeleteAccountCertificate) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -155,7 +155,7 @@ type MsgDeleteAccount struct {
 
 var _ MsgWithFeePayer = (*MsgDeleteAccount)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgDeleteAccount) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -215,7 +215,7 @@ type MsgDeleteDomain struct {
 
 var _ MsgWithFeePayer = (*MsgDeleteDomain)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgDeleteDomain) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -280,7 +280,7 @@ type MsgRegisterAccount struct {
 
 var _ MsgWithFeePayer = (*MsgRegisterAccount)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgRegisterAccount) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -342,7 +342,7 @@ type MsgRegisterDomain struct {
 
 var _ MsgWithFeePayer = (*MsgRegisterDomain)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgRegisterDomain) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -401,7 +401,7 @@ type MsgRenewAccount struct {
 
 var _ MsgWithFeePayer = (*MsgRenewAccount)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgRenewAccount) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -454,7 +454,7 @@ type MsgRenewDomain struct {
 
 var _ MsgWithFeePayer = (*MsgRenewDomain)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgRenewDomain) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -512,7 +512,7 @@ type MsgReplaceAccountResources struct {
 
 var _ MsgWithFeePayer = (*MsgReplaceAccountResources)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgReplaceAccountResources) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -576,7 +576,7 @@ type MsgReplaceAccountMetadata struct {
 
 var _ MsgWithFeePayer = (*MsgReplaceAccountMetadata)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgReplaceAccountMetadata) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -641,7 +641,7 @@ type MsgTransferAccount struct {
 
 var _ MsgWithFeePayer = (*MsgTransferAccount)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgTransferAccount) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr
@@ -722,7 +722,7 @@ type MsgTransferDomain struct {
 
 var _ MsgWithFeePayer = (*MsgTransferDomain)(nil)
 
-// Route implements sdk.Msg
+// FeePayer implements FeePayer interface
 func (m *MsgTransferDomain) FeePayer() sdk.AccAddress {
 	if !m.FeePayerAddr.Empty() {
 		return m.FeePayerAddr

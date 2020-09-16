@@ -23,6 +23,8 @@ const (
 // function aliases
 
 var (
-	NewFees       = types.NewFees // NewFees aliases types.NewFees
+	// NewFees aliases types.NewFees
+	NewFees = types.NewFees
+	// RegisterCodec aliases types.RegisterCodec
 	RegisterCodec = types.RegisterCodec
 )

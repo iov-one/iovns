@@ -66,22 +66,27 @@ func NewQuerier(k Keeper) sdk.Querier {
 // QueryConfiguration is the request model used to get the configuration
 type QueryConfiguration struct{}
 
+// Use is a placeholder
 func (q *QueryConfiguration) Use() string {
 	return "query-config"
 }
 
+// Description is a placeholder
 func (q *QueryConfiguration) Description() string {
 	return "return the current configuration"
 }
 
+// Handler implements QueryHandler
 func (q *QueryConfiguration) Handler() QueryHandlerFunc {
 	return queryConfigurationHandler
 }
 
+// Validate implements QueryHandler
 func (q *QueryConfiguration) Validate() error {
 	return nil
 }
 
+// QueryPath implements QueryHandler
 func (q *QueryConfiguration) QueryPath() string {
 	return "configuration"
 }
@@ -106,22 +111,27 @@ type QueryConfigurationResponse struct {
 // QueryFees is the request model used to get the current fees
 type QueryFees struct{}
 
+// Use is a placeholder
 func (q *QueryFees) Use() string {
 	return "query-fees"
 }
 
+// Description is a placeholder
 func (q *QueryFees) Description() string {
 	return "return the current fees"
 }
 
+// Handler implements QueryHandler
 func (q *QueryFees) Handler() QueryHandlerFunc {
 	return queryFeesHandler
 }
 
+// Validate implements QueryHandler
 func (q *QueryFees) Validate() error {
 	return nil
 }
 
+// QueryPath implements QueryHandler
 func (q *QueryFees) QueryPath() string {
 	return "fees"
 }

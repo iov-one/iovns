@@ -63,6 +63,7 @@ type Fees struct {
 	RenewDomainOpen sdk.Dec `json:"renew_domain_open"`
 }
 
+// Validate validates the fee object
 func (f *Fees) Validate() error {
 	if f == nil {
 		return fmt.Errorf("fees is nil")

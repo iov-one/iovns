@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
-	. "github.com/iov-one/iovns/x/configuration/types"
+	"github.com/iov-one/iovns/x/configuration/types"
 )
 
 // handleTxRequest is a helper function that takes care of checking base requests, sdk messages, after verifying
@@ -27,8 +27,8 @@ func handleTxRequest(cliCtx context.CLIContext, baseReq rest.BaseReq, msg sdk.Ms
 }
 
 type updateConfig struct {
-	BaseReq rest.BaseReq     `json:"base_req"`
-	Message *MsgUpdateConfig `json:"message"`
+	BaseReq rest.BaseReq           `json:"base_req"`
+	Message *types.MsgUpdateConfig `json:"message"`
 }
 
 func updateConfigHandler(cliCtx context.CLIContext) http.HandlerFunc {
@@ -42,8 +42,8 @@ func updateConfigHandler(cliCtx context.CLIContext) http.HandlerFunc {
 }
 
 type updateFees struct {
-	BaseReq rest.BaseReq   `json:"base_req"`
-	Message *MsgUpdateFees `json:"message"`
+	BaseReq rest.BaseReq         `json:"base_req"`
+	Message *types.MsgUpdateFees `json:"message"`
 }
 
 func updateFeesHandler(cliCtx context.CLIContext) http.HandlerFunc {

@@ -97,7 +97,7 @@ func (q *QueryAccountsInDomain) Handler() QueryHandlerFunc {
 	return queryAccountsInDomainHandler
 }
 
-// Validate implements iovns.QueryHandler
+// Validate implements queries.QueryHandler
 func (q *QueryAccountsInDomain) Validate() error {
 	if q.Domain == "" {
 		return sdkerrors.Wrapf(types.ErrInvalidDomainName, "empty")
@@ -113,7 +113,7 @@ func (q *QueryAccountsInDomain) Validate() error {
 	return nil
 }
 
-// QueryPath implements iovns.QueryHandler
+// QueryPath implements queries.QueryHandler
 func (q *QueryAccountsInDomain) QueryPath() string {
 	return "accountsInDomain"
 }
@@ -194,12 +194,12 @@ func (q *QueryAccountsWithOwner) Handler() QueryHandlerFunc {
 	return queryAccountsWithOwnerHandler
 }
 
-// QueryPath implements iovns.QueryHandler
+// QueryPath implements queries.QueryHandler
 func (q *QueryAccountsWithOwner) QueryPath() string {
 	return "accountsWithOwner"
 }
 
-// Validate implements iovns.QueryHandler
+// Validate implements queries.QueryHandler
 func (q *QueryAccountsWithOwner) Validate() error {
 	if q.Owner == nil {
 		return sdkerrors.Wrapf(types.ErrInvalidOwner, "empty")
@@ -292,12 +292,12 @@ func (q *QueryDomainsWithOwner) Handler() QueryHandlerFunc {
 	return queryDomainsWithOwnerHandler
 }
 
-// QueryPath implements iovns.QueryHandler
+// QueryPath implements queries.QueryHandler
 func (q *QueryDomainsWithOwner) QueryPath() string {
 	return "domainsWithOwner"
 }
 
-// Validate implements iovns.QueryHandler
+// Validate implements queries.QueryHandler
 func (q *QueryDomainsWithOwner) Validate() error {
 	if q.Owner == nil {
 		return sdkerrors.Wrapf(types.ErrInvalidOwner, "empty")
@@ -391,7 +391,7 @@ func (q *QueryResolveAccount) Handler() QueryHandlerFunc {
 	return queryResolveAccountHandler
 }
 
-// Validate implements iovns.QueryHandler
+// Validate implements queries.QueryHandler
 func (q *QueryResolveAccount) Validate() error {
 	if q.Starname != "" && (q.Domain != "" || q.Name != "") {
 		return types.ErrProvideStarnameOrDomainName
@@ -416,7 +416,7 @@ func (q *QueryResolveAccount) Validate() error {
 	return nil
 }
 
-// QueryPath implements iovns.QueryHandler
+// QueryPath implements queries.QueryHandler
 func (q *QueryResolveAccount) QueryPath() string {
 	return "resolve"
 }
@@ -476,12 +476,12 @@ func (q *QueryResolveDomain) Handler() QueryHandlerFunc {
 	return queryResolveDomainHandler
 }
 
-// QueryPath implements iovns.QueryHandler
+// QueryPath implements queries.QueryHandler
 func (q *QueryResolveDomain) QueryPath() string {
 	return "domainInfo"
 }
 
-// Validate implements iovns.QueryHandler
+// Validate implements queries.QueryHandler
 func (q *QueryResolveDomain) Validate() error {
 	if q.Name == "" {
 		return sdkerrors.Wrapf(types.ErrInvalidDomainName, "empty")
@@ -530,11 +530,12 @@ type QueryResolveResource struct {
 	Offset int `json:"offset"`
 }
 
-// QueryPath implements iovns.QueryHandler
+// QueryPath implements queries.QueryHandler
 func (q *QueryResolveResource) QueryPath() string {
 	return "resourceAccounts"
 }
 
+// Validate implements queries.QueryHandler
 func (q *QueryResolveResource) Validate() error {
 	if q.Resource.Resource == "" {
 		return sdkerrors.Wrapf(types.ErrInvalidResource, "empty resource")
@@ -552,6 +553,7 @@ func (q *QueryResolveResource) Validate() error {
 	return nil
 }
 
+// Handler implements queries.QueryHandler
 func (q *QueryResolveResource) Handler() QueryHandlerFunc {
 	return queryResourceAccountHandler
 }

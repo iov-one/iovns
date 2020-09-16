@@ -1,2 +1,2 @@
-// package types contains the models used by the starname module
+// Package types contains the models, errors, names used by the starname module
 package types
