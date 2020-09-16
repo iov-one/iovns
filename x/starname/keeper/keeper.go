@@ -66,11 +66,13 @@ func NewKeeper(cdc *codec.Codec, storeKey sdk.StoreKey, configKeeper Configurati
 	return keeper
 }
 
+// AccountStore returns the crud.Store used to interact with account objects
 func (k Keeper) AccountStore(ctx sdk.Context) crud.Store {
 	store := crud.NewStore(ctx, k.StoreKey, k.Cdc, []byte{0x1})
 	return store
 }
 
+// DomainStore returns the crud.Store used to interact with domain objects
 func (k Keeper) DomainStore(ctx sdk.Context) crud.Store {
 	return crud.NewStore(ctx, k.StoreKey, k.Cdc, []byte{0x2})
 }

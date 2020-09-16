@@ -64,6 +64,7 @@ func (a *Account) MustNotExist() *Account {
 	return a
 }
 
+// ValidName asserts the account name is valid
 func (a *Account) ValidName() *Account {
 	a.validators = append(a.validators, func(ctrl *Account) error {
 		return a.validName()
@@ -71,6 +72,7 @@ func (a *Account) ValidName() *Account {
 	return a
 }
 
+// NotExpired asserts the account is not expired
 func (a *Account) NotExpired() *Account {
 	a.validators = append(a.validators, func(ctrl *Account) error {
 		return ctrl.notExpired()
@@ -78,6 +80,7 @@ func (a *Account) NotExpired() *Account {
 	return a
 }
 
+// Renewable asserts that the account is renewable
 func (a *Account) Renewable() *Account {
 	a.validators = append(a.validators, func(ctrl *Account) error {
 		return ctrl.renewable()
@@ -85,6 +88,7 @@ func (a *Account) Renewable() *Account {
 	return a
 }
 
+// OwnedBy asserts that the account is owned by the provided address
 func (a *Account) OwnedBy(addr sdk.AccAddress) *Account {
 	f := func(ctrl *Account) error {
 		return ctrl.ownedBy(addr)
@@ -93,6 +97,7 @@ func (a *Account) OwnedBy(addr sdk.AccAddress) *Account {
 	return a
 }
 
+// CertificateSizeNotExceeded asserts that the size of a cert is not beyond the limits
 func (a *Account) CertificateSizeNotExceeded(cert []byte) *Account {
 	f := func(ctrl *Account) error {
 		return ctrl.certSizeNotExceeded(cert)
@@ -101,6 +106,7 @@ func (a *Account) CertificateSizeNotExceeded(cert []byte) *Account {
 	return a
 }
 
+// CertificateLimitNotExceeded asserts that the numbers of certificates in an account was not exceeded
 func (a *Account) CertificateLimitNotExceeded() *Account {
 	a.validators = append(a.validators, func(ctrl *Account) error {
 		return ctrl.certLimitNotExceeded()
@@ -163,6 +169,7 @@ func (a *Account) ResourceLimitNotExceeded(resources []types.Resource) *Account 
 	return a
 }
 
+// MetadataSizeNotExceeded asserts that the metadata size of an account was not exceeded
 func (a *Account) MetadataSizeNotExceeded(metadata string) *Account {
 	a.validators = append(a.validators, func(ctrl *Account) error {
 		return ctrl.metadataSizeNotExceeded(metadata)
@@ -467,10 +474,6 @@ func (a *Account) resettableBy(addr sdk.AccAddress, reset bool) error {
 	case types.ClosedDomain:
 	}
 	return nil
-}
-
-func GracePeriodFinished(controller *Account) error {
-	return controller.gracePeriodFinished()
 }
 
 // gracePeriodFinished is the condition that checks if given account's grace period has finished

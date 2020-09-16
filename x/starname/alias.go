@@ -21,11 +21,14 @@ const (
 
 // aliasing for types
 type (
+	// Keeper aliases the Keeper type
 	Keeper = keeper.Keeper
 )
 
 // aliasing for funcs
 var (
-	NewKeeper     = keeper.NewKeeper
+	// NewKeeper aliases keeper.NewKeeper
+	NewKeeper = keeper.NewKeeper
+	// RegisterCodec aliases types.RegisterCodec
 	RegisterCodec = types.RegisterCodec
 )

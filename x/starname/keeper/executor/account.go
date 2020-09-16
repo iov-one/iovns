@@ -25,6 +25,7 @@ type Account struct {
 	k       keeper.Keeper
 }
 
+// Transfer transfers the account to the provided owner with information reset if reset is true
 func (a *Account) Transfer(newOwner sdk.AccAddress, reset bool) {
 	if a.account == nil {
 		panic("cannot transfer non specified account")
@@ -42,6 +43,7 @@ func (a *Account) Transfer(newOwner sdk.AccAddress, reset bool) {
 	a.store.Update(a.account)
 }
 
+// UpdateMetadata updates account's metadata
 func (a *Account) UpdateMetadata(newMetadata string) {
 	if a.account == nil {
 		panic("cannot update metadata on non specified account")
@@ -50,6 +52,7 @@ func (a *Account) UpdateMetadata(newMetadata string) {
 	a.store.Update(a.account)
 }
 
+// ReplaceResources replaces account's resources
 func (a *Account) ReplaceResources(newTargets []types.Resource) {
 	if a.account == nil {
 		panic("cannot replace targets on non specified account")
@@ -58,6 +61,7 @@ func (a *Account) ReplaceResources(newTargets []types.Resource) {
 	a.store.Update(a.account)
 }
 
+// Renew renews an account
 func (a *Account) Renew() {
 	if a.account == nil {
 		panic("cannot renew a non specified account")
@@ -70,6 +74,7 @@ func (a *Account) Renew() {
 	a.store.Update(a.account)
 }
 
+// Create creates an account
 func (a *Account) Create() {
 	if a.account == nil {
 		panic("cannot create a non specified account")
@@ -77,6 +82,7 @@ func (a *Account) Create() {
 	a.store.Create(a.account)
 }
 
+// Delete deletes the account
 func (a *Account) Delete() {
 	if a.account == nil {
 		panic("cannot delete a non specified account")
@@ -84,6 +90,7 @@ func (a *Account) Delete() {
 	a.store.Delete(a.account.PrimaryKey())
 }
 
+// DeleteCertificate deletes the certificate of the account at the provided index
 func (a *Account) DeleteCertificate(index int) {
 	if a.account == nil {
 		panic("cannot delete certificate on a non specified account")
@@ -92,6 +99,7 @@ func (a *Account) DeleteCertificate(index int) {
 	a.store.Update(a.account)
 }
 
+// AddCertificate adds a certificate to the account
 func (a *Account) AddCertificate(cert []byte) {
 	if a.account == nil {
 		panic("cannot add certificate on a non specified account")

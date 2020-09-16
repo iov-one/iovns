@@ -65,6 +65,7 @@ func (c *Domain) Validate() error {
 	return nil
 }
 
+// Admin asserts that the domain owner is the provided address
 func (c *Domain) Admin(addr sdk.AccAddress) *Domain {
 	c.validators = append(c.validators, func(controller *Domain) error {
 		return controller.isAdmin(addr)
@@ -72,6 +73,7 @@ func (c *Domain) Admin(addr sdk.AccAddress) *Domain {
 	return c
 }
 
+// NotExpired asserts that the domain has not expired
 func (c *Domain) NotExpired() *Domain {
 	c.validators = append(c.validators, func(controller *Domain) error {
 		return controller.notExpired()
@@ -119,6 +121,7 @@ func (c *Domain) DeletableBy(addr sdk.AccAddress) *Domain {
 	return c
 }
 
+// Transferable asserts the domain is transferable with the given flag
 func (c *Domain) Transferable(flag types.TransferFlag) *Domain {
 	c.validators = append(c.validators, func(controller *Domain) error {
 		return controller.transferable(flag)

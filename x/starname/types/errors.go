@@ -40,7 +40,7 @@ var ErrInvalidResource = sdkerrors.Register(ModuleName, 10, "resource provided i
 // ErrDomainExpired is returned when actions are performed on expired domains
 var ErrDomainExpired = sdkerrors.Register(ModuleName, 11, "domain has expired")
 
-// ErrDomainExpired is returned when actions are performed on not expired domains
+// ErrDomainNotExpired is returned when actions are performed on not expired domains
 var ErrDomainNotExpired = sdkerrors.Register(ModuleName, 12, "domain has not expired")
 
 // ErrAccountExists is returned when a create action is done on an account that already exists
@@ -88,6 +88,7 @@ var ErrClosedDomainAccExpire = sdkerrors.Register(ModuleName, 26, "accounts in c
 // ErrMaxRenewExceeded is returned when max renew time exceeded
 var ErrMaxRenewExceeded = sdkerrors.Register(ModuleName, 27, "max renew exceeded")
 
+// ErrRenewalDeadlineExceeded is returned when the renewal deadline was surpassed
 var ErrRenewalDeadlineExceeded = sdkerrors.Register(ModuleName, 31, "renewal deadline was exceeded")
 
 // ----------- QUERY ----------

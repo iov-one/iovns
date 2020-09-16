@@ -9,8 +9,10 @@ import (
 // when the app is initialized, and it is used to marshal
 // the state when it needs to be exported.
 type GenesisState struct {
+	// Config contains the configuration
 	Config types.Config `json:"config"`
-	Fees   *types.Fees  `json:"fees"`
+	// Fees contains the fees
+	Fees *types.Fees `json:"fees"`
 }
 
 // NewGenesisState is GenesisState constructor

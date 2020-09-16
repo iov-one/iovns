@@ -48,11 +48,14 @@ func (d *Domain) SecondaryKeys() []crud.SecondaryKey {
 	return []crud.SecondaryKey{crud.NewSecondaryKey(DomainAdminIndex, d.Admin)}
 }
 
+// DomainType defines the type of the domain
 type DomainType string
 
 const (
-	OpenDomain   DomainType = "open"
-	ClosedDomain            = "closed"
+	// OpenDomain is the domain type in which an account owner is the only entity that can perform actions on the account
+	OpenDomain DomainType = "open"
+	// ClosedDomain is the domain type in which the domain owner has control over accounts too
+	ClosedDomain = "closed"
 )
 
 func ValidateDomainType(typ DomainType) error {
