@@ -1,5 +1,6 @@
 # Changelog
 ## HEAD
+- add signature module
 - update docs
 ## 0.9.1
 - upgrade to cosmos sdk 0.39.1
