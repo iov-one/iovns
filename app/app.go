@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/json"
 	"github.com/iov-one/iovns/x/configuration"
+	"github.com/iov-one/iovns/x/signutil"
 	"github.com/iov-one/iovns/x/starname"
 	"io"
 	"os"
@@ -64,6 +65,7 @@ var (
 		// iovns modules
 		configuration.AppModuleBasic{},
 		starname.AppModuleBasic{},
+		signutil.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -308,6 +310,7 @@ func NewNameService(
 		// iovns modules
 		configuration.NewAppModule(app.configurationKeeper),
 		starname.NewAppModule(app.domainKeeper),
+		signutil.NewAppModule(),
 		// iovns modules - end
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 		upgrade.NewAppModule(app.upgradeKeeper),
