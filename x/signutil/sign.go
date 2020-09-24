@@ -17,7 +17,7 @@ import (
 )
 
 type MsgArbitrarySignature struct {
-	Message []byte         `json:"message"`
+	Message string         `json:"message"`
 	Signer  sdk.AccAddress `json:"signer"`
 }
 
@@ -102,7 +102,7 @@ func sign(cdc *codec.Codec) *cobra.Command {
 			default:
 				return fmt.Errorf("either file or text flag must be specified")
 			}
-			msg := MsgArbitrarySignature{Message: buf.Bytes(), Signer: cliCtx.GetFromAddress()}
+			msg := MsgArbitrarySignature{Message: buf.String(), Signer: cliCtx.GetFromAddress()}
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
