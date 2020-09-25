@@ -73,8 +73,8 @@ func getTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 
 func sign(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "sign",
-		Short: "create a signature for a file or an arbitrary string",
+		Use:   "create",
+		Short: "outputs the json string to sign",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
