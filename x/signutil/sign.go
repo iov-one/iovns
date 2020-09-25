@@ -14,10 +14,17 @@ import (
 	"github.com/spf13/cobra"
 	"io"
 	"os"
+	"strings"
 )
 
+type Pair struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 type MsgArbitrarySignature struct {
-	Message string         `json:"message"`
+	Message string         `json:"message,omitempty"`
+	Pairs   []Pair         `json:"pairs,omitempty"`
 	Signer  sdk.AccAddress `json:"signer"`
 }
 
@@ -30,8 +37,8 @@ func (m MsgArbitrarySignature) Type() string {
 }
 
 func (m MsgArbitrarySignature) ValidateBasic() error {
-	if len(m.Message) == 0 {
-		return fmt.Errorf("empty msg")
+	if len(m.Message) == 0 && len(m.Pairs) == 0 {
+		return fmt.Errorf("empty msg and pairs")
 	}
 	if m.Signer.Empty() {
 		return fmt.Errorf("missing signer")
@@ -82,27 +89,52 @@ func sign(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if text != "" && file != "" {
-				return fmt.Errorf("only text or file can be specified")
+			pairs, err := cmd.Flags().GetStringArray("pair")
+			if err != nil {
+				return err
 			}
-			buf := new(bytes.Buffer)
+			if (text != "") && (file != "" || len(pairs) != 0) || (file != "" && len(pairs) != 0) {
+				return fmt.Errorf("only one of text, file, pairs can be specified")
+			}
+			msg := MsgArbitrarySignature{
+				Message: "",
+				Pairs:   nil,
+				Signer:  cliCtx.GetFromAddress(),
+			}
 			switch true {
 			case text != "":
-				buf.WriteString(text)
+				msg.Message = text
 			case file != "":
 				f, err := os.Open(file)
 				if err != nil {
 					return err
 				}
 				defer f.Close()
+				buf := new(bytes.Buffer)
 				_, err = io.Copy(buf, f)
 				if err != nil {
 					return err
 				}
+				msg.Message = buf.String()
+			case len(pairs) != 0:
+				kv := make([]Pair, len(pairs))
+				for i, raw := range pairs {
+					split := strings.Split(raw, "=")
+					if len(split) < 1 {
+						return fmt.Errorf("invalid formatted value: %s", raw)
+					}
+					key := split[0]
+					value := strings.Join(split[1:], "=")
+					kv[i] = Pair{
+						Key:   key,
+						Value: value,
+					}
+				}
+				msg.Pairs = kv
 			default:
 				return fmt.Errorf("either file or text flag must be specified")
 			}
-			msg := MsgArbitrarySignature{Message: buf.String(), Signer: cliCtx.GetFromAddress()}
+
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -111,6 +143,7 @@ func sign(cdc *codec.Codec) *cobra.Command {
 	}
 	cmd.Flags().StringP("file", "f", "", "file to sign")
 	cmd.Flags().StringP("text", "t", "", "string to sign")
+	cmd.Flags().StringArrayP("pair", "p", nil, "key value pairs, specified as key=value")
 	return cmd
 }
 
