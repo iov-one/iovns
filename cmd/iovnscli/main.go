@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	iovconf "github.com/iov-one/iovns/app/config"
 	"net/http"
 	"os"
 	"path"
@@ -42,12 +43,7 @@ func main() {
 
 	// Read in the configuration file for the sdk
 	config := sdk.GetConfig()
-	config.SetCoinType(app.CoinType)
-	config.SetFullFundraiserPath(app.FullFundraiserPath)
-	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
-	config.Seal()
+	iovconf.ApplyChangesAndSeal(config)
 
 	// TODO: setup keybase, viper object, etc. to be passed into
 	// the below functions and eliminate global vars, like we do

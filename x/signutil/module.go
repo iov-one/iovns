@@ -22,7 +22,7 @@ func init() {
 }
 
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgArbitrarySignature{}, fmt.Sprintf("%s/%s", ModuleName, "MsgArbitrarySignature"), nil)
+	cdc.RegisterConcrete(MsgTextSignature{}, fmt.Sprintf("%s/%s", ModuleName, "MsgTextSignature"), nil)
 }
 
 var (
@@ -44,7 +44,8 @@ func (AppModuleBasic) ValidateGenesis(_ json.RawMessage) (err error) {
 	return nil
 }
 
-func (AppModuleBasic) RegisterRESTRoutes(_ context.CLIContext, _ *mux.Router) {
+func (AppModuleBasic) RegisterRESTRoutes(ctx context.CLIContext, r *mux.Router) {
+	RegisterRestRoutes(ctx, r)
 
 }
 func (AppModuleBasic) GetTxCmd(cdc *codec.Codec) *cobra.Command {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	iovconf "github.com/iov-one/iovns/app/config"
 	"io"
 
 	"github.com/spf13/cobra"
@@ -34,12 +35,7 @@ func main() {
 	cdc := app.MakeCodec()
 
 	config := sdk.GetConfig()
-	config.SetCoinType(app.CoinType)
-	config.SetFullFundraiserPath(app.FullFundraiserPath)
-	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
-	config.Seal()
+	iovconf.ApplyChangesAndSeal(config)
 
 	ctx := server.NewDefaultContext()
 	cobra.EnableCommandSorting = false

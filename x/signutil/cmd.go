@@ -3,6 +3,7 @@ package signutil
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -17,42 +18,9 @@ import (
 	"strings"
 )
 
-type Pair struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
-type MsgArbitrarySignature struct {
-	Message string         `json:"message,omitempty"`
-	Pairs   []Pair         `json:"pairs,omitempty"`
-	Signer  sdk.AccAddress `json:"signer"`
-}
-
-func (m MsgArbitrarySignature) Route() string {
-	return ModuleName
-}
-
-func (m MsgArbitrarySignature) Type() string {
-	return "arbitrary_signature"
-}
-
-func (m MsgArbitrarySignature) ValidateBasic() error {
-	if len(m.Message) == 0 && len(m.Pairs) == 0 {
-		return fmt.Errorf("empty msg and pairs")
-	}
-	if m.Signer.Empty() {
-		return fmt.Errorf("missing signer")
-	}
-	return nil
-}
-
-// GetSignBytes implements sdk.Message
-func (m MsgArbitrarySignature) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
-}
-
-// GetSigners implements sdk.Message
-func (m MsgArbitrarySignature) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Signer} }
+const DefaultChainID = "sign"
+const DefaultAccountNumber uint64 = 0
+const DefaultSequence uint64 = 0
 
 // getTxCmd clubs together all the CLI tx commands
 func getTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
@@ -66,7 +34,7 @@ func getTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 
 	configTxCmd.AddCommand(flags.PostCommands(
 		sign(cdc),
-		verify(cdc),
+		verifyCmd(cdc),
 	)...)
 	return configTxCmd
 }
@@ -96,7 +64,7 @@ func sign(cdc *codec.Codec) *cobra.Command {
 			if (text != "") && (file != "" || len(pairs) != 0) || (file != "" && len(pairs) != 0) {
 				return fmt.Errorf("only one of text, file, pairs can be specified")
 			}
-			msg := MsgArbitrarySignature{
+			msg := MsgTextSignature{
 				Message: "",
 				Pairs:   nil,
 				Signer:  cliCtx.GetFromAddress(),
@@ -147,11 +115,46 @@ func sign(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-func verify(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
+func verifyCmd(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
 		Use: "verify",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			panic("not implemented")
+			path, err := cmd.Flags().GetString("file")
+			if err != nil {
+				return err
+			}
+			f, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+			defer f.Close()
+			var tx auth.StdTx
+			err = json.NewDecoder(f).Decode(&tx)
+			if err != nil {
+				return err
+			}
+			chainID, err := cmd.Flags().GetString(flags.FlagChainID)
+			if err != nil {
+				return err
+			}
+			accountNumber, err := cmd.Flags().GetUint64(flags.FlagAccountNumber)
+			if err != nil {
+				return err
+			}
+			sequence, err := cmd.Flags().GetUint64(flags.FlagSequence)
+			if err != nil {
+				return err
+			}
+			if err = Verify(tx, chainID, accountNumber, sequence); err != nil {
+				return err
+			}
+			cmd.Println("signature is valid")
+			return nil
 		},
 	}
+	cmd.Flags().StringP("file", "f", "", "signed transaction file")
+	cmd.Flags().String(flags.FlagChainID, DefaultChainID, "the chain ID to verify the signature against")
+	cmd.Flags().Uint64(flags.FlagSequence, DefaultSequence, "the sequence number")
+	cmd.Flags().Uint64(flags.FlagAccountNumber, DefaultAccountNumber, "the account number")
+	return cmd
 }
