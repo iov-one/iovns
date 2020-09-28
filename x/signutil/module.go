@@ -22,7 +22,7 @@ func init() {
 }
 
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgTextSignature{}, fmt.Sprintf("%s/%s", ModuleName, "MsgTextSignature"), nil)
+	cdc.RegisterConcrete(MsgSignText{}, fmt.Sprintf("%s/%s", ModuleName, "MsgSignText"), nil)
 }
 
 var (

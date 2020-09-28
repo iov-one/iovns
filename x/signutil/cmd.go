@@ -64,7 +64,7 @@ func sign(cdc *codec.Codec) *cobra.Command {
 			if (text != "") && (file != "" || len(pairs) != 0) || (file != "" && len(pairs) != 0) {
 				return fmt.Errorf("only one of text, file, pairs can be specified")
 			}
-			msg := MsgTextSignature{
+			msg := MsgSignText{
 				Message: "",
 				Pairs:   nil,
 				Signer:  cliCtx.GetFromAddress(),

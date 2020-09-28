@@ -10,21 +10,21 @@ type Pair struct {
 	Value string `json:"value"`
 }
 
-type MsgTextSignature struct {
+type MsgSignText struct {
 	Message string         `json:"message,omitempty"`
 	Pairs   []Pair         `json:"pairs,omitempty"`
 	Signer  sdk.AccAddress `json:"signer"`
 }
 
-func (m MsgTextSignature) Route() string {
+func (m MsgSignText) Route() string {
 	return ModuleName
 }
 
-func (m MsgTextSignature) Type() string {
+func (m MsgSignText) Type() string {
 	return "text_signature"
 }
 
-func (m MsgTextSignature) ValidateBasic() error {
+func (m MsgSignText) ValidateBasic() error {
 	if len(m.Message) == 0 && len(m.Pairs) == 0 {
 		return fmt.Errorf("empty msg and pairs")
 	}
@@ -35,9 +35,9 @@ func (m MsgTextSignature) ValidateBasic() error {
 }
 
 // GetSignBytes implements sdk.Message
-func (m MsgTextSignature) GetSignBytes() []byte {
+func (m MsgSignText) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
 }
 
 // GetSigners implements sdk.Message
-func (m MsgTextSignature) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Signer} }
+func (m MsgSignText) GetSigners() []sdk.AccAddress { return []sdk.AccAddress{m.Signer} }
