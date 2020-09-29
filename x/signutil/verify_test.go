@@ -13,10 +13,10 @@ func TestVerify(t *testing.T) {
 	sdk.RegisterCodec(ModuleCdc)
 	auth.RegisterCodec(ModuleCdc)
 	cryptoamino.RegisterAmino(ModuleCdc)
-	const testSig = `{"type":"cosmos-sdk/StdTx","value":{"msg":[{"type":"signutil/MsgSignText","value":{"message":"hello","signer":"star1ynqxwk8gcmkfg7e30p6uumnx0mrfcmzrjmfnap"}}],"fee":{"amount":[],"gas":"200000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"Akxp+TXfAnYFJIRRxjWA3m56mK+plzrECk6kG7opJ02V"},"signature":"TkAAEht40YZQkbriqzcY2IswVijoBpFfOKCF0e3CEed/M6nEAAJ9VSj18c+f9QNocQXWwjMT/fpRNCu70x9Q1Q=="}],"memo":""}}`
+	const testSig = `{"type":"cosmos-sdk/StdTx","value":{"msg":[{"type":"signutil/MsgSignText","value":{"message":"hello","signer":"star1zrwgm6skw3j6e2tjgq4vj5u5avmzvr6ed29vsl"}}],"fee":{"amount":[],"gas":"200000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"A4NhkRqUan3iC7iCW/mArMUw0hfHw/BjWV5zCiABINXk"},"signature":"o/eXmmHnuYs/waNdjr4dx4Lh/yCWtyYjcIFL0NUKYCZDDugj9cmB9++ZHRj0i8HmYyZCbsHMOUGheyxCOCMpug=="}],"memo":""}}`
 	var tx auth.StdTx
 	ModuleCdc.MustUnmarshalJSON([]byte(testSig), &tx)
-	err := Verify(tx, DefaultChainID, DefaultAccountNumber, DefaultSequence)
+	err := Verify(tx, "test", 0, 0)
 	if err != nil {
 		t.Fatal(err)
 	}

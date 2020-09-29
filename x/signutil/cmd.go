@@ -3,7 +3,6 @@ package signutil
 import (
 	"bufio"
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -14,11 +13,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/spf13/cobra"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
 )
 
-const DefaultChainID = "sign"
+const DefaultChainID = "signCmd"
 const DefaultAccountNumber uint64 = 0
 const DefaultSequence uint64 = 0
 
@@ -33,16 +33,16 @@ func getTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	}
 
 	configTxCmd.AddCommand(flags.PostCommands(
-		sign(cdc),
+		signCmd(cdc),
 		verifyCmd(cdc),
 	)...)
 	return configTxCmd
 }
 
-func sign(cdc *codec.Codec) *cobra.Command {
+func signCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
-		Short: "outputs the json string to sign",
+		Short: "outputs the json string to signCmd",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -109,15 +109,16 @@ func sign(cdc *codec.Codec) *cobra.Command {
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
 		},
 	}
-	cmd.Flags().StringP("file", "f", "", "file to sign")
-	cmd.Flags().StringP("text", "t", "", "string to sign")
+	cmd.Flags().StringP("file", "f", "", "file to signCmd")
+	cmd.Flags().StringP("text", "t", "", "string to signCmd")
 	cmd.Flags().StringArrayP("pair", "p", nil, "key value pairs, specified as key=value")
 	return cmd
 }
 
 func verifyCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "verify",
+		Use:   "verify",
+		Short: "verify a signature from a file",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path, err := cmd.Flags().GetString("file")
 			if err != nil {
@@ -128,8 +129,9 @@ func verifyCmd(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			defer f.Close()
+			b, err := ioutil.ReadAll(f)
 			var tx auth.StdTx
-			err = json.NewDecoder(f).Decode(&tx)
+			err = cdc.UnmarshalJSON(b, &tx)
 			if err != nil {
 				return err
 			}
@@ -137,13 +139,22 @@ func verifyCmd(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if chainID == "" {
+				chainID = DefaultChainID
+			}
 			accountNumber, err := cmd.Flags().GetUint64(flags.FlagAccountNumber)
 			if err != nil {
 				return err
 			}
+			if accountNumber == 0 {
+				accountNumber = DefaultAccountNumber
+			}
 			sequence, err := cmd.Flags().GetUint64(flags.FlagSequence)
 			if err != nil {
 				return err
+			}
+			if sequence == 0 {
+				sequence = DefaultSequence
 			}
 			if err = Verify(tx, chainID, accountNumber, sequence); err != nil {
 				return err
@@ -153,8 +164,5 @@ func verifyCmd(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringP("file", "f", "", "signed transaction file")
-	cmd.Flags().String(flags.FlagChainID, DefaultChainID, "the chain ID to verify the signature against")
-	cmd.Flags().Uint64(flags.FlagSequence, DefaultSequence, "the sequence number")
-	cmd.Flags().Uint64(flags.FlagAccountNumber, DefaultAccountNumber, "the account number")
 	return cmd
 }
