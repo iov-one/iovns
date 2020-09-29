@@ -2,11 +2,12 @@ package signutil
 
 import (
 	"fmt"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/gorilla/mux"
-	"io/ioutil"
-	"net/http"
 )
 
 type VerifyRequest struct {
@@ -23,7 +24,7 @@ type Error struct {
 
 func RegisterRestRoutes(ctx context.CLIContext, r *mux.Router) {
 	cdc := ctx.Codec
-	r.HandleFunc(fmt.Sprintf("%s/query/verify", ModuleName), func(writer http.ResponseWriter, request *http.Request) {
+	r.HandleFunc(fmt.Sprintf("/%s/query/verify", ModuleName), func(writer http.ResponseWriter, request *http.Request) {
 		b, err := ioutil.ReadAll(request.Body)
 		if err != nil {
 			writer.WriteHeader(http.StatusInternalServerError)
