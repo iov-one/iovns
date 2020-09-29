@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/iov-one/iovns/app"
+	config2 "github.com/iov-one/iovns/app/config"
 )
 
 // ModuleCdc instantiates a new codec for the domain module
@@ -14,11 +14,11 @@ var ModuleCdc = codec.New()
 func init() {
 	RegisterCodec(ModuleCdc)
 	config := sdk.GetConfig()
-	config.SetCoinType(app.CoinType)
-	config.SetFullFundraiserPath(app.FullFundraiserPath)
-	config.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
-	config.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
-	config.SetBech32PrefixForConsensusNode(app.Bech32PrefixConsAddr, app.Bech32PrefixConsPub)
+	config.SetCoinType(config2.CoinType)
+	config.SetFullFundraiserPath(config2.FullFundraiserPath)
+	config.SetBech32PrefixForAccount(config2.Bech32PrefixAccAddr, config2.Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(config2.Bech32PrefixValAddr, config2.Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(config2.Bech32PrefixConsAddr, config2.Bech32PrefixConsPub)
 	config.Seal()
 }
 

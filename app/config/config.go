@@ -1,4 +1,6 @@
-package app
+package config
+
+import sdk "github.com/cosmos/cosmos-sdk/types"
 
 const (
 	// AddrLen defines a valid address length
@@ -40,3 +42,12 @@ const (
 	// Bech32PrefixConsPub defines the Bech32 prefix of a consensus node public key
 	Bech32PrefixConsPub = Bech32MainPrefix + PrefixValidator + PrefixConsensus + PrefixPublic
 )
+
+func ApplyChangesAndSeal(conf *sdk.Config) {
+	conf.SetCoinType(CoinType)
+	conf.SetFullFundraiserPath(FullFundraiserPath)
+	conf.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
+	conf.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
+	conf.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
+	conf.Seal()
+}
