@@ -1,8 +1,14 @@
 # Changelog
+
 ## HEAD
+
+## v0.9.2
+
 - add signature module
 - update docs
-## 0.9.1
+
+## v0.9.1
+
 - upgrade to cosmos sdk 0.39.1
 - fix empty account renewal
 - use external crud package
@@ -12,6 +18,7 @@
 - fix filtering when primary key is present
 - fix finding the smallest set in the filters
 - change enhance crud store api and make it more secure
+
 ## v0.9.0
 - add genesis file generation scripts
 - upgrade to cosmos sdk 0.39
