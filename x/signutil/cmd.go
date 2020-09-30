@@ -4,6 +4,11 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"strings"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -12,13 +17,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
 	"github.com/spf13/cobra"
-	"io"
-	"io/ioutil"
-	"os"
-	"strings"
 )
 
-const DefaultChainID = "signCmd"
+const DefaultChainID = "signed-message-v1"
 const DefaultAccountNumber uint64 = 0
 const DefaultSequence uint64 = 0
 
