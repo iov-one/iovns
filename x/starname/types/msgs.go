@@ -12,22 +12,6 @@ type MsgWithFeePayer interface {
 	FeePayer() sdk.AccAddress
 }
 
-// MsgAddAccountCertificates is the message used
-// when a user wants to add new certificates
-// to his account
-type MsgAddAccountCertificates struct {
-	// Domain is the domain of the account
-	Domain string `json:"domain"`
-	// Name is the name of the account
-	Name string `json:"name"`
-	// Owner is the owner of the account
-	Owner sdk.AccAddress `json:"owner"`
-	// NewCertificate is the new certificate to add
-	NewCertificate []byte `json:"new_certificate"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
-}
-
 var _ MsgWithFeePayer = (*MsgAddAccountCertificates)(nil)
 
 // FeePayer implements FeePayer interface

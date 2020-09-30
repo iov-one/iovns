@@ -5,7 +5,9 @@ go 1.14
 require (
 	github.com/cosmos/cosmos-sdk v0.39.1
 	github.com/fatih/structs v1.1.0
+	github.com/gogo/protobuf v1.3.1
 	github.com/golang/mock v1.3.1 // indirect
+	github.com/golang/protobuf v1.4.0
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/websocket v1.4.2
 	github.com/iov-one/cosmos-sdk-crud v0.0.0-20200804183153-2b7470a92e52

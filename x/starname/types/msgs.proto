@@ -1,0 +1,27 @@
+syntax="proto3";
+
+option go_package="github.com/iov-one/iovns/x/starname/types";
+
+import "gogoproto/gogo.proto";
+
+// MsgAddAccountCertificates is the message used
+// when a user wants to add new certificates
+// to his account
+message MsgAddAccountCertificates {
+    // Domain is the domain of the account
+    string Domain = 1 [(gogoproto.jsontag) = "domain"];
+    // Name is the name of the account
+    string Name = 2 [(gogoproto.jsontag) = "name"];
+    // Owner is the owner of the account
+    bytes Owner = 3 [
+                    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+                    (gogoproto.jsontag) = "owner"
+                    ];
+    // NewCertificate is the new certificate to add
+    bytes NewCertificate = 4 [(gogoproto.jsontag) = "new_certificate"];
+    // FeePayerAddr is the address of the entity that has to pay product fees
+    bytes FeePayerAddr = 5 [
+                    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress",
+                    (gogoproto.jsontag) = "fee_payer"
+                    ];
+}

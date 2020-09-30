@@ -1,0 +1,3 @@
+syntax="proto3";
+
+option go_package="github.com/iov-one/iovns/x/starname/types";
