@@ -2,9 +2,12 @@
 
 ## HEAD
 
-## v0.9.2
+## v0.9.3
 
 - add signature module
+
+## v0.9.2
+
 - update docs
 
 ## v0.9.1
