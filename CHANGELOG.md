@@ -2,6 +2,8 @@
 
 ## HEAD
 
+- CLI: Fix output on verify
+
 ## v0.9.3
 
 - add signature module

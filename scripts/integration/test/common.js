@@ -21,7 +21,8 @@ export const msig1 = "star1ml9muux6m8w69532lwsu40caecc3vmg2s9nrtg"; // msig1
 
 export const iovnscli = ( args ) => {
    const maybeWithKeyring = args.find( arg => arg == "query" ) ? args : args.concat( [ "--keyring-backend", "test" ] );
-   const cliargs = maybeWithKeyring.concat( [ "--chain-id", chain, "--node", urlRpc, "--output", "json" ] );
+   const maybeWithChainId = args.find( arg => arg == "--offline" || arg == "signutil" ) ? maybeWithKeyring : maybeWithKeyring.concat( [ "--chain-id", chain, "--node", urlRpc ] );
+   const cliargs = maybeWithChainId.concat( [ "--output", "json" ] );
    const cli = spawnSync( "iovnscli", cliargs );
    if ( echo ) console.info( `\n\x1b[94miovnscli ${cliargs.join( " " )} | jq\x1b[89m\n` );
 

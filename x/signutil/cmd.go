@@ -3,6 +3,7 @@ package signutil
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -160,7 +161,31 @@ func verifyCmd(cdc *codec.Codec) *cobra.Command {
 			if err = Verify(tx, chainID, accountNumber, sequence); err != nil {
 				return err
 			}
-			cmd.Println("signature is valid")
+			msgs := tx.GetMsgs()
+			if len(msgs) != 1 {
+				return fmt.Errorf("Expected 1 msg but got %d.", len(msgs))
+			}
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			if cliCtx.OutputFormat == "json" {
+				var bin []byte
+				var err error
+				if cliCtx.Indent {
+					bin, err = json.MarshalIndent(msgs[0], "", "  ")
+				} else {
+					bin, err = json.Marshal(msgs[0])
+				}
+				if err != nil {
+					return err
+				}
+				fmt.Fprint(cmd.OutOrStdout(), string(bin))
+			} else {
+				var msg MsgSignText
+				err = cdc.UnmarshalJSON(msgs[0].GetSignBytes(), &msg)
+				if err != nil {
+					return err
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "signer: %s\nmessage: %s\n", msg.Signer, msg.Message)
+			}
 			return nil
 		},
 	}
