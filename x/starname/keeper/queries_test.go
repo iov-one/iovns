@@ -228,7 +228,7 @@ func Test_queryResourceAccountsHandler(t *testing.T) {
 		"success": {
 			BeforeTest: func(t *testing.T, ctx sdk.Context, k Keeper) {
 				as := k.AccountStore(ctx)
-				resource := types.Resource{
+				resource := &types.Resource{
 					URI:      "id-1",
 					Resource: "addr-1",
 				}
@@ -237,14 +237,14 @@ func Test_queryResourceAccountsHandler(t *testing.T) {
 					Name:       utils.StrPtr("1"),
 					Owner:      bobAddr,
 					ValidUntil: 0,
-					Resources:  []types.Resource{resource},
+					Resources:  []*types.Resource{resource},
 				})
 				as.Create(&types.Account{
 					Domain:     "test",
 					Name:       utils.StrPtr("2"),
 					Owner:      bobAddr,
 					ValidUntil: 0,
-					Resources:  []types.Resource{resource},
+					Resources:  []*types.Resource{resource},
 				})
 			},
 			Request: &QueryResolveResource{
@@ -262,7 +262,7 @@ func Test_queryResourceAccountsHandler(t *testing.T) {
 						Name:       utils.StrPtr("1"),
 						Owner:      bobAddr,
 						ValidUntil: 0,
-						Resources: []types.Resource{{
+						Resources: []*types.Resource{{
 							URI:      "id-1",
 							Resource: "addr-1",
 						}},
@@ -272,7 +272,7 @@ func Test_queryResourceAccountsHandler(t *testing.T) {
 						Name:       utils.StrPtr("2"),
 						Owner:      bobAddr,
 						ValidUntil: 0,
-						Resources: []types.Resource{{
+						Resources: []*types.Resource{{
 							URI:      "id-1",
 							Resource: "addr-1",
 						}},

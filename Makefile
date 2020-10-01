@@ -84,9 +84,13 @@ lint:
 # added here, and in case paths are changed they should be updated
 proto:
 	protoc -I=. \
-		-I=${GOPATH}/src/github.com/gogo/protobuf \
-		-I=${GOPATH}/src/github.com/gogo/protobuf/protobuf \
- 		--gofast_out=. x/starname/types/msgs.proto x/starname/types/types.proto
+    		-I=${GOPATH}/src/github.com/gogo/protobuf \
+    		-I=${GOPATH}/src/github.com/gogo/protobuf/protobuf \
+     		--gofast_out=Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,paths=source_relative:. x/starname/types/types.proto
+	protoc -I=. \
+    		-I=${GOPATH}/src/github.com/gogo/protobuf \
+    		-I=${GOPATH}/src/github.com/gogo/protobuf/protobuf \
+     		--gofast_out=Mgoogle/protobuf/descriptor.proto=github.com/golang/protobuf/protoc-gen-go/descriptor,paths=source_relative:. x/starname/types/msgs.proto
 
 test:
 	@# iovnscli binary is required for it tests

@@ -583,7 +583,7 @@ func queryResourceAccountHandler(ctx sdk.Context, _ []string, req abci.RequestQu
 	// iterate keys
 	as := k.AccountStore(ctx)
 	accounts := make([]types.Account, 0, len(keys))
-	filter := as.Filter(&types.Account{Resources: []types.Resource{q.Resource}})
+	filter := as.Filter(&types.Account{Resources: []*types.Resource{&q.Resource}})
 	for {
 		if !filter.Valid() {
 			break

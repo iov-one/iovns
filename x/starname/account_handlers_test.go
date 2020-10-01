@@ -229,7 +229,7 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 					Name:         utils.StrPtr("test"),
 					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:        keeper.AliceKey,
-					Certificates: []types.Certificate{[]byte("test")},
+					Certificates: [][]byte{[]byte("test")},
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -308,7 +308,7 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 					Name:         utils.StrPtr("test"),
 					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:        keeper.AliceKey,
-					Certificates: []types.Certificate{[]byte("1")},
+					Certificates: [][]byte{[]byte("1")},
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -366,7 +366,7 @@ func Test_Common_handlerMsgAddAccountCertificates(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				expected := []types.Certificate{[]byte("test")}
+				expected := [][]byte{[]byte("test")}
 				account := new(types.Account)
 				ok := k.AccountStore(ctx).Read((&types.Account{Domain: "test", Name: utils.StrPtr("test")}).PrimaryKey(), account)
 				if !ok {
@@ -397,7 +397,7 @@ func Test_Closed_handlerMsgDeleteAccountCertificate(t *testing.T) {
 					Name:         utils.StrPtr("test"),
 					ValidUntil:   0,
 					Owner:        keeper.AliceKey,
-					Certificates: []types.Certificate{[]byte("test")},
+					Certificates: [][]byte{[]byte("test")},
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -446,7 +446,7 @@ func Test_Open_handlerMsgDeleteAccountCertificate(t *testing.T) {
 					Name:         utils.StrPtr("test"),
 					ValidUntil:   0,
 					Owner:        keeper.AliceKey,
-					Certificates: []types.Certificate{[]byte("test")},
+					Certificates: [][]byte{[]byte("test")},
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -592,7 +592,7 @@ func Test_Common_handlerMsgDeleteAccountCertificate(t *testing.T) {
 					Name:         utils.StrPtr("test"),
 					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					Owner:        keeper.AliceKey,
-					Certificates: []types.Certificate{[]byte("test")},
+					Certificates: [][]byte{[]byte("test")},
 				}).Create()
 			},
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
@@ -1238,7 +1238,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  keeper.BobKey,
-					Resources: []types.Resource{
+					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "won't work",
@@ -1276,7 +1276,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  keeper.BobKey,
-					Resources: []types.Resource{
+					Resources: []*types.Resource{
 						{
 							URI:      "invalid blockchain id",
 							Resource: "valid blockchain address",
@@ -1316,7 +1316,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "this won't match",
 					Owner:  keeper.AliceKey,
-					Resources: []types.Resource{
+					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
@@ -1348,7 +1348,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "this does not exist",
 					Name:   "works",
 					Owner:  keeper.AliceKey,
-					Resources: []types.Resource{
+					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
@@ -1389,7 +1389,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  keeper.AliceKey, // invalid owner
-					Resources: []types.Resource{
+					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
@@ -1429,7 +1429,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "test",
 					Owner:  keeper.BobKey,
-					Resources: []types.Resource{
+					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
@@ -1479,7 +1479,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Domain: "test",
 					Name:   "exists",
 					Owner:  keeper.BobKey,
-					Resources: []types.Resource{
+					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
@@ -1520,7 +1520,7 @@ func Test_Common_handleMsgRegisterAccount(t *testing.T) {
 					Name:       "test",
 					Owner:      keeper.BobKey,
 					Registerer: keeper.BobKey,
-					Resources: []types.Resource{
+					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
@@ -1752,7 +1752,7 @@ func Test_Closed_handlerMsgReplaceAccountResources(t *testing.T) {
 				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "valid",
 							Resource: "valid",
@@ -1800,7 +1800,7 @@ func Test_Open_handlerMsgReplaceAccountResources(t *testing.T) {
 				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "valid",
 							Resource: "valid",
@@ -1846,7 +1846,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "invalid",
 							Resource: "invalid",
@@ -1886,7 +1886,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "valid",
 							Resource: "valid",
@@ -1908,7 +1908,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				_, err = handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "invalid",
 							Resource: "invalid",
@@ -1926,7 +1926,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				_, err = handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "invalid",
 							Resource: "invalid",
@@ -1952,7 +1952,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "does not exist",
 					Name:   "",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "valid",
 							Resource: "valid",
@@ -1983,7 +1983,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 			Test: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
 				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "valid",
 							Resource: "valid",
@@ -2016,7 +2016,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "does not exist",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "valid",
 							Resource: "valid",
@@ -2056,7 +2056,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "valid",
 							Resource: "valid",
@@ -2097,7 +2097,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				_, err := handlerMsgReplaceAccountResources(ctx, k, &types.MsgReplaceAccountResources{
 					Domain: "test",
 					Name:   "test",
-					NewResources: []types.Resource{
+					NewResources: []*types.Resource{
 						{
 							URI:      "valid",
 							Resource: "valid",
@@ -2110,7 +2110,7 @@ func Test_Common_handlerMsgReplaceAccountResources(t *testing.T) {
 				}
 			},
 			AfterTest: func(t *testing.T, k keeper.Keeper, ctx sdk.Context, mocks *keeper.Mocks) {
-				expected := []types.Resource{{
+				expected := []*types.Resource{{
 					URI:      "valid",
 					Resource: "valid",
 				}}
@@ -2480,8 +2480,8 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 					Owner:        keeper.BobKey,
 					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					MetadataURI:  "lol",
-					Certificates: []types.Certificate{[]byte("test")},
-					Resources: []types.Resource{
+					Certificates: [][]byte{[]byte("test")},
+					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
@@ -2496,7 +2496,7 @@ func Test_Closed_handlerAccountTransfer(t *testing.T) {
 					Name:     "test",
 					Owner:    keeper.AliceKey,
 					NewOwner: keeper.CharlieKey,
-					Reset:    true,
+					ToReset:  true,
 				})
 				if err != nil {
 					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
@@ -2550,7 +2550,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 					Name:     "test",
 					Owner:    keeper.AliceKey,
 					NewOwner: keeper.CharlieKey,
-					Reset:    false,
+					ToReset:  false,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)
@@ -2594,8 +2594,8 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 					Owner:        keeper.BobKey,
 					ValidUntil:   utils.TimeToSeconds(ctx.BlockTime().Add(1000 * time.Hour)),
 					MetadataURI:  "lol",
-					Certificates: []types.Certificate{[]byte("test")},
-					Resources: []types.Resource{
+					Certificates: [][]byte{[]byte("test")},
+					Resources: []*types.Resource{
 						{
 							URI:      "works",
 							Resource: "works",
@@ -2610,7 +2610,7 @@ func Test_Open_handlerAccountTransfer(t *testing.T) {
 					Name:     "test",
 					Owner:    keeper.AliceKey,
 					NewOwner: keeper.CharlieKey,
-					Reset:    true,
+					ToReset:  true,
 				})
 				if !errors.Is(err, types.ErrUnauthorized) {
 					t.Fatalf("handlerMsgTransferAccount() got error: %s", err)

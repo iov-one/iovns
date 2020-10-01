@@ -58,7 +58,7 @@ func TestAccount_Renew(t *testing.T) {
 
 func TestAccount_ReplaceResources(t *testing.T) {
 	testCtx, _ := testCtx.CacheContext()
-	newRes := []types.Resource{{
+	newRes := []*types.Resource{{
 		URI:      "uri",
 		Resource: "res",
 	}}

@@ -60,22 +60,6 @@ func (m *MsgAddAccountCertificates) GetSigners() []sdk.AccAddress {
 	}
 }
 
-// MsgDeleteAccountCertificate is the request
-// model used to remove certificates from an
-// account
-type MsgDeleteAccountCertificate struct {
-	// Domain is the name of the domain of the account
-	Domain string `json:"domain"`
-	// Name is the name of the account
-	Name string `json:"name"`
-	// DeleteCertificate is the certificate to delete
-	DeleteCertificate []byte `json:"delete_certificate"`
-	// Owner is the owner of the account
-	Owner sdk.AccAddress `json:"owner"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
-}
-
 var _ MsgWithFeePayer = (*MsgDeleteAccountCertificate)(nil)
 
 // FeePayer implements FeePayer interface
@@ -122,19 +106,6 @@ func (m *MsgDeleteAccountCertificate) GetSigners() []sdk.AccAddress {
 	} else {
 		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
-}
-
-// MsgDeleteAccount is the request model
-// used to delete an account
-type MsgDeleteAccount struct {
-	// Domain is the name of the domain of the account
-	Domain string `json:"domain"`
-	// Name is the name of the account
-	Name string `json:"name"`
-	// Owner is the owner of the account
-	Owner sdk.AccAddress `json:"owner"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
 var _ MsgWithFeePayer = (*MsgDeleteAccount)(nil)
@@ -186,17 +157,6 @@ func (m *MsgDeleteAccount) GetSigners() []sdk.AccAddress {
 	}
 }
 
-// MsgDeleteDomain is the request
-// model to delete a domain
-type MsgDeleteDomain struct {
-	// Domain is the domain to delete
-	Domain string `json:"domain"`
-	// Owner is the owner of the domain
-	Owner sdk.AccAddress `json:"owner"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
-}
-
 var _ MsgWithFeePayer = (*MsgDeleteDomain)(nil)
 
 // FeePayer implements FeePayer interface
@@ -241,25 +201,6 @@ func (m *MsgDeleteDomain) GetSigners() []sdk.AccAddress {
 	} else {
 		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
-}
-
-// MsgRegisterAccount is the request
-// model used to register new accounts
-type MsgRegisterAccount struct {
-	// Domain is the domain of the account
-	Domain string `json:"domain"`
-	// Name is the name of the account
-	Name string `json:"name"`
-	// Owner is the owner of the account
-	Owner sdk.AccAddress `json:"owner"`
-	// Registerer is the user who registers this account
-	Registerer sdk.AccAddress `json:"registerer"`
-	// Resources are the blockchain addresses of the account
-	Resources []Resource `json:"resources"`
-	// Broker is the account that facilitated the transaction
-	Broker sdk.AccAddress `json:"broker"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
 var _ MsgWithFeePayer = (*MsgRegisterAccount)(nil)
@@ -310,20 +251,6 @@ func (m *MsgRegisterAccount) GetSigners() []sdk.AccAddress {
 	}
 }
 
-// MsgRegisterDomain is the request used to register new domains
-type MsgRegisterDomain struct {
-	// Name is the name of the domain we want to register
-	Name string `json:"domain" arg:"--domain" helper:"name of the domain"`
-	// Admin is the address of the newly registered domain
-	Admin sdk.AccAddress `json:"admin"`
-	// DomainType defines the type of the domain
-	DomainType DomainType `json:"type"`
-	// Broker TODO document
-	Broker sdk.AccAddress `json:"broker" arg:"--broker" helper:"the broker"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
-}
-
 var _ MsgWithFeePayer = (*MsgRegisterDomain)(nil)
 
 // FeePayer implements FeePayer interface
@@ -370,19 +297,6 @@ func (m *MsgRegisterDomain) GetSigners() []sdk.AccAddress {
 	}
 }
 
-// MsgRenewAccount is the request
-// model used to renew accounts
-type MsgRenewAccount struct {
-	// Domain is the domain of the account
-	Domain string `json:"domain"`
-	// Name is the name of the account
-	Name string `json:"name"`
-	// Signer is the signer of the request
-	Signer sdk.AccAddress `json:"signer"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
-}
-
 var _ MsgWithFeePayer = (*MsgRenewAccount)(nil)
 
 // FeePayer implements FeePayer interface
@@ -425,17 +339,6 @@ func (m *MsgRenewAccount) GetSigners() []sdk.AccAddress {
 	}
 }
 
-// MsgRenewDomain is the request
-// model used to renew a domain
-type MsgRenewDomain struct {
-	// Domain is the domain name to renew
-	Domain string `json:"domain"`
-	// Signer is the request signer
-	Signer sdk.AccAddress `json:"signer"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
-}
-
 var _ MsgWithFeePayer = (*MsgRenewDomain)(nil)
 
 // FeePayer implements FeePayer interface
@@ -476,22 +379,6 @@ func (m *MsgRenewDomain) GetSigners() []sdk.AccAddress {
 	} else {
 		return []sdk.AccAddress{m.FeePayerAddr, m.Signer}
 	}
-}
-
-// MsgReplaceAccountResources is the request model
-// used to renew resources associated
-// with an account
-type MsgReplaceAccountResources struct {
-	// Domain is the domain name of the account
-	Domain string `json:"domain"`
-	// Name is the name of the account
-	Name string `json:"name"`
-	// NewResources are the new resources
-	NewResources []Resource `json:"new_resources"`
-	// Owner is the owner of the account
-	Owner sdk.AccAddress `json:"owner"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
 var _ MsgWithFeePayer = (*MsgReplaceAccountResources)(nil)
@@ -542,22 +429,6 @@ func (m *MsgReplaceAccountResources) GetSigners() []sdk.AccAddress {
 	}
 }
 
-// MsgReplaceAccountMetadata is the function used
-// to set accounts metadata
-type MsgReplaceAccountMetadata struct {
-	// Domain is the domain name of the account
-	Domain string `json:"domain"`
-	// Name is the name of the account
-	Name string `json:"name"`
-	// NewMetadataURI is the metadata URI of the account
-	// we want to update or insert
-	NewMetadataURI string `json:"new_metadata_uri"`
-	// Owner is the owner of the account
-	Owner sdk.AccAddress `json:"owner"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
-}
-
 var _ MsgWithFeePayer = (*MsgReplaceAccountMetadata)(nil)
 
 // FeePayer implements FeePayer interface
@@ -604,23 +475,6 @@ func (m *MsgReplaceAccountMetadata) GetSigners() []sdk.AccAddress {
 	} else {
 		return []sdk.AccAddress{m.FeePayerAddr, m.Owner}
 	}
-}
-
-// MsgTransferAccount is the request
-// model used to transfer accounts
-type MsgTransferAccount struct {
-	// Domain is the domain name of the account
-	Domain string `json:"domain"`
-	// Account is the account name
-	Name string `json:"name"`
-	// Owner is the actual owner of the account
-	Owner sdk.AccAddress `json:"owner"`
-	// NewOwner is the new owner of the account
-	NewOwner sdk.AccAddress `json:"new_owner"`
-	// Reset indicates if the accounts content will be reset
-	Reset bool `json:"reset"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
 }
 
 var _ MsgWithFeePayer = (*MsgTransferAccount)(nil)
@@ -688,21 +542,6 @@ const (
 	// TransferAll is not available is here only for tests backwards compatibility and will be removed. TODO deprecate
 	TransferAll
 )
-
-// MsgTransferDomain is the request model
-// used to transfer a domain
-type MsgTransferDomain struct {
-	// Domain is the name of the domain
-	Domain string `json:"domain"`
-	// Owner is the address of the owner of the domain
-	Owner sdk.AccAddress `json:"owner"`
-	// NewAdmin is the address of the entity that will own the domain
-	NewAdmin sdk.AccAddress `json:"new_admin"`
-	// TransferFlag is the flag used to determine how to transfer the domain and the related accounts
-	TransferFlag TransferFlag `json:"transfer_flag"`
-	// FeePayerAddr is the address of the entity that has to pay product fees
-	FeePayerAddr sdk.AccAddress `json:"fee_payer"`
-}
 
 var _ MsgWithFeePayer = (*MsgTransferDomain)(nil)
 
