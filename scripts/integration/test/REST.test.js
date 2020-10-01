@@ -698,4 +698,38 @@ describe( "Tests the REST API.", () => {
       expect( resolved.result.account.domain ).toEqual( domain );
       expect( resolved.result.account.name ).toEqual( name );
    } );
+
+
+   it( `Should sign a message, verify it against the verify endpoint, alter the signature, and fail verification.`, async () => {
+      const message0 = {
+         "array": [ 1, 2, 3 ],
+         "object": {
+            "nested": 4
+         },
+         "string": "free-form",
+      };
+      const tmpMessage0 = writeTmpJson( message0 );
+      const created = iovnscli( [ "tx", "signutil", "create", "--file", tmpMessage0, "--from", signer, "--memo", memo(), "--generate-only" ] );
+      const tmpCreated = writeTmpJson( created );
+      const signed = iovnscli( [ "tx", "sign", tmpCreated, "--from", signer, "--offline", "--chain-id", "signed-message-v1", "--account-number", "0", "--sequence", "0" ] );
+      const body = JSON.stringify( signed );
+      const verified = await fetchObject( `${urlRest}/signutil/query/verify`, { method: "POST", body: body } );
+
+      expect( verified.verified ).toEqual( true );
+      expect( verified.message ).toEqual( JSON.stringify( message0 ) );
+      expect( verified.signer ).toEqual( signer );
+      expect( verified.signed ).toEqual( body );
+
+      const message = JSON.parse( verified.message );
+
+      compareObjects( message0, message );
+
+      // alter the YWKvVhCo7Mv9DLShr2MdL/0nopXEDQi+/0QgaBvGpmdIF+71WD3HTDOw4pkkDk58e6WMz3yfQaqFauuEg3O2hQ== signature
+      signed.value.signatures[0].signature = "Z" + signed.value.signatures[0].signature.substr( 1 );
+
+      const bogus = JSON.stringify( signed );
+      const unverified = await fetchObject( `${urlRest}/signutil/query/verify`, { method: "POST", body: bogus } );
+
+      expect( unverified.error ).toEqual( "Did you sign with --chain-id 'signed-message-v1', --account-number 0, and --sequence 0?" );
+   } );
 } );

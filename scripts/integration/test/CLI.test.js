@@ -407,4 +407,29 @@ describe( "Tests the CLI.", () => {
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( newDomainInfo.domain.valid_until ).toBeGreaterThan( domainInfo.domain.valid_until );
       expect( newDomainInfo.domain.valid_until ).toEqual( starname.account.valid_until );
-   } );} );
+   } );
+
+
+   it.only( `Should sign a message, verify it, and fail verification after message alteration.`, async () => {
+      const message = "Hello, World!";
+      const created = iovnscli( [ "tx", "signutil", "create", "--text", message, "--from", signer, "--memo", memo(), "--generate-only" ] );
+      const tmpCreated = writeTmpJson( created );
+      const signed = iovnscli( [ "tx", "sign", tmpCreated, "--from", signer, "--offline", "--chain-id", "signed-message-v1", "--account-number", "0", "--sequence", "0" ] );
+      const tmpSigned = writeTmpJson( signed );
+      const verified = iovnscli( [ "tx", "signutil", "verify", "--file", tmpSigned ] );
+
+      expect( verified.message ).toEqual( message );
+      expect( verified.signer ).toEqual( signer );
+
+      // alter the y+NyzKwBpsPJ2xdZMYR4CkFMjhHh004gnRmyXqoWN9J7kqOHxNaevG7TMSvs/NnOT649kbxHUim7koWkvGy8Ew== signature
+      signed.value.signatures[0].signature = "z" + signed.value.signatures[0].signature.substr( 1 );
+
+      const tmpAltered = writeTmpJson( signed );
+
+      try {
+         iovnscli( [ "tx", "signutil", "verify", "--file", tmpAltered ] );
+      } catch ( e ) {
+         expect( e.message.indexOf( "ERROR: invalid signature from address found at index 0" ) ).toEqual( 0 );
+      }
+   } );
+} );
