@@ -410,7 +410,7 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it.only( `Should sign a message, verify it, and fail verification after message alteration.`, async () => {
+   it( `Should sign a message, verify it, and fail verification after message alteration.`, async () => {
       const message = "Hello, World!";
       const created = iovnscli( [ "tx", "signutil", "create", "--text", message, "--from", signer, "--memo", memo(), "--generate-only" ] );
       const tmpCreated = writeTmpJson( created );
