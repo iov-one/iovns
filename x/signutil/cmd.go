@@ -177,14 +177,14 @@ func verifyCmd(cdc *codec.Codec) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				cmd.Println(string(bin))
+				fmt.Fprint(cmd.OutOrStdout(), string(bin))
 			} else {
 				var msg MsgSignText
 				err = cdc.UnmarshalJSON(msgs[0].GetSignBytes(), &msg)
 				if err != nil {
 					return err
 				}
-				cmd.Printf("signer: %s\nmessage: %s\n", msg.Signer, msg.Message)
+				fmt.Fprintf(cmd.OutOrStdout(), "signer: %s\nmessage: %s\n", msg.Signer, msg.Message)
 			}
 			return nil
 		},
