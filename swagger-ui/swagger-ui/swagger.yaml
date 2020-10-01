@@ -2052,12 +2052,12 @@ paths:
           application/json:
             schema:
               $ref: "#/components/requestBodies/ResolveAccountQueryBody"
-        description: Resolve an account
+        description: Resolve an starname
       tags:
         - Starname
       responses:
         "200":
-          description: Account resolved successfully
+          description: Starname resolved successfully
           content:
             application/json:
               schema:
@@ -2080,7 +2080,7 @@ components:
       properties:
         name:
           type: string
-          example: Name
+          example: iov
           description: Name of the domain
     ResolveAccountsInDomainQueryBody:
       type: object
@@ -2923,13 +2923,13 @@ components:
         admin:
           $ref: "#/components/schemas/Address"
           description: Owner of the domain
-        validUntil:
+        valid_until:
           type: number
-          description: Unix timestamp that defines for how long the domain is valid
-        domainType:
+          description: Unix timestamp at which the domain expires
+        type:
           type: string
-          example: close
-          description: defines the type of the domain
+          example: closed
+          description: The type of the domain, either "open" or "closed"
         broker:
           $ref: "#/components/schemas/Address"
           description: Address of the broker
@@ -2949,17 +2949,17 @@ components:
         name:
           type: string
           example: launcher
-          description: Name of the address
+          description: Name to attach to domain
         owner:
           $ref: "#/components/schemas/Address"
           description: Owner of the address
-        validUntil:
+        valid_until:
           type: number
-          description: ValidUntil is a unix timestamp that defines for how long the domain is valid
+          description: Unix timestamp at which the account expires
         broker:
           $ref: "#/components/schemas/Address"
           description: Address of the broker
-        targets:
+        resources:
           type: array
           $ref: "#/components/schemas/Target"
         certificates:
@@ -2976,16 +2976,16 @@ components:
         accounts:
           type: array
           $ref: "#/components/schemas/Account"
-    Target:
+    Resource:
       type: object
       properties:
-        id:
+        uri:
           type: string
-          example: cosmos-hub-1
-          description: Blockchain ID
-        address:
-          type: array
-          $ref: "#/components/schemas/Address"
+          example: asset:btc
+          description: Uniform resource identifier
+        resource:
+          type: string
+          example: star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk
           description: Blockchain address
     Configuration:
       type: object

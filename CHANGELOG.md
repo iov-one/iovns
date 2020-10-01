@@ -3,6 +3,7 @@
 ## HEAD
 
 - CLI: Fix output on verify
+- REST: Fix documentation
 
 ## v0.9.3
 
