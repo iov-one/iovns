@@ -2090,7 +2090,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/requestBodies/ResolveAccountQueryBody"
-        description: Resolve an starname
+        description: Resolve a starname
       tags:
         - Starname
       responses:
@@ -2099,7 +2099,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Account"
+                properties:
+                  height:
+                    type: number
+                    example: 368
+                  result:
+                    type: object
+                    properties:
+                      account:
+                        $ref: "#/components/schemas/Account"
         "400":
           description: Account not found
         "500":
@@ -2168,7 +2176,8 @@ components:
       properties:
         starname:
           type: string
-          description: Starname of the form "name*domain"
+          example: "*iov"
+          description: Starname of the form "*domain" or "account*domain"
   securitySchemes:
     kms:
       type: http
@@ -3001,6 +3010,7 @@ components:
           type: array
           items:
             type: string
+            example: YWKvVhCo7Mv9DLShr2MdL/0nopXEDQi+/0QgaBvGpmdIF+71WD3HTDOw4pkkDk58e6WMz3yfQaqFauuEg3O2hQ==
           description: Certificates
         metadata_uri:
           type: string
