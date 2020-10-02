@@ -2003,7 +2003,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrayOfAccounts"
+                properties:
+                  height:
+                    type: number
+                    example: 368
+                  result:
+                    type: object
+                    properties:
+                      accounts:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Account"
         "400":
           description: Accounts or domain not found
         "500":
@@ -2964,27 +2974,23 @@ components:
           description: Address of the account owner
         valid_until:
           type: number
+          example: 1633046400
           description: Unix timestamp at which the account expires
         broker:
           $ref: "#/components/schemas/Address"
           description: Address of the broker
         resources:
           type: array
-          $ref: "#/components/schemas/ArrayOfResources"
+          items:
+            $ref: "#/components/schemas/Resource"
         certificates:
           type: array
           items:
             type: string
           description: Certificates
-        metadataURI:
+        metadata_uri:
           type: string
-          description: Link to extra information regarding the account
-    ArrayOfAccounts:
-      type: object
-      properties:
-        accounts:
-          type: array
-          $ref: "#/components/schemas/Account"
+          description: Account metadata
     Resource:
       type: object
       properties:
@@ -2996,12 +3002,6 @@ components:
           type: string
           example: cosmos1rcp29q3hpd246n6qak7jluqep4v006cd4v7r6v
           description: Blockchain address
-    ArrayOfResources:
-      type: object
-      properties:
-        resources:
-          type: array
-          $ref: "#/components/schemas/Resource"
     Configuration:
       type: object
       properties:
