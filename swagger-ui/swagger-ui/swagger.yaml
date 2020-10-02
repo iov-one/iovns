@@ -1990,6 +1990,16 @@ paths:
           description: Fees resolved successfully
           content:
             application/json:
+              schema:
+                properties:
+                  height:
+                    type: number
+                    example: 368
+                  result:
+                    type: object
+                    properties:
+                      fees:
+                        $ref: "#/components/schemas/Fees"
         "400":
           description: Configuration not found
         "500":
@@ -3068,3 +3078,89 @@ components:
           type: number
         metadata_size_max:
           type: number
+    Fees:
+      type: object
+      properties:
+        fee_coin_denom:
+          example: uiov
+          type: string
+        fee_coin_price:
+          type: string
+          example: "0.000000100000000000"
+          description: IOV token price in euros divided by 1 million
+        fee_default:
+          type: string
+          example: "0.010000000000000000"
+          description: Minimum fee in euros for messages outside of the cosmos-sdk namespace
+        register_account_closed:
+          type: string
+          example: "0.100000000000000000"
+          description: Fee in euros for registering an account in a closed domain
+        register_account_open:
+          type: string
+          example: "0.100000000000000000"
+          description: Fee in euros for registering an account in an open domain
+        transfer_account_closed:
+          type: string
+          example: "1.000000000000000000"
+          description: Fee in euros for transfering ownership of an account in a closed domain
+        transfer_account_open:
+          type: string
+          example: "1.000000000000000000"
+          description: Fee in euros for transfering ownership of an account in an open domain
+        replace_account_resources:
+          type: string
+          example: "0.100000000000000000"
+          description: Fee in euros for setting an account's resources
+        add_account_certificate:
+          type: string
+          example: "1.000000000000000000"
+          description: Fee in euros for adding a certificate to an account
+        del_account_certificate:
+          type: string
+          example: "0.010000000000000000"
+          description: Fee in euros for deleting a certificate from an account
+        set_account_metadata:
+          type: string
+          example: "0.100000000000000000"
+          description: Fee in euros for setting an account's metadata
+        register_domain_1:
+          type: string
+          example: "1000.000000000000000000"
+          description: Fee in euros for registering a domain consisting of 1 character
+        register_domain_2:
+          type: string
+          example: "500.000000000000000000"
+          description: Fee in euros for registering a domain consisting of 2 characters
+        register_domain_3:
+          type: string
+          example: "200.000000000000000000"
+          description: Fee in euros for registering a domain consisting of 3 characters
+        register_domain_4:
+          type: string
+          example: "100.000000000000000000"
+          description: Fee in euros for registering a domain consisting of 4 characters
+        register_domain_5:
+          type: string
+          example: "50.000000000000000000"
+          description: Fee in euros for registering a domain consisting of 5 characters
+        register_domain_default:
+          type: string
+          example: "7.000000000000000000"
+          description: Fee in euros for registering a domain consisting of more than 5 characters
+        register_open_domain_multiplier:
+          type: string
+          example: "3.000000000000000000"
+          description: Multiplier applied to register_domain_* fees if the domain is of type open
+        transfer_domain_closed:
+          type: string
+          example: "1.000000000000000000"
+          description: Fee in euros for transfering ownership of a closed domain
+        transfer_domain_open:
+          type: string
+          example: "1.000000000000000000"
+          description: Fee in euros for transfering ownership of an open domain
+        renew_domain_open:
+          type: string
+          example: "25.000000000000000000"
+          description: Fee in euros for renewing an open domain
