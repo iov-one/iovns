@@ -1943,7 +1943,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Domain"
+                properties:
+                  height:
+                    type: number
+                    example: 368
+                  result:
+                    type: object
+                    properties:
+                      domain:
+                        $ref: "#/components/schemas/Domain"
         "400":
           description: Domain not found
         "500":
@@ -2925,6 +2933,7 @@ components:
           description: Owner of the domain
         valid_until:
           type: number
+          example: 1633046400
           description: Unix timestamp at which the domain expires
         type:
           type: string
