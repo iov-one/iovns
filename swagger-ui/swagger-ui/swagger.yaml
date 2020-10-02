@@ -1958,7 +1958,7 @@ paths:
           description: Internal Server Error
   "/configuration/query/configuration":
     post:
-      summary: Get current configuration
+      summary: Get the current configuration
       tags:
         - Configuration
       responses:
@@ -1967,7 +1967,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Configuration"
+                properties:
+                  height:
+                    type: number
+                    example: 368
+                  result:
+                    type: object
+                    properties:
+                      configuration:
+                        $ref: "#/components/schemas/Configuration"
         "400":
           description: Configuration not found
         "500":
@@ -3032,27 +3040,31 @@ components:
         configurer:
           $ref: "#/components/schemas/Address"
           description: Configuration owner
-        validDomainName:
+        valid_domain_name:
           type: string
-        validAccountNAme:
+        valid_account_name:
           type: string
-        validBlockchainID:
+        valid_uri:
           type: string
-        domainRenewalPeriod:
+        valid_resource:
+          type: string
+        domain_renew_period:
           type: number
-        domainRenewalCountMax:
+        domain_renew_count_max:
           type: number
-        domainGracePeriod:
+        domain_grace_period:
           type: number
-        accountRenewalPeriod:
+        account_renew_period:
           type: number
-        accountRenewalCountMax:
+        account_renew_count_max:
           type: number
-        blockchainTargetMax:
+        account_grace_period:
           type: number
-        certificateSizeMax:
+        resources_max:
           type: number
-        certificateCountMax:
+        certificate_size_max:
           type: number
-        metadataSizeMax:
+        certificate_count_max:
+          type: number
+        metadata_size_max:
           type: number
