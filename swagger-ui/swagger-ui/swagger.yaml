@@ -2067,7 +2067,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrayOfDomains"
+                properties:
+                  height:
+                    type: number
+                    example: 368
+                  result:
+                    type: object
+                    properties:
+                      domains:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Domain"
         "400":
           description: domain or owner not found
         "500":
@@ -2962,12 +2972,6 @@ components:
         broker:
           $ref: "#/components/schemas/Address"
           description: Address of the broker
-    ArrayOfDomains:
-      type: object
-      properties:
-        domains:
-          type: array
-          $ref: "#/components/schemas/Domain"
     Account:
       type: object
       properties:
