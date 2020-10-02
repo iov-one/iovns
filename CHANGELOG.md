@@ -2,8 +2,10 @@
 
 ## HEAD
 
+## v0.9.4
+
 - CLI: Fix output on verify
-- REST: Fix documentation
+- REST: Fix swagger documentation
 
 ## v0.9.3
 

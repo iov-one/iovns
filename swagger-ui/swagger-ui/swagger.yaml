@@ -1930,13 +1930,13 @@ paths:
           description: Internal Server Error
   "/signutil/query/verify":
     post:
-      summary: Tests the validity of a StdTx signed message with chain-id 'signed-message-v1'
+      summary: Tests the validity of a StdTx signed message with --chain-id signed-message-v1 --offline --account-number 0 --sequence 0
       requestBody:
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/SignedMsgTx"
-        description: Resolve domain query
+        description: StdTx JSON created and signed with `iovnscli tx signutil create ... > msg.json && iovnscli tx sign msg.json --from star1...  --chain-id signed-message-v1 --offline --account-number 0 --sequence 0`.  Note that you must specify your bech32 address for the `--from` flag, you can't use your key name.
       tags:
         - Signature Verification
       responses:
