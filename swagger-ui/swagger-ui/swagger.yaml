@@ -2035,7 +2035,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrayOfAccounts"
+                properties:
+                  height:
+                    type: number
+                    example: 368
+                  result:
+                    type: object
+                    properties:
+                      accounts:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Account"
         "400":
           description: Accounts, domain or owner not found
         "500":
@@ -2235,7 +2245,7 @@ components:
     Address:
       type: string
       description: bech32 encoded address
-      example: star1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+      example: star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk
     ValidatorAddress:
       type: string
       description: bech32 encoded address
