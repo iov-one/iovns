@@ -432,4 +432,19 @@ describe( "Tests the CLI.", () => {
          expect( e.message.indexOf( "ERROR: invalid signature from address found at index 0" ) ).toEqual( 0 );
       }
    } );
+
+
+   it( `Should do a reverse look-up.`, async () => {
+      const uri = "asset:eth";
+      const resource = "0x6DF432079347050e0D8dA43C21fa6fe54697AfA7"; // 01node*iov
+      const result = iovnscli( [ "query", "starname", "resolve-resource", "--uri", uri, "--resource", resource ] );
+
+      expect( result.accounts.length ).toEqual( 1 );
+
+      const account0 = result.accounts[0];
+
+      expect( account0.name ).toEqual( "01node" );
+      expect( account0.domain ).toEqual( "iov" );
+      expect( account0.resources.find( r => r.uri == uri && r.resource == resource ) ).toBeDefined();
+   } );
 } );
