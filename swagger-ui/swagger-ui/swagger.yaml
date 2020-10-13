@@ -2152,6 +2152,36 @@ paths:
           description: Account not found
         "500":
           description: Internal Server Error
+  "/starname/query/resourceAccounts":
+    post:
+      summary: Resolves account(s) associated with the given uri and resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/requestBodies/ResourceAccountsQueryBody"
+        description: Resolves starname(s) associated with the given uri and resource
+      tags:
+        - Starname
+      responses:
+        "200":
+          description: Resource resolved successfully to one or more accounts
+          content:
+            application/json:
+              schema:
+                properties:
+                  height:
+                    type: number
+                    example: 368
+                  result:
+                    type: object
+                    properties:
+                      account:
+                        $ref: "#/components/schemas/Account"
+        "400":
+          description: Account not found
+        "500":
+          description: Internal Server Error
 components:
   requestBodies:
     WithdrawRequestBody:
@@ -2218,6 +2248,28 @@ components:
           type: string
           example: "*iov"
           description: Starname of the form "*domain" or "account*domain"
+    ResourceAccountsQueryBody:
+      type: object
+      properties:
+        resource:
+          type: object
+          properties:
+            uri:
+              type: string
+              example: asset:iov
+              description: Uniform resource identifier (URI) for the resource
+            resource:
+              type: string
+              example: star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk
+              description: Resource associated with the URI
+        results_per_page:
+          type: number
+          example: 5
+          description: Results per page
+        offset:
+          type: number
+          example: 1
+          description: Page number
   securitySchemes:
     kms:
       type: http

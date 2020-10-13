@@ -2,6 +2,10 @@
 
 ## HEAD
 
+## v0.9.5
+
+- REST: Add /starname/query/resourceAccounts endpoint to swagger for reverse look-ups
+
 ## v0.9.4
 
 - CLI: Fix output on verify
