@@ -86,11 +86,15 @@ proto:
 	protoc -I=. \
     		-I=${GOPATH}/src/github.com/gogo/protobuf \
     		-I=${GOPATH}/src/github.com/gogo/protobuf/protobuf \
-     		--gofast_out=Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,paths=source_relative:. x/starname/types/types.proto
+     		--gofast_out=Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,paths=source_relative:. \
+     		 x/starname/types/msgs.proto x/starname/types/types.proto
+
 	protoc -I=. \
     		-I=${GOPATH}/src/github.com/gogo/protobuf \
     		-I=${GOPATH}/src/github.com/gogo/protobuf/protobuf \
-     		--gofast_out=Mgoogle/protobuf/descriptor.proto=github.com/golang/protobuf/protoc-gen-go/descriptor,paths=source_relative:. x/starname/types/msgs.proto
+    		-I=/proto_includes \
+     		--gofast_out=Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,paths=source_relative:. \
+     		 x/configuration/types/msgs.proto x/configuration/types/types.proto
 
 test:
 	@# iovnscli binary is required for it tests

@@ -36,7 +36,7 @@ func handleUpdateConfig(ctx sdk.Context, msg types.MsgUpdateConfig, k Keeper) (*
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to update configuration", msg.Signer)
 	}
 	// if allowed update configuration
-	k.SetConfig(ctx, msg.NewConfiguration)
+	k.SetConfig(ctx, *msg.NewConfiguration)
 	// TODO emit event
 	return &sdk.Result{}, nil
 }
