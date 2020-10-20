@@ -53,7 +53,7 @@ func (a *Account) UpdateMetadata(newMetadata string) {
 }
 
 // ReplaceResources replaces account's resources
-func (a *Account) ReplaceResources(newTargets []types.Resource) {
+func (a *Account) ReplaceResources(newTargets []*types.Resource) {
 	if a.account == nil {
 		panic("cannot replace targets on non specified account")
 	}

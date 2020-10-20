@@ -282,7 +282,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 		MustExist().
 		NotExpired().
 		TransferableBy(msg.Owner).
-		ResettableBy(msg.Owner, msg.Reset).
+		ResettableBy(msg.Owner, msg.ToReset).
 		Validate(); err != nil {
 		return nil, err
 	}
@@ -297,7 +297,7 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 	}
 	// transfer account
 	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
-	ex.Transfer(msg.NewOwner, msg.Reset)
+	ex.Transfer(msg.NewOwner, msg.ToReset)
 	// success, todo emit event?
 	return &sdk.Result{}, nil
 }

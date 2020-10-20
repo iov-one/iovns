@@ -1,0 +1,171 @@
+syntax="proto3";
+
+option go_package="github.com/iov-one/iovns/x/configuration/types";
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+
+// Config is the configuration of the network
+message Config {
+    // Configurer is the configuration owner, the addresses allowed to handle fees
+    // and register domains with no superuser
+    bytes Configurer = 1 [(gogoproto.jsontag) = "configurer", (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+    // ValidDomainName defines a regexp that determines if a domain name is valid or not
+    string ValidDomainName = 2 [(gogoproto.jsontag) = "valid_domain_name"];
+    // ValidAccountName defines a regexp that determines if an account name is valid or not
+    string ValidAccountName = 3 [(gogoproto.jsontag) = "valid_account_name"];
+    // ValidURI defines a regexp that determines if resource uri is valid or not
+    string ValidURI = 4 [(gogoproto.jsontag) = "valid_uri"];
+    // ValidResource determines a regexp for a resource content
+    string ValidResource = 5 [(gogoproto.jsontag) = "valid_resource"];
+    // DomainRenewalPeriod defines the duration of the domain renewal period in seconds
+    google.protobuf.Duration DomainRenewalPeriod = 6 [(gogoproto.jsontag) = "domain_renewal_period", (gogoproto.nullable) =false];
+    // DomainRenewalCountMax defines maximum number of domain renewals a user can do
+    uint32 DomainRenewalCountMax = 7 [(gogoproto.jsontag) = "domain_renewal_count_max"];
+    // DomainGracePeriod defines the grace period for a domain deletion in seconds
+    google.protobuf.Duration DomainGracePeriod = 8 [(gogoproto.jsontag) = "domain_grace_period", (gogoproto.nullable) =false];
+    // AccountRenewalPeriod defines the duration of the account renewal period in seconds
+    google.protobuf.Duration AccountRenewalPeriod = 9 [(gogoproto.jsontag) = "account_renewal_period", (gogoproto.nullable) =false];
+    // AccountRenewalCountMax defines maximum number of account renewals a user can do
+    uint32 AccountRenewalCountMax = 10 [(gogoproto.jsontag) = "account_renewal_count_max"];
+    // DomainGracePeriod defines the grace period for a domain deletion in seconds
+    google.protobuf.Duration AccountGracePeriod = 11 [(gogoproto.jsontag) = "account_grace_period", (gogoproto.nullable) =false];
+    // ResourcesMax defines maximum number of resources could be saved under an account
+    uint32 ResourcesMax = 12 [(gogoproto.jsontag) = "resources_max"];
+    // CertificateSizeMax defines maximum size of a certificate that could be saved under an account
+    uint64 CertificateSizeMax = 13 [(gogoproto.jsontag) = "certificate_size_max"];
+    // CertificateCountMax defines maximum number of certificates that could be saved under an account
+    uint32 CertificateCountMax = 14 [(gogoproto.jsontag) = "certificate_count_max"];
+    // MetadataSizeMax defines maximum size of metadata that could be saved under an account
+    uint64 MetadataSizeMax = 15 [(gogoproto.jsontag) = "metadata_size_max"];
+}
+
+// Fees contains different type of fees
+// to calculate coins to detract when
+// processing different messages
+message Fees {
+    // FeeCoinDenom defines the denominator of the coin used to process fees
+    string FeeCoinDenom = 1 [(gogoproto.jsontag) = "fee_coin_denom"];
+    // FeeCoinPrice defines the price of the coin
+    cosmos.base.v1beta1.DecProto FeeCoinPrice = 2 [
+                            (gogoproto.jsontag) = "fee_coin_price",
+                                                  (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                  (gogoproto.nullable) = false
+                            ];
+    // FeeDefault is the parameter defining the default fee
+    cosmos.base.v1beta1.DecProto FeeDefault = 3 [
+                          (gogoproto.jsontag) = "fee_default",
+                                                (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                (gogoproto.nullable) = false
+                          ];
+    // RegisterAccountClosed is the fee to be paid to register an account in a closed domain
+    cosmos.base.v1beta1.DecProto RegisterAccountClosed = 4 [
+                                     (gogoproto.jsontag) = "register_account_closed",
+                                                           (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                           (gogoproto.nullable) = false
+                                     ];
+    // RegisterAccountOpen is the fee to be paid to register an account in an open domain
+    cosmos.base.v1beta1.DecProto RegisterAccountOpen = 5 [
+                                   (gogoproto.jsontag) = "register_account_open",
+                                                         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                         (gogoproto.nullable) = false
+                                   ];
+    // TransferAccountClosed is the fee to be paid to register an account in a closed domain
+    cosmos.base.v1beta1.DecProto TransferAccountClosed = 6 [
+                                     (gogoproto.jsontag) = "transfer_account_closed",
+                                                           (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                           (gogoproto.nullable) = false
+                                     ];
+    // TransferAccountOpen is the fee to be paid to register an account in an open domain
+    cosmos.base.v1beta1.DecProto TransferAccountOpen = 7 [
+                                   (gogoproto.jsontag) = "transfer_account_open",
+                                                         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                         (gogoproto.nullable) = false
+                                   ];
+    // ReplaceAccountResources is the fee to be paid to replace account's resources
+    cosmos.base.v1beta1.DecProto ReplaceAccountResources = 8 [
+                                       (gogoproto.jsontag) = "replace_account_resources",
+                                                             (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                             (gogoproto.nullable) = false
+                                       ];
+    // AddAccountCertificate is the fee to be paid to add a certificate to an account
+    cosmos.base.v1beta1.DecProto AddAccountCertificate = 9 [
+                                      (gogoproto.jsontag) = "add_account_certificate",
+                                                           (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                           (gogoproto.nullable) = false
+                                      ];
+    // DelAccountCertificate is the feed to be paid to delete a certificate in an account
+    cosmos.base.v1beta1.DecProto DelAccountCertificate = 10 [
+                                      (gogoproto.jsontag) = "del_account_certificate",
+                                                            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                            (gogoproto.nullable) = false
+                                      ];
+    // SetAccountMetadata is the fee to be paid to set account's metadata
+    cosmos.base.v1beta1.DecProto SetAccountMetadata = 11 [
+                                   (gogoproto.jsontag) = "set_account_metadata",
+                                                         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                         (gogoproto.nullable) = false
+                                   ];
+    // RegisterDomain1 is the fee to be paid to register a domain with one character
+    cosmos.base.v1beta1.DecProto RegisterDomain1 = 12 [
+                             (gogoproto.jsontag) = "register_domain_1",
+                                                      (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                      (gogoproto.nullable) = false
+                             ];
+    // RegisterDomain2 is the fee to be paid to register a domain with two characters
+    cosmos.base.v1beta1.DecProto RegisterDomain2 = 13 [
+                                (gogoproto.jsontag) = "register_domain_2",
+                                                      (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                      (gogoproto.nullable) = false
+                                ];
+    // RegisterDomain3 is the fee to be paid to register a domain with three characters
+    cosmos.base.v1beta1.DecProto RegisterDomain3 = 14 [
+                                (gogoproto.jsontag) = "register_domain_3",
+                                                      (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                      (gogoproto.nullable) = false
+                                ];
+    // RegisterDomain4 is the fee to be paid to register a domain with four characters
+    cosmos.base.v1beta1.DecProto RegisterDomain4 = 15 [
+                                (gogoproto.jsontag) = "register_domain_4",
+                                                      (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                      (gogoproto.nullable) = false
+                                ];
+    // RegisterDomain5 is the fee to be paid to register a domain with five characters
+    cosmos.base.v1beta1.DecProto RegisterDomain5 = 16 [
+                                (gogoproto.jsontag) = "register_domain_5",
+                                                      (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                      (gogoproto.nullable) = false
+                                ];
+    // RegisterDomainDefault is the fee to be paid to register a domain with more than five characters
+    cosmos.base.v1beta1.DecProto RegisterDomainDefault = 17 [
+                                      (gogoproto.jsontag) = "register_domain_default",
+                                                            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                            (gogoproto.nullable) = false
+                                      ];
+    // RegisterDomainMultiplier is the multiplication applied to fees in register domain operations if they're of open type
+    cosmos.base.v1beta1.DecProto RegisterOpenDomainMultiplier = 18 [
+                                             (gogoproto.jsontag) = "register_open_domain_multiplier",
+                                                                   (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                                   (gogoproto.nullable) = false
+                                             ];
+    // TransferDomainClosed is the fee to be paid to transfer a closed domain
+    cosmos.base.v1beta1.DecProto TransferDomainClosed = 19 [
+                                     (gogoproto.jsontag) = "transfer_domain_closed",
+                                                           (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                           (gogoproto.nullable) = false
+                                     ];
+    // TransferDomainOpen is the fee to be paid to transfer open domains
+    cosmos.base.v1beta1.DecProto TransferDomainOpen = 20 [
+                                   (gogoproto.jsontag) = "transfer_domain_open",
+                                                         (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                                         (gogoproto.nullable) = false
+                                   ];
+    // RenewDomainOpen is the fee to be paid to renew an open domain
+    string RenewDomainOpen = 21 [
+                                (gogoproto.jsontag) = "renew_domain_open",
+                                (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+                                (gogoproto.nullable) = false
+                                ];
+}

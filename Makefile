@@ -65,6 +65,11 @@ build: go.sum
 	GOARCH=amd64 CGO_ENABLED=0 GOOS=linux go build -o ./build/iovnsd -mod=readonly $(BUILD_FLAGS) ./cmd/iovnsd
 	GOARCH=amd64 CGO_ENABLED=0 GOOS=linux go build -o ./build/iovnscli -mod=readonly $(BUILD_FLAGS) ./cmd/iovnscli
 
+# dev-container makes you join the dev-container which contains all the tools required to build iovns and proto related files
+dev-container:
+	docker build -t dev-container:local -f ./runtimes/protobuild.dockerfile .
+	docker run -v="${CURDIR}:/src" -w="/src" -it dev-container:local
+
 go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
 	GO111MODULE=on go mod verify
@@ -74,6 +79,22 @@ lint:
 	@echo "--> Running linter"
 	@golangci-lint run
 	@go mod verify
+
+# proto builds protobuf files, each newly added .proto should be
+# added here, and in case paths are changed they should be updated
+proto:
+	protoc -I=. \
+    		-I=${GOPATH}/src/github.com/gogo/protobuf \
+    		-I=${GOPATH}/src/github.com/gogo/protobuf/protobuf \
+     		--gofast_out=Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,paths=source_relative:. \
+     		 x/starname/types/msgs.proto x/starname/types/types.proto
+
+	protoc -I=. \
+    		-I=${GOPATH}/src/github.com/gogo/protobuf \
+    		-I=${GOPATH}/src/github.com/gogo/protobuf/protobuf \
+    		-I=/proto_includes \
+     		--gofast_out=Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/duration.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/struct.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/timestamp.proto=github.com/gogo/protobuf/types,Mgoogle/protobuf/wrappers.proto=github.com/gogo/protobuf/types,paths=source_relative:. \
+     		 x/configuration/types/msgs.proto x/configuration/types/types.proto
 
 test:
 	@# iovnscli binary is required for it tests

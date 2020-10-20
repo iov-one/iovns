@@ -186,7 +186,7 @@ func TestAccount_certNotExist(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		acc := &Account{
 			account: &types.Account{
-				Certificates: []types.Certificate{[]byte("test-cert")},
+				Certificates: [][]byte{[]byte("test-cert")},
 			},
 		}
 		err := acc.CertificateNotExist([]byte("does not exist")).Validate()
@@ -197,7 +197,7 @@ func TestAccount_certNotExist(t *testing.T) {
 	t.Run("cert exists", func(t *testing.T) {
 		acc := &Account{
 			account: &types.Account{
-				Certificates: []types.Certificate{[]byte("test-cert"), []byte("exists")},
+				Certificates: [][]byte{[]byte("test-cert"), []byte("exists")},
 			},
 		}
 		i := new(int)

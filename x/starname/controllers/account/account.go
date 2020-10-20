@@ -138,7 +138,7 @@ func (a *Account) CertificateExists(cert []byte, certIndex *int) *Account {
 }
 
 // ValidResources verifies that the provided resources are valid for the account
-func (a *Account) ValidResources(resources []types.Resource) *Account {
+func (a *Account) ValidResources(resources []*types.Resource) *Account {
 	a.validators = append(a.validators, func(ctrl *Account) error {
 		return ctrl.validResources(resources)
 	})
@@ -162,7 +162,7 @@ func (a *Account) ResettableBy(addr sdk.AccAddress, reset bool) *Account {
 }
 
 // ResettableBy checks if the account attributes resettable by the provided address
-func (a *Account) ResourceLimitNotExceeded(resources []types.Resource) *Account {
+func (a *Account) ResourceLimitNotExceeded(resources []*types.Resource) *Account {
 	a.validators = append(a.validators, func(ctrl *Account) error {
 		return ctrl.resourceLimitNotExceeded(resources)
 	})
@@ -411,7 +411,7 @@ func (a *Account) deletableBy(addr sdk.AccAddress) error {
 }
 
 // validResources validates different resources
-func (a *Account) validResources(resources []types.Resource) error {
+func (a *Account) validResources(resources []*types.Resource) error {
 	a.requireConfiguration()
 	validURI := regexp.MustCompile(a.conf.ValidURI)
 	validResource := regexp.MustCompile(a.conf.ValidResource)
@@ -419,6 +419,9 @@ func (a *Account) validResources(resources []types.Resource) error {
 	sets := make(map[string]struct{}, len(resources))
 	// iterate over resources to check their validity
 	for _, resource := range resources {
+		if resource == nil {
+			return sdkerrors.Wrap(types.ErrInvalidResource, "nil resource provided")
+		}
 		// check if URI was already specified
 		if _, ok := sets[resource.URI]; ok {
 			return sdkerrors.Wrapf(types.ErrInvalidResource, "duplicate URI %s", resource.URI)
@@ -493,7 +496,7 @@ func (a *Account) gracePeriodFinished() error {
 	return sdkerrors.Wrapf(types.ErrAccountGracePeriodNotFinished, "account %s grace period has not finished", *a.account.Name)
 }
 
-func (a *Account) resourceLimitNotExceeded(resources []types.Resource) error {
+func (a *Account) resourceLimitNotExceeded(resources []*types.Resource) error {
 	if err := a.requireAccount(); err != nil {
 		panic("validation check is not allowed on a non existing account")
 	}

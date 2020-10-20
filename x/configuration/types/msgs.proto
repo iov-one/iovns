@@ -1,0 +1,27 @@
+syntax="proto3";
+
+option go_package="github.com/iov-one/iovns/x/configuration/types";
+
+import "gogoproto/gogo.proto";
+import "x/configuration/types/types.proto";
+
+// MsgUpdateConfig is used to update
+// configuration using a multisig strategy
+message MsgUpdateConfig {
+    // Signer is the address of the entity who is doing the transaction
+    bytes Signer = 1 [
+                     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+                     ];
+    // NewConfiguration contains the new configuration data
+    Config NewConfiguration = 2 [(gogoproto.nullable)=true];
+}
+
+// MsgUpdateFees is used to update
+// the product fees required when interacting
+// with the starname module.
+message MsgUpdateFees {
+    Fees Fees = 1;
+    bytes Configurer = 2 [
+                     (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+                     ];
+}

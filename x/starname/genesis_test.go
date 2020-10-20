@@ -11,7 +11,7 @@ import (
 )
 
 func TestExportGenesis(t *testing.T) {
-	expected := `{"domains":[{"name":"test","admin":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","valid_until":100,"type":"open","broker":""}],"accounts":[{"domain":"test","name":"","owner":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","valid_until":100,"resources":null,"certificates":null,"broker":"","metadata_uri":""},{"domain":"test","name":"test","owner":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","valid_until":100,"resources":null,"certificates":null,"broker":"","metadata_uri":""}]}`
+	expected := `{"domains":[{"name":"test","admin":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","broker":"","valid_until":100,"type":"open"}],"accounts":[{"domain":"test","name":"","owner":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","broker":"","valid_until":100,"resources":null,"certificates":null,"metadata_uri":""},{"domain":"test","name":"test","owner":"cosmos1ze7y9qwdddejmy7jlw4cymqqlt2wh05ytm076d","broker":"","valid_until":100,"resources":null,"certificates":null,"metadata_uri":""}]}`
 	k, ctx, _ := keeper.NewTestKeeper(t, true)
 	executor.NewDomain(ctx, k, types.Domain{
 		Name:       "test",
@@ -32,6 +32,6 @@ func TestExportGenesis(t *testing.T) {
 		t.Fatal(err)
 	}
 	if string(b) != expected {
-		t.Fatal("unexpected genesis state")
+		t.Fatalf("unexpected genesis state:\nGot: %s\nWanted: %s", b, expected)
 	}
 }

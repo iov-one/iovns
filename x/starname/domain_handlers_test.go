@@ -745,11 +745,11 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Name:       utils.StrPtr("1"),
 					Owner:      keeper.AliceKey,
 					ValidUntil: 0,
-					Resources: []types.Resource{{
+					Resources: []*types.Resource{{
 						URI:      "test",
 						Resource: "test",
 					}},
-					Certificates: []types.Certificate{[]byte("cert")},
+					Certificates: [][]byte{[]byte("cert")},
 					Broker:       nil,
 				}).Create()
 				// add account 2
@@ -758,11 +758,11 @@ func Test_handlerMsgTransferDomain(t *testing.T) {
 					Name:       utils.StrPtr("2"),
 					Owner:      keeper.AliceKey,
 					ValidUntil: 0,
-					Resources: []types.Resource{{
+					Resources: []*types.Resource{{
 						URI:      "test",
 						Resource: "test",
 					}},
-					Certificates: []types.Certificate{[]byte("cert")},
+					Certificates: [][]byte{[]byte("cert")},
 					Broker:       nil,
 				}).Create()
 			},

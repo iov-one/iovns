@@ -163,7 +163,7 @@ func getCmdTransferAccount(cdc *codec.Codec) *cobra.Command {
 				Name:         name,
 				Owner:        cliCtx.GetFromAddress(),
 				NewOwner:     newOwnerAddr,
-				Reset:        resetBool,
+				ToReset:      resetBool,
 				FeePayerAddr: feePayer,
 			}
 			// check if valid
@@ -211,7 +211,7 @@ func getmCmdReplaceAccountResources(cdc *codec.Codec) *cobra.Command {
 			}
 			defer f.Close()
 			// unmarshal resources
-			var resources []types.Resource
+			var resources []*types.Resource
 			err = json.NewDecoder(f).Decode(&resources)
 			if err != nil {
 				return

@@ -36,13 +36,13 @@ var testAccount = types.Account{
 	Name:       utils.StrPtr("a-super-account"),
 	Owner:      aliceKey,
 	ValidUntil: 10000,
-	Resources: []types.Resource{
+	Resources: []*types.Resource{
 		{
 			URI:      "a-super-uri",
 			Resource: "a-super-res",
 		},
 	},
-	Certificates: []types.Certificate{types.Certificate("a-random-cert")},
+	Certificates: [][]byte{[]byte("a-random-cert")},
 	Broker:       nil,
 	MetadataURI:  "metadata",
 }
