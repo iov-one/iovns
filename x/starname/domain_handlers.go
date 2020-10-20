@@ -62,7 +62,19 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 	ex := executor.NewDomain(ctx, k, d)
 	ex.Create()
 	// success TODO think here, can we emit any useful event
-	return &sdk.Result{}, nil
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Admin.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyDomainType, (string)(msg.DomainType)),
+		),
+	)
+	return &sdk.Result{
+		Events: ctx.EventManager().Events(),
+	}, nil
 }
 
 // handlerMsgRenewDomain renews a domain

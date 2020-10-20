@@ -14,3 +14,9 @@ const (
 	// DefaultParamSpace defines the key for the default param space
 	DefaultParamSpace = ModuleName
 )
+
+// Events attribute keys
+const (
+	AttributeKeyDomainName = "domain_name"
+	AttributeKeyDomainType = "domain_type"
+)
