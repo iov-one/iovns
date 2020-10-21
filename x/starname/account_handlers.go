@@ -2,10 +2,11 @@ package starname
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/controllers/fees"
 	"github.com/iov-one/iovns/x/starname/keeper/executor"
-	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -281,7 +282,6 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 	return &sdk.Result{
 		Events: ctx.EventManager().Events(),
 	}, nil
-	return &sdk.Result{}, nil
 }
 
 // handlerMsgReplaceAccountResources replaces account resources
