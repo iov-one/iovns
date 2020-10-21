@@ -12,6 +12,7 @@ import (
 // NewHandler builds the tx requests handler for the domain module
 func NewHandler(k Keeper) sdk.Handler {
 	f := func(ctx sdk.Context, msg sdk.Msg) (*sdk.Result, error) {
+		ctx = ctx.WithEventManager(sdk.NewEventManager())
 		switch msg := msg.(type) {
 		// domain handlers
 		case *types.MsgRegisterDomain:
