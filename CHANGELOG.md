@@ -1,6 +1,7 @@
 # Changelog
 
 ## HEAD
+- x/starname: add domain and account handlers events
 
 ## v0.9.5
 
