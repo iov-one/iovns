@@ -1,9 +1,11 @@
 package starname
 
 import (
+	"fmt"
 	"github.com/iov-one/iovns/pkg/utils"
 	"github.com/iov-one/iovns/x/starname/controllers/fees"
 	"github.com/iov-one/iovns/x/starname/keeper/executor"
+	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -47,8 +49,24 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *typ
 	// add certificate
 	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
 	ex.AddCertificate(msg.NewCertificate)
-	// success; TODO emit event
-	return &sdk.Result{}, nil
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyNewCertificate, fmt.Sprintf("%x", msg.NewCertificate)),
+			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
+			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
+	return &sdk.Result{
+		Events: ctx.EventManager().Events(),
+	}, nil
 }
 
 func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDeleteAccountCertificate) (*sdk.Result, error) {
@@ -81,8 +99,24 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *t
 	// delete cert
 	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
 	ex.DeleteCertificate(*certIndex)
-	// success; TODO emit event?
-	return &sdk.Result{}, nil
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyDeletedCertificate, fmt.Sprintf("%x", msg.DeleteCertificate)),
+			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
+			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
+	return &sdk.Result{
+		Events: ctx.EventManager().Events(),
+	}, nil
 }
 
 // handlerMsgDelete account deletes the account from the system
@@ -112,8 +146,23 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 	// delete account
 	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
 	ex.Delete()
-	// success; todo can we emit event?
-	return &sdk.Result{}, nil
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
+			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
+	return &sdk.Result{
+		Events: ctx.EventManager().Events(),
+	}, nil
 }
 
 // handleMsgRegisterAccount registers the account
@@ -161,7 +210,23 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 	}
 	ex := executor.NewAccount(ctx, k, a)
 	ex.Create()
-	return &sdk.Result{}, nil
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
+			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
+	return &sdk.Result{
+		Events: ctx.EventManager().Events(),
+	}, nil
 }
 
 func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenewAccount) (*sdk.Result, error) {
@@ -199,7 +264,23 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 		dex := executor.NewDomain(ctx, k, domainCtrl.Domain())
 		dex.Renew(accNewValidUntil.Unix())
 	}
-	// success; todo emit event??
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
+			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Signer.String()),
+		),
+	)
+	return &sdk.Result{
+		Events: ctx.EventManager().Events(),
+	}, nil
 	return &sdk.Result{}, nil
 }
 
@@ -231,8 +312,24 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k keeper.Keeper, msg *ty
 	// replace accounts resources
 	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
 	ex.ReplaceResources(msg.NewResources)
-	// success; TODO emit any useful event?
-	return &sdk.Result{}, nil
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyNewResources, ""), // TODO stringify resources
+			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
+			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
+	return &sdk.Result{
+		Events: ctx.EventManager().Events(),
+	}, nil
 }
 
 // handlerMsgReplaceAccountMetadata takes care of setting account metadata
@@ -263,8 +360,24 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *typ
 	// save to store
 	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
 	ex.UpdateMetadata(msg.NewMetadataURI)
-	// success TODO emit event
-	return &sdk.Result{}, nil
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyNewMetadata, msg.NewMetadataURI),
+			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
+			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
+	return &sdk.Result{
+		Events: ctx.EventManager().Events(),
+	}, nil
 }
 
 // handlerMsgTransferAccount transfers account to a new owner
@@ -298,6 +411,23 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 	// transfer account
 	ex := executor.NewAccount(ctx, k, accountCtrl.Account())
 	ex.Transfer(msg.NewOwner, msg.Reset)
-	// success, todo emit event?
-	return &sdk.Result{}, nil
+	// success
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
+			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
+			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
+			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
+			sdk.NewAttribute(types.AttributeKeyTransferAccountNewOwner, msg.NewOwner.String()),
+			sdk.NewAttribute(types.AttributeKeyTransferAccountReset, strconv.FormatBool(msg.Reset)),
+			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
+			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
+			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+		),
+	)
+	return &sdk.Result{
+		Events: ctx.EventManager().Events(),
+	}, nil
 }
