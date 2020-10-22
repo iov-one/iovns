@@ -88,8 +88,8 @@ func getCmdUpdateFee(cdc *codec.Codec) *cobra.Command {
 			// iterate over the pair(s) and set the fee parameter value
 			for _, raw := range pairs {
 				split := strings.Split(raw, "=")
-				if len(split) < 1 {
-					return fmt.Errorf("invalid formatted value: %s", raw)
+				if len(split) != 2 {
+					return fmt.Errorf("invalid pair: %s", raw)
 				}
 				key := split[0]
 				value := split[1]
