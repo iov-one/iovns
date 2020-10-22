@@ -92,7 +92,7 @@ func getCmdUpdateFee(cdc *codec.Codec) *cobra.Command {
 					return fmt.Errorf("invalid formatted value: %s", raw)
 				}
 				key := split[0]
-				value := strings.Join(split[1:], "=")
+				value := split[1]
 				fieldNum, ok := fieldNames[key]
 				if !ok {
 					return fmt.Errorf("%s is not a valid fee configuration variable", key)
