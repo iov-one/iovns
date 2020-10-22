@@ -2,6 +2,8 @@
 
 ## HEAD
 
+- CLI: Add update-fee command
+
 ## v0.9.6
 
 - x/starname: add domain and account handlers events

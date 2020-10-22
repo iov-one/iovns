@@ -48,7 +48,7 @@ func getCmdUpdateFee(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "update-fee",
 		Short:   "update fee parameter(s) using key=value pair(s) noting that all numeric values should be specified in euros",
-		Example: "iovnscli tx configuration update-fee --from iovSAS --parameter fee_coin_price=0.12 --parameter register_domain_default=12",
+		Example: "iovnscli tx configuration update-fee --from iovSAS --parameter fee_coin_price=0.29 --parameter register_domain_default=12",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
@@ -104,7 +104,7 @@ func getCmdUpdateFee(cdc *codec.Codec) *cobra.Command {
 					if err != nil {
 						return fmt.Errorf("failed to make %s a decimal value for key %s", value, key)
 					}
-					if key == "fee_coin_price" { // special case of converting euros to megaeuros so that fees
+					if key == "fee_coin_price" { // special case of converting euros to megaeuros so that fees can be specified in euros, not uiov
 						million, err := sdk.NewDecFromStr("1000000")
 						if err != nil {
 							return fmt.Errorf("failed to make %s a decimal value for key %s", value, key)
