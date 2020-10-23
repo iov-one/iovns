@@ -1,5 +1,6 @@
 import { Base64 } from "js-base64";
 import { gasPrices, iovnscli, memo, msig1, msig1SignTx, signAndBroadcastTx, signer, w1, w2, writeTmpJson } from "./common";
+import compareObjects from "./compareObjects";
 import forge from "node-forge";
 
 "use strict";
@@ -446,5 +447,92 @@ describe( "Tests the CLI.", () => {
       expect( account0.name ).toEqual( "01node" );
       expect( account0.domain ).toEqual( "iov" );
       expect( account0.resources.find( r => r.uri == uri && r.resource == resource ) ).toBeDefined();
+   } );
+
+
+   // don't skip once https://github.com/iov-one/iovns/issues/369 is closed
+   it.skip( `Should register a domain and account, set resources, and delete resources.`, async () => {
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      const name = `${Math.floor( Math.random() * 1e9 )}`;
+      const resources = [
+         {
+            "uri": "cosmos:iov-mainnet-2",
+            "resource": "star1478t4fltj689nqu83vsmhz27quk7uggjwe96yk"
+         }
+      ];
+      const fileResources = writeTmpJson( resources );
+      const registerDomain = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const replaceResources = iovnscli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", fileResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
+
+      unsigned.value.msg.push( registerAccount.value.msg[0] );
+      unsigned.value.msg.push( replaceResources.value.msg[0] );
+      unsigned.value.fee.amount[0].amount = "400000";
+      unsigned.value.fee.gas = "400000";
+
+      const broadcasted = signAndBroadcastTx( unsigned );
+
+      expect( broadcasted.gas_used ).toBeDefined();
+      if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
+
+      const resolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+
+      expect( resolved.account.domain ).toEqual( domain );
+      expect( resolved.account.name ).toEqual( name );
+      expect( resolved.account.owner ).toEqual( signer );
+      compareObjects( resources, resolved.account.resources );
+
+      const emptyResources = null;
+      const tmpResources = writeTmpJson( emptyResources );
+      const replaceResources1 = iovnscli( [ "tx", "starname", "replace-resources", "--domain", domain, "--name", name, "--src", tmpResources, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const broadcasted1 = signAndBroadcastTx( replaceResources1 );
+
+      expect( broadcasted1.gas_used ).toBeDefined();
+      if ( !broadcasted1.logs ) throw new Error( broadcasted.raw_log );
+
+      const resolved1 = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+
+      compareObjects( emptyResources, resolved1.account.resources );
+   } );
+
+
+   // don't skip once https://github.com/iov-one/iovns/issues/370 is closed
+   it.skip( `Should register a domain and account, set metadata, and delete metadata.`, async () => {
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      const name = `${Math.floor( Math.random() * 1e9 )}`;
+      const metadata = "Not empty.";
+      const registerDomain = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const registerAccount = iovnscli( [ "tx", "starname", "register-account", "--domain", domain, "--name", name, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const setMetadata = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const unsigned = JSON.parse( JSON.stringify( registerDomain ) );
+
+      unsigned.value.msg.push( registerAccount.value.msg[0] );
+      unsigned.value.msg.push( setMetadata.value.msg[0] );
+      unsigned.value.fee.amount[0].amount = "400000";
+      unsigned.value.fee.gas = "400000";
+
+      const broadcasted = signAndBroadcastTx( unsigned );
+
+      expect( broadcasted.gas_used ).toBeDefined();
+      if ( !broadcasted.logs ) throw new Error( broadcasted.raw_log );
+
+      const resolved = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+
+      expect( resolved.account.domain ).toEqual( domain );
+      expect( resolved.account.name ).toEqual( name );
+      expect( resolved.account.owner ).toEqual( signer );
+      expect( resolved.account.metadata_uri ).toEqual( metadata );
+
+      const metadata1 = "";
+      const setMetadata1 = iovnscli( [ "tx", "starname", "set-account-metadata", "--domain", domain, "--name", name, "--metadata", metadata1, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const broadcasted1 = signAndBroadcastTx( setMetadata1 );
+
+      expect( broadcasted1.gas_used ).toBeDefined();
+      if ( !broadcasted1.logs ) throw new Error( broadcasted.raw_log );
+
+      const resolved1 = iovnscli( [ "query", "starname", "resolve", "--starname", `${name}*${domain}` ] );
+
+      expect( resolved1.account.metadata_uri ).toEqual( metadata1 );
    } );
 } );
