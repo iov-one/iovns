@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -14,6 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	"github.com/iov-one/iovns/pkg/queries"
 	"github.com/iov-one/iovns/x/configuration/types"
 	"github.com/spf13/cobra"
 )
@@ -31,6 +34,7 @@ func GetTxCmd(storeKey string, cdc *codec.Codec) *cobra.Command {
 	configTxCmd.AddCommand(flags.PostCommands(
 		getCmdUpdateConfig(cdc),
 		getCmdUpdateFees(cdc),
+		getCmdUpdateFee(cdc),
 	)...)
 	return configTxCmd
 }
@@ -39,6 +43,92 @@ var defaultDuration, _ = time.ParseDuration("1h")
 
 const defaultRegex = "^(.*?)?"
 const defaultNumber = 1
+
+func getCmdUpdateFee(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "update-fee",
+		Short:   "update fee parameter(s) using key=value pair(s) noting that all numeric values should be specified in euros",
+		Example: "iovnscli tx configuration update-fee --from iovSAS --parameter fee_coin_price=0.29 --parameter register_domain_default=12",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc).WithBroadcastMode(flags.BroadcastBlock)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBuilder := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			// query the existing fee configuration
+			path := fmt.Sprintf("custom/%s/%s", types.StoreKey, types.QueryFees)
+			resp, _, err := cliCtx.Query(path)
+			if err != nil {
+				return err
+			}
+			var jsonResp types.QueryFeesResponse
+			err = queries.DefaultQueryDecode(resp, &jsonResp)
+			if err != nil {
+				return err
+			}
+			fees := jsonResp.Fees
+			// set new values via json tag https://gist.github.com/lelandbatey/a5c957b537bed39d1d6fb202c3b8de06
+			v := reflect.ValueOf(fees).Elem()
+			findJsonName := func(t reflect.StructTag) string {
+				if jt, ok := t.Lookup("json"); ok {
+					return strings.Split(jt, ",")[0]
+				}
+				panic(fmt.Errorf("tag provided does not define a json tag"))
+			}
+			fieldNames := map[string]int{}
+			for i := 0; i < v.NumField(); i++ {
+				typeField := v.Type().Field(i)
+				tag := typeField.Tag
+				jname := findJsonName(tag)
+				fieldNames[jname] = i
+			}
+			// read the fee parameter pair(s)
+			pairs, err := cmd.Flags().GetStringArray("parameter")
+			if err != nil {
+				return err
+			}
+			// iterate over the pair(s) and set the fee parameter value
+			for _, raw := range pairs {
+				split := strings.Split(raw, "=")
+				if len(split) != 2 {
+					return fmt.Errorf("invalid pair: %s", raw)
+				}
+				key := split[0]
+				value := split[1]
+				fieldNum, ok := fieldNames[key]
+				if !ok {
+					return fmt.Errorf("%s is not a valid fee configuration variable", key)
+				}
+				if key == "fee_coin_denom" { // special case of a string value
+					fees.FeeCoinDenom = value
+				} else { // decimal values
+					dec, err := sdk.NewDecFromStr(value)
+					if err != nil {
+						return fmt.Errorf("failed to make %s a decimal value for key %s", value, key)
+					}
+					if key == "fee_coin_price" { // special case of converting euros to megaeuros so that fees can be specified in euros, not uiov
+						million, err := sdk.NewDecFromStr("1000000")
+						if err != nil {
+							return fmt.Errorf("failed to make '1000000' a decimal value")
+						}
+						dec = dec.Quo(million)
+					}
+					fieldVal := v.Field(fieldNum)
+					fieldVal.Set(reflect.ValueOf(dec))
+				}
+			}
+			// submit the tx
+			msg := types.MsgUpdateFees{
+				Fees:       fees,
+				Configurer: cliCtx.GetFromAddress(),
+			}
+			if err := msg.ValidateBasic(); err != nil {
+				return fmt.Errorf("invalid tx: %w", err)
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBuilder, []sdk.Msg{msg})
+		},
+	}
+	cmd.Flags().StringArrayP("parameter", "p", nil, "key/value pairs, specified as key=value")
+	return cmd
+}
 
 func getCmdUpdateFees(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
