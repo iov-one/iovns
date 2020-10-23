@@ -107,7 +107,7 @@ func getCmdUpdateFee(cdc *codec.Codec) *cobra.Command {
 					if key == "fee_coin_price" { // special case of converting euros to megaeuros so that fees can be specified in euros, not uiov
 						million, err := sdk.NewDecFromStr("1000000")
 						if err != nil {
-							return fmt.Errorf("failed to make %s a decimal value for key %s", value, key)
+							return fmt.Errorf("failed to make '1000000' a decimal value")
 						}
 						dec = dec.Quo(million)
 					}
