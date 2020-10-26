@@ -16,9 +16,9 @@ import (
 const syncRetryTimeout = 3 * time.Second
 
 // Sync uploads to local store all blocks that are not present yet, starting
-// with the blocks with the lowest hight first. It always returns the number of
+// with the blocks with the lowest height first. It always returns the number of
 // blocks inserted, even if returning an error.
-func Sync(ctx context.Context, tmc *TendermintClient, st *Store, hrp string) (uint, error) {
+func Sync(ctx context.Context, tmc *TendermintClient, st *Store, denom string) (uint, error) {
 	var (
 		inserted        uint
 		syncedHeight    int64
@@ -76,8 +76,8 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, hrp string) (ui
 		for _, tx := range tmblock.Transactions {
 			coins := tx.Fee.Amount
 			for _, c := range coins {
-				if c.Denom != hrp {
-					return 1, errors.Wrapf(ErrDenom, "not supported denom: %s, expected %s", c.Denom, hrp)
+				if c.Denom != denom {
+					return 1, errors.Wrapf(ErrDenom, "not supported denom: %s, expected %s", c.Denom, denom)
 				}
 				fee = fee.Add(c.Amount)
 			}

@@ -20,7 +20,7 @@ func main() {
 		DBPass:          os.Getenv("POSTGRES_PASSWORD"),
 		DBSSL:           os.Getenv("POSTGRES_SSL_ENABLE"),
 		TendermintWsURI: os.Getenv("TENDERMINT_WS_URI"),
-		Hrp:             os.Getenv("HRP"),
+		FeeDenom:        os.Getenv("FEE_DENOMINATION"),
 	}
 
 	if err := run(conf); err != nil {
@@ -52,7 +52,7 @@ func run(conf pkg.Configuration) error {
 	}
 	defer tmc.Close()
 
-	inserted, err := pkg.Sync(ctx, tmc, st, conf.Hrp)
+	inserted, err := pkg.Sync(ctx, tmc, st, conf.FeeDenom)
 	if err != nil {
 		return errors.Wrap(err, "sync")
 	}

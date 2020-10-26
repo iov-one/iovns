@@ -8,7 +8,6 @@ type Configuration struct {
 	DBSSL  string
 	// Tendermint websocket URI
 	TendermintWsURI string
-	// Derivation path: "tiov" or "iov"
-	Hrp   string
-	Denom string
+	// Denomination of the fee coin, eg uiov
+	FeeDenom string
 }
