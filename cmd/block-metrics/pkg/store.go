@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/iov-one/iovns/x/starname/types"
 
 	"github.com/pkg/errors"
@@ -26,19 +27,24 @@ type Block struct {
 	FeeFrac uint64    `json:"fee_frac"`
 }
 
+// convert an sdk.AccAddress to a string
+func a2s(addr sdk.AccAddress) string {
+	return sdk.AccAddress(addr).String()
+}
+
 func (st *Store) RegisterDomain(ctx context.Context, msg *types.MsgRegisterDomain) (int64, error) {
 	var id int64
 	err := st.db.QueryRowContext(ctx, `
 		INSERT INTO domains (name, admin, type, broker, fee_payer_addr)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id
-	`, msg.Name, msg.Admin, msg.DomainType, msg.Broker, msg.FeePayerAddr).Scan(&id)
+	`, msg.Name, a2s(msg.Admin), msg.DomainType, a2s(msg.Broker), a2s(msg.FeePayerAddr)).Scan(&id)
 	return id, castPgErr(err)
 }
 
 func (st *Store) DeleteDomain(ctx context.Context, msg *types.MsgDeleteDomain) error {
 	sqlStatement := `
-		UPDATE domains SET deleted_at = now() 
+		UPDATE domains SET deleted_at = now()
 		WHERE name = $1`
 	_, err := st.db.ExecContext(ctx, sqlStatement, msg.Domain)
 	return err
@@ -49,16 +55,16 @@ func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomai
 	UPDATE domains
 	SET admin = $1
 	WHERE name = $2`
-	_, err := st.db.ExecContext(ctx, sqlStatement, msg.NewAdmin, msg.Domain)
+	_, err := st.db.ExecContext(ctx, sqlStatement, a2s(msg.NewAdmin), msg.Domain)
 	return err
 }
 
 func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAccount) error {
 	sqlStatement := `
-	UPDATE accounts 
+	UPDATE accounts
 	SET owner = $1
 	WHERE domain = $2 AND name = $3`
-	_, err := st.db.ExecContext(ctx, sqlStatement, msg.NewOwner, msg.Domain, msg.Name)
+	_, err := st.db.ExecContext(ctx, sqlStatement, a2s(msg.NewOwner), msg.Domain, msg.Name)
 	return err
 }
 
@@ -74,7 +80,7 @@ func (st *Store) RegisterAccount(ctx context.Context, msg *types.MsgRegisterAcco
 	_, err := st.db.ExecContext(ctx, `
 		INSERT INTO accounts (domain_id, domain, name, owner, registerer, broker, fee_payer_addr)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`, domainID, msg.Domain, msg.Name, msg.Owner, msg.Registerer, msg.Broker, msg.FeePayerAddr)
+	`, domainID, msg.Domain, msg.Name, a2s(msg.Owner), a2s(msg.Registerer), a2s(msg.Broker), a2s(msg.FeePayerAddr))
 	if err != nil {
 		return accountID, castPgErr(err)
 	}
@@ -128,7 +134,7 @@ func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgRepla
 	}
 
 	sqlStatement := `
-	UPDATE accounts 
+	UPDATE accounts
 	SET metadata_uri = $1
 	WHERE domain = $2 AND name = $3`
 	_, err = st.db.ExecContext(ctx, sqlStatement, msg.NewMetadataURI, msg.Domain, msg.Name)
@@ -181,7 +187,7 @@ func (st *Store) DeleteAccountCerts(ctx context.Context, msg *types.MsgDeleteAcc
 	}
 
 	sqlStatement = `
-		UPDATE account_certificates SET deleted_at = now() 
+		UPDATE account_certificates SET deleted_at = now()
 		WHERE account_id = $1`
 	_, err := st.db.ExecContext(ctx, sqlStatement, accountID)
 	return err
@@ -189,7 +195,7 @@ func (st *Store) DeleteAccountCerts(ctx context.Context, msg *types.MsgDeleteAcc
 
 func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount) error {
 	sqlStatement := `
-		UPDATE accounts SET deleted_at = now() 
+		UPDATE accounts SET deleted_at = now()
 		WHERE domain = $1 AND name = $2`
 	_, err := st.db.ExecContext(ctx, sqlStatement, msg.Domain, msg.Name)
 	return err
@@ -280,6 +286,7 @@ func (st *Store) LastNBlock(ctx context.Context, limit, after int) ([]*Block, er
 	}
 	return blocks, nil
 }
+
 func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error {
 	gen, err := FetchGenesis(ctx, tmc)
 	if err != nil {

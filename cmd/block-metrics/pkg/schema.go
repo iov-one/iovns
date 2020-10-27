@@ -52,10 +52,10 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE TABLE IF NOT EXISTS domains (
 	id BIGSERIAL PRIMARY KEY,
 	name TEXT,
-	admin BYTEA NOT NULL,
+	admin TEXT NOT NULL,
 	type TEXT NOT NULL,
-	broker BYTEA,
-	fee_payer_addr BYTEA,
+	broker TEXT,
+	fee_payer_addr TEXT,
 	deleted_at TIMESTAMP
 );
 
@@ -65,11 +65,11 @@ CREATE TABLE IF NOT EXISTS accounts (
 	domain_id BIGINT NOT NULL REFERENCES domains(id),
 	domain TEXT NOT NULL,
 	name TEXT,
-	owner BYTEA NOT NULL,
-	registerer BYTEA,
-	broker BYTEA,
+	owner TEXT NOT NULL,
+	registerer TEXT,
+	broker TEXT,
 	metadata_uri TEXT,
-	fee_payer_addr BYTEA,
+	fee_payer_addr TEXT,
 	deleted_at TIMESTAMP
 );
 
