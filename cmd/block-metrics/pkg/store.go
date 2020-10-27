@@ -45,39 +45,112 @@ func getAccountID(st *Store, ctx context.Context, domain string, name string) (i
 }
 
 func (st *Store) RegisterDomain(ctx context.Context, msg *types.MsgRegisterDomain, height int64) (int64, error) {
-	// TODO: add the "" account
+	tx, err := st.db.Begin()
+	if err != nil {
+		return 0, castPgErr(err)
+	}
+
+	// create the domain...
 	var id int64
-	err := st.db.QueryRowContext(ctx, `
+	err = st.db.QueryRowContext(ctx, `
 		INSERT INTO domains (name, admin, type, broker, fee_payer_addr, created)
 		VALUES ($1, $2, $3, $4, $5, (SELECT block_height FROM blocks WHERE block_height=$6))
 		RETURNING id
 	`, msg.Name, a2s(msg.Admin), msg.DomainType, a2s(msg.Broker), a2s(msg.FeePayerAddr), height).Scan(&id)
-	return id, castPgErr(err)
+	if err != nil {
+		return 0, castPgErr(err)
+	}
+
+	// ...and then the empty account
+	msgEmptyAccount := types.MsgRegisterAccount{
+		Domain:       msg.Name,
+		Name:         "",
+		Owner:        msg.Admin,
+		Broker:       msg.Broker,
+		FeePayerAddr: msg.FeePayerAddr,
+	}
+	accountID, err := st.RegisterAccount(ctx, &msgEmptyAccount, height)
+	if err != nil {
+		return accountID, err
+	}
+
+	err = tx.Commit()
+
+	return accountID, castPgErr(err)
 }
 
-func (st *Store) DeleteDomain(ctx context.Context, msg *types.MsgDeleteDomain, height int64) error {
-	// TODO: delete the domain's accounts
-	sqlStatement := `
-		UPDATE domains SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
-		WHERE id = (SELECT MAX(id) FROM domains WHERE name = $1)`
-	_, err := st.db.ExecContext(ctx, sqlStatement, msg.Domain, height)
-	return err
+func (st *Store) DeleteDomain(ctx context.Context, msg *types.MsgDeleteDomain, height int64) (int64, error) {
+	tx, err := st.db.Begin()
+	if err != nil {
+		return 0, castPgErr(err)
+	}
+
+	// delete the empty account...
+	msgEmptyAccount := types.MsgDeleteAccount{
+		Domain:       msg.Domain,
+		Name:         "",
+		Owner:        msg.Owner,
+		FeePayerAddr: msg.FeePayerAddr,
+	}
+	accountID, err := st.DeleteAccount(ctx, &msgEmptyAccount, height)
+	if err != nil {
+		return accountID, err
+	}
+
+	// ...and then the domain
+	_, err = st.db.ExecContext(ctx, `
+		UPDATE domains
+		SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
+		WHERE id = (SELECT MAX(id) FROM domains WHERE name = $1)
+	`, msg.Domain, height)
+	if err != nil {
+		return 0, castPgErr(err)
+	}
+
+	err = tx.Commit()
+
+	return accountID, castPgErr(err)
 }
 
-func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomain, height int64) error {
-	// TODO: deal with the different transfer flags
-	sqlStatement := `
-	UPDATE domains
-	SET admin = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
-	WHERE id = (SELECT MAX(id) FROM domains WHERE name = $2)`
-	_, err := st.db.ExecContext(ctx, sqlStatement, a2s(msg.NewAdmin), msg.Domain, height)
-	return err
+func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomain, height int64) (int64, error) {
+	tx, err := st.db.Begin()
+	if err != nil {
+		return 0, castPgErr(err)
+	}
+
+	// update the empty account...
+	msgEmptyAccount := types.MsgTransferAccount{
+		Domain:       msg.Domain,
+		Name:         "",
+		Owner:        msg.Owner,
+		NewOwner:     msg.NewAdmin,
+		FeePayerAddr: msg.FeePayerAddr,
+		Reset:        true, // TODO: deal with the different transfer flags
+	}
+	accountID, err := st.TransferAccount(ctx, &msgEmptyAccount, height)
+	if err != nil {
+		return accountID, err
+	}
+
+	// ...and then the domain
+	_, err = st.db.ExecContext(ctx, `
+		UPDATE domains
+		SET admin = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
+		WHERE id = (SELECT MAX(id) FROM domains WHERE name = $2)
+	`, a2s(msg.NewAdmin), msg.Domain, height)
+	if err != nil {
+		return accountID, castPgErr(err)
+	}
+
+	err = tx.Commit()
+
+	return accountID, castPgErr(err)
 }
 
-func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAccount, height int64) error { // TODO: return accountID
+func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAccount, height int64) (int64, error) {
 	accountID, err := getAccountID(st, ctx, msg.Domain, msg.Name)
 	if err != nil {
-		return err
+		return accountID, err
 	}
 
 	_, err = st.db.ExecContext(ctx, `
@@ -85,7 +158,8 @@ func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAcco
 		SET owner = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
 		WHERE id = $2
 	`, a2s(msg.NewOwner), accountID, height)
-	return castPgErr(err)
+
+	return accountID, castPgErr(err)
 }
 
 func (st *Store) RegisterAccount(ctx context.Context, msg *types.MsgRegisterAccount, height int64) (int64, error) {
@@ -128,22 +202,20 @@ func (st *Store) ReplaceAccountResources(ctx context.Context, msg *types.MsgRepl
 		}
 	}
 
-	if err := tx.Commit(); err != nil {
-		return accountID, castPgErr(err)
-	}
+	err = tx.Commit()
 
 	return accountID, castPgErr(err)
 }
 
-func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgReplaceAccountMetadata, height int64) error { // TODO: return accountID
+func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgReplaceAccountMetadata, height int64) (int64, error) {
 	tx, err := st.db.Begin()
 	if err != nil {
-		return castPgErr(err)
+		return 0, castPgErr(err)
 	}
 
 	accountID, err := getAccountID(st, ctx, msg.Domain, msg.Name)
 	if err != nil {
-		return err
+		return accountID, err
 	}
 
 	_, err = st.db.ExecContext(ctx, `
@@ -152,13 +224,12 @@ func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgRepla
 		WHERE id = $2
 	`, msg.NewMetadataURI, accountID, height)
 	if err != nil {
-		return castPgErr(err)
-	}
-	if err := tx.Commit(); err != nil {
-		return castPgErr(err)
+		return accountID, castPgErr(err)
 	}
 
-	return castPgErr(err)
+	err = tx.Commit()
+
+	return accountID, castPgErr(err)
 }
 
 func (st *Store) AddAccountCertificates(ctx context.Context, msg *types.MsgAddAccountCertificates, height int64) (int64, error) {
@@ -180,9 +251,7 @@ func (st *Store) AddAccountCertificates(ctx context.Context, msg *types.MsgAddAc
 		return accountID, wrapPgErr(err, "insert block")
 	}
 
-	if err := tx.Commit(); err != nil {
-		return accountID, castPgErr(err)
-	}
+	err = tx.Commit()
 
 	return accountID, castPgErr(err)
 }
@@ -202,10 +271,10 @@ func (st *Store) DeleteAccountCerts(ctx context.Context, msg *types.MsgDeleteAcc
 	return accountID, castPgErr(err)
 }
 
-func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount, height int64) error { // TODO: return accountID
+func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount, height int64) (int64, error) {
 	accountID, err := getAccountID(st, ctx, msg.Domain, msg.Name)
 	if err != nil {
-		return err
+		return accountID, err
 	}
 
 	_, err = st.db.ExecContext(ctx, `
@@ -213,7 +282,8 @@ func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount,
 		SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
 		WHERE id = $1
 	`, accountID, height)
-	return castPgErr(err)
+
+	return accountID, castPgErr(err)
 }
 
 func (st *Store) InsertBlock(ctx context.Context, b Block) error {
@@ -232,7 +302,7 @@ func (st *Store) InsertBlock(ctx context.Context, b Block) error {
 
 	err = tx.Commit()
 
-	_ = tx.Rollback()
+	_ = tx.Rollback() // TODO: WTF?  Ask Orkun what this line was supposed to accomplish
 
 	return wrapPgErr(err, "commit block tx")
 }
@@ -320,6 +390,10 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 		}
 	}
 	for _, acc := range gen.Accounts {
+		// skip the empty account because it was handled in st.RegisterDomain()
+		if *acc.Name == "" {
+			continue
+		}
 		msg := types.MsgRegisterAccount{
 			Domain:    acc.Domain,
 			Name:      *acc.Name,

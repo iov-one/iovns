@@ -110,11 +110,11 @@ func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64) err
 				return errors.Wrap(err, "register domain message")
 			}
 		case *types.MsgDeleteDomain:
-			if err := st.DeleteDomain(ctx, m, height); err != nil {
+			if _, err := st.DeleteDomain(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "delete domain message, domain name: %s", m.Domain)
 			}
 		case *types.MsgTransferDomain:
-			if err := st.TransferDomain(ctx, m, height); err != nil {
+			if _, err := st.TransferDomain(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "transfer domain message, domain name: %s", m.Domain)
 			}
 		case *types.MsgRegisterAccount:
@@ -122,11 +122,11 @@ func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64) err
 				return errors.Wrapf(err, "register account message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgDeleteAccount:
-			if err := st.DeleteAccount(ctx, m, height); err != nil {
+			if _, err := st.DeleteAccount(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "delete account message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgTransferAccount:
-			if err := st.TransferAccount(ctx, m, height); err != nil {
+			if _, err := st.TransferAccount(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "transfer account message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgReplaceAccountResources:
@@ -134,7 +134,7 @@ func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64) err
 				return errors.Wrapf(err, "replace account resources message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgReplaceAccountMetadata:
-			if err := st.ReplaceAccountMetadata(ctx, m, height); err != nil {
+			if _, err := st.ReplaceAccountMetadata(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "replace account metadata message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgAddAccountCertificates:
