@@ -56,7 +56,9 @@ CREATE TABLE IF NOT EXISTS domains (
 	type TEXT NOT NULL,
 	broker TEXT,
 	fee_payer_addr TEXT,
-	deleted_at TIMESTAMP
+	created BIGINT REFERENCES blocks(block_height),
+	updated BIGINT REFERENCES blocks(block_height),
+	deleted BIGINT REFERENCES blocks(block_height)
 );
 
 ---
@@ -70,7 +72,9 @@ CREATE TABLE IF NOT EXISTS accounts (
 	broker TEXT,
 	metadata_uri TEXT,
 	fee_payer_addr TEXT,
-	deleted_at TIMESTAMP
+	created BIGINT REFERENCES blocks(block_height),
+	updated BIGINT REFERENCES blocks(block_height),
+	deleted BIGINT REFERENCES blocks(block_height)
 );
 
 ---
@@ -78,7 +82,8 @@ CREATE TABLE IF NOT EXISTS resources (
 	id BIGSERIAL PRIMARY KEY,
 	account_id BIGINT REFERENCES accounts(id),
 	uri TEXT,
-	resource TEXT
+	resource TEXT,
+	updated BIGINT REFERENCES blocks(block_height)
 );
 
 ---
@@ -86,7 +91,8 @@ CREATE TABLE IF NOT EXISTS account_certificates (
 	id BIGSERIAL PRIMARY KEY,
 	account_id BIGINT REFERENCES accounts(id),
 	certificate BYTEA,
-	deleted_at TIMESTAMP
+	created BIGINT REFERENCES blocks(block_height),
+	deleted BIGINT REFERENCES blocks(block_height)
 );
 `
 

@@ -73,19 +73,6 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, denom string) (
 		}
 
 		fee := sdk.ZeroInt()
-		for _, tx := range tmblock.Transactions {
-			coins := tx.Fee.Amount
-			for _, c := range coins {
-				if c.Denom != denom {
-					return 1, errors.Wrapf(ErrDenom, "not supported denom: %s, expected %s", c.Denom, denom)
-				}
-				fee = fee.Add(c.Amount)
-			}
-			if err := routeMsgs(ctx, st, tx.Msgs); err != nil {
-				log.Error(errors.Wrapf(err, "height %d", c.Height))
-			}
-		}
-
 		block := Block{
 			Height:  c.Height,
 			Hash:    hex.EncodeToString(c.Hash),
@@ -95,56 +82,71 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, denom string) (
 		if err := st.InsertBlock(ctx, block); err != nil {
 			return inserted, errors.Wrapf(err, "insert block %d", c.Height)
 		}
+
+		for _, tx := range tmblock.Transactions {
+			coins := tx.Fee.Amount
+			for _, c := range coins {
+				if c.Denom != denom {
+					return 1, errors.Wrapf(ErrDenom, "not supported denom: %s, expected %s", c.Denom, denom)
+				}
+				fee = fee.Add(c.Amount)
+			}
+			if err := routeMsgs(ctx, st, tx.Msgs, c.Height); err != nil {
+				log.Error(errors.Wrapf(err, "height %d", c.Height))
+			}
+		}
+
 		inserted++
 	}
 }
 
 // Domain/Account valid until field is skipped, maybe could be implemented via
 // extra query calls on specific height
-func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg) error {
+func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64) error {
 	for _, msg := range msgs {
 		switch m := msg.(type) {
 		case *types.MsgRegisterDomain:
-			if _, err := st.RegisterDomain(ctx, m); err != nil {
+			if _, err := st.RegisterDomain(ctx, m, height); err != nil {
 				return errors.Wrap(err, "register domain message")
 			}
 		case *types.MsgDeleteDomain:
-			if err := st.DeleteDomain(ctx, m); err != nil {
+			if err := st.DeleteDomain(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "delete domain message, domain name: %s", m.Domain)
 			}
 		case *types.MsgTransferDomain:
-			if err := st.TransferDomain(ctx, m); err != nil {
+			if err := st.TransferDomain(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "transfer domain message, domain name: %s", m.Domain)
 			}
 		case *types.MsgRegisterAccount:
-			if _, err := st.RegisterAccount(ctx, m); err != nil {
+			if _, err := st.RegisterAccount(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "register account message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgDeleteAccount:
-			if err := st.DeleteAccount(ctx, m); err != nil {
+			if err := st.DeleteAccount(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "delete account message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgTransferAccount:
-			if err := st.TransferAccount(ctx, m); err != nil {
+			if err := st.TransferAccount(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "transfer account message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgReplaceAccountResources:
-			if _, err := st.ReplaceAccountResources(ctx, m); err != nil {
+			if _, err := st.ReplaceAccountResources(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "replace account resources message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgReplaceAccountMetadata:
-			if err := st.ReplaceAccountMetadata(ctx, m); err != nil {
+			if err := st.ReplaceAccountMetadata(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "replace account metadata message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgAddAccountCertificates:
-			if _, err := st.AddAccountCertificates(ctx, m); err != nil {
+			if _, err := st.AddAccountCertificates(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "add account certificates message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		case *types.MsgDeleteAccountCertificate:
-			if err := st.DeleteAccountCerts(ctx, m); err != nil {
+			if _, err := st.DeleteAccountCerts(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "delete account certificates message, domain name: %s, account name: %s", m.Domain, m.Name)
 			}
 		}
 	}
+
 	return nil
 }

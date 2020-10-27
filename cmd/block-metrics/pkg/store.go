@@ -32,68 +32,64 @@ func a2s(addr sdk.AccAddress) string {
 	return sdk.AccAddress(addr).String()
 }
 
-func (st *Store) RegisterDomain(ctx context.Context, msg *types.MsgRegisterDomain) (int64, error) {
+func (st *Store) RegisterDomain(ctx context.Context, msg *types.MsgRegisterDomain, height int64) (int64, error) {
+	// TODO: add the "" account
 	var id int64
 	err := st.db.QueryRowContext(ctx, `
-		INSERT INTO domains (name, admin, type, broker, fee_payer_addr)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO domains (name, admin, type, broker, fee_payer_addr, created)
+		VALUES ($1, $2, $3, $4, $5, (SELECT block_height FROM blocks WHERE block_height=$6))
 		RETURNING id
-	`, msg.Name, a2s(msg.Admin), msg.DomainType, a2s(msg.Broker), a2s(msg.FeePayerAddr)).Scan(&id)
+	`, msg.Name, a2s(msg.Admin), msg.DomainType, a2s(msg.Broker), a2s(msg.FeePayerAddr), height).Scan(&id)
 	return id, castPgErr(err)
 }
 
-func (st *Store) DeleteDomain(ctx context.Context, msg *types.MsgDeleteDomain) error {
+func (st *Store) DeleteDomain(ctx context.Context, msg *types.MsgDeleteDomain, height int64) error {
+	// TODO: delete the domain's accounts
 	sqlStatement := `
-		UPDATE domains SET deleted_at = now()
-		WHERE name = $1`
-	_, err := st.db.ExecContext(ctx, sqlStatement, msg.Domain)
+		UPDATE domains SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
+		WHERE id = (SELECT MAX(id) FROM domains WHERE name = $1)`
+	_, err := st.db.ExecContext(ctx, sqlStatement, msg.Domain, height)
 	return err
 }
 
-func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomain) error {
+func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomain, height int64) error {
+	// TODO: deal with the different transfer flags
 	sqlStatement := `
 	UPDATE domains
-	SET admin = $1
-	WHERE name = $2`
-	_, err := st.db.ExecContext(ctx, sqlStatement, a2s(msg.NewAdmin), msg.Domain)
+	SET admin = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
+	WHERE id = (SELECT MAX(id) FROM domains WHERE name = $2)`
+	_, err := st.db.ExecContext(ctx, sqlStatement, a2s(msg.NewAdmin), msg.Domain, height)
 	return err
 }
 
-func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAccount) error {
+func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAccount, height int64) error {
 	sqlStatement := `
 	UPDATE accounts
-	SET owner = $1
-	WHERE domain = $2 AND name = $3`
-	_, err := st.db.ExecContext(ctx, sqlStatement, a2s(msg.NewOwner), msg.Domain, msg.Name)
+	SET owner = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$4)
+	WHERE domain_id = (SELECT MAX(id) FROM domains WHERE name = $2)
+	AND id = (SELECT MAX(id) FROM accounts WHERE name = $3)`
+	_, err := st.db.ExecContext(ctx, sqlStatement, a2s(msg.NewOwner), msg.Domain, msg.Name, height)
 	return err
 }
 
-func (st *Store) RegisterAccount(ctx context.Context, msg *types.MsgRegisterAccount) (int64, error) {
-	var accountID int64
-
-	sqlStatement := `SELECT id FROM domains WHERE name = $1;`
-	row := st.db.QueryRowContext(ctx, sqlStatement, msg.Domain)
-	var domainID int64
-	if err := row.Scan(&domainID); err != nil {
-		return domainID, castPgErr(err)
-	}
-	_, err := st.db.ExecContext(ctx, `
-		INSERT INTO accounts (domain_id, domain, name, owner, registerer, broker, fee_payer_addr)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-	`, domainID, msg.Domain, msg.Name, a2s(msg.Owner), a2s(msg.Registerer), a2s(msg.Broker), a2s(msg.FeePayerAddr))
-	if err != nil {
-		return accountID, castPgErr(err)
-	}
-	return accountID, nil
+func (st *Store) RegisterAccount(ctx context.Context, msg *types.MsgRegisterAccount, height int64) (int64, error) {
+	var id int64
+	err := st.db.QueryRowContext(ctx, `
+		INSERT INTO accounts (domain_id, domain, name, owner, registerer, broker, fee_payer_addr, created)
+		VALUES ((SELECT MAX(id) FROM domains WHERE name = $1), $1, $2, $3, $4, $5, $6, (SELECT block_height FROM blocks WHERE block_height=$7))
+		RETURNING id
+	`, msg.Domain, msg.Name, a2s(msg.Owner), a2s(msg.Registerer), a2s(msg.Broker), a2s(msg.FeePayerAddr), height).Scan(&id)
+	return id, castPgErr(err)
 }
 
-func (st *Store) ReplaceAccountResources(ctx context.Context, msg *types.MsgReplaceAccountResources) (int64, error) {
-	var resourceID int64
-
-	sqlStatement := `SELECT id FROM accounts WHERE domain = $1 and name = $2;`
-	row := st.db.QueryRowContext(ctx, sqlStatement, msg.Domain, msg.Name)
+func (st *Store) ReplaceAccountResources(ctx context.Context, msg *types.MsgReplaceAccountResources, height int64) (int64, error) {
 	var accountID int64
-	if err := row.Scan(&accountID); err != nil {
+	err := st.db.QueryRowContext(ctx, `
+		SELECT id FROM accounts
+		WHERE domain_id = (SELECT MAX(id) FROM domains WHERE name = $1)
+		AND id = (SELECT MAX(id) FROM accounts WHERE name = $2);
+	`, msg.Domain, msg.Name).Scan(&accountID)
+	if err != nil {
 		return accountID, castPgErr(err)
 	}
 
@@ -102,15 +98,15 @@ func (st *Store) ReplaceAccountResources(ctx context.Context, msg *types.MsgRepl
 		return accountID, castPgErr(err)
 	}
 	for _, r := range msg.NewResources {
-		st := `INSERT INTO resources (account_id, resource, uri)
-			VALUES ($1, $2, $3)
+		st := `INSERT INTO resources (account_id, resource, uri, updated)
+			VALUES ($1, $2, $3, (SELECT block_height FROM blocks WHERE block_height=$4))
 			ON CONFLICT (id) DO UPDATE SET resource = EXCLUDED.resource, uri = EXCLUDED.uri;`
 		stmt, err := tx.Prepare(st)
 		if err != nil {
 			tx.Rollback()
 			return accountID, castPgErr(err)
 		}
-		_, err = stmt.ExecContext(ctx, accountID, r.Resource, r.URI)
+		_, err = stmt.ExecContext(ctx, accountID, r.Resource, r.URI, height)
 		if err != nil {
 			tx.Rollback()
 			return accountID, castPgErr(err)
@@ -124,10 +120,10 @@ func (st *Store) ReplaceAccountResources(ctx context.Context, msg *types.MsgRepl
 		return accountID, castPgErr(err)
 	}
 
-	return resourceID, castPgErr(err)
+	return accountID, castPgErr(err)
 }
 
-func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgReplaceAccountMetadata) error {
+func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgReplaceAccountMetadata, height int64) error {
 	tx, err := st.db.Begin()
 	if err != nil {
 		return castPgErr(err)
@@ -135,9 +131,10 @@ func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgRepla
 
 	sqlStatement := `
 	UPDATE accounts
-	SET metadata_uri = $1
-	WHERE domain = $2 AND name = $3`
-	_, err = st.db.ExecContext(ctx, sqlStatement, msg.NewMetadataURI, msg.Domain, msg.Name)
+	SET metadata_uri = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$4)
+	WHERE domain_id = (SELECT MAX(id) FROM domains WHERE name = $2)
+	AND id = (SELECT MAX(id) FROM accounts WHERE name = $3)`
+	_, err = st.db.ExecContext(ctx, sqlStatement, msg.NewMetadataURI, msg.Domain, msg.Name, height)
 	if err != nil {
 		return castPgErr(err)
 	}
@@ -148,13 +145,14 @@ func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgRepla
 	return castPgErr(err)
 }
 
-func (st *Store) AddAccountCertificates(ctx context.Context, msg *types.MsgAddAccountCertificates) (int64, error) {
-	var certID int64
-
-	sqlStatement := `SELECT id FROM accounts WHERE domain = $1 and name = $2;`
-	row := st.db.QueryRowContext(ctx, sqlStatement, msg.Domain, msg.Name)
+func (st *Store) AddAccountCertificates(ctx context.Context, msg *types.MsgAddAccountCertificates, height int64) (int64, error) {
 	var accountID int64
-	if err := row.Scan(&accountID); err != nil {
+	err := st.db.QueryRowContext(ctx, `
+		SELECT id FROM accounts
+		WHERE domain_id = (SELECT MAX(id) FROM domains WHERE name = $1)
+		AND id = (SELECT MAX(id) FROM accounts WHERE name = $2);
+	`, msg.Domain, msg.Name).Scan(&accountID)
+	if err != nil {
 		return accountID, castPgErr(err)
 	}
 
@@ -164,9 +162,9 @@ func (st *Store) AddAccountCertificates(ctx context.Context, msg *types.MsgAddAc
 	}
 
 	_, err = tx.ExecContext(ctx, `
-		INSERT INTO account_certificates(account_id, certificate)
-		VALUES ($1, $2)
-	`, accountID, msg.NewCertificate)
+		INSERT INTO account_certificates(account_id, certificate, created)
+		VALUES ($1, $2, (SELECT block_height FROM blocks WHERE block_height=$3))
+	`, accountID, msg.NewCertificate, height)
 	if err != nil {
 		return accountID, wrapPgErr(err, "insert block")
 	}
@@ -175,29 +173,35 @@ func (st *Store) AddAccountCertificates(ctx context.Context, msg *types.MsgAddAc
 		return accountID, castPgErr(err)
 	}
 
-	return certID, castPgErr(err)
+	return accountID, castPgErr(err)
 }
 
-func (st *Store) DeleteAccountCerts(ctx context.Context, msg *types.MsgDeleteAccountCertificate) error {
-	sqlStatement := `SELECT id FROM accounts WHERE domain = $1 and name = $2;`
-	row := st.db.QueryRowContext(ctx, sqlStatement, msg.Domain, msg.Name)
+func (st *Store) DeleteAccountCerts(ctx context.Context, msg *types.MsgDeleteAccountCertificate, height int64) (int64, error) {
 	var accountID int64
-	if err := row.Scan(&accountID); err != nil {
-		return castPgErr(err)
+	err := st.db.QueryRowContext(ctx, `
+		SELECT id FROM accounts
+		WHERE domain_id = (SELECT MAX(id) FROM domains WHERE name = $1)
+		AND id = (SELECT MAX(id) FROM accounts WHERE name = $2);
+	`, msg.Domain, msg.Name).Scan(&accountID)
+	if err != nil {
+		return accountID, castPgErr(err)
 	}
 
-	sqlStatement = `
-		UPDATE account_certificates SET deleted_at = now()
+	sqlStatement := `
+		UPDATE account_certificates
+		SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
 		WHERE account_id = $1`
-	_, err := st.db.ExecContext(ctx, sqlStatement, accountID)
-	return err
+	_, err = st.db.ExecContext(ctx, sqlStatement, accountID, height)
+
+	return accountID, err
 }
 
-func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount) error {
+func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount, height int64) error {
 	sqlStatement := `
-		UPDATE accounts SET deleted_at = now()
-		WHERE domain = $1 AND name = $2`
-	_, err := st.db.ExecContext(ctx, sqlStatement, msg.Domain, msg.Name)
+		UPDATE accounts SET deleted = (SELECT block_height FROM blocks WHERE block_height=$3)
+		WHERE domain_id = (SELECT MAX(id) FROM domains WHERE name = $1)
+		AND id = (SELECT MAX(id) FROM accounts WHERE name = $2)`
+	_, err := st.db.ExecContext(ctx, sqlStatement, msg.Domain, msg.Name, height)
 	return err
 }
 
@@ -300,7 +304,7 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 			Broker:       domain.Broker,
 			FeePayerAddr: domain.Admin,
 		}
-		if _, err := st.RegisterDomain(ctx, &msg); err != nil {
+		if _, err := st.RegisterDomain(ctx, &msg, 0); err != nil {
 			return errors.Wrapf(err, "cannot insert domain")
 		}
 	}
@@ -312,7 +316,7 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 			Resources: acc.Resources,
 			Broker:    acc.Broker,
 		}
-		if _, err := st.RegisterAccount(ctx, &msg); err != nil {
+		if _, err := st.RegisterAccount(ctx, &msg, 0); err != nil {
 			return errors.Wrapf(err, "cannot insert domain")
 		}
 	}
