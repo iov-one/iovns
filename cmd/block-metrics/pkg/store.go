@@ -11,6 +11,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+// dbTx is a database transaction used to batch inserts/updates.
+// It Begin()s in BatchBegin() and is committed and reassigned in BatchCommit().
+var dbTx *sql.Tx
+
 // NewStore returns a store that provides an access to our database.
 func NewStore(db *sql.DB) *Store {
 	return &Store{db: db}
@@ -33,26 +37,20 @@ func a2s(addr sdk.AccAddress) string {
 }
 
 // get accounts.id given a domain and a name
-func getAccountID(st *Store, ctx context.Context, domain string, name string) (int64, error) {
+func getAccountID(ctx context.Context, domain string, name string) (int64, error) {
 	var accountID int64
-	err := st.db.QueryRowContext(ctx, `
+	err := dbTx.QueryRowContext(ctx, `
 		SELECT id FROM accounts
 		WHERE domain_id = (SELECT MAX(id) FROM domains  WHERE name = $1)
 		AND          id = (SELECT MAX(id) FROM accounts WHERE name = $2)
 	`, domain, name).Scan(&accountID)
-
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) RegisterDomain(ctx context.Context, msg *types.MsgRegisterDomain, height int64) (int64, error) {
-	tx, err := st.db.Begin()
-	if err != nil {
-		return 0, castPgErr(err)
-	}
-
 	// create the domain...
 	var id int64
-	err = st.db.QueryRowContext(ctx, `
+	err := dbTx.QueryRowContext(ctx, `
 		INSERT INTO domains (name, admin, type, broker, fee_payer_addr, created)
 		VALUES ($1, $2, $3, $4, $5, (SELECT block_height FROM blocks WHERE block_height=$6))
 		RETURNING id
@@ -62,109 +60,70 @@ func (st *Store) RegisterDomain(ctx context.Context, msg *types.MsgRegisterDomai
 	}
 
 	// ...and then the empty account
-	msgEmptyAccount := types.MsgRegisterAccount{
+	return st.RegisterAccount(ctx, &types.MsgRegisterAccount{
 		Domain:       msg.Name,
 		Name:         "",
 		Owner:        msg.Admin,
 		Broker:       msg.Broker,
 		FeePayerAddr: msg.FeePayerAddr,
-	}
-	accountID, err := st.RegisterAccount(ctx, &msgEmptyAccount, height)
-	if err != nil {
-		return accountID, err
-	}
-
-	err = tx.Commit()
-
-	return accountID, castPgErr(err)
+	}, height)
 }
 
 func (st *Store) DeleteDomain(ctx context.Context, msg *types.MsgDeleteDomain, height int64) (int64, error) {
-	tx, err := st.db.Begin()
-	if err != nil {
-		return 0, castPgErr(err)
-	}
-
 	// delete the empty account...
-	msgEmptyAccount := types.MsgDeleteAccount{
+	accountID, err := st.DeleteAccount(ctx, &types.MsgDeleteAccount{
 		Domain:       msg.Domain,
 		Name:         "",
 		Owner:        msg.Owner,
 		FeePayerAddr: msg.FeePayerAddr,
+	}, height)
+	if err == nil {
+		// ...and then the domain
+		_, err = dbTx.ExecContext(ctx, `
+			UPDATE domains
+			SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
+			WHERE id = (SELECT MAX(id) FROM domains WHERE name = $1)
+		`, msg.Domain, height)
 	}
-	accountID, err := st.DeleteAccount(ctx, &msgEmptyAccount, height)
-	if err != nil {
-		return accountID, err
-	}
-
-	// ...and then the domain
-	_, err = st.db.ExecContext(ctx, `
-		UPDATE domains
-		SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
-		WHERE id = (SELECT MAX(id) FROM domains WHERE name = $1)
-	`, msg.Domain, height)
-	if err != nil {
-		return 0, castPgErr(err)
-	}
-
-	err = tx.Commit()
-
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomain, height int64) (int64, error) {
-	tx, err := st.db.Begin()
-	if err != nil {
-		return 0, castPgErr(err)
-	}
-
 	// update the empty account...
-	msgEmptyAccount := types.MsgTransferAccount{
+	accountID, err := st.TransferAccount(ctx, &types.MsgTransferAccount{
 		Domain:       msg.Domain,
 		Name:         "",
 		Owner:        msg.Owner,
 		NewOwner:     msg.NewAdmin,
 		FeePayerAddr: msg.FeePayerAddr,
 		Reset:        true, // TODO: deal with the different transfer flags
+	}, height)
+	if err == nil {
+		// ...and then the domain
+		_, err = dbTx.ExecContext(ctx, `
+			UPDATE domains
+			SET admin = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
+			WHERE id = (SELECT MAX(id) FROM domains WHERE name = $2)
+		`, a2s(msg.NewAdmin), msg.Domain, height)
 	}
-	accountID, err := st.TransferAccount(ctx, &msgEmptyAccount, height)
-	if err != nil {
-		return accountID, err
-	}
-
-	// ...and then the domain
-	_, err = st.db.ExecContext(ctx, `
-		UPDATE domains
-		SET admin = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
-		WHERE id = (SELECT MAX(id) FROM domains WHERE name = $2)
-	`, a2s(msg.NewAdmin), msg.Domain, height)
-	if err != nil {
-		return accountID, castPgErr(err)
-	}
-
-	err = tx.Commit()
-
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAccount, height int64) (int64, error) {
-	accountID, err := getAccountID(st, ctx, msg.Domain, msg.Name)
-	if err != nil {
-		return accountID, err
+	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
+	if err == nil {
+		_, err = dbTx.ExecContext(ctx, `
+			UPDATE accounts
+			SET owner = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
+			WHERE id = $2
+		`, a2s(msg.NewOwner), accountID, height)
 	}
-
-	_, err = st.db.ExecContext(ctx, `
-		UPDATE accounts
-		SET owner = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
-		WHERE id = $2
-	`, a2s(msg.NewOwner), accountID, height)
-
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) RegisterAccount(ctx context.Context, msg *types.MsgRegisterAccount, height int64) (int64, error) {
 	var id int64
-	err := st.db.QueryRowContext(ctx, `
+	err := dbTx.QueryRowContext(ctx, `
 		INSERT INTO accounts (domain_id, domain, name, owner, registerer, broker, fee_payer_addr, created)
 		VALUES ((SELECT MAX(id) FROM domains WHERE name = $1), $1, $2, $3, $4, $5, $6, (SELECT block_height FROM blocks WHERE block_height=$7))
 		RETURNING id
@@ -173,138 +132,75 @@ func (st *Store) RegisterAccount(ctx context.Context, msg *types.MsgRegisterAcco
 }
 
 func (st *Store) ReplaceAccountResources(ctx context.Context, msg *types.MsgReplaceAccountResources, height int64) (int64, error) {
-	tx, err := st.db.Begin()
-	if err != nil {
-		return 0, castPgErr(err)
-	}
-
-	accountID, err := getAccountID(st, ctx, msg.Domain, msg.Name)
-	if err != nil {
-		return accountID, err
-	}
-
-	for _, r := range msg.NewResources {
-		st := `INSERT INTO resources (account_id, resource, uri, updated)
-			VALUES ($1, $2, $3, (SELECT block_height FROM blocks WHERE block_height=$4))
-			ON CONFLICT (id) DO UPDATE SET resource = EXCLUDED.resource, uri = EXCLUDED.uri;`
-		stmt, err := tx.Prepare(st)
-		if err != nil {
-			tx.Rollback()
-			return accountID, castPgErr(err)
-		}
-		_, err = stmt.ExecContext(ctx, accountID, r.Resource, r.URI, height)
-		if err != nil {
-			tx.Rollback()
-			return accountID, castPgErr(err)
-		}
-		if err := stmt.Close(); err != nil {
-			return accountID, castPgErr(err)
+	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
+	if err == nil {
+		for _, r := range msg.NewResources {
+			_, err = dbTx.ExecContext(ctx, `
+				INSERT INTO resources (account_id, resource, uri, updated)
+				VALUES ($1, $2, $3, (SELECT block_height FROM blocks WHERE block_height=$4))
+				ON CONFLICT (id) DO UPDATE SET resource = EXCLUDED.resource, uri = EXCLUDED.uri
+			`, accountID, r.Resource, r.URI, height)
+			if err != nil {
+				return accountID, castPgErr(err)
+			}
 		}
 	}
-
-	err = tx.Commit()
-
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgReplaceAccountMetadata, height int64) (int64, error) {
-	tx, err := st.db.Begin()
-	if err != nil {
-		return 0, castPgErr(err)
+	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
+	if err == nil {
+		_, err = dbTx.ExecContext(ctx, `
+			UPDATE accounts
+			SET metadata_uri = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
+			WHERE id = $2
+		`, msg.NewMetadataURI, accountID, height)
 	}
-
-	accountID, err := getAccountID(st, ctx, msg.Domain, msg.Name)
-	if err != nil {
-		return accountID, err
-	}
-
-	_, err = st.db.ExecContext(ctx, `
-		UPDATE accounts
-		SET metadata_uri = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
-		WHERE id = $2
-	`, msg.NewMetadataURI, accountID, height)
-	if err != nil {
-		return accountID, castPgErr(err)
-	}
-
-	err = tx.Commit()
-
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) AddAccountCertificates(ctx context.Context, msg *types.MsgAddAccountCertificates, height int64) (int64, error) {
-	tx, err := st.db.Begin()
-	if err != nil {
-		return 0, castPgErr(err)
+	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
+	if err == nil {
+		_, err = dbTx.ExecContext(ctx, `
+			INSERT INTO account_certificates(account_id, certificate, created)
+			VALUES ($1, $2, (SELECT block_height FROM blocks WHERE block_height=$3))
+		`, accountID, msg.NewCertificate, height)
 	}
-
-	accountID, err := getAccountID(st, ctx, msg.Domain, msg.Name)
-	if err != nil {
-		return accountID, err
-	}
-
-	_, err = tx.ExecContext(ctx, `
-		INSERT INTO account_certificates(account_id, certificate, created)
-		VALUES ($1, $2, (SELECT block_height FROM blocks WHERE block_height=$3))
-	`, accountID, msg.NewCertificate, height)
-	if err != nil {
-		return accountID, wrapPgErr(err, "insert block")
-	}
-
-	err = tx.Commit()
-
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) DeleteAccountCerts(ctx context.Context, msg *types.MsgDeleteAccountCertificate, height int64) (int64, error) {
-	accountID, err := getAccountID(st, ctx, msg.Domain, msg.Name)
-	if err != nil {
-		return accountID, err
+	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
+	if err == nil {
+		_, err = dbTx.ExecContext(ctx, `
+			UPDATE account_certificates
+			SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
+			WHERE account_id = $1
+		`, accountID, height)
 	}
-
-	_, err = st.db.ExecContext(ctx, `
-		UPDATE account_certificates
-		SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
-		WHERE account_id = $1
-	`, accountID, height)
-
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount, height int64) (int64, error) {
-	accountID, err := getAccountID(st, ctx, msg.Domain, msg.Name)
-	if err != nil {
-		return accountID, err
+	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
+	if err == nil {
+		_, err = dbTx.ExecContext(ctx, `
+			UPDATE accounts
+			SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
+			WHERE id = $1
+		`, accountID, height)
 	}
-
-	_, err = st.db.ExecContext(ctx, `
-		UPDATE accounts
-		SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
-		WHERE id = $1
-	`, accountID, height)
-
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) InsertBlock(ctx context.Context, b Block) error {
-	tx, err := st.db.BeginTx(ctx, nil)
-	if err != nil {
-		return errors.Wrap(err, "cannot create transaction")
-	}
-
-	_, err = tx.ExecContext(ctx, `
+	_, err := dbTx.ExecContext(ctx, `
 		INSERT INTO blocks (block_height, block_hash, block_time, fee_frac)
 		VALUES ($1, $2, $3, $4)
 	`, b.Height, b.Hash, b.Time.UTC(), b.FeeFrac)
-	if err != nil {
-		return wrapPgErr(err, "insert block")
-	}
-
-	err = tx.Commit()
-
-	_ = tx.Rollback() // TODO: WTF?  Ask Orkun what this line was supposed to accomplish
-
-	return wrapPgErr(err, "commit block tx")
+	return wrapPgErr(err, "insert block")
 }
 
 func (st *Store) LatestBlock(ctx context.Context) (*Block, error) {
@@ -377,7 +273,12 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 	if err != nil {
 		return errors.Wrapf(err, "genesis fetch failed")
 	}
-	for _, domain := range gen.Domains {
+	// begin a batch insert
+	if err = st.BatchBegin(ctx); err != nil {
+		return errors.Wrap(err, "st.BatchBegin() failed")
+	}
+	for i, domain := range gen.Domains {
+		// dmjp for _, domain := range gen.Domains {
 		msg := types.MsgRegisterDomain{
 			Name:         domain.Name,
 			Admin:        domain.Admin,
@@ -388,8 +289,11 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 		if _, err := st.RegisterDomain(ctx, &msg, 0); err != nil {
 			return errors.Wrapf(err, "cannot insert domain")
 		}
+		if i == 10 { // dmjp
+			break
+		}
 	}
-	for _, acc := range gen.Accounts {
+	for i, acc := range gen.Accounts {
 		// skip the empty account because it was handled in st.RegisterDomain()
 		if *acc.Name == "" {
 			continue
@@ -404,6 +308,35 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 		if _, err := st.RegisterAccount(ctx, &msg, 0); err != nil {
 			return errors.Wrapf(err, "cannot insert domain")
 		}
+		if i == 10 { // dmjp
+			break
+		}
+	}
+	// commit the batch
+	if err = st.BatchCommit(ctx); err != nil {
+		return errors.Wrapf(err, "st.BatchCommit() failed")
 	}
 	return err
+}
+
+func (st *Store) BatchBegin(ctx context.Context) error {
+	tx, err := st.db.BeginTx(ctx, nil)
+	if err != nil {
+		return errors.Wrap(err, "cannot create database transaction")
+	}
+	dbTx = tx
+	return nil
+}
+
+func (st *Store) BatchCommit(ctx context.Context) error {
+	// commit or rollback before...
+	if err := dbTx.Commit(); err != nil {
+		dbTx.Rollback()
+		return errors.Wrapf(err, "dbTx.Commit()")
+	}
+	// ...begining a new database transaction
+	if err := st.BatchBegin(ctx); err != nil {
+		return errors.Wrap(err, "cannot create transaction")
+	}
+	return nil
 }

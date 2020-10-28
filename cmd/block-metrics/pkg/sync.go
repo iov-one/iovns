@@ -37,6 +37,11 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, denom string) (
 		return inserted, errors.Wrap(err, "latest block")
 	}
 
+	// begin a database transaction
+	if err := st.BatchBegin(ctx); err != nil {
+		return inserted, errors.Wrap(err, "st.BatchBegin()")
+	}
+
 	for {
 		nextHeight := syncedHeight + 1
 		if lastKnownHeight < nextHeight {
@@ -93,6 +98,13 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, denom string) (
 			}
 			if err := routeMsgs(ctx, st, tx.Msgs, c.Height); err != nil {
 				log.Error(errors.Wrapf(err, "height %d", c.Height))
+			}
+		}
+
+		// commit the database transaction, potentially in a batch
+		if lastKnownHeight-nextHeight == 0 || inserted%100 == 0 {
+			if err = st.BatchCommit(ctx); err != nil {
+				return inserted, errors.Wrapf(err, "inserted %d; failed at block %d", inserted, c.Height)
 			}
 		}
 
