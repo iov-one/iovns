@@ -14,13 +14,14 @@ import (
 
 func main() {
 	conf := pkg.Configuration{
-		DBHost:          os.Getenv("POSTGRES_HOST"),
-		DBName:          os.Getenv("POSTGRES_DB"),
-		DBUser:          os.Getenv("POSTGRES_USER"),
-		DBPass:          os.Getenv("POSTGRES_PASSWORD"),
-		DBSSL:           os.Getenv("POSTGRES_SSL_ENABLE"),
-		TendermintWsURI: os.Getenv("TENDERMINT_WS_URI"),
-		FeeDenom:        os.Getenv("FEE_DENOMINATION"),
+		DBHost:           os.Getenv("POSTGRES_HOST"),
+		DBName:           os.Getenv("POSTGRES_DB"),
+		DBUser:           os.Getenv("POSTGRES_USER"),
+		DBPass:           os.Getenv("POSTGRES_PASSWORD"),
+		DBSSL:            os.Getenv("POSTGRES_SSL_ENABLE"),
+		TendermintWsURI:  os.Getenv("TENDERMINT_WS_URI"),
+		FeeDenom:         os.Getenv("FEE_DENOMINATION"),
+		TendermintLcdUrl: os.Getenv("TENDERMINT_LCD_URL"),
 	}
 
 	if err := run(conf); err != nil {
@@ -52,7 +53,7 @@ func run(conf pkg.Configuration) error {
 	}
 	defer tmc.Close()
 
-	inserted, err := pkg.Sync(ctx, tmc, st, conf.FeeDenom)
+	inserted, err := pkg.Sync(ctx, tmc, st, conf.FeeDenom, conf.TendermintLcdUrl)
 	if err != nil {
 		return errors.Wrap(err, "sync")
 	}

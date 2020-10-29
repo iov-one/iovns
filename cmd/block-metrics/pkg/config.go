@@ -10,4 +10,6 @@ type Configuration struct {
 	TendermintWsURI string
 	// Denomination of the fee coin, eg uiov
 	FeeDenom string
+	// Tendermint light client daemon URL
+	TendermintLcdUrl string
 }
