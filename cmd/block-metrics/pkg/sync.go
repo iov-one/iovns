@@ -227,7 +227,25 @@ func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64, url
 				params["account_name"] = m.Name
 				params["deleted_certificate"] = hex.EncodeToString(m.DeleteCertificate)
 			}
-			// TODO: add MsgRenewAccount and MsgRenewDomain
+		case *types.MsgRenewDomain:
+			if id, err := st.RenewDomain(ctx, m, height); err != nil {
+				return errors.Wrapf(err, "renew domain message, domain name: %s", m.Domain)
+			} else {
+				accountID = id
+				params["action"] = "renew_domain"
+				params["sender"] = m.Signer.String()
+				params["domain_name"] = m.Domain
+			}
+		case *types.MsgRenewAccount:
+			if id, err := st.RenewAccount(ctx, m, height); err != nil {
+				return errors.Wrapf(err, "renew account message, domain name: %s, account name: %s", m.Domain, m.Name)
+			} else {
+				accountID = id
+				params["action"] = "renew_account"
+				params["sender"] = m.Signer.String()
+				params["domain_name"] = m.Domain
+				params["account_name"] = m.Name
+			}
 		}
 
 		if len(params) > 0 {

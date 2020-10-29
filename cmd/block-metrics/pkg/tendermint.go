@@ -366,7 +366,6 @@ func FetchLcdData(ctx context.Context, urlLCD string, queries *[]*LcdRequestData
 				domain := ""
 				switch q.Params["action"] {
 				case "register_account", "renew_account":
-					// TODO: check renew_account
 					account = q.Params["account_name"]
 					domain = q.Params["domain_name"]
 				case "register_domain", "renew_domain":

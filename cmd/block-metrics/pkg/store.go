@@ -109,6 +109,12 @@ func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomai
 	return accountID, castPgErr(err)
 }
 
+func (st *Store) RenewDomain(ctx context.Context, msg *types.MsgRenewDomain, height int64) (int64, error) {
+	accountID, err := getAccountID(ctx, msg.Domain, "")
+	// only valid_until needs to be updated and that's done in HandleLcdData()
+	return accountID, err
+}
+
 func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAccount, height int64) (int64, error) {
 	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
 	if err == nil {
@@ -195,6 +201,12 @@ func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount,
 	return accountID, castPgErr(err)
 }
 
+func (st *Store) RenewAccount(ctx context.Context, msg *types.MsgRenewAccount, height int64) (int64, error) {
+	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
+	// only valid_until needs to be updated and that's done in HandleLcdData
+	return accountID, err
+}
+
 func (st *Store) InsertBlock(ctx context.Context, b Block) error {
 	_, err := dbTx.ExecContext(ctx, `
 		INSERT INTO blocks (block_height, block_hash, block_time, fee_frac)
@@ -278,7 +290,7 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 		return errors.Wrap(err, "st.BatchBegin() failed")
 	}
 	for i, domain := range gen.Domains {
-		// dmjp for _, domain := range gen.Domains {
+		// TODO: dmjp for _, domain := range gen.Domains {
 		msg := types.MsgRegisterDomain{
 			Name:         domain.Name,
 			Admin:        domain.Admin,
