@@ -3,7 +3,6 @@ package pkg
 import (
 	"context"
 	"encoding/hex"
-	"fmt"
 	"time"
 
 	"github.com/prometheus/common/log"
@@ -113,8 +112,6 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, denom string, u
 	}
 }
 
-// Domain/Account valid until field is skipped, maybe could be implemented via
-// extra query calls on specific height
 func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64, urlLCD string) error {
 	// allocate a slice with the maximum needed capacity
 	queries := make([]*LcdRequestData, 0, len(msgs))[:]
@@ -256,8 +253,8 @@ func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64, url
 	if len(queries) > 0 {
 		if responses, err := FetchLcdData(ctx, urlLCD, &queries, height); err != nil {
 			return errors.Wrapf(err, "FetchLcdData() failed")
-		} else {
-			fmt.Println(responses) // TODO: handle the responses
+		} else if err = st.HandleLcdData(ctx, &queries, responses, height); err != nil {
+			return errors.Wrapf(err, "HandleLcdData() failed")
 		}
 	}
 

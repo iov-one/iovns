@@ -94,6 +94,33 @@ CREATE TABLE IF NOT EXISTS account_certificates (
 	created BIGINT REFERENCES blocks(block_height),
 	deleted BIGINT REFERENCES blocks(block_height)
 );
+
+---
+DROP TYPE IF EXISTS action CASCADE;
+CREATE TYPE action AS ENUM (
+	'add_certificates_account',
+	'delete_account',
+	'delete_certificate_account',
+	'delete_domain',
+	'register_account',
+	'register_domain',
+	'renew_account',
+	'renew_domain',
+	'replace_account_resources',
+	'set_account_metadata',
+	'transfer_account',
+	'transfer_domain'
+);
+
+---
+CREATE TABLE IF NOT EXISTS product_fees (
+	id BIGSERIAL PRIMARY KEY,
+	block BIGINT REFERENCES blocks(block_height),
+	account_id BIGINT REFERENCES accounts(id),
+	action action,
+	fee BIGINT,
+	payer TEXT
+);
 `
 
 type QueryError struct {

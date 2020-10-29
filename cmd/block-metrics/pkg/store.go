@@ -3,6 +3,9 @@ package pkg
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -349,6 +352,61 @@ func (st *Store) BatchCommit(ctx context.Context) error {
 	// ...begining a new database transaction
 	if err := st.BatchBegin(ctx); err != nil {
 		return errors.Wrap(err, "cannot create transaction")
+	}
+	return nil
+}
+
+func find(needle string, haystack []sdk.Attribute) (string, error) {
+	for _, pair := range haystack {
+		if pair.Key == needle {
+			return pair.Value, nil
+		}
+	}
+	return "", errors.New(fmt.Sprintf("couldn't find %s in %s", needle, haystack))
+}
+
+func getPayment(attributes []sdk.Attribute) (string, int64, error) {
+	payer, err := find("sender", attributes)
+	if err != nil {
+		return "", 0, err
+	}
+	denominated, err := find("amount", attributes)
+	if err != nil {
+		return "", 0, err
+	}
+	absolute := strings.Replace(denominated, "uvoi", "", 1) // TODO: use config fee denom
+	amount, err := strconv.ParseInt(absolute, 10, 64)
+	if err != nil {
+		return "", 0, err
+	}
+	return payer, amount, nil
+}
+
+func (st *Store) HandleLcdData(ctx context.Context, queries *[]*LcdRequestData, responses *[]*LcdResponseData, height int64) error {
+	for i, query := range *queries {
+		response := (*responses)[i]
+		if *response.TxError != nil {
+			return *response.TxError
+		}
+		if response.StarnameError != nil && *response.StarnameError != nil {
+			return *response.StarnameError
+		}
+		events := response.TxResponse.Logs[0].Events
+		//event0 := events[0]
+		event1 := events[1]
+		if event1.Type != "transfer" {
+			return errors.New(fmt.Sprintf("expected event type 'transfer' but got '%s'", event1.Type))
+		}
+		payer, amount, err := getPayment(event1.Attributes)
+		_, err = dbTx.ExecContext(ctx, `
+			INSERT INTO product_fees (block, account_id, action, fee, payer)
+			VALUES ((SELECT block_height FROM blocks WHERE block_height=$1), $2, $3, $4, $5)
+			RETURNING id
+		`, height, query.AccountID, query.Params["action"], amount, payer)
+		if err != nil {
+			return castPgErr(err)
+		}
+		// TODO: dmjp: add valid_until where appropriate
 	}
 	return nil
 }

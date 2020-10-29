@@ -295,7 +295,6 @@ type LcdResponseData struct {
 
 func fetchTx(ctx context.Context, urlLCD string, messageParams string, height int64, page int64, cdc *codec.Codec) (*types.TxResponse, error) {
 	url := fmt.Sprintf("%s/txs?message.module=starname&%s&tx.minheight=%d&tx.maxheight=%d&page=%d", urlLCD, messageParams, height, height, page)
-	fmt.Println(url) // dmjp
 	response, err := http.Get(url)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get %s", url)
