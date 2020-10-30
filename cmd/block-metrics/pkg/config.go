@@ -6,10 +6,10 @@ type Configuration struct {
 	DBPass string
 	DBName string
 	DBSSL  string
-	// Tendermint websocket URI
-	TendermintWsURI string
 	// Denomination of the fee coin, eg uiov
 	FeeDenom string
 	// Tendermint light client daemon URL
 	TendermintLcdUrl string
+	// Tendermint websocket URI
+	TendermintWsURI string
 }

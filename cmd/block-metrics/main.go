@@ -16,12 +16,12 @@ func main() {
 	conf := pkg.Configuration{
 		DBHost:           os.Getenv("POSTGRES_HOST"),
 		DBName:           os.Getenv("POSTGRES_DB"),
-		DBUser:           os.Getenv("POSTGRES_USER"),
 		DBPass:           os.Getenv("POSTGRES_PASSWORD"),
 		DBSSL:            os.Getenv("POSTGRES_SSL_ENABLE"),
-		TendermintWsURI:  os.Getenv("TENDERMINT_WS_URI"),
+		DBUser:           os.Getenv("POSTGRES_USER"),
 		FeeDenom:         os.Getenv("FEE_DENOMINATION"),
 		TendermintLcdUrl: os.Getenv("TENDERMINT_LCD_URL"),
+		TendermintWsURI:  os.Getenv("TENDERMINT_WS_URI"),
 	}
 
 	if err := run(conf); err != nil {
