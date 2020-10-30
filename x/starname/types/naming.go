@@ -20,8 +20,6 @@ const (
 	AttributeKeyDomainName  = "domain_name"
 	AttributeKeyAccountName = "account_name"
 	AttributeKeyDomainType  = "domain_type"
-	AttributeKeyFeePaid     = "paid_fees"
-	AttributeKeyFeePayer    = "fee_payer"
 	AttributeKeyOwner       = "owner"
 
 	AttributeKeyNewCertificate          = "new_certificate"

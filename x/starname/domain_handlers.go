@@ -2,6 +2,7 @@ package starname
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/iov-one/iovns/x/starname/controllers/domain"
@@ -35,11 +36,8 @@ func handlerMsgDeleteDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDele
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
 			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -84,8 +82,6 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyDomainType, (string)(msg.DomainType)),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Admin.String()),
 		),
 	)
@@ -121,8 +117,6 @@ func handlerMsgRenewDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRenew
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Signer.String()),
 			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Signer.String()),
 		),
 	)
@@ -161,8 +155,6 @@ func handlerMsgTransferDomain(ctx sdk.Context, k keeper.Keeper, msg *types.MsgTr
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyTransferDomainNewOwner, msg.NewAdmin.String()),
 			sdk.NewAttribute(types.AttributeKeyTransferDomainFlag, fmt.Sprintf("%d", msg.TransferFlag)),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
