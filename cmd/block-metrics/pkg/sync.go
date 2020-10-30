@@ -96,7 +96,7 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, denom string, u
 				}
 				fee = fee.Add(c.Amount)
 			}
-			if err := routeMsgs(ctx, st, tx.Msgs, c.Height, urlLCD); err != nil {
+			if err := routeMsgs(ctx, st, tx.Msgs, c.Height, denom, urlLCD); err != nil {
 				log.Error(errors.Wrapf(err, "height %d", c.Height))
 			}
 		}
@@ -112,7 +112,7 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, denom string, u
 	}
 }
 
-func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64, urlLCD string) error {
+func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64, denom string, urlLCD string) error {
 	// allocate a slice with the maximum needed capacity
 	queries := make([]*LcdRequestData, 0, len(msgs))[:]
 
@@ -253,7 +253,7 @@ func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64, url
 	if len(queries) > 0 {
 		if responses, err := FetchLcdData(ctx, urlLCD, &queries, height); err != nil {
 			return errors.Wrapf(err, "FetchLcdData() failed")
-		} else if err = st.HandleLcdData(ctx, &queries, responses, height); err != nil {
+		} else if err = st.HandleLcdData(ctx, &queries, responses, height, denom); err != nil {
 			return errors.Wrapf(err, "HandleLcdData() failed")
 		}
 	}

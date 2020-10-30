@@ -365,7 +365,7 @@ func find(needle string, haystack []sdk.Attribute) (string, error) {
 	return "", errors.New(fmt.Sprintf("couldn't find %s in %s", needle, haystack))
 }
 
-func getPayment(attributes []sdk.Attribute) (string, int64, error) {
+func getPayment(attributes []sdk.Attribute, denom string) (string, int64, error) {
 	payer, err := find("sender", attributes)
 	if err != nil {
 		return "", 0, err
@@ -374,7 +374,7 @@ func getPayment(attributes []sdk.Attribute) (string, int64, error) {
 	if err != nil {
 		return "", 0, err
 	}
-	absolute := strings.Replace(denominated, "uvoi", "", 1) // TODO: use config fee denom
+	absolute := strings.Replace(denominated, denom, "", 1)
 	amount, err := strconv.ParseInt(absolute, 10, 64)
 	if err != nil {
 		return "", 0, err
@@ -382,7 +382,7 @@ func getPayment(attributes []sdk.Attribute) (string, int64, error) {
 	return payer, amount, nil
 }
 
-func (st *Store) HandleLcdData(ctx context.Context, queries *[]*LcdRequestData, responses *[]*LcdResponseData, height int64) error {
+func (st *Store) HandleLcdData(ctx context.Context, queries *[]*LcdRequestData, responses *[]*LcdResponseData, height int64, denom string) error {
 	for i, query := range *queries {
 		response := (*responses)[i]
 		if *response.TxError != nil {
@@ -397,7 +397,7 @@ func (st *Store) HandleLcdData(ctx context.Context, queries *[]*LcdRequestData, 
 		if event1.Type != "transfer" {
 			return errors.New(fmt.Sprintf("expected event type 'transfer' but got '%s'", event1.Type))
 		}
-		payer, amount, err := getPayment(event1.Attributes)
+		payer, amount, err := getPayment(event1.Attributes, denom)
 		if err != nil {
 			return err
 		}
