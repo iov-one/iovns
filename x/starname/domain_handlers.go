@@ -83,6 +83,7 @@ func handleMsgRegisterDomain(ctx sdk.Context, k Keeper, msg *types.MsgRegisterDo
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyDomainType, (string)(msg.DomainType)),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Admin.String()),
+			sdk.NewAttribute(types.AttributeKeyBroker, msg.Broker.String()),
 		),
 	)
 	return &sdk.Result{

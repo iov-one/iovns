@@ -21,6 +21,7 @@ const (
 	AttributeKeyAccountName = "account_name"
 	AttributeKeyDomainType  = "domain_type"
 	AttributeKeyOwner       = "owner"
+	AttributeKeyBroker      = "broker"
 
 	AttributeKeyNewCertificate          = "new_certificate"
 	AttributeKeyDeletedCertificate      = "deleted_certificate"
