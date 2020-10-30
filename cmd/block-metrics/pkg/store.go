@@ -392,14 +392,24 @@ func (st *Store) HandleLcdData(ctx context.Context, queries *[]*LcdRequestData, 
 			return *response.StarnameError
 		}
 		events := response.TxResponse.Logs[0].Events
-		// TODO dmjp: note if payer isn't equal to owner event0 := events[0]
+		event0 := events[0]
 		event1 := events[1]
+		if event0.Type != "message" {
+			return errors.New(fmt.Sprintf("expected event type 'message' but got '%s'", event0.Type))
+		}
 		if event1.Type != "transfer" {
 			return errors.New(fmt.Sprintf("expected event type 'transfer' but got '%s'", event1.Type))
+		}
+		owner, err := find("owner", event0.Attributes)
+		if err != nil {
+			return err
 		}
 		payer, amount, err := getPayment(event1.Attributes, denom)
 		if err != nil {
 			return err
+		}
+		if owner == payer {
+			payer = ""
 		}
 		_, err = dbTx.ExecContext(ctx, `
 			INSERT INTO product_fees (block, account_id, action, fee, payer)
