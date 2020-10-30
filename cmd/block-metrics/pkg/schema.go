@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS resources (
 );
 
 ---
-CREATE TABLE IF NOT EXISTS account_certificates (
+CREATE TABLE IF NOT EXISTS certificates (
 	id BIGSERIAL PRIMARY KEY,
 	account_id BIGINT REFERENCES accounts(id),
 	certificate BYTEA

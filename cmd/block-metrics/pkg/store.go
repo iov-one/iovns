@@ -163,7 +163,7 @@ func (st *Store) AddAccountCertificates(ctx context.Context, msg *types.MsgAddAc
 	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
 	if err == nil {
 		_, err = dbTx.ExecContext(ctx, `
-			INSERT INTO account_certificates(account_id, certificate)
+			INSERT INTO certificates(account_id, certificate)
 			VALUES ($1, $2)
 		`, accountID, msg.NewCertificate)
 	}
@@ -174,7 +174,7 @@ func (st *Store) DeleteAccountCerts(ctx context.Context, msg *types.MsgDeleteAcc
 	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
 	if err == nil {
 		_, err = dbTx.ExecContext(ctx, `
-			DELETE FROM account_certificates
+			DELETE FROM certificates
 			WHERE account_id = $1
 		`, accountID)
 	}
