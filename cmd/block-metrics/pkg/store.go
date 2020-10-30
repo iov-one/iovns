@@ -54,10 +54,10 @@ func (st *Store) RegisterDomain(ctx context.Context, msg *types.MsgRegisterDomai
 	// create the domain...
 	var id int64
 	err := dbTx.QueryRowContext(ctx, `
-		INSERT INTO domains (name, admin, type, broker, fee_payer_addr, created)
-		VALUES ($1, $2, $3, $4, $5, (SELECT block_height FROM blocks WHERE block_height=$6))
+		INSERT INTO domains (name, admin, type)
+		VALUES ($1, $2, $3)
 		RETURNING id
-	`, msg.Name, a2s(msg.Admin), msg.DomainType, a2s(msg.Broker), a2s(msg.FeePayerAddr), height).Scan(&id)
+	`, msg.Name, a2s(msg.Admin), msg.DomainType).Scan(&id)
 	if err != nil {
 		return 0, castPgErr(err)
 	}
@@ -73,22 +73,13 @@ func (st *Store) RegisterDomain(ctx context.Context, msg *types.MsgRegisterDomai
 }
 
 func (st *Store) DeleteDomain(ctx context.Context, msg *types.MsgDeleteDomain, height int64) (int64, error) {
-	// delete the empty account...
-	accountID, err := st.DeleteAccount(ctx, &types.MsgDeleteAccount{
+	// only product_fees needs to be updated and that's done in HandleLcdData()
+	return st.DeleteAccount(ctx, &types.MsgDeleteAccount{
 		Domain:       msg.Domain,
 		Name:         "",
 		Owner:        msg.Owner,
 		FeePayerAddr: msg.FeePayerAddr,
 	}, height)
-	if err == nil {
-		// ...and then the domain
-		_, err = dbTx.ExecContext(ctx, `
-			UPDATE domains
-			SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
-			WHERE id = (SELECT MAX(id) FROM domains WHERE name = $1)
-		`, msg.Domain, height)
-	}
-	return accountID, castPgErr(err)
 }
 
 func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomain, height int64) (int64, error) {
@@ -105,17 +96,16 @@ func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomai
 		// ...and then the domain
 		_, err = dbTx.ExecContext(ctx, `
 			UPDATE domains
-			SET admin = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
+			SET admin = $1
 			WHERE id = (SELECT MAX(id) FROM domains WHERE name = $2)
-		`, a2s(msg.NewAdmin), msg.Domain, height)
+		`, a2s(msg.NewAdmin), msg.Domain)
 	}
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) RenewDomain(ctx context.Context, msg *types.MsgRenewDomain, height int64) (int64, error) {
-	accountID, err := getAccountID(ctx, msg.Domain, "")
 	// only valid_until needs to be updated and that's done in HandleLcdData()
-	return accountID, err
+	return getAccountID(ctx, msg.Domain, "")
 }
 
 func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAccount, height int64) (int64, error) {
@@ -123,9 +113,9 @@ func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAcco
 	if err == nil {
 		_, err = dbTx.ExecContext(ctx, `
 			UPDATE accounts
-			SET owner = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
+			SET owner = $1
 			WHERE id = $2
-		`, a2s(msg.NewOwner), accountID, height)
+		`, a2s(msg.NewOwner), accountID)
 	}
 	return accountID, castPgErr(err)
 }
@@ -133,10 +123,10 @@ func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAcco
 func (st *Store) RegisterAccount(ctx context.Context, msg *types.MsgRegisterAccount, height int64) (int64, error) {
 	var id int64
 	err := dbTx.QueryRowContext(ctx, `
-		INSERT INTO accounts (domain_id, domain, name, owner, registerer, broker, fee_payer_addr, created)
-		VALUES ((SELECT MAX(id) FROM domains WHERE name = $1), $1, $2, $3, $4, $5, $6, (SELECT block_height FROM blocks WHERE block_height=$7))
+		INSERT INTO accounts (domain_id, domain, name, owner)
+		VALUES ((SELECT MAX(id) FROM domains WHERE name = $1), $1, $2, $3)
 		RETURNING id
-	`, msg.Domain, msg.Name, a2s(msg.Owner), a2s(msg.Registerer), a2s(msg.Broker), a2s(msg.FeePayerAddr), height).Scan(&id)
+	`, msg.Domain, msg.Name, a2s(msg.Owner)).Scan(&id)
 	return id, castPgErr(err)
 }
 
@@ -145,10 +135,10 @@ func (st *Store) ReplaceAccountResources(ctx context.Context, msg *types.MsgRepl
 	if err == nil {
 		for _, r := range msg.NewResources {
 			_, err = dbTx.ExecContext(ctx, `
-				INSERT INTO resources (account_id, resource, uri, updated)
-				VALUES ($1, $2, $3, (SELECT block_height FROM blocks WHERE block_height=$4))
+				INSERT INTO resources (account_id, resource, uri)
+				VALUES ($1, $2, $3)
 				ON CONFLICT (id) DO UPDATE SET resource = EXCLUDED.resource, uri = EXCLUDED.uri
-			`, accountID, r.Resource, r.URI, height)
+			`, accountID, r.Resource, r.URI)
 			if err != nil {
 				return accountID, castPgErr(err)
 			}
@@ -162,9 +152,9 @@ func (st *Store) ReplaceAccountMetadata(ctx context.Context, msg *types.MsgRepla
 	if err == nil {
 		_, err = dbTx.ExecContext(ctx, `
 			UPDATE accounts
-			SET metadata_uri = $1, updated = (SELECT block_height FROM blocks WHERE block_height=$3)
+			SET metadata = $1
 			WHERE id = $2
-		`, msg.NewMetadataURI, accountID, height)
+		`, msg.NewMetadataURI, accountID)
 	}
 	return accountID, castPgErr(err)
 }
@@ -173,9 +163,9 @@ func (st *Store) AddAccountCertificates(ctx context.Context, msg *types.MsgAddAc
 	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
 	if err == nil {
 		_, err = dbTx.ExecContext(ctx, `
-			INSERT INTO account_certificates(account_id, certificate, created)
-			VALUES ($1, $2, (SELECT block_height FROM blocks WHERE block_height=$3))
-		`, accountID, msg.NewCertificate, height)
+			INSERT INTO account_certificates(account_id, certificate)
+			VALUES ($1, $2)
+		`, accountID, msg.NewCertificate)
 	}
 	return accountID, castPgErr(err)
 }
@@ -184,30 +174,21 @@ func (st *Store) DeleteAccountCerts(ctx context.Context, msg *types.MsgDeleteAcc
 	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
 	if err == nil {
 		_, err = dbTx.ExecContext(ctx, `
-			UPDATE account_certificates
-			SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
+			DELETE FROM account_certificates
 			WHERE account_id = $1
-		`, accountID, height)
+		`, accountID)
 	}
 	return accountID, castPgErr(err)
 }
 
 func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount, height int64) (int64, error) {
-	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
-	if err == nil {
-		_, err = dbTx.ExecContext(ctx, `
-			UPDATE accounts
-			SET deleted = (SELECT block_height FROM blocks WHERE block_height=$2)
-			WHERE id = $1
-		`, accountID, height)
-	}
-	return accountID, castPgErr(err)
+	// only product_fees needs to be updated and that's done in HandleLcdData()
+	return getAccountID(ctx, msg.Domain, msg.Name)
 }
 
 func (st *Store) RenewAccount(ctx context.Context, msg *types.MsgRenewAccount, height int64) (int64, error) {
-	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
-	// only valid_until needs to be updated and that's done in HandleLcdData
-	return accountID, err
+	// only valid_until needs to be updated and that's done in HandleLcdData()
+	return getAccountID(ctx, msg.Domain, msg.Name)
 }
 
 func (st *Store) InsertBlock(ctx context.Context, b Block) error {

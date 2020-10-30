@@ -53,12 +53,7 @@ CREATE TABLE IF NOT EXISTS domains (
 	id BIGSERIAL PRIMARY KEY,
 	name TEXT,
 	admin TEXT NOT NULL,
-	type TEXT NOT NULL,
-	broker TEXT,
-	fee_payer_addr TEXT,
-	created BIGINT REFERENCES blocks(block_height),
-	updated BIGINT REFERENCES blocks(block_height),
-	deleted BIGINT REFERENCES blocks(block_height)
+	type TEXT NOT NULL
 );
 
 ---
@@ -68,13 +63,7 @@ CREATE TABLE IF NOT EXISTS accounts (
 	domain TEXT NOT NULL,
 	name TEXT,
 	owner TEXT NOT NULL,
-	registerer TEXT,
-	broker TEXT,
-	metadata_uri TEXT,
-	fee_payer_addr TEXT,
-	created BIGINT REFERENCES blocks(block_height),
-	updated BIGINT REFERENCES blocks(block_height),
-	deleted BIGINT REFERENCES blocks(block_height)
+	metadata TEXT
 );
 
 ---
@@ -82,17 +71,14 @@ CREATE TABLE IF NOT EXISTS resources (
 	id BIGSERIAL PRIMARY KEY,
 	account_id BIGINT REFERENCES accounts(id),
 	uri TEXT,
-	resource TEXT,
-	updated BIGINT REFERENCES blocks(block_height)
+	resource TEXT
 );
 
 ---
 CREATE TABLE IF NOT EXISTS account_certificates (
 	id BIGSERIAL PRIMARY KEY,
 	account_id BIGINT REFERENCES accounts(id),
-	certificate BYTEA,
-	created BIGINT REFERENCES blocks(block_height),
-	deleted BIGINT REFERENCES blocks(block_height)
+	certificate BYTEA
 );
 
 ---
