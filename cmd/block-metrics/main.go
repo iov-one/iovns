@@ -33,6 +33,10 @@ func run(conf pkg.Configuration) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	if err := pkg.EnsureDatabase(conf.DBUser, conf.DBPass, conf.DBHost, conf.DBName, conf.DBSSL); err != nil {
+		return fmt.Errorf("ensure database: %s", err)
+	}
+
 	dbUri := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", conf.DBUser, conf.DBPass,
 		conf.DBHost, conf.DBName, conf.DBSSL)
 	db, err := sql.Open("postgres", dbUri)

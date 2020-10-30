@@ -6,6 +6,18 @@ import (
 	"strings"
 )
 
+func EnsureDatabase(user, password, host, database, ssl string) error {
+	dbUri := fmt.Sprintf("postgres://%s:%s@%s/?sslmode=%s", user, password, host, ssl)
+	db, err := sql.Open("postgres", dbUri)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	// ignore the error if the database already exists
+	_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE %s`, database))
+	return nil
+}
+
 func EnsureSchema(pg *sql.DB) error {
 	tx, err := pg.Begin()
 	if err != nil {
