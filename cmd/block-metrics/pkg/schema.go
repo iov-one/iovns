@@ -119,7 +119,8 @@ CREATE TABLE IF NOT EXISTS product_fees (
 	account_id BIGINT REFERENCES accounts(id),
 	action action,
 	fee BIGINT,
-	payer TEXT
+	payer TEXT,
+	broker TEXT
 );
 `
 

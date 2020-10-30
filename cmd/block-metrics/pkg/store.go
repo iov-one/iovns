@@ -411,10 +411,11 @@ func (st *Store) HandleLcdData(ctx context.Context, queries *[]*LcdRequestData, 
 		if owner == payer {
 			payer = ""
 		}
+		broker, _ := find("broker", event0.Attributes) // not all actions have a broker, so ignore the err
 		_, err = dbTx.ExecContext(ctx, `
-			INSERT INTO product_fees (block, account_id, action, fee, payer)
-			VALUES ((SELECT block_height FROM blocks WHERE block_height=$1), $2, $3, $4, $5)
-		`, height, query.AccountID, query.Params["action"], amount, payer)
+			INSERT INTO product_fees (block, account_id, action, fee, payer, broker)
+			VALUES ((SELECT block_height FROM blocks WHERE block_height=$1), $2, $3, $4, $5, $6)
+		`, height, query.AccountID, query.Params["action"], amount, payer, broker)
 		if err != nil {
 			return castPgErr(err)
 		}
