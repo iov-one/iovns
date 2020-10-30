@@ -19,22 +19,42 @@ func EnsureDatabase(user, password, host, database, ssl string) error {
 }
 
 func EnsureSchema(pg *sql.DB) error {
-	tx, err := pg.Begin()
+	// deal with the pesky TYPE 'action' that doesn't allow an IF NOT EXISTS clause
+	rows, err := pg.Query(`
+		SELECT pg_type.typname, pg_enum.enumlabel
+		FROM pg_type
+		JOIN pg_enum ON pg_enum.enumtypid = pg_type.oid
+	`)
 	if err != nil {
-		return fmt.Errorf("transaction begin: %s", err)
+		return fmt.Errorf("type query: %s", err)
 	}
-
-	for _, query := range strings.Split(schema, "\n---\n") {
-		query = strings.TrimSpace(query)
-
-		if _, err := tx.Exec(query); err != nil {
-			return &QueryError{Query: query, Err: err}
+	if !rows.Next() {
+		_, err = pg.Exec(`
+			CREATE TYPE action AS ENUM (
+				'add_certificates_account',
+				'delete_account',
+				'delete_certificate_account',
+				'delete_domain',
+				'register_account',
+				'register_domain',
+				'renew_account',
+				'renew_domain',
+				'replace_account_resources',
+				'set_account_metadata',
+				'transfer_account',
+				'transfer_domain'
+			);
+		`)
+		if err != nil {
+			return fmt.Errorf("type create: %s", err)
 		}
 	}
 
-	if err := tx.Commit(); err != nil {
-		_ = tx.Rollback()
-		return fmt.Errorf("transaction commit: %s", err)
+	// create tables, possibly
+	for _, query := range strings.Split(schema, "\n---\n") {
+		if _, err := pg.Exec(query); err != nil {
+			return &QueryError{Query: query, Err: err}
+		}
 	}
 
 	return nil
@@ -90,22 +110,6 @@ CREATE TABLE IF NOT EXISTS certificates (
 	id BIGSERIAL PRIMARY KEY,
 	account_id BIGINT REFERENCES accounts(id),
 	certificate BYTEA
-);
-
----
-CREATE TYPE action AS ENUM (
-	'add_certificates_account',
-	'delete_account',
-	'delete_certificate_account',
-	'delete_domain',
-	'register_account',
-	'register_domain',
-	'renew_account',
-	'renew_domain',
-	'replace_account_resources',
-	'set_account_metadata',
-	'transfer_account',
-	'transfer_domain'
 );
 
 ---
