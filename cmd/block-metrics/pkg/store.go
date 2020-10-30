@@ -123,8 +123,8 @@ func (st *Store) TransferAccount(ctx context.Context, msg *types.MsgTransferAcco
 func (st *Store) RegisterAccount(ctx context.Context, msg *types.MsgRegisterAccount, height int64) (int64, error) {
 	var id int64
 	err := dbTx.QueryRowContext(ctx, `
-		INSERT INTO accounts (domain_id, domain, name, owner)
-		VALUES ((SELECT MAX(id) FROM domains WHERE name = $1), $1, $2, $3)
+		INSERT INTO accounts (domain_id, name, owner)
+		VALUES ((SELECT MAX(id) FROM domains WHERE name = $1), $2, $3)
 		RETURNING id
 	`, msg.Domain, msg.Name, a2s(msg.Owner)).Scan(&id)
 	return id, castPgErr(err)
@@ -282,10 +282,28 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 			Broker:       domain.Broker,
 			FeePayerAddr: domain.Admin,
 		}
-		if _, err := st.RegisterDomain(ctx, &msg, 0); err != nil {
+		if accountID, err := st.RegisterDomain(ctx, &msg, 0); err != nil {
 			return errors.Wrapf(err, "cannot insert domain")
+		} else {
+			_, err = dbTx.ExecContext(ctx, `
+				UPDATE domains
+				SET valid_until = TO_TIMESTAMP(CAST($1 AS DECIMAL))
+				WHERE id = (SELECT MAX(id) FROM domains WHERE name = $2)
+			`, domain.ValidUntil, domain.Name)
+			if err != nil {
+				return errors.Wrapf(err, "failed to update valid_until on domain %s", domain.Name)
+			}
+			_, err = dbTx.ExecContext(ctx, `
+				UPDATE accounts
+				SET valid_until = TO_TIMESTAMP(CAST($1 AS DECIMAL))
+				WHERE id = $2
+			`, domain.ValidUntil, accountID)
+			if err != nil {
+				return errors.Wrapf(err, "failed to update valid_until on accountID %d", accountID)
+			}
 		}
 		if i == 10 { // dmjp
+			fmt.Println("TODO: don't limit the genesis file")
 			break
 		}
 	}
@@ -301,8 +319,17 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 			Resources: acc.Resources,
 			Broker:    acc.Broker,
 		}
-		if _, err := st.RegisterAccount(ctx, &msg, 0); err != nil {
+		if accountID, err := st.RegisterAccount(ctx, &msg, 0); err != nil {
 			return errors.Wrapf(err, "cannot insert domain")
+		} else {
+			_, err = dbTx.ExecContext(ctx, `
+				UPDATE accounts
+				SET valid_until = TO_TIMESTAMP(CAST($1 AS DECIMAL))
+				WHERE id = $2
+			`, acc.ValidUntil, accountID)
+			if err != nil {
+				return errors.Wrapf(err, "failed to update valid_until on accountID %d", accountID)
+			}
 		}
 		if i == 10 { // dmjp
 			break
@@ -363,6 +390,24 @@ func getPayment(attributes []sdk.Attribute, denom string) (string, int64, error)
 	return payer, amount, nil
 }
 
+func updateDomainValidUntil(ctx context.Context, domain string, expires int64) error {
+	_, err := dbTx.ExecContext(ctx, `
+		UPDATE domains
+		SET valid_until = TO_TIMESTAMP($1)
+		WHERE id = (SELECT MAX(id) FROM domains WHERE name = $2)
+	`, expires, domain)
+	return castPgErr(err)
+}
+
+func updateAccountValidUntil(ctx context.Context, id int64, expires int64) error {
+	_, err := dbTx.ExecContext(ctx, `
+		UPDATE accounts
+		SET valid_until = TO_TIMESTAMP($1)
+		WHERE id = $2
+	`, expires, id)
+	return castPgErr(err)
+}
+
 func (st *Store) HandleLcdData(ctx context.Context, queries *[]*LcdRequestData, responses *[]*LcdResponseData, height int64, denom string) error {
 	for i, query := range *queries {
 		response := (*responses)[i]
@@ -381,6 +426,10 @@ func (st *Store) HandleLcdData(ctx context.Context, queries *[]*LcdRequestData, 
 		if event1.Type != "transfer" {
 			return errors.New(fmt.Sprintf("expected event type 'transfer' but got '%s'", event1.Type))
 		}
+		action, err := find("action", event0.Attributes)
+		if err != nil {
+			return err
+		}
 		owner, err := find("owner", event0.Attributes)
 		if err != nil {
 			return err
@@ -396,11 +445,26 @@ func (st *Store) HandleLcdData(ctx context.Context, queries *[]*LcdRequestData, 
 		_, err = dbTx.ExecContext(ctx, `
 			INSERT INTO product_fees (block, account_id, action, fee, payer, broker)
 			VALUES ((SELECT block_height FROM blocks WHERE block_height=$1), $2, $3, $4, $5, $6)
-		`, height, query.AccountID, query.Params["action"], amount, payer, broker)
+		`, height, query.AccountID, action, amount, payer, broker)
 		if err != nil {
 			return castPgErr(err)
 		}
-		// TODO: dmjp: add valid_until where appropriate
+		// update valid_until where appropriate
+		if response.StarnameResponse != nil && response.StarnameResponse.Height != "" { // "" happens if a starname has been deleted
+			account := response.StarnameResponse.Result.Account
+			expires := account.ValidUntil
+			if expires > 0 {
+				switch action {
+				case "register_domain", "renew_domain":
+					if err := updateDomainValidUntil(ctx, account.Domain, expires); err != nil {
+						return err
+					}
+				}
+				if err := updateAccountValidUntil(ctx, query.AccountID, expires); err != nil {
+					return err
+				}
+			}
+		}
 	}
 	return nil
 }

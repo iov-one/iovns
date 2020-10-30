@@ -14,7 +14,7 @@ func EnsureDatabase(user, password, host, database, ssl string) error {
 	}
 	defer db.Close()
 	// ignore the error if the database already exists
-	_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE %s`, database))
+	_, _ = db.Exec(fmt.Sprintf(`CREATE DATABASE %s`, database))
 	return nil
 }
 
@@ -33,10 +33,9 @@ func EnsureSchema(pg *sql.DB) error {
 	}
 
 	if err := tx.Commit(); err != nil {
+		_ = tx.Rollback()
 		return fmt.Errorf("transaction commit: %s", err)
 	}
-
-	_ = tx.Rollback()
 
 	return nil
 }
@@ -50,7 +49,6 @@ CREATE TABLE IF NOT EXISTS blocks (
 );
 
 ---
-
 CREATE TABLE IF NOT EXISTS transactions (
 	id BIGSERIAL PRIMARY KEY,
 	transaction_hash TEXT NOT NULL UNIQUE,
@@ -65,17 +63,18 @@ CREATE TABLE IF NOT EXISTS domains (
 	id BIGSERIAL PRIMARY KEY,
 	name TEXT,
 	admin TEXT NOT NULL,
-	type TEXT NOT NULL
+	type TEXT NOT NULL,
+	valid_until TIMESTAMPTZ
 );
 
 ---
 CREATE TABLE IF NOT EXISTS accounts (
 	id BIGSERIAL PRIMARY KEY,
 	domain_id BIGINT NOT NULL REFERENCES domains(id),
-	domain TEXT NOT NULL,
 	name TEXT,
 	owner TEXT NOT NULL,
-	metadata TEXT
+	metadata TEXT,
+	valid_until TIMESTAMPTZ
 );
 
 ---
@@ -94,7 +93,6 @@ CREATE TABLE IF NOT EXISTS account_certificates (
 );
 
 ---
-DROP TYPE IF EXISTS action CASCADE;
 CREATE TYPE action AS ENUM (
 	'add_certificates_account',
 	'delete_account',
