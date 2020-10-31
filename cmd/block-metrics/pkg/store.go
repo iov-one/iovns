@@ -90,7 +90,7 @@ func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomai
 		Owner:        msg.Owner,
 		NewOwner:     msg.NewAdmin,
 		FeePayerAddr: msg.FeePayerAddr,
-		Reset:        true, // TODO: deal with the different transfer flags
+		Reset:        true, // TODO: dmjp: deal with the different transfer flags
 	}, height)
 	if err == nil {
 		// ...and then the domain
@@ -273,6 +273,7 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 	if err = st.BatchBegin(ctx); err != nil {
 		return errors.Wrap(err, "st.BatchBegin() failed")
 	}
+	defer st.BatchRollback()
 	for i, domain := range gen.Domains {
 		// TODO: dmjp for _, domain := range gen.Domains {
 		msg := types.MsgRegisterDomain{
@@ -352,9 +353,8 @@ func (st *Store) BatchBegin(ctx context.Context) error {
 }
 
 func (st *Store) BatchCommit(ctx context.Context) error {
-	// commit or rollback before...
+	// commit before...
 	if err := dbTx.Commit(); err != nil {
-		dbTx.Rollback()
 		return errors.Wrapf(err, "dbTx.Commit()")
 	}
 	// ...begining a new database transaction
@@ -362,6 +362,10 @@ func (st *Store) BatchCommit(ctx context.Context) error {
 		return errors.Wrap(err, "cannot create transaction")
 	}
 	return nil
+}
+
+func (st *Store) BatchRollback() error {
+	return dbTx.Rollback()
 }
 
 func find(needle string, haystack []sdk.Attribute) (string, error) {

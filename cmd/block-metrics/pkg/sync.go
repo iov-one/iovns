@@ -41,6 +41,7 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, denom string, u
 	if err := st.BatchBegin(ctx); err != nil {
 		return inserted, errors.Wrap(err, "st.BatchBegin()")
 	}
+	defer st.BatchRollback()
 
 	for {
 		nextHeight := syncedHeight + 1
