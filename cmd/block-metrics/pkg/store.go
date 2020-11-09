@@ -310,8 +310,7 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 		return errors.Wrap(err, "st.BatchBegin() failed")
 	}
 	defer st.BatchRollback()
-	for i, domain := range gen.Domains {
-		// TODO: dmjp for _, domain := range gen.Domains {
+	for _, domain := range gen.Domains {
 		msg := types.MsgRegisterDomain{
 			Name:         domain.Name,
 			Admin:        domain.Admin,
@@ -339,12 +338,8 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 				return errors.Wrapf(err, "failed to update valid_until on accountID %d", accountID)
 			}
 		}
-		if i == 10 { // dmjp
-			fmt.Println("TODO: don't limit the genesis file")
-			break
-		}
 	}
-	for i, acc := range gen.Accounts {
+	for _, acc := range gen.Accounts {
 		// skip the empty account because it was handled in st.RegisterDomain()
 		if *acc.Name == "" {
 			continue
@@ -367,9 +362,6 @@ func (st *Store) InsertGenesis(ctx context.Context, tmc *TendermintClient) error
 			if err != nil {
 				return errors.Wrapf(err, "failed to update valid_until on accountID %d", accountID)
 			}
-		}
-		if i == 10 { // dmjp
-			break
 		}
 	}
 	// commit the batch
