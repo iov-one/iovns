@@ -81,9 +81,9 @@ func (st *Store) DeleteDomain(ctx context.Context, msg *types.MsgDeleteDomain, h
 	}, height)
 	if err == nil {
 		_, err = dbTx.ExecContext(ctx, `
-			UPDATE accounts
+			UPDATE domains
 			SET deleted = (SELECT block_time FROM blocks WHERE block_height=$1)
-			WHERE domain_id = (SELECT MAX(id) FROM domains WHERE name = $2)
+			WHERE id = (SELECT MAX(id) FROM domains WHERE name = $2)
 		`, height, msg.Domain)
 	}
 	return accountID, castPgErr(err)
