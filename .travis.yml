@@ -42,7 +42,7 @@ env:
     - VERSION=$(git describe --tags | sed 's/^v//')
     - COMMIT=$(git log -1 --format='%H')
     - IMAGE_NAME="iov1/iovns:${BUILD_VERSION}"
-    - FAUCET_IMAGE_NAME="iov1/iovns-faucet:${BUILD_VERSION}"
+    - IMAGE_NAME_FAUCET="iov1/iovns-faucet:${BUILD_VERSION}"
     - IMAGE_NAME_METRICS="iov1/iovns-block-metrics:${BUILD_VERSION}"
 
 script:
@@ -61,7 +61,7 @@ script:
         ./contrib/gitian-build.sh linux ;
         mkdir -p ${TRAVIS_BUILD_DIR}/build && tar -zxf $TRAVIS_BUILD_DIR/iovns-build-linux/build/out/iovns-${VERSION}-linux-amd64.tar.gz -C ${TRAVIS_BUILD_DIR}/build ;
         docker build --pull --tag ${IMAGE_NAME} . ;
-        ( cd cmd/faucet && make build && docker build --pull --tag ${FAUCET_IMAGE_NAME} . );
+        ( cd cmd/faucet && make build && docker build --pull --tag ${IMAGE_NAME_FAUCET} . );
         ( cd cmd/block-metrics && make build && docker build --pull --tag ${IMAGE_NAME_METRICS} . );
       fi;
 
