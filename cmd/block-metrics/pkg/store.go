@@ -73,13 +73,20 @@ func (st *Store) RegisterDomain(ctx context.Context, msg *types.MsgRegisterDomai
 }
 
 func (st *Store) DeleteDomain(ctx context.Context, msg *types.MsgDeleteDomain, height int64) (int64, error) {
-	// only product_fees needs to be updated and that's done in HandleLcdData()
-	return st.DeleteAccount(ctx, &types.MsgDeleteAccount{
+	accountID, err := st.DeleteAccount(ctx, &types.MsgDeleteAccount{
 		Domain:       msg.Domain,
 		Name:         "",
 		Owner:        msg.Owner,
 		FeePayerAddr: msg.FeePayerAddr,
 	}, height)
+	if err == nil {
+		_, err = dbTx.ExecContext(ctx, `
+			UPDATE accounts
+			SET deleted = (SELECT block_time FROM blocks WHERE block_height=$1)
+			WHERE domain_id = (SELECT MAX(id) FROM domains WHERE name = $2)
+		`, height, msg.Domain)
+	}
+	return accountID, castPgErr(err)
 }
 
 func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomain, height int64) (int64, error) {
@@ -90,15 +97,37 @@ func (st *Store) TransferDomain(ctx context.Context, msg *types.MsgTransferDomai
 		Owner:        msg.Owner,
 		NewOwner:     msg.NewAdmin,
 		FeePayerAddr: msg.FeePayerAddr,
-		Reset:        true, // TODO: dmjp: deal with the different transfer flags
+		Reset:        msg.TransferFlag != types.TransferResetNone,
 	}, height)
 	if err == nil {
-		// ...and then the domain
+		// ...and then the domain...
 		_, err = dbTx.ExecContext(ctx, `
 			UPDATE domains
 			SET admin = $1
 			WHERE id = (SELECT MAX(id) FROM domains WHERE name = $2)
 		`, a2s(msg.NewAdmin), msg.Domain)
+		if err != nil {
+			return accountID, castPgErr(err)
+		}
+		// ...and with the different transfer flags
+		switch msg.TransferFlag {
+		case types.TransferResetNone:
+			// no-op
+		case types.TransferFlush:
+			_, err = dbTx.ExecContext(ctx, `
+				UPDATE accounts
+				SET deleted = (SELECT block_time FROM blocks WHERE block_height=$3)
+				WHERE owner = $1
+				AND domain_id = (SELECT MAX(id) FROM domains WHERE name = $2)
+			`, a2s(msg.Owner), msg.Domain, height)
+		case types.TransferOwned:
+			_, err = dbTx.ExecContext(ctx, `
+				UPDATE accounts
+				SET owner = $3
+				WHERE owner = $1
+				AND domain_id = (SELECT MAX(id) FROM domains WHERE name = $2)
+			`, a2s(msg.Owner), msg.Domain, a2s(msg.NewAdmin))
+		}
 	}
 	return accountID, castPgErr(err)
 }
@@ -182,8 +211,15 @@ func (st *Store) DeleteAccountCerts(ctx context.Context, msg *types.MsgDeleteAcc
 }
 
 func (st *Store) DeleteAccount(ctx context.Context, msg *types.MsgDeleteAccount, height int64) (int64, error) {
-	// only product_fees needs to be updated and that's done in HandleLcdData()
-	return getAccountID(ctx, msg.Domain, msg.Name)
+	accountID, err := getAccountID(ctx, msg.Domain, msg.Name)
+	if err == nil {
+		_, err = dbTx.ExecContext(ctx, `
+			UPDATE accounts
+			SET deleted = (SELECT block_time FROM blocks WHERE block_height=$2)
+			WHERE id = $1
+		`, accountID, height)
+	}
+	return accountID, castPgErr(err)
 }
 
 func (st *Store) RenewAccount(ctx context.Context, msg *types.MsgRenewAccount, height int64) (int64, error) {

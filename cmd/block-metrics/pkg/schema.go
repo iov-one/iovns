@@ -84,7 +84,8 @@ CREATE TABLE IF NOT EXISTS domains (
 	name TEXT,
 	admin TEXT NOT NULL,
 	type TEXT NOT NULL,
-	valid_until TIMESTAMPTZ
+	valid_until TIMESTAMPTZ,
+	deleted TIMESTAMPTZ
 );
 
 ---
@@ -94,7 +95,8 @@ CREATE TABLE IF NOT EXISTS accounts (
 	name TEXT,
 	owner TEXT NOT NULL,
 	metadata TEXT,
-	valid_until TIMESTAMPTZ
+	valid_until TIMESTAMPTZ,
+	deleted TIMESTAMPTZ
 );
 
 ---
