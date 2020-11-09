@@ -14,13 +14,14 @@ import (
 
 func main() {
 	conf := pkg.Configuration{
-		DBHost:          os.Getenv("POSTGRES_HOST"),
-		DBName:          os.Getenv("POSTGRES_DB"),
-		DBUser:          os.Getenv("POSTGRES_USER"),
-		DBPass:          os.Getenv("POSTGRES_PASSWORD"),
-		DBSSL:           os.Getenv("POSTGRES_SSL_ENABLE"),
-		TendermintWsURI: os.Getenv("TENDERMINT_WS_URI"),
-		Hrp:             os.Getenv("HRP"),
+		DBHost:           os.Getenv("POSTGRES_HOST"),
+		DBName:           os.Getenv("POSTGRES_DB"),
+		DBPass:           os.Getenv("POSTGRES_PASSWORD"),
+		DBSSL:            os.Getenv("POSTGRES_SSL_ENABLE"),
+		DBUser:           os.Getenv("POSTGRES_USER"),
+		FeeDenom:         os.Getenv("FEE_DENOMINATION"),
+		TendermintLcdUrl: os.Getenv("TENDERMINT_LCD_URL"),
+		TendermintWsURI:  os.Getenv("TENDERMINT_WS_URI"),
 	}
 
 	if err := run(conf); err != nil {
@@ -31,6 +32,10 @@ func main() {
 func run(conf pkg.Configuration) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	if err := pkg.EnsureDatabase(conf.DBUser, conf.DBPass, conf.DBHost, conf.DBName, conf.DBSSL); err != nil {
+		return fmt.Errorf("ensure database: %s", err)
+	}
 
 	dbUri := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", conf.DBUser, conf.DBPass,
 		conf.DBHost, conf.DBName, conf.DBSSL)
@@ -52,7 +57,7 @@ func run(conf pkg.Configuration) error {
 	}
 	defer tmc.Close()
 
-	inserted, err := pkg.Sync(ctx, tmc, st, conf.Hrp)
+	inserted, err := pkg.Sync(ctx, tmc, st, conf.FeeDenom, conf.TendermintLcdUrl)
 	if err != nil {
 		return errors.Wrap(err, "sync")
 	}

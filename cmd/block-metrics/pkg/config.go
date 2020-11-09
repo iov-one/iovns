@@ -6,9 +6,10 @@ type Configuration struct {
 	DBPass string
 	DBName string
 	DBSSL  string
+	// Denomination of the fee coin, eg uiov
+	FeeDenom string
+	// Tendermint light client daemon URL
+	TendermintLcdUrl string
 	// Tendermint websocket URI
 	TendermintWsURI string
-	// Derivation path: "tiov" or "iov"
-	Hrp   string
-	Denom string
 }

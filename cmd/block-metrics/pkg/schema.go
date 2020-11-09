@@ -6,25 +6,56 @@ import (
 	"strings"
 )
 
-func EnsureSchema(pg *sql.DB) error {
-	tx, err := pg.Begin()
+func EnsureDatabase(user, password, host, database, ssl string) error {
+	dbUri := fmt.Sprintf("postgres://%s:%s@%s/?sslmode=%s", user, password, host, ssl)
+	db, err := sql.Open("postgres", dbUri)
 	if err != nil {
-		return fmt.Errorf("transaction begin: %s", err)
+		return err
 	}
+	defer db.Close()
+	// ignore the error if the database already exists
+	_, _ = db.Exec(fmt.Sprintf(`CREATE DATABASE %s`, database))
+	return nil
+}
 
-	for _, query := range strings.Split(schema, "\n---\n") {
-		query = strings.TrimSpace(query)
-
-		if _, err := tx.Exec(query); err != nil {
-			return &QueryError{Query: query, Err: err}
+func EnsureSchema(pg *sql.DB) error {
+	// deal with the pesky TYPE 'action' that doesn't allow an IF NOT EXISTS clause
+	rows, err := pg.Query(`
+		SELECT pg_type.typname, pg_enum.enumlabel
+		FROM pg_type
+		JOIN pg_enum ON pg_enum.enumtypid = pg_type.oid
+	`)
+	if err != nil {
+		return fmt.Errorf("type query: %s", err)
+	}
+	if !rows.Next() {
+		_, err = pg.Exec(`
+			CREATE TYPE action AS ENUM (
+				'add_certificates_account',
+				'delete_account',
+				'delete_certificate_account',
+				'delete_domain',
+				'register_account',
+				'register_domain',
+				'renew_account',
+				'renew_domain',
+				'replace_account_resources',
+				'set_account_metadata',
+				'transfer_account',
+				'transfer_domain'
+			);
+		`)
+		if err != nil {
+			return fmt.Errorf("type create: %s", err)
 		}
 	}
 
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("transaction commit: %s", err)
+	// create tables, possibly
+	for _, query := range strings.Split(schema, "\n---\n") {
+		if _, err := pg.Exec(query); err != nil {
+			return &QueryError{Query: query, Err: err}
+		}
 	}
-
-	_ = tx.Rollback()
 
 	return nil
 }
@@ -38,7 +69,6 @@ CREATE TABLE IF NOT EXISTS blocks (
 );
 
 ---
-
 CREATE TABLE IF NOT EXISTS transactions (
 	id BIGSERIAL PRIMARY KEY,
 	transaction_hash TEXT NOT NULL UNIQUE,
@@ -52,25 +82,21 @@ CREATE TABLE IF NOT EXISTS transactions (
 CREATE TABLE IF NOT EXISTS domains (
 	id BIGSERIAL PRIMARY KEY,
 	name TEXT,
-	admin BYTEA NOT NULL,
+	admin TEXT NOT NULL,
 	type TEXT NOT NULL,
-	broker BYTEA,
-	fee_payer_addr BYTEA,
-	deleted_at TIMESTAMP
+	valid_until TIMESTAMPTZ,
+	deleted TIMESTAMPTZ
 );
 
 ---
 CREATE TABLE IF NOT EXISTS accounts (
 	id BIGSERIAL PRIMARY KEY,
 	domain_id BIGINT NOT NULL REFERENCES domains(id),
-	domain TEXT NOT NULL,
 	name TEXT,
-	owner BYTEA NOT NULL,
-	registerer BYTEA,
-	broker BYTEA,
-	metadata_uri TEXT,
-	fee_payer_addr BYTEA,
-	deleted_at TIMESTAMP
+	owner TEXT NOT NULL,
+	metadata TEXT,
+	valid_until TIMESTAMPTZ,
+	deleted TIMESTAMPTZ
 );
 
 ---
@@ -82,11 +108,21 @@ CREATE TABLE IF NOT EXISTS resources (
 );
 
 ---
-CREATE TABLE IF NOT EXISTS account_certificates (
+CREATE TABLE IF NOT EXISTS certificates (
 	id BIGSERIAL PRIMARY KEY,
 	account_id BIGINT REFERENCES accounts(id),
-	certificate BYTEA,
-	deleted_at TIMESTAMP
+	certificate BYTEA
+);
+
+---
+CREATE TABLE IF NOT EXISTS product_fees (
+	id BIGSERIAL PRIMARY KEY,
+	block BIGINT REFERENCES blocks(block_height),
+	account_id BIGINT REFERENCES accounts(id),
+	action action,
+	fee BIGINT,
+	payer TEXT,
+	broker TEXT
 );
 `
 

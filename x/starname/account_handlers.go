@@ -60,8 +60,6 @@ func handlerMsgAddAccountCertificates(ctx sdk.Context, k keeper.Keeper, msg *typ
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyNewCertificate, fmt.Sprintf("%x", msg.NewCertificate)),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -110,8 +108,6 @@ func handlerMsgDeleteAccountCertificate(ctx sdk.Context, k keeper.Keeper, msg *t
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyDeletedCertificate, fmt.Sprintf("%x", msg.DeleteCertificate)),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -156,8 +152,6 @@ func handlerMsgDeleteAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDel
 			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -216,13 +210,11 @@ func handleMsgRegisterAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRe
 		sdk.NewEvent(
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(sdk.AttributeKeySender, msg.Owner.String()),
 			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
+			sdk.NewAttribute(types.AttributeKeyBroker, msg.Broker.String()),
 		),
 	)
 	return &sdk.Result{
@@ -274,8 +266,6 @@ func handlerMsgRenewAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRene
 			sdk.NewAttribute(sdk.AttributeKeyAction, msg.Type()),
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Signer.String()),
 		),
 	)
@@ -322,8 +312,6 @@ func handlerMsgReplaceAccountResources(ctx sdk.Context, k keeper.Keeper, msg *ty
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyNewResources, ""), // TODO stringify resources
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -370,8 +358,6 @@ func handlerMsgReplaceAccountMetadata(ctx sdk.Context, k keeper.Keeper, msg *typ
 			sdk.NewAttribute(types.AttributeKeyDomainName, msg.Domain),
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyNewMetadata, msg.NewMetadataURI),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)
@@ -422,8 +408,6 @@ func handlerMsgTransferAccount(ctx sdk.Context, k keeper.Keeper, msg *types.MsgT
 			sdk.NewAttribute(types.AttributeKeyAccountName, msg.Name),
 			sdk.NewAttribute(types.AttributeKeyTransferAccountNewOwner, msg.NewOwner.String()),
 			sdk.NewAttribute(types.AttributeKeyTransferAccountReset, strconv.FormatBool(msg.Reset)),
-			sdk.NewAttribute(types.AttributeKeyFeePaid, fee.String()),
-			sdk.NewAttribute(types.AttributeKeyFeePayer, msg.FeePayer().String()),
 			sdk.NewAttribute(types.AttributeKeyOwner, msg.Owner.String()),
 		),
 	)

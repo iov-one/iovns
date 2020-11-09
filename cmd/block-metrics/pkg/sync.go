@@ -16,9 +16,9 @@ import (
 const syncRetryTimeout = 3 * time.Second
 
 // Sync uploads to local store all blocks that are not present yet, starting
-// with the blocks with the lowest hight first. It always returns the number of
+// with the blocks with the lowest height first. It always returns the number of
 // blocks inserted, even if returning an error.
-func Sync(ctx context.Context, tmc *TendermintClient, st *Store, hrp string) (uint, error) {
+func Sync(ctx context.Context, tmc *TendermintClient, st *Store, denom string, urlLCD string) (uint, error) {
 	var (
 		inserted        uint
 		syncedHeight    int64
@@ -36,6 +36,12 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, hrp string) (ui
 	default:
 		return inserted, errors.Wrap(err, "latest block")
 	}
+
+	// begin a database transaction
+	if err := st.BatchBegin(ctx); err != nil {
+		return inserted, errors.Wrap(err, "st.BatchBegin()")
+	}
+	defer st.BatchRollback()
 
 	for {
 		nextHeight := syncedHeight + 1
@@ -73,19 +79,6 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, hrp string) (ui
 		}
 
 		fee := sdk.ZeroInt()
-		for _, tx := range tmblock.Transactions {
-			coins := tx.Fee.Amount
-			for _, c := range coins {
-				if c.Denom != hrp {
-					return 1, errors.Wrapf(ErrDenom, "not supported denom: %s, expected %s", c.Denom, hrp)
-				}
-				fee = fee.Add(c.Amount)
-			}
-			if err := routeMsgs(ctx, st, tx.Msgs); err != nil {
-				log.Error(errors.Wrapf(err, "height %d", c.Height))
-			}
-		}
-
 		block := Block{
 			Height:  c.Height,
 			Hash:    hex.EncodeToString(c.Hash),
@@ -95,56 +88,176 @@ func Sync(ctx context.Context, tmc *TendermintClient, st *Store, hrp string) (ui
 		if err := st.InsertBlock(ctx, block); err != nil {
 			return inserted, errors.Wrapf(err, "insert block %d", c.Height)
 		}
+
+		for _, tx := range tmblock.Transactions {
+			coins := tx.Fee.Amount
+			for _, c := range coins {
+				if c.Denom != denom {
+					return 1, errors.Wrapf(ErrDenom, "not supported denom: %s, expected %s", c.Denom, denom)
+				}
+				fee = fee.Add(c.Amount)
+			}
+			if err := routeMsgs(ctx, st, tx.Msgs, c.Height, denom, urlLCD); err != nil {
+				log.Error(errors.Wrapf(err, "height %d", c.Height))
+			}
+		}
+
+		// commit the database transaction, potentially in a batch
+		if lastKnownHeight-nextHeight == 0 || inserted%100 == 0 {
+			if err = st.BatchCommit(ctx); err != nil {
+				return inserted, errors.Wrapf(err, "inserted %d; failed at block %d", inserted, c.Height)
+			}
+		}
+
 		inserted++
 	}
 }
 
-// Domain/Account valid until field is skipped, maybe could be implemented via
-// extra query calls on specific height
-func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg) error {
+func routeMsgs(ctx context.Context, st *Store, msgs []sdk.Msg, height int64, denom string, urlLCD string) error {
+	// allocate a slice with the maximum needed capacity
+	queries := make([]*LcdRequestData, 0, len(msgs))[:]
+
 	for _, msg := range msgs {
+		var accountID int64
+		params := make(map[string]string)
+
 		switch m := msg.(type) {
 		case *types.MsgRegisterDomain:
-			if _, err := st.RegisterDomain(ctx, m); err != nil {
+			if id, err := st.RegisterDomain(ctx, m, height); err != nil {
 				return errors.Wrap(err, "register domain message")
+			} else {
+				accountID = id
+				params["action"] = "register_domain"
+				params["owner"] = m.Admin.String()
+				params["domain_name"] = m.Name
+				params["domain_type"] = string(m.DomainType)
 			}
 		case *types.MsgDeleteDomain:
-			if err := st.DeleteDomain(ctx, m); err != nil {
+			if id, err := st.DeleteDomain(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "delete domain message, domain name: %s", m.Domain)
+			} else {
+				accountID = id
+				params["action"] = "delete_domain"
+				params["owner"] = m.Owner.String()
+				params["domain_name"] = m.Domain
 			}
 		case *types.MsgTransferDomain:
-			if err := st.TransferDomain(ctx, m); err != nil {
+			if id, err := st.TransferDomain(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "transfer domain message, domain name: %s", m.Domain)
+			} else {
+				accountID = id
+				params["action"] = "transfer_domain"
+				params["owner"] = m.Owner.String()
+				params["domain_name"] = m.Domain
+				params["new_domain_owner"] = m.NewAdmin.String()
 			}
 		case *types.MsgRegisterAccount:
-			if _, err := st.RegisterAccount(ctx, m); err != nil {
+			if id, err := st.RegisterAccount(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "register account message, domain name: %s, account name: %s", m.Domain, m.Name)
+			} else {
+				accountID = id
+				params["action"] = "register_account"
+				params["owner"] = m.Owner.String()
+				params["domain_name"] = m.Domain
+				params["account_name"] = m.Name
 			}
 		case *types.MsgDeleteAccount:
-			if err := st.DeleteAccount(ctx, m); err != nil {
+			if id, err := st.DeleteAccount(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "delete account message, domain name: %s, account name: %s", m.Domain, m.Name)
+			} else {
+				accountID = id
+				params["action"] = "delete_account"
+				params["owner"] = m.Owner.String()
+				params["domain_name"] = m.Domain
+				params["account_name"] = m.Name
 			}
 		case *types.MsgTransferAccount:
-			if err := st.TransferAccount(ctx, m); err != nil {
+			if id, err := st.TransferAccount(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "transfer account message, domain name: %s, account name: %s", m.Domain, m.Name)
+			} else {
+				accountID = id
+				params["action"] = "transfer_account"
+				params["owner"] = m.Owner.String()
+				params["domain_name"] = m.Domain
+				params["account_name"] = m.Name
+				params["new_account_owner"] = m.NewOwner.String()
 			}
 		case *types.MsgReplaceAccountResources:
-			if _, err := st.ReplaceAccountResources(ctx, m); err != nil {
+			if id, err := st.ReplaceAccountResources(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "replace account resources message, domain name: %s, account name: %s", m.Domain, m.Name)
+			} else {
+				accountID = id
+				params["action"] = "replace_account_resources"
+				params["owner"] = m.Owner.String()
+				params["domain_name"] = m.Domain
+				params["account_name"] = m.Name
 			}
 		case *types.MsgReplaceAccountMetadata:
-			if err := st.ReplaceAccountMetadata(ctx, m); err != nil {
+			if id, err := st.ReplaceAccountMetadata(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "replace account metadata message, domain name: %s, account name: %s", m.Domain, m.Name)
+			} else {
+				accountID = id
+				params["action"] = "set_account_metadata"
+				params["owner"] = m.Owner.String()
+				params["domain_name"] = m.Domain
+				params["account_name"] = m.Name
+				params["new_metadata"] = m.NewMetadataURI
 			}
 		case *types.MsgAddAccountCertificates:
-			if _, err := st.AddAccountCertificates(ctx, m); err != nil {
+			if id, err := st.AddAccountCertificates(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "add account certificates message, domain name: %s, account name: %s", m.Domain, m.Name)
+			} else {
+				accountID = id
+				params["action"] = "add_certificates_account"
+				params["owner"] = m.Owner.String()
+				params["domain_name"] = m.Domain
+				params["account_name"] = m.Name
+				params["new_certificate"] = hex.EncodeToString(m.NewCertificate)
 			}
 		case *types.MsgDeleteAccountCertificate:
-			if err := st.DeleteAccountCerts(ctx, m); err != nil {
+			if id, err := st.DeleteAccountCerts(ctx, m, height); err != nil {
 				return errors.Wrapf(err, "delete account certificates message, domain name: %s, account name: %s", m.Domain, m.Name)
+			} else {
+				accountID = id
+				params["action"] = "delete_certificate_account"
+				params["owner"] = m.Owner.String()
+				params["domain_name"] = m.Domain
+				params["account_name"] = m.Name
+				params["deleted_certificate"] = hex.EncodeToString(m.DeleteCertificate)
+			}
+		case *types.MsgRenewDomain:
+			if id, err := st.RenewDomain(ctx, m, height); err != nil {
+				return errors.Wrapf(err, "renew domain message, domain name: %s", m.Domain)
+			} else {
+				accountID = id
+				params["action"] = "renew_domain"
+				params["sender"] = m.Signer.String()
+				params["domain_name"] = m.Domain
+			}
+		case *types.MsgRenewAccount:
+			if id, err := st.RenewAccount(ctx, m, height); err != nil {
+				return errors.Wrapf(err, "renew account message, domain name: %s, account name: %s", m.Domain, m.Name)
+			} else {
+				accountID = id
+				params["action"] = "renew_account"
+				params["sender"] = m.Signer.String()
+				params["domain_name"] = m.Domain
+				params["account_name"] = m.Name
 			}
 		}
+
+		if len(params) > 0 {
+			queries = append(queries, &LcdRequestData{AccountID: accountID, Params: params})
+		}
 	}
+
+	if len(queries) > 0 {
+		if responses, err := FetchLcdData(ctx, urlLCD, &queries, height); err != nil {
+			return errors.Wrapf(err, "FetchLcdData() failed")
+		} else if err = st.HandleLcdData(ctx, &queries, responses, height, denom); err != nil {
+			return errors.Wrapf(err, "HandleLcdData() failed")
+		}
+	}
+
 	return nil
 }

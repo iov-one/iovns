@@ -5,12 +5,20 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
+	"net/url"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/iov-one/iovns/app"
 	"github.com/iov-one/iovns/x/starname"
+	starnametypes "github.com/iov-one/iovns/x/starname/types"
 	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -261,4 +269,114 @@ func FetchGenesis(ctx context.Context, c *TendermintClient) (*starname.GenesisSt
 		return nil, errors.Wrapf(err, "genesis parsing error")
 	}
 	return &genState, nil
+}
+
+// LcdRequestData is the data required to populate the product_fees table
+type LcdRequestData struct {
+	// accounts.id
+	AccountID int64
+	// URL encoded parameters to narrow the query on /txs as much as possible
+	Params map[string]string
+}
+
+type StarnameResponse struct {
+	Height string `json:"height"`
+	Result struct {
+		Account starnametypes.Account `json:"account"`
+	} `json:"result"`
+}
+
+type LcdResponseData struct {
+	TxResponse       *types.TxResponse
+	TxError          *error
+	StarnameResponse *StarnameResponse
+	StarnameError    *error
+}
+
+func fetchTx(ctx context.Context, urlLCD string, messageParams string, height int64, page int64, cdc *codec.Codec) (*types.TxResponse, error) {
+	url := fmt.Sprintf("%s/txs?message.module=starname&%s&tx.minheight=%d&tx.maxheight=%d&page=%d", urlLCD, messageParams, height, height, page)
+	response, err := http.Get(url)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get %s", url)
+	}
+	defer response.Body.Close()
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read response")
+	}
+	var result types.SearchTxsResult
+	err = cdc.UnmarshalJSON(body, &result)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to marshal %s", body)
+	}
+	if len(result.Txs) == 0 {
+		if result.PageNumber < result.PageTotal {
+			return fetchTx(ctx, urlLCD, messageParams, height, page+1, cdc)
+		} else {
+			return nil, errors.New(fmt.Sprintf("failed to find message with params %s and height %d", messageParams, height))
+		}
+	} else if len(result.Txs) > 1 {
+		return nil, errors.New(fmt.Sprintf("expected 1 tx but got %d for query %s and height %d", len(result.Txs), messageParams, height))
+	}
+
+	return &result.Txs[0], nil
+}
+
+func fetchStarname(ctx context.Context, urlLCD string, starname string, cdc *codec.Codec) (*StarnameResponse, error) {
+	payload := strings.NewReader(fmt.Sprintf(`{"starname":"%s"}`, starname))
+	url := fmt.Sprintf("%s/starname/query/resolve", urlLCD)
+	response, err := http.Post(url, "application/json", payload)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get %s", url)
+	}
+	var result StarnameResponse
+	// use json decoder instead of cdc because amino fails on int64 valid_until not being a string
+	if err = json.NewDecoder(response.Body).Decode(&result); err != nil {
+		return nil, errors.Wrapf(err, "failed to marshal %s", starname)
+	}
+	if result.Height == "0" {
+		return nil, errors.New(fmt.Sprintf("failed to resolve %s", starname))
+	}
+
+	return &result, err
+}
+
+func FetchLcdData(ctx context.Context, urlLCD string, queries *[]*LcdRequestData, height int64) (*[]*LcdResponseData, error) {
+	responses := make([]*LcdResponseData, len(*queries))
+	cdc := app.MakeCodec()
+	var wg sync.WaitGroup
+	for i, query := range *queries {
+		wg.Add(1)
+		go func(i int, q *LcdRequestData) {
+			defer wg.Done()
+			responses[i] = &LcdResponseData{}
+			// fetch event related data
+			params := url.Values{}
+			for k, v := range q.Params {
+				params.Add(fmt.Sprintf("message.%s", k), v)
+			}
+			tx, err := fetchTx(ctx, urlLCD, params.Encode(), height, 1, cdc)
+			responses[i].TxResponse = tx
+			responses[i].TxError = &err
+			// possibly fetch valid_until
+			switch q.Params["action"] {
+			case "register_account", "register_domain", "renew_account", "renew_domain":
+				account := ""
+				domain := ""
+				switch q.Params["action"] {
+				case "register_account", "renew_account":
+					account = q.Params["account_name"]
+					domain = q.Params["domain_name"]
+				case "register_domain", "renew_domain":
+					domain = q.Params["domain_name"]
+				}
+				resolved, err := fetchStarname(ctx, urlLCD, fmt.Sprintf("%s*%s", account, domain), cdc)
+				responses[i].StarnameResponse = resolved
+				responses[i].StarnameError = &err
+			}
+		}(i, query)
+	}
+	wg.Wait()
+
+	return &responses, nil
 }

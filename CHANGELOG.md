@@ -2,7 +2,13 @@
 
 ## HEAD
 
+## v0.9.7
+
 - CLI: Add update-fee command
+- IOVNS: Drop superflous events
+- BLOCK METRICS:
+  - Update schemas including new product_fees table, which relies upon an LCD
+  - Encapsulate all block transactions in a database transaction
 
 ## v0.9.6
 
