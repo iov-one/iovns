@@ -6,15 +6,38 @@ import (
 	"strings"
 )
 
-func EnsureDatabase(user, password, host, database, ssl string) error {
+func EnsureDatabase(user, password, host, database, ssl, rouser, ropassword string) error {
 	dbUri := fmt.Sprintf("postgres://%s:%s@%s/?sslmode=%s", user, password, host, ssl)
 	db, err := sql.Open("postgres", dbUri)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	// ignore the error if the database already exists
-	_, _ = db.Exec(fmt.Sprintf(`CREATE DATABASE %s`, database))
+	if _, err = db.Exec(fmt.Sprintf(`CREATE DATABASE %s`, database)); err == nil {
+		// setup readonly on schema public a la https://aws.amazon.com/blogs/database/managing-postgresql-users-and-roles/
+		sql := `
+			REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+			REVOKE ALL ON DATABASE __db__ FROM PUBLIC;
+			CREATE ROLE readonly;
+			GRANT CONNECT ON DATABASE __db__ TO readonly;
+			GRANT USAGE ON SCHEMA public TO readonly;
+			ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO readonly;
+			CREATE USER __rouser__ WITH PASSWORD '__ropassword__';
+			GRANT readonly TO __rouser__;
+		`
+		replacements := make(map[string]string)
+		replacements["__db__"] = database
+		replacements["__rouser__"] = rouser
+		replacements["__ropassword__"] = ropassword
+		for key, value := range replacements {
+			sql = strings.ReplaceAll(sql, key, value)
+		}
+		for _, query := range strings.Split(sql, "\n") {
+			if _, err := db.Exec(query); err != nil {
+				return &QueryError{Query: query, Err: err}
+			}
+		}
+	}
 	return nil
 }
 

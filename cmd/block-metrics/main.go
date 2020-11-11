@@ -17,6 +17,8 @@ func main() {
 		DBHost:           os.Getenv("POSTGRES_HOST"),
 		DBName:           os.Getenv("POSTGRES_DB"),
 		DBPass:           os.Getenv("POSTGRES_PASSWORD"),
+		DBROPass:         os.Getenv("POSTGRES_RO_PASSWORD"),
+		DBROUser:         os.Getenv("POSTGRES_RO_USER"),
 		DBSSL:            os.Getenv("POSTGRES_SSL_ENABLE"),
 		DBUser:           os.Getenv("POSTGRES_USER"),
 		FeeDenom:         os.Getenv("FEE_DENOMINATION"),
@@ -33,7 +35,7 @@ func run(conf pkg.Configuration) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if err := pkg.EnsureDatabase(conf.DBUser, conf.DBPass, conf.DBHost, conf.DBName, conf.DBSSL); err != nil {
+	if err := pkg.EnsureDatabase(conf.DBUser, conf.DBPass, conf.DBHost, conf.DBName, conf.DBSSL, conf.DBROUser, conf.DBROPass); err != nil {
 		return fmt.Errorf("ensure database: %s", err)
 	}
 
