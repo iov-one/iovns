@@ -24,4 +24,4 @@ services:
     depends_on:
       - pgadmin4
     image: alpine
-    command: echo -e "\n\nUse Firefox or get 'The CSRF session token is missing.' errors.\nBrowse to http://localhost:1111 to access pgadmin.\nLogin with 'admin@test.com/test'.\nConnect to server 'db' as 'postgres/root'.\n\n"
+    command: echo -e "\n\nBrowse to http://localhost:1111 to access pgadmin.\nHard-reload the page if you get 'The CSRF session token is missing.' errors.\nLogin with 'admin@test.com/test'.\nConnect to server 'db' as 'postgres/root'.\n\n"

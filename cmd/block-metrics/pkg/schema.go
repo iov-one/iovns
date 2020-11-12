@@ -6,22 +6,38 @@ import (
 	"strings"
 )
 
-func EnsureDatabase(user, password, host, database, ssl, rouser, ropassword string) error {
+func EnsureDatabase(user, password, host, database, ssl string) error {
 	dbUri := fmt.Sprintf("postgres://%s:%s@%s/?sslmode=%s", user, password, host, ssl)
 	db, err := sql.Open("postgres", dbUri)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	if _, err = db.Exec(fmt.Sprintf(`CREATE DATABASE %s`, database)); err == nil {
-		// setup readonly on schema public a la https://aws.amazon.com/blogs/database/managing-postgresql-users-and-roles/
+	// ignore the error if the database already exists
+	_, _ = db.Exec(fmt.Sprintf(`CREATE DATABASE %s`, database))
+	return nil
+}
+
+func EnsureSchema(pg *sql.DB, database, rouser, ropassword string) error {
+	// setup readonly on schema permissioned a la https://aws.amazon.com/blogs/database/managing-postgresql-users-and-roles/
+	rows, err := pg.Query(`
+		SELECT schema_name
+		FROM information_schema.schemata
+		WHERE schema_name = 'permissioned';
+	`)
+	if err != nil {
+		return fmt.Errorf("type query: %s", err)
+	}
+	if !rows.Next() {
 		sql := `
+			CREATE SCHEMA permissioned;
+			ALTER DATABASE __db__ SET search_path = "$user", permissioned, public
 			REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 			REVOKE ALL ON DATABASE __db__ FROM PUBLIC;
 			CREATE ROLE readonly;
 			GRANT CONNECT ON DATABASE __db__ TO readonly;
-			GRANT USAGE ON SCHEMA public TO readonly;
-			ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO readonly;
+			GRANT USAGE ON SCHEMA permissioned TO readonly;
+			ALTER DEFAULT PRIVILEGES IN SCHEMA permissioned GRANT SELECT ON TABLES TO readonly;
 			CREATE USER __rouser__ WITH PASSWORD '__ropassword__';
 			GRANT readonly TO __rouser__;
 		`
@@ -33,17 +49,14 @@ func EnsureDatabase(user, password, host, database, ssl, rouser, ropassword stri
 			sql = strings.ReplaceAll(sql, key, value)
 		}
 		for _, query := range strings.Split(sql, "\n") {
-			if _, err := db.Exec(query); err != nil {
+			if _, err := pg.Exec(query); err != nil {
 				return &QueryError{Query: query, Err: err}
 			}
 		}
 	}
-	return nil
-}
 
-func EnsureSchema(pg *sql.DB) error {
 	// deal with the pesky TYPE 'action' that doesn't allow an IF NOT EXISTS clause
-	rows, err := pg.Query(`
+	rows, err = pg.Query(`
 		SELECT pg_type.typname, pg_enum.enumlabel
 		FROM pg_type
 		JOIN pg_enum ON pg_enum.enumtypid = pg_type.oid
@@ -84,7 +97,7 @@ func EnsureSchema(pg *sql.DB) error {
 }
 
 var schema = `
-CREATE TABLE IF NOT EXISTS blocks (
+CREATE TABLE IF NOT EXISTS permissioned.blocks (
 	block_height BIGINT NOT NULL PRIMARY KEY,
 	block_hash TEXT NOT NULL UNIQUE,
 	block_time TIMESTAMPTZ NOT NULL,
@@ -92,17 +105,17 @@ CREATE TABLE IF NOT EXISTS blocks (
 );
 
 ---
-CREATE TABLE IF NOT EXISTS transactions (
+CREATE TABLE IF NOT EXISTS permissioned.transactions (
 	id BIGSERIAL PRIMARY KEY,
 	transaction_hash TEXT NOT NULL UNIQUE,
-	block_id BIGINT NOT NULL REFERENCES blocks(block_height),
+	block_id BIGINT NOT NULL REFERENCES permissioned.blocks(block_height),
 	signatures BYTEA ARRAY,
 	fee JSONB,
 	memo text
 );
 
 ---
-CREATE TABLE IF NOT EXISTS domains (
+CREATE TABLE IF NOT EXISTS permissioned.domains (
 	id BIGSERIAL PRIMARY KEY,
 	name TEXT,
 	admin TEXT NOT NULL,
@@ -112,9 +125,9 @@ CREATE TABLE IF NOT EXISTS domains (
 );
 
 ---
-CREATE TABLE IF NOT EXISTS accounts (
+CREATE TABLE IF NOT EXISTS permissioned.accounts (
 	id BIGSERIAL PRIMARY KEY,
-	domain_id BIGINT NOT NULL REFERENCES domains(id),
+	domain_id BIGINT NOT NULL REFERENCES permissioned.domains(id),
 	name TEXT,
 	owner TEXT NOT NULL,
 	metadata TEXT,
@@ -123,25 +136,25 @@ CREATE TABLE IF NOT EXISTS accounts (
 );
 
 ---
-CREATE TABLE IF NOT EXISTS resources (
+CREATE TABLE IF NOT EXISTS permissioned.resources (
 	id BIGSERIAL PRIMARY KEY,
-	account_id BIGINT REFERENCES accounts(id),
+	account_id BIGINT REFERENCES permissioned.accounts(id),
 	uri TEXT,
 	resource TEXT
 );
 
 ---
-CREATE TABLE IF NOT EXISTS certificates (
+CREATE TABLE IF NOT EXISTS permissioned.certificates (
 	id BIGSERIAL PRIMARY KEY,
-	account_id BIGINT REFERENCES accounts(id),
+	account_id BIGINT REFERENCES permissioned.accounts(id),
 	certificate BYTEA
 );
 
 ---
-CREATE TABLE IF NOT EXISTS product_fees (
+CREATE TABLE IF NOT EXISTS permissioned.product_fees (
 	id BIGSERIAL PRIMARY KEY,
-	block BIGINT REFERENCES blocks(block_height),
-	account_id BIGINT REFERENCES accounts(id),
+	block BIGINT REFERENCES permissioned.blocks(block_height),
+	account_id BIGINT REFERENCES permissioned.accounts(id),
 	action action,
 	fee BIGINT,
 	payer TEXT,

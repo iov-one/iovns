@@ -35,19 +35,18 @@ func run(conf pkg.Configuration) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if err := pkg.EnsureDatabase(conf.DBUser, conf.DBPass, conf.DBHost, conf.DBName, conf.DBSSL, conf.DBROUser, conf.DBROPass); err != nil {
+	if err := pkg.EnsureDatabase(conf.DBUser, conf.DBPass, conf.DBHost, conf.DBName, conf.DBSSL); err != nil {
 		return fmt.Errorf("ensure database: %s", err)
 	}
 
-	dbUri := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", conf.DBUser, conf.DBPass,
-		conf.DBHost, conf.DBName, conf.DBSSL)
+	dbUri := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", conf.DBUser, conf.DBPass, conf.DBHost, conf.DBName, conf.DBSSL)
 	db, err := sql.Open("postgres", dbUri)
 	if err != nil {
 		return fmt.Errorf("cannot connect to postgres: %s", err)
 	}
 	defer db.Close()
 
-	if err := pkg.EnsureSchema(db); err != nil {
+	if err := pkg.EnsureSchema(db, conf.DBName, conf.DBROUser, conf.DBROPass); err != nil {
 		return fmt.Errorf("ensure schema: %s", err)
 	}
 
