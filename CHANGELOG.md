@@ -2,6 +2,10 @@
 
 ## HEAD
 
+## v0.9.8
+
+- BLOCK METRICS: Move tables to schema 'permissioned' and grant read-only access to role readonly
+
 ## v0.9.7
 
 - CLI: Add update-fee command
