@@ -732,4 +732,25 @@ describe( "Tests the REST API.", () => {
 
       expect( unverified.error ).toEqual( "Did you sign with --chain-id 'signed-message-v1', --account-number 0, and --sequence 0?" );
    } );
+
+
+   it( `Should register a domain, query domainInfo, and fail to register the same domain.`, async () => {
+      const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
+      const unsigned0 = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const posted0 = await signAndPost( unsigned0 );
+      const body = { name: domain };
+      const domainInfo = await fetchObject( `${urlRest}/starname/query/domainInfo`, { method: "POST", body: JSON.stringify( body ) } );
+
+      expect( posted0.ok ).toEqual( true );
+      expect( domainInfo.result.domain.name ).toEqual( domain );
+      expect( domainInfo.result.domain.admin ).toEqual( signer );
+      expect( domainInfo.result.domain.type.toLowerCase() ).toEqual( "closed" );
+
+      const unsigned = iovnscli( [ "tx", "starname", "register-domain", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--generate-only", "--memo", memo() ] );
+      const posted = await signAndPost( unsigned );
+      const o = await posted.json();
+
+      expect( posted.ok ).toEqual( true );
+      expect( o.raw_log.indexOf( "domain already exists" ) ).toBeGreaterThanOrEqual( 0 );
+   } );
 } );
