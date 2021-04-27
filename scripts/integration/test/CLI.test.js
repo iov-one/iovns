@@ -383,7 +383,7 @@ describe( "Tests the CLI.", () => {
    } );
 
 
-   it( `Should register and renew domain.`, async () => {
+   it( `Should register and renew a closed domain.`, async () => {
       // register
       const domain = `domain${Math.floor( Math.random() * 1e9 )}`;
 
@@ -397,17 +397,23 @@ describe( "Tests the CLI.", () => {
       expect( domainInfo.domain.name ).toEqual( domain );
 
       // renew
-      const renewed = iovnscli( [ "tx", "starname", "renew-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas-prices", gasPrices, "--memo", memo() ] );
+      const gas = 1234567;
+      const balance0 = iovnscli( [ "query", "account", signer ] );
+      const renewed = iovnscli( [ "tx", "starname", "renew-domain", "--yes", "--broadcast-mode", "block", "--domain", domain, "--from", signer, "--gas", gas, "--gas-prices", gasPrices, "--memo", memo() ] );
 
       expect( renewed.txhash ).toBeDefined();
       if ( !renewed.logs ) throw new Error( renewed.raw_log );
 
       const newDomainInfo = iovnscli( [ "query", "starname", "domain-info", "--domain", domain ] );
       const starname = iovnscli( [ "query", "starname", "resolve", "--starname", `*${domain}` ] );
+      const balance = iovnscli( [ "query", "account", signer ] );
+      const fees = iovnscli( [ "query", "configuration", "get-fees" ] ).fees;
 
       expect( newDomainInfo.domain.name ).toEqual( domain );
       expect( newDomainInfo.domain.valid_until ).toBeGreaterThan( domainInfo.domain.valid_until );
       expect( newDomainInfo.domain.valid_until ).toEqual( starname.account.valid_until );
+      // FIXME: BUG: renewal of a closed domain mistakenly only charges for renewing the accounts in the domain; there's only the empty account in this case
+      expect( +balance0.value.coins[0].amount - +balance.value.coins[0].amount ).toEqual( gas * parseFloat( gasPrices ) + 1 * fees.register_account_closed / fees.fee_coin_price );
    } );
 
 
