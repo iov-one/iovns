@@ -13,7 +13,7 @@
       "esm": "^3.2.25",
       "js-base64": "^2.5.2",
       "node-fetch": "^2.6.1",
-      "node-forge": "^0.10.0",
+      "node-forge": "^1.0.0",
       "tmp": "^0.2.1"
    },
    "devDependencies": {
